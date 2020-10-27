@@ -2,14 +2,15 @@ import pydle
 import logging
 import threading
 
-from config import IRC, ChannelArray, Logging, SASL
+from config import IRC, ChannelArray, SASL
 
-logging.basicConfig(filename='halpybot.log', level=logging.DEBUG)  # should probably rename this.
+logging.basicConfig(filename='halpybot.log', level=logging.DEBUG)
 pool = pydle.ClientPool()
 
 # Simple echo bot.
 
 class HalpyBOT(pydle.Client):
+    # Join the Server and Channels and OperLine
     async def on_connect(self):
         await super().on_connect()
         await self.raw(f"OPER {IRC.operline} {IRC.operlinePassword}\r\n")
@@ -17,7 +18,7 @@ class HalpyBOT(pydle.Client):
         print("Connected!")
         for channel in ChannelArray.channels:
             await self.join(channel)
-
+#To Be Removed
     # Start Completely UGLY way to respond to messages
     async def on_message(self, target, source, message):
         if message.startswith(IRC.commandPrefix):
@@ -47,18 +48,15 @@ class HalpyBOT(pydle.Client):
                 await self.message(sender, "Use command prefixes, dumbass")
 
     # End Completely UGLY way to respond to DMs
-# End simple bastardized echo bot
+# End To Be Removed
 
-# Ignore literally everything above, it can go die in a hole and was used for tests only.
-
-
+# Define the Client, mostly pulled from config.py
 client = HalpyBOT(
     IRC.nickname,
     sasl_identity=SASL.identity,
     sasl_password=SASL.password,
     sasl_username=SASL.username
 )
-
 try:
     pool.connect(client, IRC.server, IRC.port, tls=IRC.useSsl)
     thread = threading.Thread(target=pool.handle_forever)
