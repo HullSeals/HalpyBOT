@@ -1,0 +1,23 @@
+Metadata-Version: 2.1
+Name: pydle
+Version: 0.9.4
+Summary: A compact, flexible and standards-abiding IRC library for Python 3.
+Home-page: https://github.com/Shizmob/pydle
+Author: Shiz
+Author-email: hi@shiz.me
+License: BSD
+Keywords: irc library python3 compact flexible
+Platform: UNKNOWN
+Requires-Python: >=3.5
+Provides-Extra: coverage
+Requires-Dist: pytest-cov ; extra == 'coverage'
+Provides-Extra: docs
+Requires-Dist: sphinx-rtd-theme ; extra == 'docs'
+Provides-Extra: sasl
+Requires-Dist: pure-sasl (>=0.1.6) ; extra == 'sasl'
+Provides-Extra: tests
+Requires-Dist: pytest ; extra == 'tests'
+
+UNKNOWN
+
+
