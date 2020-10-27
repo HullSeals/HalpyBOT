@@ -1,0 +1,6 @@
+# Virtual environment
+/venv/
+
+# Config files
+/config.py
+
