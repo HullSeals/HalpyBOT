@@ -1,12 +1,11 @@
 import pydle
 import logging
-import threading
 import modules.commandhandler as commandhandler
+import asyncio
 
 from config import IRC, ChannelArray, SASL
 
 logging.basicConfig(filename='halpybot.log', level=logging.DEBUG)
-pool = pydle.ClientPool()
 
 class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
@@ -17,11 +16,15 @@ class HalpyBOT(pydle.Client):
         print("Connected!")
         for channel in ChannelArray.channels:
             await self.join(channel)
+            logging.info(channel)
 
-    @pydle.coroutine
     async def on_channel_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
         await commandhandler.on_channel_message(self, target, nick, message)
+
+    async def on_private_message(self, target, nick, message):
+        await super().on_private_message(target, nick, message)
+        await commandhandler.on_private_message(self, target, nick, message)
 
 
 # Define the Client, mostly pulled from config.py
@@ -31,9 +34,11 @@ client = HalpyBOT(
     sasl_password=SASL.password,
     sasl_username=SASL.username
 )
-try:
-    pool.connect(client, IRC.server, IRC.port, tls=IRC.useSsl)
-    thread = threading.Thread(target=pool.handle_forever)
-    thread.start()
-except pydle.Error as error:
-    print(f"Unable to connect: {error}")
+
+async def start():
+    await client.connect(IRC.server, IRC.port, tls=IRC.useSsl, tls_verify=False)
+
+if __name__ == "__main__":
+    LOOP = asyncio.get_event_loop()
+    LOOP.run_until_complete(start())
+    LOOP.run_forever()

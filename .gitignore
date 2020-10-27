@@ -4,3 +4,5 @@
 # Config files
 /config.py
 
+# Logging
+/halpybot.log
