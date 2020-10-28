@@ -1,5 +1,6 @@
 facts = {
     "bacon": "The bacon is lit! -- https://youtu.be/Wd2qRSzCj84",
+    "help": "This is a test for the 'help' fact",
     "beacon": ": To turn on your beacon, Go to the right-hand menu, and select to the 'Ship' tab. (1/2) \n Under "
               "Functions, select 'Beacon', and then select 'Wing'. (2/2)",
     "beacon_no_args": "Client: To turn on your beacon, Go to the right-hand menu, and select to the 'Ship' tab. (1/2) "
