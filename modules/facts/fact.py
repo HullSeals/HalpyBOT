@@ -1,10 +1,25 @@
 import main
 from typing import List
+from modules import commandhandler
 
 from .fact_list import facts
 
-async def recite_fact(bot: main, channel: str, sender: str, args: List[str], messagemode: int, fact: str,
-                      req_dm):
+# If the DM-only check somehow fails, allow it to be sent in channels+DM
+req_dm = False
+
+async def recite_fact(bot: main, channel: str, sender: str, args: List[str], messagemode: int, fact: str):
+    # Check if fact is DM only
+    global req_dm
+    if str(fact) in commandhandler.commandPrivateOnly:
+        req_dm = True
+    elif str(fact) in commandhandler.commandList:
+        req_dm = False
+    else:
+        msg = "Fact not properly registered! Contact a Cyberseal"
+        if messagemode == 1:
+            return await bot.message(channel, msg)
+        elif messagemode == 2:
+            return await bot.message(sender, msg)
     # Check if fact is present
     if str(fact) not in facts:
         msg = "Couldn't find fact! contact a Cyberseal"
@@ -46,13 +61,13 @@ async def recite_fact(bot: main, channel: str, sender: str, args: List[str], mes
 # ----- START FACTS -----
 
 async def go(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
-    await recite_fact(bot, channel, sender, args, messagemode, fact='go', req_dm=False)
+    await recite_fact(bot, channel, sender, args, messagemode, fact='go')
 
 async def help(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
-    await recite_fact(bot, channel, sender, args, messagemode, fact='help', req_dm=True)
+    await recite_fact(bot, channel, sender, args, messagemode, fact='help')
 
 async def about(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
-    await recite_fact(bot, channel, sender, args, messagemode, fact='about', req_dm=True)
+    await recite_fact(bot, channel, sender, args, messagemode, fact='about')
 
 async def bacon(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
-    await recite_fact(bot, channel, sender, args, messagemode, fact='bacon', req_dm=False)
+    await recite_fact(bot, channel, sender, args, messagemode, fact='bacon')
