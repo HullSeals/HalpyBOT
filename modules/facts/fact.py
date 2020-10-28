@@ -47,12 +47,12 @@ async def recite_fact(bot: main, channel: str, sender: str, args: List[str], mes
         if len(args) == 0:
             await bot.message(channel, facts[f"{str(fact)}_no_args"])
         else:
-            await bot.message(channel, f"{', '.join(str(seal) for seal in args)} {facts[str(fact)]})")
+            await bot.message(channel, f"{', '.join(str(seal) for seal in args)} {facts[str(fact)]}")
     elif messagemode == 2:
         if len(args) == 0:
             await bot.message(sender, facts[f"{str(fact)}_no_args"])
         else:
-            await bot.message(sender, f"{', '.join(str(seal) for seal in args)} {facts[str(fact)]})")
+            await bot.message(sender, f"{', '.join(str(seal) for seal in args)} {facts[str(fact)]}")
     else:
         return
 
