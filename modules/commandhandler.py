@@ -6,7 +6,7 @@ commandList = {
     "go": fact.go,
     "bacon": fact.bacon,
 }
-# TODO: Add all existing commands
+
 commandPrivateOnly = {
     "help": fact.help,
     "about": fact.about,

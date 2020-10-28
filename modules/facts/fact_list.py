@@ -4,7 +4,6 @@ facts = {
               "Functions, select 'Beacon', and then select 'Wing'. (2/2)",
     "beacon_no_args": "Client: To turn on your beacon, Go to the right-hand menu, and select to the 'Ship' tab. (1/2) "
                       "\n Under Functions, select 'Beacon', and then select 'Wing'. (2/2)",
-    "cbinfo": "TODO",  # TODO - Args in middle of Commands
     "cbinfo_no_args": "## DO NOT LOG IN and provide the following info if you know it: (1/2) \n CMDR Name, "
                       "Current System, Hull %, O2 Time Left, Platform, and if you have any life support synthesis. ("
                       "2/2)",
@@ -17,24 +16,20 @@ facts = {
                         "scoop, and then go towards the item. Move your ship above the item slightly, "
                         "then move forward with a speed of less then 40. (2/2)",
     "chatter": "** - - - - - - - - - - - - - - - - ** \n **Seals, please keep chatter to #seal-bob. Thank you.**",
-    "clientinfo": "TODO",  # TODO - Args in middle of Commands
     "clientinfo_no_args": "## Greetings, CMDR. Please provide the following information: (1/2) \n CMDR Name, "
                           "Current System, Hull %, and Platform. If your canopy is breached, LOG OUT IMMEDIATELY. ("
                           "2/2)",
     "cmdlist": ": Common HalpyBOT Commands: http://hullse.al/cmdlist",
     "cmdlist_no_args": "Common HalpyBOT Commands: http://hullse.al/cmdlist",
-    "drill": "TODO",  # TODO - Args in middle of Commands
     "drill_no_args": "## DRILL DRILL DRILL (1/3) \n Greetings, CMDR. Please provide the following information: (2/3) "
                      "\n CMDR Name, Current System, Hull %, and Platform. If your canopy is breached, "
                      "LOG OUT IMMEDIATELY. (3/3)",
-    "escapeneutron": "TODO",  # TODO - Args in middle of Commands
     "escapeneutron_no_args": "## Here's a Guide to Escaping a Neutron Cone (1/2) \n Text: https://hullse.al/enText "
                              "--- Video: https://hullse.al/enVid (2/2)",
     "fuel": ": For fuel emergencies, your best bet is the Fuel Rats: https://fuelrats.com/i-need-fuel",
     "fuel_no_args": ": For fuel emergencies, your best bet is the Fuel Rats: https://fuelrats.com/i-need-fuel",
     "go": ", You're up. All others, stand down.",
     "go_no_args": "Mentioned Seals, You're up. All others, stand down.",
-    "help": "TODO",  # TODO - Make a help command.
     "highg": ": Remain landed until instructed by your dispatcher. When instructed, use your VERTICAL THRUSTERS ONLY "
              "to rise up to at least 6km above the surface. (1/2) \n Keep your landing gear deployed until you are "
              "ready to jump to supercruise, and keep your ship aligned horizontally with the planet at all times.  ("
@@ -61,7 +56,6 @@ facts = {
                     "search for your Seal's name, and add them as your friend.",
     "pw": ": Don't forget to do your paperwork! http://hullse.al/ppwk",
     "pw_no_args": "Seal: Don't forget to do your paperwork! http://hullse.al/ppwk",
-    "stuck": "TODO",  # TODO - Args in middle of Commands
     "stuck_no_args": "## Greetings, CMDR. Please provide the following information: (1/2) \n CMDR Name, "
                      "Current System, Current Planet/Moon, Your Current Coordinates, your Platform, and what services "
                      "you require! (2/2)",
@@ -75,7 +69,6 @@ facts = {
                      "nickel in your materials reserve. (3/3)",
     "tos": ": Our Terms of Service and Important Info: https://hullse.al/ImportantInfo",
     "tos_no_args": "Our Terms of Service and Important Info: https://hullse.al/ImportantInfo",
-    "verify": "TODO",  # TODO - Args in middle of Commands
     "verify_no_args": "## We just need to check some things, CMDR. Please confirm for us: (1/4) \n Your Current Game "
                       "Mode, CMDR name, and current system. (2/4) \n **Please also provide a screenshot of your "
                       "cockpit view, with system and date visible. We encourage programs like imgur or Discord for "
@@ -95,5 +88,4 @@ facts = {
     "about": "HalpyBOT v 1.5\nDeveloped by the Hull Seals, and based off of Pydle.\nHalpyBOT Docs: "
              "https://gitlab.com/hull-seals/code/irc/halpybot\nPydle: https://github.com/Shizmob/pydle/\nMany thanks "
              "to the Pydle Devs and TFRM Techrats for their assistance in the development of HalpyBOT.",
-    "whoami": "TODO",  # TODO - Spit out seal info - sql query + text maybe?
 }
