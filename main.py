@@ -1,3 +1,10 @@
+"""
+HalpyBOT v1.5
+Written by Rixxan and Rik079
+For the Hull Seals
+With a Boot to the Head.
+"""
+
 import pydle
 import logging
 import modules.commandhandler as commandhandler
@@ -6,6 +13,7 @@ import asyncio
 from config import IRC, ChannelArray, SASL
 
 logging.basicConfig(filename='halpybot.log', level=logging.DEBUG)
+
 
 class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
@@ -35,8 +43,10 @@ client = HalpyBOT(
     sasl_username=SASL.username
 )
 
+
 async def start():
     await client.connect(IRC.server, IRC.port, tls=IRC.useSsl, tls_verify=False)
+
 
 if __name__ == "__main__":
     LOOP = asyncio.get_event_loop()
