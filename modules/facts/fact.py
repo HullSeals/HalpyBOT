@@ -59,14 +59,80 @@ async def recite_fact(bot: main, channel: str, sender: str, args: List[str], mes
 
 # ----- START FACTS -----
 
-async def go(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
-    await recite_fact(bot, channel, sender, args, messagemode, fact='go')
-
-async def help(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
-    await recite_fact(bot, channel, sender, args, messagemode, fact='help')
-
 async def about(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
     await recite_fact(bot, channel, sender, args, messagemode, fact='about')
 
+async def go(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='go')
+
+async def beacon(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='beacon')
+
+async def cbinfo(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='cbinfo')
+
+async def cbmining(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='cbmining')
+
+async def clientinfo(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='clientinfo')
+
+async def escapeneutron(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='escapeneutron')
+
+async def paperwork(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='paperwork')
+
+async def pcfr(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='pcfr')
+
+async def psfr(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='psfr')
+
+async def xbfr(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='xbfr')
+
+async def wing(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='wing')
+
+async def stuck(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='stuck')
+
+async def prep(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='prep')
+
+async def verify(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='verify')
+
+async def chatter(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='chatter')
+
+async def join(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='join')
+
 async def bacon(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
     await recite_fact(bot, channel, sender, args, messagemode, fact='bacon')
+
+async def fuel(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='fuel')
+
+async def cmdlist(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='cmdlist')
+
+async def welcome(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='welcome')
+
+async def tos(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='tos')
+
+async def highg(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='highg')
+
+async def synth(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='synth')
+
+async def fact_test(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='fact_test')
+
+async def help(bot: main, channel: str, sender: str, args: List[str], messagemode: int):
+    await recite_fact(bot, channel, sender, args, messagemode, fact='help')
