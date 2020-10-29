@@ -47,7 +47,6 @@ client = HalpyBOT(
 async def start():
     await client.connect(IRC.server, IRC.port, tls=IRC.useSsl, tls_verify=False)
 
-
 if __name__ == "__main__":
     LOOP = asyncio.get_event_loop()
     LOOP.run_until_complete(start())
