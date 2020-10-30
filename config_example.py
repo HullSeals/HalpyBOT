@@ -23,3 +23,5 @@ class Logging:
 class ChannelArray:
     channels = ["#bot-test",
                 "#seal-bob"]
+
+
