@@ -18,3 +18,11 @@ async def pc(bot: main, channel: str, sender: str, args: List[str]):
               f"xxxx NEWCASE xxxx"
     for ch in send_to:
         await bot.message(ch, message)
+
+async def xb(bot: main, channel: str, sender: str, args: List[str]):
+    message = f"xxxx XBCASE xxxx \n" \
+              f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
+              f"System: {args[2]} -- Hull: {args[3]} \n" \
+              f"xxxx NEWCASE xxxx"
+    for ch in send_to:
+        await bot.message(ch, message)
