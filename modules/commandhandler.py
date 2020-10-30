@@ -1,17 +1,11 @@
 from modules.facts.fact import recite_fact
 from config import IRC
 import main
-import modules.test as test
-
 
 # Please please leave this intact, even if empty
-commandList = {
-    "test": test.test,
-}
+commandList = {}
 
-commandPrivateOnly = {
-    "test": test.test,
-}
+commandPrivateOnly = {}
 
 factlist = [
     "go",

@@ -1,12 +1,10 @@
 import functools
-from enum import Enum
 import main
 from typing import List
 from .datamodels.user import User
-import pydle
 
 levels = {
-    "rixxan.admin.hullseals.space": 7,
+    "Rixxan.admin.hullseals.space": 7,
     "cybersealmgr.hullseals.space": 6,
     "cyberseal.hullseals.space": 5,
     "admin.hullseals.space": 4,
@@ -16,18 +14,21 @@ levels = {
     None: 0
 }
 
-# TODO copyright notice
 
-class Levels(Enum):
-    OWNER = 5
-    CYBERMGR = 4
-    ADMIN = 3
-    MODERATOR = 2
-    SEAL = 1
-    NONE = 0
+requiredlevel = {
+    "OWNER": '7',
+    "CYBERMGR": '6',
+    "CYBER": '5',
+    "ADMIN": '4',
+    "MODERATOR": '3',
+    "DRILLED": '2',
+    "PUP": '1',
+    "NONE": '0',
+}
 
-class deniedMessage:
+class DeniedMessage:
     GENERIC = "Access denied.",
+    PUP = "You need to be registered and logged in with NickServ to use this"
     DRILLED = "You have to be a drilled seal to use this!"
     MODERATOR = "Only moderators+ can use this."
     ADMIN = "Denied! This is for your friendly neighbourhood admin and cyberseal"
@@ -35,30 +36,24 @@ class deniedMessage:
     OWNER = "You need to be a Rixxan to use this"
 
 
-def require_permission(level: Levels, above: bool = True, message: str = None):
+def require_permission(req_level: str, above: bool = True, message: str = None):
 
     def actual_decorator(function):
         @functools.wraps(function)
         async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
-            # Set userLevel to 0 by default
-            userlevel: Levels = Levels.NONE
             # Get role
-            foo = await User.from_pydle(bot, nickname=nick)
-            modes = User.process_vhost(foo.hostname)
+            whois = await User.from_pydle(bot, nickname=nick)
+            modes = User.process_vhost(whois.hostname)
             # Find user level
-            userlevel = levels[modes]
-            print(userlevel)
+            userlevel = int(levels[modes])
             # Convert required permission to level
-
+            level = int(requiredlevel[req_level])
             # If permission is not correct, send deniedMessage
-            print("Test if block starts")
             if userlevel < level:
-                print("Test_failed_perms")
                 if message:
                     await bot.message(channel, message)
                     pass
             else:
-                print("Test_passed")
                 return await function(bot, channel, nick, args, messagemode)
 
         return guarded

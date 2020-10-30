@@ -1,3 +1,10 @@
+"""
+Copyright (c) 2018 The Fuel Rat Mischief,
+All rights reserved.
+Licensed under the BSD 3-Clause License.
+"""
+
+
 from __future__ import annotations
 
 from typing import Union, Optional
@@ -30,6 +37,9 @@ class User:
         # sanity check
         if vhost is None:
             return None
+        # RixxanCheck(TM)
+        if vhost == "Rixxan.admin.hullseals.space":
+            return vhost
         # sanity / security check
         if not vhost.endswith(".hullseals.space"):
             return None
