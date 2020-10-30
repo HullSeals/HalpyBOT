@@ -9,6 +9,8 @@ import pydle
 import logging
 import modules.commandhandler as commandhandler
 import asyncio
+import signal
+import functools
 
 from config import IRC, ChannelArray, SASL
 
@@ -34,7 +36,6 @@ class HalpyBOT(pydle.Client):
         await super().on_private_message(target, nick, message)
         await commandhandler.on_private_message(self, target, nick, message)
 
-
 # Define the Client, mostly pulled from config.py
 client = HalpyBOT(
     IRC.nickname,
@@ -47,7 +48,21 @@ client = HalpyBOT(
 async def start():
     await client.connect(IRC.server, IRC.port, tls=IRC.useSsl, tls_verify=False)
 
+# Signal handler
+async def shutdown(signal, loop):
+    print('caught {0}'.format(signal.name))
+    await client.quit(message="Will be with you shortly, please hold!")
+    tasks = [task for task in asyncio.all_tasks() if task is not
+             asyncio.current_task()]
+    list(map(lambda task: task.cancel(), tasks))
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    loop.stop()
+
 if __name__ == "__main__":
     LOOP = asyncio.get_event_loop()
+    for signame in ('SIGINT', 'SIGTERM'):
+        LOOP.add_signal_handler(getattr(signal, signame),
+                                functools.partial(asyncio.ensure_future,
+                                                  shutdown(getattr(signal, signame), LOOP)))
     LOOP.run_until_complete(start())
     LOOP.run_forever()
