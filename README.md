@@ -37,7 +37,7 @@ As always, bugfixes, speed, and stability updates are priorities as discovered, 
 Interested in joining the Hull Seals Cyberseals? Read up on [the Welcome Board](https://gitlab.com/hull-seals/welcome-to-the-hull-seals-devops-board).
 
 # Authors and Acknowledgements
-The majority of this code was written by [David Sangrey](https://gitlab.com/Rixxan) and [Rik Overveld](https://gitlab.com/rik079).
+The majority of this code was written by [David Sangrey](https://gitlab.com/Rixxan), [Rik Overveld](https://gitlab.com/rik079) and [Feliksas](https://gitlab.com/feliksas)
 
 Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome-to-the-hull-seals-devops-board/blob/master/CONTRIBUTORS.md).
 
