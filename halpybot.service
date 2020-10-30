@@ -1,0 +1,21 @@
+# Place this in /etc/systemd/system
+[Unit]
+Description=HalpyBot IRC Bot
+After=network.target # We want network to be available when we start the bot (duh!)
+
+[Service]
+WorkingDirectory=/opt/halpybot # Can be changed. make sure the specified User has permissions on that dir
+ExecStart=/bin/bash -c 'source halpy/bin/activate && python3 main.py' # Assumes that there's a virtualenv dir 'halpy' located at the root of the WorkingDirectory
+Type=simple
+User=nobody # User to run the daemon as
+Group=nogroup # Group to run the daemon as
+Restart=on-failure
+RestartSec=5
+StartLimitInterval=10s
+StartLimitBurst=10
+
+# To make the daemon auto-start at boot:
+# systemctl daemon-reload
+# systemctl enable halpybot.service
+[Install]
+WantedBy=multi-user.target
