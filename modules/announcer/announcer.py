@@ -6,7 +6,9 @@ from . import message_builder as mb
 caseIndicatorsList = {
     "CODEBLACK": mb.codeblack,
     "PC": mb.pc,
-    "XB": mb.xb
+    "XB": mb.xb,
+    "PS4": mb.ps,
+    "PLTERR": mb.plterr
 }
 
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):

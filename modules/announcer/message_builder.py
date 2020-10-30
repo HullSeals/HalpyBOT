@@ -26,3 +26,19 @@ async def xb(bot: main, channel: str, sender: str, args: List[str]):
               f"xxxx NEWCASE xxxx"
     for ch in send_to:
         await bot.message(ch, message)
+
+async def ps(bot: main, channel: str, sender: str, args: List[str]):
+    message = f"xxxx PSCASE xxxx \n" \
+              f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
+              f"System: {args[2]} -- Hull: {args[3]} \n" \
+              f"xxxx NEWCASE xxxx"
+    for ch in send_to:
+        await bot.message(ch, message)
+
+async def plterr(bot: main, channel: str, sender: str, args: List[str]):
+    message = f"xxxx PLATFORM_ERROR xxxx \n" \
+              f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
+              f"System: {args[2]} -- Hull: {args[3]} \n" \
+              f"xxxx NEWCASE xxxx\n"
+    for ch in send_to:
+        await bot.message(ch, message)
