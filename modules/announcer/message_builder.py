@@ -39,6 +39,16 @@ async def plterr(bot: main, channel: str, sender: str, args: List[str]):
     message = f"xxxx PLATFORM_ERROR xxxx \n" \
               f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
               f"System: {args[2]} -- Hull: {args[3]} \n" \
-              f"xxxx NEWCASE xxxx\n"
+              f"xxxx NEWCASE xxxx"
+    for ch in send_to:
+        await bot.message(ch, message)
+
+async def kingfisher_xb(bot: main, channel: str, sender: str, args: List[str]):
+    message = f"xxxx XBKFCASE xxxx\n" \
+              f"CMDR: {args[0]} -- Platform: {args[1]}\n" \
+              f"System: {args[2]} -- Planet: {args[3]}\n" \
+              f"Coordinates: {args[4]}\n" \
+              f"Type: {args[5]}\n" \
+              f"xxxx NEWCASE xxxx"
     for ch in send_to:
         await bot.message(ch, message)

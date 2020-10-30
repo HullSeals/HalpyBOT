@@ -8,7 +8,8 @@ caseIndicatorsList = {
     "PC": mb.pc,
     "XB": mb.xb,
     "PS4": mb.ps,
-    "PLTERR": mb.plterr
+    "PLTERR": mb.plterr,
+    "XBFISH": mb.kingfisher_xb,
 }
 
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
