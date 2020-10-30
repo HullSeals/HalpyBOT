@@ -31,7 +31,6 @@ class HalpyBOT(pydle.Client):
         await super().on_channel_message(target, nick, message)
         await commandhandler.on_channel_message(self, target, nick, message)
         if target in Announcer.channels and nick in Announcer.nicks:
-            print("Test1")
             await announcer.on_channel_message(self, target, nick, message)
 
     async def on_private_message(self, target, nick, message):
