@@ -26,7 +26,7 @@ class ChannelArray:
 
 class Announcer:
     channels = ["#case-notify-2"]
-    nicks = ["WebhookBOT",
+    nicks = ["WebHookBOT",
              "Rik079",
              "Feliksas",
              "Rixxan"]
