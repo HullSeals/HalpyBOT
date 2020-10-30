@@ -9,6 +9,8 @@ import pydle
 import logging
 import modules.commandhandler as commandhandler
 import asyncio
+import signal
+import functools
 from modules.announcer import announcer
 
 from config import IRC, ChannelArray, SASL, Announcer
