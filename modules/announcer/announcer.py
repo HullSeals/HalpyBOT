@@ -4,7 +4,8 @@ from config import Announcer
 from . import message_builder as mb
 
 caseIndicatorsList = {
-    "CODEBLACK": mb.codeblack
+    "CODEBLACK": mb.codeblack,
+    "PC": mb.pc
 }
 
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
