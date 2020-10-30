@@ -11,8 +11,9 @@ import modules.commandhandler as commandhandler
 import asyncio
 import signal
 import functools
+from modules.announcer import announcer
 
-from config import IRC, ChannelArray, SASL
+from config import IRC, ChannelArray, SASL, Announcer
 
 logging.basicConfig(filename='halpybot.log', level=logging.DEBUG)
 
@@ -31,6 +32,8 @@ class HalpyBOT(pydle.Client):
     async def on_channel_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
         await commandhandler.on_channel_message(self, target, nick, message)
+        if target in Announcer.channels and nick in Announcer.nicks:
+            await announcer.on_channel_message(self, target, nick, message)
 
     async def on_private_message(self, target, nick, message):
         await super().on_private_message(target, nick, message)

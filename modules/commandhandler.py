@@ -1,9 +1,15 @@
 from modules.facts.fact import recite_fact
 from config import IRC
 import main
+from .announcer import manual_case
 
 # Please please leave this intact, even if empty
-commandList = {}
+commandList = {
+    "manualcase": manual_case.manual_case,
+    "mancase": manual_case.manual_case,
+    "manualfish": manual_case.manual_kingfisher,
+    "manfish": manual_case.manual_kingfisher,
+}
 
 commandPrivateOnly = {}
 

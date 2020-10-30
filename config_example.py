@@ -24,4 +24,9 @@ class ChannelArray:
     channels = ["#bot-test",
                 "#seal-bob"]
 
-
+class Announcer:
+    channels = ["#case-notify-2"]
+    nicks = ["WebHookBOT",
+             "Rik079",
+             "Feliksas",
+             "Rixxan"]
