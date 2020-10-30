@@ -3,6 +3,7 @@ import main
 from config import Announcer
 from . import message_builder as mb
 
+
 caseIndicatorsList = {
     "CODEBLACK": mb.codeblack,
     "PC": mb.pc,
