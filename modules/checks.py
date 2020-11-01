@@ -31,7 +31,8 @@ class DeniedMessage:
     PUP = "You need to be registered and logged in with NickServ to use this"
     DRILLED = "You have to be a drilled seal to use this!"
     MODERATOR = "Only moderators+ can use this."
-    ADMIN = "Denied! This is for your friendly neighbourhood admin and cyberseal"
+    ADMIN = "Denied! This is for your friendly neighbourhood admin"
+    CYBER = "This can only be used by cyberseals."
     CYBERMGR = "You need to be a cyberseal manager for this."
     OWNER = "You need to be a Rixxan to use this"
 
