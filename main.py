@@ -15,7 +15,7 @@ from modules.announcer import announcer
 
 from config import IRC, ChannelArray, SASL, Announcer
 
-logging.basicConfig(filename='halpybot.log', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s', filename='halpybot.log', level=logging.DEBUG)
 
 
 class HalpyBOT(pydle.Client):
@@ -53,17 +53,26 @@ async def start():
 
 # Signal handler
 async def shutdown(signal, loop):
-    print('caught {0}'.format(signal.name))
+    if signal != signal.SIGUSR2:
+        print('caught {0}'.format(signal.name))
+        logging.info('caught {0}'.format(signal.name))
+    else:
+        print('Received shutdown command')
+        logging.info('Received shutdown command')
+
     await client.quit(message="Will be with you shortly, please hold!")
+
     tasks = [task for task in asyncio.all_tasks() if task is not
              asyncio.current_task()]
     list(map(lambda task: task.cancel(), tasks))
     results = await asyncio.gather(*tasks, return_exceptions=True)
     loop.stop()
 
+LOOP = None
+
 if __name__ == "__main__":
     LOOP = asyncio.get_event_loop()
-    for signame in ('SIGINT', 'SIGTERM'):
+    for signame in ('SIGINT', 'SIGTERM', 'SIGUSR2'):
         LOOP.add_signal_handler(getattr(signal, signame),
                                 functools.partial(asyncio.ensure_future,
                                                   shutdown(getattr(signal, signame), LOOP)))
