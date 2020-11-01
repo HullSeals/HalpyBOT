@@ -55,11 +55,11 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         parts = message[1:].split(" ")
         command = parts[0]
         args = parts[1:]
-        messagemode = 1
+        in_channel = True
         if command in commandList:
-            return await commandList[command](bot, channel, sender, args, messagemode)
+            return await commandList[command](bot, channel, sender, args, in_channel)
         elif command in factlist:
-            return await recite_fact(bot, channel, sender, args, messagemode, fact=str(command))
+            return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:
             return
 
@@ -69,12 +69,12 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         parts = message[1:].split(" ")
         command = parts[0]
         args = parts[1:]
-        messagemode = 2
+        in_channel = False
         if command in commandList.keys():
-            return await commandList[command](bot, channel, sender, args, messagemode)
+            return await commandList[command](bot, channel, sender, args, in_channel)
         elif command in commandPrivateOnly.keys():
-            return await commandPrivateOnly[command](bot, channel, sender, args, messagemode)
+            return await commandPrivateOnly[command](bot, channel, sender, args, in_channel)
         elif command in factlist or factPrivateOnly:
-            return await recite_fact(bot, channel, sender, args, messagemode, fact=str(command))
+            return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:
             return
