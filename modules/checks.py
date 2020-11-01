@@ -60,3 +60,33 @@ def require_permission(req_level: str, above: bool = True, message: str = None):
         return guarded
 
     return actual_decorator
+
+
+def require_dm():
+
+    def actual_decorator(function):
+        @functools.wraps(function)
+        async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
+            if messagemode == 1:
+                return
+            else:
+                return await function(bot, channel, nick, args, messagemode)
+
+        return guarded
+
+    return actual_decorator
+
+
+def require_channel():
+
+    def actual_decorator(function):
+        @functools.wraps(function)
+        async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
+            if messagemode == 2:
+                return
+            else:
+                return await function(bot, channel, nick, args, messagemode)
+
+        return guarded
+
+    return actual_decorator

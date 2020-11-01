@@ -11,8 +11,6 @@ commandList = {
     "manfish": manual_case.manual_kingfisher,
 }
 
-commandPrivateOnly = {}
-
 factlist = [
     "go",
     "beacon",
@@ -67,7 +65,7 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         command = parts[0]
         args = parts[1:]
         messagemode = 2
-        if command in commandList or commandPrivateOnly:
+        if command in commandList:
             return await commandList[command](bot, channel, sender, args, messagemode)
         elif command in factlist or factPrivateOnly:
             return await recite_fact(bot, channel, sender, args, messagemode, fact=str(command))
