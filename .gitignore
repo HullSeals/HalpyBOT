@@ -6,3 +6,6 @@
 
 # Logging
 /halpybot.log
+
+# Python cache
+**/__pycache__
