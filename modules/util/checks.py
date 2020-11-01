@@ -1,7 +1,7 @@
 import functools
 import main
 from typing import List
-from .datamodels.user import User
+from modules.datamodels.user import User
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,

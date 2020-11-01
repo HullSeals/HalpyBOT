@@ -4,7 +4,7 @@ import main
 from .announcer import manual_case
 from .util import shutdown
 
-# Please please leave this intact, even if empty
+
 commandList = {
     "manualcase": manual_case.manual_case,
     "mancase": manual_case.manual_case,

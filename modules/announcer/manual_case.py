@@ -1,6 +1,6 @@
 from typing import List
 import main
-from ..checks import require_permission, DeniedMessage
+from modules.util.checks import require_permission, DeniedMessage
 
 send_to = ["#Repair-Requests", "#Code-Black", "#seal-bob"]
 

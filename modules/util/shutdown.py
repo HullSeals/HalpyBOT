@@ -5,7 +5,7 @@ import logging
 import main
 from typing import List
 
-from ..checks import require_permission, DeniedMessage
+from modules.util.checks import require_permission, DeniedMessage
 
 
 @require_permission("ADMIN", message=DeniedMessage.ADMIN)
