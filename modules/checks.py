@@ -31,7 +31,8 @@ class DeniedMessage:
     PUP = "You need to be registered and logged in with NickServ to use this"
     DRILLED = "You have to be a drilled seal to use this!"
     MODERATOR = "Only moderators+ can use this."
-    ADMIN = "Denied! This is for your friendly neighbourhood admin and cyberseal"
+    ADMIN = "Denied! This is for your friendly neighbourhood admin"
+    CYBER = "This can only be used by cyberseals."
     CYBERMGR = "You need to be a cyberseal manager for this."
     OWNER = "You need to be a Rixxan to use this"
 
@@ -53,6 +54,36 @@ def require_permission(req_level: str, above: bool = True, message: str = None):
                 if message:
                     await bot.message(channel, message)
                     pass
+            else:
+                return await function(bot, channel, nick, args, messagemode)
+
+        return guarded
+
+    return actual_decorator
+
+
+def require_dm():
+
+    def actual_decorator(function):
+        @functools.wraps(function)
+        async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
+            if messagemode == 1:
+                return
+            else:
+                return await function(bot, channel, nick, args, messagemode)
+
+        return guarded
+
+    return actual_decorator
+
+
+def require_channel():
+
+    def actual_decorator(function):
+        @functools.wraps(function)
+        async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
+            if messagemode == 2:
+                return
             else:
                 return await function(bot, channel, nick, args, messagemode)
 
