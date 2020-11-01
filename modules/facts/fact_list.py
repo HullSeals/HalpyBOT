@@ -169,5 +169,4 @@ facts = {
 
     "help": "This doesn't do anything yet! see https://hullse.al/cmdlist for common commands.",
 
-    "shutdown": "Shuts down the bot"
 }
