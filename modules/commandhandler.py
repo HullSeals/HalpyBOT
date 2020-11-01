@@ -2,7 +2,7 @@ from modules.facts.fact import recite_fact
 from config import IRC
 import main
 from .announcer import manual_case
-from .util import shutdown
+from .util import shutdown, utils
 
 
 commandList = {
@@ -11,6 +11,7 @@ commandList = {
     "manualfish": manual_case.manual_kingfisher,
     "manfish": manual_case.manual_kingfisher,
     "shutdown": shutdown.shutdown,
+    "ping": utils.ping,
 }
 
 
