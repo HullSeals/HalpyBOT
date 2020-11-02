@@ -1,4 +1,3 @@
-import pydle
 import main
 from config import Announcer
 from . import message_builder as mb

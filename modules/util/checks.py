@@ -43,7 +43,7 @@ def require_permission(req_level: str, above: bool = True, message: str = None):
         @functools.wraps(function)
         async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
             # Get role
-            whois = await User.from_pydle(bot, nickname=nick)
+            whois = await User.get_info(bot, nickname=nick)
             modes = User.process_vhost(whois.hostname)
             # Find user level
             userlevel = int(levels[modes])
