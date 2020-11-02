@@ -167,6 +167,8 @@ facts = {
 
     "fact_test_no_args": "This is a test fact for the cybers. It does nothing useful.",
 
-    "help": "This doesn't do anything yet! see https://hullse.al/cmdlist for common commands.",
+    "help": "See https://hullse.al/cmdlist for common commands. "
+            "If you need technical help with the bot, please type /join #cybers and one of the "
+            "Cyberseals will help you out there.",
 
 }
