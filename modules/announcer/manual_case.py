@@ -1,6 +1,7 @@
 from typing import List
 import main
 from modules.util.checks import require_permission, DeniedMessage
+import logging
 
 send_to = ["#Repair-Requests", "#Code-Black", "#seal-bob"]
 
@@ -12,6 +13,7 @@ async def manual_case(bot: main, channel: str, sender: str, args: List[str], in_
                   f"xxxx NEWCASE xxxx"
         for ch in send_to:
             await bot.message(ch, message)
+            logging.info(f"Manual case by {sender} in {channel}: {args}")
     else:
         return
 
@@ -23,5 +25,6 @@ async def manual_kingfisher(bot: main, channel: str, sender: str, args: List[str
                   f"xxxx NEWKFCASE xxxx"
         for ch in send_to:
             await bot.message(ch, message)
+            logging.info(f"Manual kingfisher case by {sender} in {channel}: {args}")
     else:
         return

@@ -1,6 +1,7 @@
 import main
 from config import Announcer
 from . import message_builder as mb
+import logging
 
 
 caseIndicatorsList = {
@@ -23,6 +24,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         casetype = parts[0]
         args = parts[1:]
         if casetype in caseIndicatorsList:
+            logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
             return await caseIndicatorsList[casetype](bot, channel, sender, args)
         else:
             return
