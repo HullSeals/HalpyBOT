@@ -37,7 +37,7 @@ class DeniedMessage:
     OWNER = "You need to be a Rixxan to use this"
 
 
-def require_permission(req_level: str, above: bool = True, message: str = None):
+def require_permission(req_level: str, above: bool = True, message: str = "Access Denied."):
 
     def decorator(function):
         @functools.wraps(function)
@@ -51,8 +51,8 @@ def require_permission(req_level: str, above: bool = True, message: str = None):
             level = int(requiredlevel[req_level])
             # If permission is not correct, send deniedMessage
             if userlevel < level:
-                if message:
-                    await bot.message(channel, message)
+                if in_channel is False:
+                    await bot.message(nick, message)
                     pass
             else:
                 return await function(bot, channel, nick, args, in_channel)
