@@ -24,7 +24,7 @@ class User:
     nickname: str
 
     @classmethod
-    async def from_pydle(cls, bot: BasicClient, nickname: str) -> Optional[User]:
+    async def get_info(cls, bot: BasicClient, nickname: str) -> Optional[User]:
         # fetch the user object from pydle
         data = bot.users.get(nickname.casefold(), None)
 

@@ -1,7 +1,7 @@
 import functools
 import main
 from typing import List
-from .datamodels.user import User
+from modules.datamodels.user import User
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,
@@ -39,11 +39,11 @@ class DeniedMessage:
 
 def require_permission(req_level: str, above: bool = True, message: str = None):
 
-    def actual_decorator(function):
+    def decorator(function):
         @functools.wraps(function)
-        async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
+        async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
             # Get role
-            whois = await User.from_pydle(bot, nickname=nick)
+            whois = await User.get_info(bot, nickname=nick)
             modes = User.process_vhost(whois.hostname)
             # Find user level
             userlevel = int(levels[modes])
@@ -55,38 +55,38 @@ def require_permission(req_level: str, above: bool = True, message: str = None):
                     await bot.message(channel, message)
                     pass
             else:
-                return await function(bot, channel, nick, args, messagemode)
+                return await function(bot, channel, nick, args, in_channel)
 
         return guarded
 
-    return actual_decorator
+    return decorator
 
 
 def require_dm():
 
-    def actual_decorator(function):
+    def decorator(function):
         @functools.wraps(function)
-        async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
-            if messagemode == 1:
+        async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
+            if in_channel:
                 return
             else:
-                return await function(bot, channel, nick, args, messagemode)
+                return await function(bot, channel, nick, args, in_channel)
 
         return guarded
 
-    return actual_decorator
+    return decorator
 
 
 def require_channel():
 
-    def actual_decorator(function):
+    def decorator(function):
         @functools.wraps(function)
-        async def guarded(bot: main, channel: str, nick: str, args: List[str], messagemode: int):
-            if messagemode == 2:
+        async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
+            if in_channel is False:
                 return
             else:
-                return await function(bot, channel, nick, args, messagemode)
+                return await function(bot, channel, nick, args, in_channel)
 
         return guarded
 
-    return actual_decorator
+    return decorator
