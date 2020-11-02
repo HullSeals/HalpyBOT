@@ -23,9 +23,17 @@ In the requests description, please mention the issue as `resolves #issueID` to 
 ## Naming standards
 
 ### Commit messages
-Prefix all commit messages with the issue number if applicable. If addressing multiple tickets, create a commit for each change and do not combine them.
+Prefix all commit messages with the issue number if applicable. If addressing multiple tickets, create a commit for each change and do not combine them. 
 
 `[HALPY-7] Create awesome function`
+
+If the commit isn't directly linkes to a ticket, please use the following tags:
+
+`[Minor] For a really minor addition`
+`[Fix] For a minor bugfix`
+`[Cleanup] after you've used the code-broom`
+`[Doc] for a minor documentation change`
+`[Typo] Fix typos that don't affect functioning of the bot`
 
 ### Branches
 Make a feature branch off of master using git checkout -b feature/IssueID. For other types of pull requests please use one of the following:
