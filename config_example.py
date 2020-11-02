@@ -3,15 +3,15 @@
 import logging
 
 class SASL:
-    identity = ''
-    username = ''
-    password = ''
+    identity = 'HalpyBOT[YourNameHere]'
+    username = 'YourNameHere'
+    password = 'YourIRCPasswordHere'
 
 class IRC:
     server = 'irc.hullseals.space'
-    port = 6697
+    port = '+6697'
     useSsl = True
-    nickname = 'HalpyBOT_DEV'
+    nickname = 'HalpyBOT[Dev|YOURNAMEHERE]'
     commandPrefix = '!'
     operline = ''
     operlinePassword = ''

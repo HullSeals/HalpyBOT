@@ -39,7 +39,7 @@ class DeniedMessage:
 
 def require_permission(req_level: str, above: bool = True, message: str = None):
 
-    def actual_decorator(function):
+    def decorator(function):
         @functools.wraps(function)
         async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
             # Get role
@@ -59,12 +59,12 @@ def require_permission(req_level: str, above: bool = True, message: str = None):
 
         return guarded
 
-    return actual_decorator
+    return decorator
 
 
 def require_dm():
 
-    def actual_decorator(function):
+    def decorator(function):
         @functools.wraps(function)
         async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
             if in_channel:
@@ -74,12 +74,12 @@ def require_dm():
 
         return guarded
 
-    return actual_decorator
+    return decorator
 
 
 def require_channel():
 
-    def actual_decorator(function):
+    def decorator(function):
         @functools.wraps(function)
         async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
             if in_channel is False:
@@ -89,4 +89,4 @@ def require_channel():
 
         return guarded
 
-    return actual_decorator
+    return decorator
