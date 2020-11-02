@@ -39,6 +39,12 @@ class HalpyBOT(pydle.Client):
         await super().on_private_message(target, nick, message)
         await commandhandler.on_private_message(self, target, nick, message)
 
+    async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
+        if in_channel:
+            await self.message(channel, message)
+        else:
+            await self.message(sender, message)
+
 # Define the Client, mostly pulled from config.py
 client = HalpyBOT(
     IRC.nickname,
