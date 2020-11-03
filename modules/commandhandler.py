@@ -12,6 +12,7 @@ commandList = {
     "manfish": manual_case.manual_kingfisher,
     "shutdown": shutdown.shutdown,
     "ping": utils.ping,
+    "say": utils.say
 }
 
 
