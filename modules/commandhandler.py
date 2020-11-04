@@ -41,7 +41,8 @@ factlist = [
     "tos",
     "highg",
     "synth",
-    "fact_test"
+    "fact_test",
+    "nickserv",
 ]
 
 factPrivateOnly = [

@@ -171,4 +171,8 @@ facts = {
             "If you need technical help with the bot, please type /join #cybers and one of the "
             "Cyberseals will help you out there.",
 
+    "nickserv": "Switch to the HullSeals tab in the top left corner (Or your Status window) "
+                "and identify with NickServ with the following command, but replace <password> "
+                "with your website password: /msg NickServ IDENTIFY <password>"
+
 }
