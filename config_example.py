@@ -30,3 +30,9 @@ class Announcer:
              "Rik079",
              "Feliksas",
              "Rixxan"]
+
+class Database:
+    user = "Some User"
+    password = "SuperSecretPassword"
+    host = "1.2.3.4"
+    port = "3306"
