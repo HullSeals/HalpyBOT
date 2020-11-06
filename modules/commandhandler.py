@@ -4,6 +4,7 @@ import main
 from .announcer import manual_case
 from .util import shutdown, utils
 from .facts.fact import factlist
+from modules.facts import fact_management
 
 
 commandList = {
@@ -14,7 +15,8 @@ commandList = {
     "shutdown": shutdown.shutdown,
     "ping": utils.ping,
     "say": utils.say,
-    "test_command": utils.test_command
+    "test_command": utils.test_command,
+    "allfacts": fact_management.allfacts
 }
 
 

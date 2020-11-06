@@ -8,7 +8,7 @@ factlist = []
 async def on_connect():
     await update_fact_index()
 
-# TODO get the keys from the database, not the existing file
+
 async def update_fact_index():
     global factlist
     factnames = facts.keys()
@@ -17,6 +17,10 @@ async def update_fact_index():
             continue
         else:
             factlist.append(str(name))
+
+
+# TODO function to get all facts from database
+
 
 async def recite_fact(bot: main, channel: str, sender: str, args: List[str], in_channel: bool, fact: str):
 
