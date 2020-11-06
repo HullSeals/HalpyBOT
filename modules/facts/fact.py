@@ -28,10 +28,7 @@ async def recite_fact(bot: main, channel: str, sender: str, args: List[str], in_
 
     # PM only, 1 version
     if f"{fact}_no_args" not in facts and in_channel is False and req_dm is True:
-        if len(args) == 0:
-            return await bot.message(sender, facts[str(fact)])
-        else:
-            return await bot.message(sender, f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)][1]})")
+        return await bot.message(sender, facts[str(fact)][1])
 
     # Public and PM, 1 version
     if f"{fact}_no_args" not in facts and req_dm is False:
