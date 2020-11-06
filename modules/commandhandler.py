@@ -43,13 +43,9 @@ factlist = [
     "synth",
     "fact_test",
     "nickserv",
-]
-
-factPrivateOnly = [
     "help",
-    "about"
+    "about",
 ]
-
 
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(IRC.commandPrefix):
@@ -73,7 +69,7 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         in_channel = False
         if command in commandList.keys():
             return await commandList[command](bot, channel, sender, args, in_channel)
-        elif command in factlist or factPrivateOnly:
+        elif command in factlist:
             return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:
             return
