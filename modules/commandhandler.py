@@ -3,6 +3,7 @@ from config import IRC
 import main
 from .announcer import manual_case
 from .util import shutdown, utils
+from .facts.fact import factlist
 
 
 commandList = {
@@ -12,40 +13,10 @@ commandList = {
     "manfish": manual_case.manual_kingfisher,
     "shutdown": shutdown.shutdown,
     "ping": utils.ping,
-    "say": utils.say
+    "say": utils.say,
+    "test_command": utils.test_command
 }
 
-
-factlist = [
-    "go",
-    "beacon",
-    "cbinfo",
-    "cbmining",
-    "clientinfo",
-    "escapeneutron",
-    "paperwork",
-    "pw",
-    "clear",
-    "pcfr",
-    "psfr",
-    "xbfr",
-    "stuck",
-    "prep",
-    "verify",
-    "chatter",
-    "join",
-    "bacon",
-    "fuel",
-    "cmdlist",
-    "welcome",
-    "tos",
-    "highg",
-    "synth",
-    "fact_test",
-    "nickserv",
-    "help",
-    "about",
-]
 
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(IRC.commandPrefix):

@@ -13,3 +13,8 @@ async def ping(bot: main, channel: str, sender: str, args: List[str], in_channel
 async def say(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
     logging.info(f"PUPPET SAY {sender} {channel}")
     await bot.message(str(args[0]), ' '.join(args[1:]))
+
+# Just leave this here, it makes it easier to test stuff.
+@require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
+async def test_command(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
+    return

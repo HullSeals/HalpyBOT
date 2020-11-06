@@ -12,6 +12,7 @@ import asyncio
 import signal
 import functools
 from modules.announcer import announcer
+from modules.facts import fact
 
 from config import IRC, ChannelArray, SASL, Announcer
 
@@ -22,6 +23,8 @@ class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         await super().on_connect()
+        await fact.on_connect()
+        print("Fact module loaded successfully")
         await self.raw(f"OPER {IRC.operline} {IRC.operlinePassword}\r\n")
         logging.info("Connected")
         print("Connected!")
