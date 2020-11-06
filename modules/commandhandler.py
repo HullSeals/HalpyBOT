@@ -3,7 +3,7 @@ from config import IRC
 import main
 from .announcer import manual_case
 from .util import shutdown, utils
-from .facts.fact import factlist
+from .facts.fact import fact_index
 from modules.facts import fact_management
 
 
@@ -16,7 +16,9 @@ commandList = {
     "ping": utils.ping,
     "say": utils.say,
     "test_command": utils.test_command,
-    "allfacts": fact_management.allfacts
+    "allfacts": fact_management.allfacts,
+    "update_fact_index": fact_management.manual_ufi,
+    "ufi": fact_management.manual_ufi,
 }
 
 
@@ -28,7 +30,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         in_channel = True
         if command in commandList:
             return await commandList[command](bot, channel, sender, args, in_channel)
-        elif command in factlist:
+        elif command in fact_index:
             return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:
             return
@@ -42,7 +44,7 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         in_channel = False
         if command in commandList.keys():
             return await commandList[command](bot, channel, sender, args, in_channel)
-        elif command in factlist:
+        elif command in fact_index:
             return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:
             return

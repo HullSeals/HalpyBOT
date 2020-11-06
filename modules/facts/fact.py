@@ -3,20 +3,20 @@ from typing import List
 
 from .fact_list import facts
 
-factlist = []
+fact_index = []
 
 async def on_connect():
     await update_fact_index()
 
 
 async def update_fact_index():
-    global factlist
+    global fact_index
     factnames = facts.keys()
     for name in factnames:
         if "_no_args" in name:
             continue
         else:
-            factlist.append(str(name))
+            fact_index.append(str(name))
 
 
 # TODO function to get all facts from database
