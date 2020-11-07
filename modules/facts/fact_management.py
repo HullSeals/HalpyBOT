@@ -7,6 +7,7 @@ import logging
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 async def allfacts(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
+    # TODO make sure we don't print facts with a language
     listallfacts = f"{', '.join(str(fact) for fact in fact_index)}"
     await bot.reply(channel, sender, in_channel, listallfacts)
 
