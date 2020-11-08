@@ -1,6 +1,6 @@
 import main
 from ..util.checks import require_permission, DeniedMessage, require_dm
-from .fact import fact_index, update_fact_index
+from .fact import fact_index, update_fact_index, basic_facts
 from typing import List
 import logging
 
@@ -8,7 +8,7 @@ import logging
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 async def allfacts(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
     # TODO make sure we don't print facts with a language
-    listallfacts = f"{', '.join(str(fact) for fact in fact_index)}"
+    listallfacts = f"{', '.join(str(fact) for fact in basic_facts)}"
     await bot.reply(channel, sender, in_channel, listallfacts)
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)

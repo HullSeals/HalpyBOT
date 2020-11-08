@@ -113,11 +113,6 @@ facts = {
              "https://fuelrats.com/i-need-fuel",
              True],
 
-    "fuel_no_args": [False,
-                     "For fuel emergencies, your best bet is the Fuel Rats: "
-                     "https://fuelrats.com/i-need-fuel",
-                     True],
-
     "cmdlist": [False,
                 "Common HalpyBOT Commands: http://hullse.al/cmdlist",
                 True],

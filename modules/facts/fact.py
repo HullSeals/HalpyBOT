@@ -1,9 +1,11 @@
 import main
 from typing import List
+import re
 
 from .fact_list import facts
 
 fact_index = []
+basic_facts = []
 
 async def on_connect():
     await update_fact_index()
@@ -12,11 +14,14 @@ async def on_connect():
 async def update_fact_index():
     global fact_index
     factnames = facts.keys()
+    regexp = re.compile("-..\b")
     for name in factnames:
         if "_no_args" in name:
             continue
         else:
             fact_index.append(str(name))
+            if not regexp.search(name):
+                basic_facts.append(str(name))
 
 
 # TODO function to get all facts from database
