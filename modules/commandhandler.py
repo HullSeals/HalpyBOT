@@ -19,6 +19,7 @@ commandList = {
     "allfacts": fact_management.allfacts,
     "update_fact_index": fact_management.manual_ufi,
     "ufi": fact_management.manual_ufi,
+    "addfact": fact_management.addfact
 }
 
 

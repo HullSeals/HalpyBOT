@@ -1,11 +1,24 @@
 import main
 from typing import List
 import re
+import mysql.connector
+import logging
 
 from .fact_list import facts
 
+from config import Database
+
 fact_index = []
 basic_facts = []
+
+
+cnx = mysql.connector.connect(user=Database.user,
+                              password=Database.password,
+                              host=Database.host,
+                              database=Database.database)
+print("Database connection established")
+
+cursor = cnx.cursor()
 
 async def on_connect():
     await update_fact_index()
@@ -25,6 +38,17 @@ async def update_fact_index():
 
 
 # TODO function to get all facts from database
+
+async def add_fact(factname: str, facttext: str, author: str, reqdm: bool):
+    add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor) "
+                 f"VALUES (%s, %s, %s);")
+    add_data = (str(factname), str(facttext), str(author))
+    try:
+        cursor.execute(add_query, add_data)
+        cnx.commit()
+        logging.info(f"FACT ADDED {factname} by {author}")
+    except mysql.connector.Error as er:
+        print(f"ERROR in registering fact {factname} by {author}: {er}")
 
 
 async def recite_fact(bot: main, channel: str, sender: str, args: List[str], in_channel: bool, fact: str):
