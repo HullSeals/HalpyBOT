@@ -4,9 +4,9 @@ import re
 import mysql.connector
 import logging
 
-from .fact_list import facts
-
 from config import Database
+
+facts = {}
 
 fact_index = []
 basic_facts = []
@@ -21,7 +21,7 @@ print("Database connection established")
 cursor = cnx.cursor()
 
 async def on_connect():
-    await update_fact_index()
+    await get_facts()
 
 
 async def update_fact_index():
@@ -40,9 +40,9 @@ async def update_fact_index():
 # TODO function to get all facts from database
 
 async def add_fact(factname: str, facttext: str, author: str, reqdm: bool):
-    add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor) "
-                 f"VALUES (%s, %s, %s);")
-    add_data = (str(factname), str(facttext), str(author))
+    add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor, FactReqDM) "
+                 f"VALUES (%s, %s, %s, %s);")
+    add_data = (str(factname), str(facttext), str(author), reqdm)
     try:
         cursor.execute(add_query, add_data)
         cnx.commit()
@@ -50,6 +50,18 @@ async def add_fact(factname: str, facttext: str, author: str, reqdm: bool):
     except mysql.connector.Error as er:
         print(f"ERROR in registering fact {factname} by {author}: {er}")
 
+
+async def get_facts():
+    # TODO clear list when invoked and db cnx OK, add manual trigger
+    get_query = (f"SELECT factName, factText, factReqDM "
+                 f"FROM facts")
+    try:
+        cursor.execute(get_query)
+    except mysql.connector.Error as er:
+        print(f"ERROR in getting facts from DB: {er}")
+    for (factName, factText, factReqDM) in cursor:
+        facts[str(factName)] = [bool(factReqDM), factText]
+    await update_fact_index()
 
 async def recite_fact(bot: main, channel: str, sender: str, args: List[str], in_channel: bool, fact: str):
 

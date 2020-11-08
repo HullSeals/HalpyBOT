@@ -32,7 +32,6 @@ async def addfact(bot: main, channel: str, sender: str, args: List[str], in_chan
         reqdm = False
         facttext = ' '.join(arg for arg in args[1:])
     await add_fact(factname, facttext, sender, reqdm)
-    await bot.reply(channel, sender, in_channel, "Fact successfully added")
 
 
 # TODO !delete_fact
