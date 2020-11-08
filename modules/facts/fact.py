@@ -25,16 +25,17 @@ async def on_connect():
 
 
 async def update_fact_index():
-    # TODO do not allow duplicate entries
     global fact_index
     factnames = facts.keys()
     regexp = re.compile("-")
     for name in factnames:
+        if name in fact_index:
+            continue
         if "_no_args" in name:
             continue
         else:
             fact_index.append(str(name))
-            if not regexp.search(name):
+            if not regexp.search(name) and name not in basic_facts:
                 basic_facts.append(str(name))
 
 
