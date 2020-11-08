@@ -25,7 +25,7 @@ async def manual_ufi(bot: main, channel: str, sender: str, args: List[str], in_c
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
 async def addfact(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
-    # TODO Check if already a command, if yes, gracefully exit
+    # TODO Check if already a command, if yes, gracefully exit (NN)
     factname = args[0]
     if args[1] == "--dm":
         reqdm = True

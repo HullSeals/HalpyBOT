@@ -19,7 +19,8 @@ commandList = {
     "allfacts": fact_management.allfacts,
     "fact_update": fact_management.manual_ufi,
     "ufi": fact_management.manual_ufi,
-    "addfact": fact_management.addfact
+    "addfact": fact_management.addfact,
+    # "deletefact": fact_management.deletefact      Unregistered for now, until we can get it working
 }
 
 

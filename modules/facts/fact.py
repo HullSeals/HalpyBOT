@@ -25,6 +25,7 @@ async def on_connect():
 
 
 async def update_fact_index():
+    # TODO do not allow duplicate entries
     global fact_index
     factnames = facts.keys()
     regexp = re.compile("-")
@@ -58,15 +59,14 @@ async def remove_fact(bot: main, factname, channel: str, sender: str, in_channel
     if factname not in fact_index:
         return await bot.reply(channel, sender, in_channel, "That fact doesn't exist!")
     remove_query = (f"DELETE FROM facts "
-                    f"WHERE FactName = %s;")
+                    f"WHERE 'FactName' = '%(FactName)s';")
     try:
-        cursor.execute(remove_query, factname)
+        cursor.execute(remove_query, (str(factname)))
         cnx.commit()
-        del fact_index[factname]
         logging.info(f"FACT REMOVED {factname} by {sender}")
         await bot.reply(channel, sender, in_channel, "Fact removed successfully, and will disappear at next restart")
     except mysql.connector.Error as er:
-        print(f"ERROR in registering fact {factname} by {sender}: {er}")
+        print(f"ERROR in deleting fact {factname} by {sender}: {er}")
         return await bot.reply(channel, sender, in_channel, "Couldn't delete fact! contact a cyber")
 
 
