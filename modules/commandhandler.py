@@ -17,7 +17,7 @@ commandList = {
     "say": utils.say,
     "test_command": utils.test_command,
     "allfacts": fact_management.allfacts,
-    "update_fact_index": fact_management.manual_ufi,
+    "fact_update": fact_management.manual_ufi,
     "ufi": fact_management.manual_ufi,
     "addfact": fact_management.addfact
 }

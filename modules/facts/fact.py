@@ -37,7 +37,10 @@ async def update_fact_index():
                 basic_facts.append(str(name))
 
 
-async def add_fact(factname: str, facttext: str, author: str, reqdm: bool):
+async def add_fact(bot: main, factname, facttext, author, reqdm: bool, channel: str, sender: str, in_channel: bool):
+    # Check if fact doesn't already exist
+    if factname in fact_index:
+        return await bot.reply(channel, sender, in_channel, "That fact already exists!")
     add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor, FactReqDM) "
                  f"VALUES (%s, %s, %s, %s);")
     add_data = (str(factname), str(facttext), str(author), reqdm)
@@ -45,14 +48,29 @@ async def add_fact(factname: str, facttext: str, author: str, reqdm: bool):
         cursor.execute(add_query, add_data)
         cnx.commit()
         logging.info(f"FACT ADDED {factname} by {author}")
-        # TODO send message if successful
+        await bot.reply(channel, sender, in_channel, "Fact added successfully")
     except mysql.connector.Error as er:
-        # TODO send message if unsuccessful
         print(f"ERROR in registering fact {factname} by {author}: {er}")
+        return await bot.reply(channel, sender, in_channel, "Couldn't add fact! contact a cyber")
+
+async def remove_fact(bot: main, factname, channel: str, sender: str, in_channel: bool):
+    # Check if fact exists
+    if factname not in fact_index:
+        return await bot.reply(channel, sender, in_channel, "That fact doesn't exist!")
+    remove_query = (f"DELETE FROM facts "
+                    f"WHERE FactName = %s;")
+    try:
+        cursor.execute(remove_query, factname)
+        cnx.commit()
+        del fact_index[factname]
+        logging.info(f"FACT REMOVED {factname} by {sender}")
+        await bot.reply(channel, sender, in_channel, "Fact removed successfully, and will disappear at next restart")
+    except mysql.connector.Error as er:
+        print(f"ERROR in registering fact {factname} by {sender}: {er}")
+        return await bot.reply(channel, sender, in_channel, "Couldn't delete fact! contact a cyber")
 
 
 async def get_facts():
-    # TODO clear list when invoked and db connection is OK, gracefully exit if not
     get_query = (f"SELECT factName, factText, factReqDM "
                  f"FROM facts")
     try:
