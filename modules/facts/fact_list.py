@@ -151,6 +151,14 @@ facts = {
                           "This is a test fact for the cybers. It does nothing useful.",
                           True],
 
+    "fact_test-nl": [False,
+                     "Dit is een test fact voor de cyberseals. Het doet niets bijzonders",
+                     False],
+
+    "fact_test-nl_no_args": [False,
+                             "Dit is een noargs test fact voor de cyberseals. Het doet niets bijzonders",
+                             False],
+
     "help": [True,
              "See https://hullse.al/cmdlist for common commands. "
              "If you need technical help with the bot, please type /join #cybers and one of the "

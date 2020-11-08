@@ -14,7 +14,7 @@ async def on_connect():
 async def update_fact_index():
     global fact_index
     factnames = facts.keys()
-    regexp = re.compile("-..\b")
+    regexp = re.compile("-")
     for name in factnames:
         if "_no_args" in name:
             continue
