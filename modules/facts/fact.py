@@ -37,8 +37,6 @@ async def update_fact_index():
                 basic_facts.append(str(name))
 
 
-# TODO function to get all facts from database
-
 async def add_fact(factname: str, facttext: str, author: str, reqdm: bool):
     add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor, FactReqDM) "
                  f"VALUES (%s, %s, %s, %s);")
@@ -47,12 +45,14 @@ async def add_fact(factname: str, facttext: str, author: str, reqdm: bool):
         cursor.execute(add_query, add_data)
         cnx.commit()
         logging.info(f"FACT ADDED {factname} by {author}")
+        # TODO send message if successful
     except mysql.connector.Error as er:
+        # TODO send message if unsuccessful
         print(f"ERROR in registering fact {factname} by {author}: {er}")
 
 
 async def get_facts():
-    # TODO clear list when invoked and db cnx OK, add manual trigger
+    # TODO clear list when invoked and db connection is OK, gracefully exit if not
     get_query = (f"SELECT factName, factText, factReqDM "
                  f"FROM facts")
     try:
