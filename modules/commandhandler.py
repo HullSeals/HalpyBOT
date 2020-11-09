@@ -26,7 +26,7 @@ commandList = {
 }
 
 class Context:
-    def __init__(self, bot: main, channel, sender, in_channel):
+    def __init__(self, bot: main, channel: str, sender: str, in_channel: bool):
         self.bot = bot
         self.channel = channel
         self.sender = sender
@@ -44,7 +44,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         in_channel = True
         ctx = Context(bot, channel, sender, in_channel)
         if command in commandList:
-            return await commandList[command](bot, channel, sender, in_channel, args)
+            return await commandList[command](ctx, args)
         elif command in fact_index:
             return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:
@@ -57,8 +57,9 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         command = parts[0]
         args = parts[1:]
         in_channel = False
+        ctx = Context(bot, channel, sender, in_channel)
         if command in commandList.keys():
-            return await commandList[command](bot, channel, sender, in_channel, args)
+            return await commandList[command](ctx, args)
         elif command in fact_index:
             return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:

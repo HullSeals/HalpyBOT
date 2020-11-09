@@ -7,25 +7,25 @@ from .fact import add_fact, remove_fact, clear_facts
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-async def allfacts(bot: main, channel: str, sender: str, in_channel: bool, args: List[str]):
+async def allfacts(ctx, args: List[str]):
     listallfacts = f"{', '.join(str(fact) for fact in basic_facts)}"
-    await bot.reply(channel, sender, in_channel, listallfacts)
+    await ctx.reply(listallfacts)
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def manual_ufi(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
-    logging.info(f"FACT INDEX UPDATE by {sender}")
-    await bot.reply(channel, sender, in_channel, "Defenestrating facts...")
-    await bot.reply(channel, sender, in_channel, "Clearing fact index...")
+async def manual_ufi(ctx, args: List[str]):
+    logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
+    await ctx.reply("Defenestrating facts...")
+    await ctx.reply("Clearing fact index...")
     await clear_facts()
-    await bot.reply(channel, sender, in_channel, "Fetching facts...")
+    await ctx.reply("Fetching facts...")
     await get_facts()
-    await bot.reply(channel, sender, in_channel, "Updating...")
+    await ctx.reply("Updating...")
     await update_fact_index()
-    await bot.reply(channel, sender, in_channel, "Done.")
+    await ctx.reply("Done.")
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
-async def addfact(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
+async def addfact(ctx, args: List[str]):
     factname = args[0]
     if args[1] == "--dm":
         reqdm = True
@@ -33,10 +33,12 @@ async def addfact(bot: main, channel: str, sender: str, args: List[str], in_chan
     else:
         reqdm = False
         facttext = ' '.join(arg for arg in args[1:])
-    await add_fact(bot, factname, facttext, sender, reqdm, channel, sender, in_channel)
+    await add_fact(ctx.bot, factname, facttext, ctx.sender,
+                   reqdm, ctx.channel, ctx.sender, ctx.in_channel)
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
-async def deletefact(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
+async def deletefact(ctx, args: List[str]):
     factname = args[0]
-    await remove_fact(bot, factname, channel, sender, in_channel)
+    await remove_fact(ctx.bot, factname, ctx.channel,
+                      ctx.sender, ctx.in_channel)
