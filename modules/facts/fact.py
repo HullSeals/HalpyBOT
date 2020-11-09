@@ -3,7 +3,7 @@ from typing import List
 import re
 import mysql.connector
 import logging
-
+import modules.commandhandler
 from config import Database
 
 facts = {}
@@ -44,6 +44,9 @@ async def update_fact_index():
 
 
 async def add_fact(bot: main, factname, facttext, author, reqdm: bool, channel: str, sender: str, in_channel: bool):
+    # Check if not already a command
+    if factname in modules.commandhandler.commandList:
+        return await bot.reply(channel, sender, in_channel, "Cannot register fact: already an existing command!")
     # Check if fact doesn't already exist
     if factname in fact_index:
         return await bot.reply(channel, sender, in_channel, "That fact already exists!")
