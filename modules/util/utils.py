@@ -35,7 +35,6 @@ async def part(bot: main, channel: str, sender: str, args: List[str], in_channel
     ChannelArray.channels.remove(__value=str(args[0]))
 
 
-
 # Just leave this here, it makes it easier to test stuff.
 @require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
 async def test_command(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
