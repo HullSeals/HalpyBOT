@@ -43,40 +43,40 @@ async def update_fact_index():
                 basic_facts.append(str(name))
 
 
-async def add_fact(bot: main, factname, facttext, author, reqdm: bool, channel: str, sender: str, in_channel: bool):
+async def add_fact(ctx, factname: str, facttext: str, reqdm: bool):
     # Check if not already a command
     if factname in modules.commandhandler.commandList:
-        return await bot.reply(channel, sender, in_channel, "Cannot register fact: already an existing command!")
+        return await ctx.reply("Cannot register fact: already an existing command!")
     # Check if fact doesn't already exist
     if factname in fact_index:
-        return await bot.reply(channel, sender, in_channel, "That fact already exists!")
+        return await ctx.reply("That fact already exists!")
     add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor, FactReqDM) "
                  f"VALUES (%s, %s, %s, %s);")
-    add_data = (str(factname), str(facttext), str(author), reqdm)
+    add_data = (str(factname), str(facttext), str(ctx.sender), reqdm)
     try:
         cursor.execute(add_query, add_data)
         cnx.commit()
-        logging.info(f"FACT ADDED {factname} by {author}")
-        await bot.reply(channel, sender, in_channel, "Fact added successfully")
+        logging.info(f"FACT ADDED {factname} by {ctx.sender}")
+        await ctx.reply("Fact added successfully")
     except mysql.connector.Error as er:
-        print(f"ERROR in registering fact {factname} by {author}: {er}")
-        return await bot.reply(channel, sender, in_channel, "Couldn't add fact! contact a cyber")
+        print(f"ERROR in registering fact {factname} by {ctx.sender}: {er}")
+        return await ctx.reply("Couldn't add fact! contact a cyber")
 
-async def remove_fact(bot: main, factname, channel: str, sender: str, in_channel: bool):
+async def remove_fact(ctx, factname: str):
     # Check if fact exists
     if factname not in fact_index:
-        return await bot.reply(channel, sender, in_channel, "That fact doesn't exist!")
+        return await ctx.reply("That fact doesn't exist!")
     remove_query = (f"DELETE FROM facts "
                     f"WHERE factName = %s;")
     remove_data = (str(factname),)
     try:
         cursor.execute(remove_query, remove_data)
         cnx.commit()
-        logging.info(f"FACT REMOVED {factname} by {sender}")
-        await bot.reply(channel, sender, in_channel, "Fact removed successfully, and will disappear at next restart")
+        logging.info(f"FACT REMOVED {factname} by {ctx.sender}")
+        await ctx.reply("Fact removed successfully, and will disappear at next restart")
     except mysql.connector.Error as er:
-        print(f"ERROR in deleting fact {factname} by {sender}: {er}")
-        return await bot.reply(channel, sender, in_channel, "Couldn't delete fact! contact a cyber")
+        print(f"ERROR in deleting fact {factname} by {ctx.sender}: {er}")
+        return await ctx.reply("Couldn't delete fact! contact a cyber")
 
 
 async def get_facts():

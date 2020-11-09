@@ -32,12 +32,10 @@ async def addfact(ctx, args: List[str]):
     else:
         reqdm = False
         facttext = ' '.join(arg for arg in args[1:])
-    await add_fact(ctx.bot, factname, facttext, ctx.sender,
-                   reqdm, ctx.channel, ctx.sender, ctx.in_channel)
+    await add_fact(ctx, factname, facttext, reqdm)
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
 async def deletefact(ctx, args: List[str]):
     factname = args[0]
-    await remove_fact(ctx.bot, factname, ctx.channel,
-                      ctx.sender, ctx.in_channel)
+    await remove_fact(ctx, factname)
