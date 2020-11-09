@@ -14,7 +14,7 @@ Type=simple
 User=nobody 
 # Group to run the daemon as
 Group=nogroup
-Restart=on-failure
+Restart=always
 RestartSec=5
 StartLimitInterval=10s
 StartLimitBurst=10
