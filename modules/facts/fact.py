@@ -60,9 +60,10 @@ async def remove_fact(bot: main, factname, channel: str, sender: str, in_channel
     if factname not in fact_index:
         return await bot.reply(channel, sender, in_channel, "That fact doesn't exist!")
     remove_query = (f"DELETE FROM facts "
-                    f"WHERE 'FactName' = '%(FactName)s';")
+                    f"WHERE factName = %s;")
+    remove_data = (str(factname),)
     try:
-        cursor.execute(remove_query, (str(factname)))
+        cursor.execute(remove_query, remove_data)
         cnx.commit()
         logging.info(f"FACT REMOVED {factname} by {sender}")
         await bot.reply(channel, sender, in_channel, "Fact removed successfully, and will disappear at next restart")
