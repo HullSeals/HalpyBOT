@@ -32,7 +32,7 @@ class Context:
         self.sender = sender
         self.in_channel = in_channel
 
-    async def reply(self, message):
+    async def reply(self, message: str):
         await self.bot.reply(self.channel, self.sender, self.in_channel, message)
 
 
