@@ -7,7 +7,7 @@ from .fact import add_fact, remove_fact, clear_facts
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-async def allfacts(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
+async def allfacts(bot: main, channel: str, sender: str, in_channel: bool, args: List[str]):
     listallfacts = f"{', '.join(str(fact) for fact in basic_facts)}"
     await bot.reply(channel, sender, in_channel, listallfacts)
 

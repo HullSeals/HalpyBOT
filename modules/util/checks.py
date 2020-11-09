@@ -41,7 +41,7 @@ def require_permission(req_level: str, above: bool = True, message: str = "Acces
 
     def decorator(function):
         @functools.wraps(function)
-        async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
+        async def guarded(bot: main, channel: str, nick: str, in_channel: bool, args: List[str]):
             # Get role
             whois = await User.get_info(bot, nickname=nick)
             modes = User.process_vhost(whois.hostname)

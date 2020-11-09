@@ -25,6 +25,16 @@ commandList = {
     "partchannel": utils.part,
 }
 
+class Context:
+    def __init__(self, bot: main, channel, sender, in_channel):
+        self.bot = bot
+        self.channel = channel
+        self.sender = sender
+        self.in_channel = in_channel
+
+    async def reply(self, message):
+        await self.bot.reply(self.channel, self.sender, self.in_channel, message)
+
 
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(IRC.commandPrefix):
@@ -32,8 +42,9 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         command = parts[0]
         args = parts[1:]
         in_channel = True
+        ctx = Context(bot, channel, sender, in_channel)
         if command in commandList:
-            return await commandList[command](bot, channel, sender, args, in_channel)
+            return await commandList[command](bot, channel, sender, in_channel, args)
         elif command in fact_index:
             return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:
@@ -47,7 +58,7 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         args = parts[1:]
         in_channel = False
         if command in commandList.keys():
-            return await commandList[command](bot, channel, sender, args, in_channel)
+            return await commandList[command](bot, channel, sender, in_channel, args)
         elif command in fact_index:
             return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
         else:

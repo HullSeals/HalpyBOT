@@ -8,7 +8,7 @@ send_to = ["#Repair-Requests", "#Code-Black", "#seal-bob"]
 
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-async def manual_case(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
+async def manual_case(bot: main, channel: str, sender: str, in_channel: bool, args: List[str]):
     message = f"xxxx MANCASE xxxx\n" \
               f"{' '.join(args)}\n" \
               f"xxxx NEWCASE xxxx"
@@ -22,7 +22,7 @@ async def manual_case(bot: main, channel: str, sender: str, args: List[str], in_
 
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-async def manual_kingfisher(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
+async def manual_kingfisher(bot: main, channel: str, sender: str, in_channel: bool, args: List[str]):
     message = f"xxxx MANKFCASE xxxx\n" \
               f"{' '.join(args)}\n" \
               f"xxxx NEWKFCASE xxxx"
