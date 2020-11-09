@@ -46,7 +46,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         if command in commandList:
             return await commandList[command](ctx, args)
         elif command in fact_index:
-            return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
+            return await recite_fact(ctx, args, fact=str(command))
         else:
             return
 
@@ -61,6 +61,6 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         if command in commandList.keys():
             return await commandList[command](ctx, args)
         elif command in fact_index:
-            return await recite_fact(bot, channel, sender, args, in_channel, fact=str(command))
+            return await recite_fact(ctx, args, fact=str(command))
         else:
             return
