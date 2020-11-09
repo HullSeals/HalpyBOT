@@ -1,5 +1,4 @@
 import functools
-import main
 from typing import List
 from modules.datamodels.user import User
 
@@ -27,7 +26,7 @@ requiredlevel = {
 }
 
 class DeniedMessage:
-    GENERIC = "Access denied.",
+    GENERIC = "Access denied."
     PUP = "You need to be registered and logged in with NickServ to use this"
     DRILLED = "You have to be a drilled seal to use this!"
     MODERATOR = "Only moderators+ can use this."
@@ -37,7 +36,7 @@ class DeniedMessage:
     OWNER = "You need to be a Rixxan to use this"
 
 
-def require_permission(req_level: str, above: bool = True, message: str = "Access Denied."):
+def require_permission(req_level: str, message: str = "Access Denied."):
 
     def decorator(function):
         @functools.wraps(function)
@@ -51,9 +50,8 @@ def require_permission(req_level: str, above: bool = True, message: str = "Acces
             level = int(requiredlevel[req_level])
             # If permission is not correct, send deniedMessage
             if userlevel < level:
-                if ctx.in_channel is False:
-                    await ctx.bot.message(ctx.nick, message)
-                    pass
+                await ctx.reply(message)
+                pass
             else:
                 return await function(ctx, args)
 

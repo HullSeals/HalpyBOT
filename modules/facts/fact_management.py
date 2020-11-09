@@ -1,4 +1,3 @@
-import main
 from ..util.checks import require_permission, DeniedMessage, require_dm
 from .fact import update_fact_index, basic_facts, get_facts
 from typing import List
