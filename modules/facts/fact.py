@@ -23,6 +23,10 @@ cursor = cnx.cursor()
 async def on_connect():
     await get_facts()
 
+async def clear_facts():
+    facts.clear()
+    fact_index.clear()
+    basic_facts.clear()
 
 async def update_fact_index():
     global fact_index

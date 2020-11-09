@@ -1,9 +1,9 @@
 import main
 from ..util.checks import require_permission, DeniedMessage, require_dm
-from .fact import fact_index, update_fact_index, basic_facts, get_facts
+from .fact import update_fact_index, basic_facts, get_facts
 from typing import List
 import logging
-from .fact import add_fact, remove_fact
+from .fact import add_fact, remove_fact, clear_facts
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
@@ -14,10 +14,11 @@ async def allfacts(bot: main, channel: str, sender: str, args: List[str], in_cha
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def manual_ufi(bot: main, channel: str, sender: str, args: List[str], in_channel: bool):
     logging.info(f"FACT INDEX UPDATE by {sender}")
+    await bot.reply(channel, sender, in_channel, "Defenestrating facts...")
+    await bot.reply(channel, sender, in_channel, "Clearing fact index...")
+    await clear_facts()
     await bot.reply(channel, sender, in_channel, "Fetching facts...")
     await get_facts()
-    await bot.reply(channel, sender, in_channel, "Clearing fact index...")
-    fact_index.clear()
     await bot.reply(channel, sender, in_channel, "Updating...")
     await update_fact_index()
     await bot.reply(channel, sender, in_channel, "Done.")
