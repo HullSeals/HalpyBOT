@@ -1,5 +1,4 @@
 import functools
-import main
 from typing import List
 from modules.datamodels.user import User
 
@@ -27,7 +26,7 @@ requiredlevel = {
 }
 
 class DeniedMessage:
-    GENERIC = "Access denied.",
+    GENERIC = "Access denied."
     PUP = "You need to be registered and logged in with NickServ to use this"
     DRILLED = "You have to be a drilled seal to use this!"
     MODERATOR = "Only moderators+ can use this."
@@ -37,13 +36,13 @@ class DeniedMessage:
     OWNER = "You need to be a Rixxan to use this"
 
 
-def require_permission(req_level: str, above: bool = True, message: str = "Access Denied."):
+def require_permission(req_level: str, message: str = "Access Denied."):
 
     def decorator(function):
         @functools.wraps(function)
-        async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
+        async def guarded(ctx, args: List[str]):
             # Get role
-            whois = await User.get_info(bot, nickname=nick)
+            whois = await User.get_info(ctx.bot, nickname=ctx.sender)
             modes = User.process_vhost(whois.hostname)
             # Find user level
             userlevel = int(levels[modes])
@@ -51,11 +50,10 @@ def require_permission(req_level: str, above: bool = True, message: str = "Acces
             level = int(requiredlevel[req_level])
             # If permission is not correct, send deniedMessage
             if userlevel < level:
-                if in_channel is False:
-                    await bot.message(nick, message)
-                    pass
+                await ctx.reply(message)
+                pass
             else:
-                return await function(bot, channel, nick, args, in_channel)
+                return await function(ctx, args)
 
         return guarded
 
@@ -66,11 +64,11 @@ def require_dm():
 
     def decorator(function):
         @functools.wraps(function)
-        async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
-            if in_channel:
+        async def guarded(ctx, args: List[str]):
+            if ctx.in_channel:
                 return
             else:
-                return await function(bot, channel, nick, args, in_channel)
+                return await function(ctx, args)
 
         return guarded
 
@@ -81,11 +79,11 @@ def require_channel():
 
     def decorator(function):
         @functools.wraps(function)
-        async def guarded(bot: main, channel: str, nick: str, args: List[str], in_channel: bool):
-            if in_channel is False:
+        async def guarded(ctx, args: List[str]):
+            if ctx.in_channel is False:
                 return
             else:
-                return await function(bot, channel, nick, args, in_channel)
+                return await function(ctx, args)
 
         return guarded
 
