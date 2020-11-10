@@ -6,12 +6,12 @@ from .fact import add_fact, remove_fact, clear_facts
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-async def allfacts(ctx, args: List[str]):
+async def cmd_allfacts(ctx, args: List[str]):
     listallfacts = f"{', '.join(str(fact) for fact in basic_facts)}"
     await ctx.reply(listallfacts)
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def manual_ufi(ctx, args: List[str]):
+async def cmd_manual_ufi(ctx, args: List[str]):
     logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
     await ctx.reply("Defenestrating facts...")
     await ctx.reply("Clearing fact index...")
