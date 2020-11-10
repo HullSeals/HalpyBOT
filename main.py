@@ -48,6 +48,7 @@ class HalpyBOT(pydle.Client):
         else:
             await self.message(sender, message)
 
+
 # Define the Client, mostly pulled from config.py
 client = HalpyBOT(
     IRC.nickname,
