@@ -8,21 +8,21 @@ from modules.facts import fact_management
 
 
 commandList = {
-    "manualcase": manual_case.manual_case,
-    "mancase": manual_case.manual_case,
-    "manualfish": manual_case.manual_kingfisher,
-    "manfish": manual_case.manual_kingfisher,
-    "shutdown": shutdown.shutdown,
-    "ping": utils.ping,
-    "say": utils.say,
-    "test_command": utils.test_command,
-    "allfacts": fact_management.allfacts,
-    "fact_update": fact_management.manual_ufi,
-    "ufi": fact_management.manual_ufi,
+    "manualcase": manual_case.cmd_manual_case,
+    "mancase": manual_case.cmd_manual_case,
+    "manualfish": manual_case.cmd_manual_kingfisher,
+    "manfish": manual_case.cmd_manual_kingfisher,
+    "shutdown": shutdown.cmd_shutdown,
+    "ping": utils.cmd_ping,
+    "say": utils.cmd_say,
+    "test_command": utils.cmd_test,
+    "allfacts": fact_management.cmd_allfacts,
+    "fact_update": fact_management.cmd_manual_ufi,
+    "ufi": fact_management.cmd_manual_ufi,
     "addfact": fact_management.addfact,
     "deletefact": fact_management.deletefact,
-    "joinchannel": utils.joinchannel,
-    "partchannel": utils.part,
+    "joinchannel": utils.cmd_joinchannel,
+    "partchannel": utils.cmd_part,
 }
 
 class Context:

@@ -6,12 +6,24 @@ from .fact import add_fact, remove_fact, clear_facts
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-async def allfacts(ctx, args: List[str]):
+async def cmd_allfacts(ctx, args: List[str]):
+    """
+    List all registered facts
+
+    Usage: !allfacts
+    Aliases: n/a
+    """
     listallfacts = f"{', '.join(str(fact) for fact in basic_facts)}"
     await ctx.reply(listallfacts)
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def manual_ufi(ctx, args: List[str]):
+async def cmd_manual_ufi(ctx, args: List[str]):
+    """
+    Manually update the fact cache and index
+
+    Usage: !ufi
+    Aliases: fact_update
+    """
     logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
     await ctx.reply("Defenestrating facts...")
     await ctx.reply("Clearing fact index...")
@@ -24,7 +36,13 @@ async def manual_ufi(ctx, args: List[str]):
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
-async def addfact(ctx, args: List[str]):
+async def cmd_addfact(ctx, args: List[str]):
+    """
+    Add a new fact to the database
+
+    Usage: !addfact [name] <--dm> [facttext]
+    Aliases: n/a
+    """
     factname = args[0]
     if args[1] == "--dm":
         reqdm = True
@@ -36,6 +54,11 @@ async def addfact(ctx, args: List[str]):
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
-async def deletefact(ctx, args: List[str]):
+async def cmd_deletefact(ctx, args: List[str]):
+    """
+    Delete a fact from the database
+
+    Usage: !deletefact [factname]
+    """
     factname = args[0]
     await remove_fact(ctx, factname)
