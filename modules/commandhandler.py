@@ -19,8 +19,8 @@ commandList = {
     "allfacts": fact_management.cmd_allfacts,
     "fact_update": fact_management.cmd_manual_ufi,
     "ufi": fact_management.cmd_manual_ufi,
-    "addfact": fact_management.addfact,
-    "deletefact": fact_management.deletefact,
+    "addfact": fact_management.cmd_addfact,
+    "deletefact": fact_management.cmd_deletefact,
     "joinchannel": utils.cmd_joinchannel,
     "partchannel": utils.cmd_part,
 }
