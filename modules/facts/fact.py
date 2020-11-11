@@ -3,7 +3,9 @@ import re
 import mysql.connector
 import logging
 import modules.commandhandler
-from config import Database
+from main import config
+
+dbconfig = config['Database']
 
 facts = {}
 
@@ -11,10 +13,10 @@ fact_index = []
 basic_facts = []
 
 
-cnx = mysql.connector.connect(user=Database.user,
-                              password=Database.password,
-                              host=Database.host,
-                              database=Database.database)
+cnx = mysql.connector.connect(user=dbconfig['user'],
+                              password=dbconfig['password'],
+                              host=dbconfig['host'],
+                              database=dbconfig['database'])
 print("Database connection established")
 
 cursor = cnx.cursor()

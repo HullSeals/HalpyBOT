@@ -2,7 +2,6 @@
 /venv/
 
 # Config files
-/config.py
 /config/config.ini
 
 # Logging

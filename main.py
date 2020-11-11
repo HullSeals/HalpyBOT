@@ -13,8 +13,11 @@ import signal
 import functools
 from modules.announcer import announcer
 from modules.facts import fact
+import configparser
 
-from config import IRC, ChannelArray, SASL, Announcer
+config = configparser.ConfigParser()
+config.read('config/config.ini')
+channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s', filename='halpybot.log', level=logging.DEBUG)
 
@@ -25,17 +28,18 @@ class HalpyBOT(pydle.Client):
         await super().on_connect()
         await fact.on_connect()
         print("Fact module loaded successfully")
-        await self.raw(f"OPER {IRC.operline} {IRC.operlinePassword}\r\n")
+        await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
         logging.info("Connected")
         print("Connected!")
-        for channel in ChannelArray.channels:
+        for channel in channels:
             await self.join(channel)
             logging.info(channel)
 
     async def on_channel_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
         await commandhandler.on_channel_message(self, target, nick, message)
-        if target in Announcer.channels and nick in Announcer.nicks:
+        nicks = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
+        if target in config['Announcer']['channel'] and nick in nicks:
             await announcer.on_channel_message(self, target, nick, message)
 
     async def on_private_message(self, target, nick, message):
@@ -49,17 +53,18 @@ class HalpyBOT(pydle.Client):
             await self.message(sender, message)
 
 
-# Define the Client, mostly pulled from config.py
+# Define the Client, mostly pulled from config.ini
 client = HalpyBOT(
-    IRC.nickname,
-    sasl_identity=SASL.identity,
-    sasl_password=SASL.password,
-    sasl_username=SASL.username
+    config['IRC']['nickname'],
+    sasl_identity=config['SASL']['identity'],
+    sasl_password=config['SASL']['password'],
+    sasl_username=config['SASL']['username']
 )
 
 
 async def start():
-    await client.connect(IRC.server, IRC.port, tls=IRC.useSsl, tls_verify=False)
+    await client.connect(config['IRC']['server'], config['IRC']['port'],
+                         tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
 
 # Signal handler
 async def shutdown(signal, loop):
