@@ -14,9 +14,9 @@ import functools
 from modules.announcer import announcer
 from modules.facts import fact
 
-from config import IRC, ChannelArray, SASL, Announcer
+from config import IRC, ChannelArray, SASL, Announcer, Logging
 
-logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s', filename='halpybot.log', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s', level=Logging.level)
 
 
 class HalpyBOT(pydle.Client):
