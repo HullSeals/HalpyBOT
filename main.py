@@ -17,6 +17,7 @@ import configparser
 
 config = configparser.ConfigParser()
 config.read('config/config.ini')
+
 channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s', filename='halpybot.log', level=logging.DEBUG)
