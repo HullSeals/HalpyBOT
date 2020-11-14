@@ -20,7 +20,8 @@ config.read('config/config.ini')
 
 channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
 
-logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s', filename='halpybot.log', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s', 
+                    level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
 
 
 class HalpyBOT(pydle.Client):
