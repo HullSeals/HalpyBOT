@@ -1,5 +1,4 @@
 from modules.facts.fact import recite_fact
-from config import IRC
 import main
 from .announcer import manual_case
 from .util import shutdown, utils
@@ -19,8 +18,8 @@ commandList = {
     "allfacts": fact_management.cmd_allfacts,
     "fact_update": fact_management.cmd_manual_ufi,
     "ufi": fact_management.cmd_manual_ufi,
-    "addfact": fact_management.addfact,
-    "deletefact": fact_management.deletefact,
+    "addfact": fact_management.cmd_addfact,
+    "deletefact": fact_management.cmd_deletefact,
     "joinchannel": utils.cmd_joinchannel,
     "partchannel": utils.cmd_part,
 }
@@ -37,7 +36,7 @@ class Context:
 
 
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
-    if message.startswith(IRC.commandPrefix):
+    if message.startswith(main.config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
         command = parts[0]
         args = parts[1:]
@@ -52,7 +51,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
 
 
 async def on_private_message(bot: main, channel: str, sender: str, message: str):
-    if message.startswith(IRC.commandPrefix):
+    if message.startswith(main.config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
         command = parts[0]
         args = parts[1:]

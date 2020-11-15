@@ -1,7 +1,8 @@
 from typing import List
 import logging
 from .checks import require_dm, require_permission, DeniedMessage
-from config import ChannelArray
+from main import config
+import pydle
 
 
 async def cmd_ping(ctx, args: List[str]):
@@ -31,27 +32,42 @@ async def cmd_say(ctx, args: List[str]):
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_joinchannel(ctx, args: List[str]):
     """
-    Make the bot join a channel. it won't rejoin after the bot disconnects.
-    If the bot should always join this channel, put it in the config file
+    Make the bot join a channel. After restart, it will still be in the channel.
+    To make it leave, use !partchannel
 
-    Usage: !join [channel]
+    Usage: !joinchannel [channel]
     Aliases: n/a
     """
     # Check if argument starts with a #
     if args[0].startswith("#"):
-        await ctx.bot.join(args[0])
-        ChannelArray.channels.append(args[0])
-        return
-    if args[0] in ChannelArray.channels:
-        return await ctx.reply("Bot is already on that channel!")
+        try:
+            await ctx.bot.join(args[0])
+            await ctx.reply(f"Bot joined channel {str(args[0])}")
+            config['Channels']['ChannelList'] += f", {args[0]}"
+            with open('config/config.ini', 'w') as conf:
+                config.write(conf)
+            await ctx.reply("Config file updated.")
+            return
+        except pydle.client.AlreadyInChannel as er:
+            await ctx.reply("Bot is already in that channel!")
     else:
-        ctx.reply("That's not a channel!")
+        await ctx.reply("That's not a channel!")
 
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_part(ctx, args: List[str]):
+    """
+    Make the bot leave the channel it's currently in
+
+    Usage: !partchannel
+    Aliases: n/a
+    """
+    channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
     await ctx.bot.part(message=f"PART by {ctx.sender}", channel=ctx.channel)
-    ChannelArray.channels.remove(__value=str(args[0]))
+    channels.remove(str(ctx.channel))
+    config['Channels']['ChannelList'] = ', '.join(ch for ch in channels)
+    with open('config/config.ini', 'w') as conf:
+        config.write(conf)
 
 
 # Just leave this here, it makes it easier to test stuff.
