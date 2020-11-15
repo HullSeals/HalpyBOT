@@ -1,3 +1,16 @@
+"""
+HalpyBOT v1.5
+
+fact.py - Main fact module
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+
 from typing import List
 import re
 import mysql.connector

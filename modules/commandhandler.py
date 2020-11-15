@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.5
+
+commandhandler.py - Send messages to the correct modules
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 from modules.facts.fact import recite_fact
 import main
 from .announcer import manual_case

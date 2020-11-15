@@ -1,8 +1,14 @@
 """
 HalpyBOT v1.5
-Written by Rixxan and Rik079
-For the Hull Seals
-With a Boot to the Head.
+
+> For the Hull Seals, with a boot to the head
+Rixxan
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
 """
 
 import pydle

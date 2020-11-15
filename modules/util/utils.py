@@ -1,3 +1,16 @@
+"""
+HalpyBOT v1.5
+
+utils.py - miscellaneous management commands
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+
 from typing import List
 import logging
 from .checks import require_dm, require_permission, DeniedMessage

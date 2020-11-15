@@ -1,3 +1,16 @@
+"""
+HalpyBOT v1.5
+
+announcer.py - Client announcement handler
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+
 import main
 from . import message_builder as mb
 import logging

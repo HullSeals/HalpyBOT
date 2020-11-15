@@ -1,3 +1,16 @@
+"""
+HalpyBOT v1.5
+
+checks.py - Check check check...
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+
 import functools
 from typing import List
 from modules.datamodels.user import User

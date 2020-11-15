@@ -1,3 +1,16 @@
+"""
+HalpyBOT v1.5
+
+fact_management.py - Fact module settings commands
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+
 from ..util.checks import require_permission, DeniedMessage, require_dm
 from .fact import update_fact_index, basic_facts, get_facts
 from typing import List

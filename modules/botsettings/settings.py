@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.5
+
+settings.py - bot settings modification module
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 from typing import List
 from ..util.checks import require_permission, DeniedMessage
 from main import config
