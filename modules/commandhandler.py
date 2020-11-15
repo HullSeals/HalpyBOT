@@ -4,24 +4,30 @@ from .announcer import manual_case
 from .util import shutdown, utils
 from .facts.fact import fact_index
 from modules.facts import fact_management
+from modules.botsettings import settings
 
 
 commandList = {
+    # Announcer commands
     "manualcase": manual_case.cmd_manual_case,
     "mancase": manual_case.cmd_manual_case,
     "manualfish": manual_case.cmd_manual_kingfisher,
     "manfish": manual_case.cmd_manual_kingfisher,
+    # Util commands
     "shutdown": shutdown.cmd_shutdown,
     "ping": utils.cmd_ping,
     "say": utils.cmd_say,
     "test_command": utils.cmd_test,
+    "joinchannel": utils.cmd_joinchannel,
+    "partchannel": utils.cmd_part,
+    # Fact management commands
     "allfacts": fact_management.cmd_allfacts,
     "fact_update": fact_management.cmd_manual_ufi,
     "ufi": fact_management.cmd_manual_ufi,
     "addfact": fact_management.cmd_addfact,
     "deletefact": fact_management.cmd_deletefact,
-    "joinchannel": utils.cmd_joinchannel,
-    "partchannel": utils.cmd_part,
+    # Settings commands
+    "settings": settings.cmd_group_settings,
 }
 
 class Context:

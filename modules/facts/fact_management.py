@@ -59,6 +59,7 @@ async def cmd_deletefact(ctx, args: List[str]):
     Delete a fact from the database
 
     Usage: !deletefact [factname]
+    Aliases: n/a
     """
     factname = args[0]
     await remove_fact(ctx, factname)
