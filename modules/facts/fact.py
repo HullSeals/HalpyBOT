@@ -12,7 +12,6 @@ See license.md
 
 
 from typing import List
-import re
 import mysql.connector
 import logging
 import modules.commandhandler
@@ -45,7 +44,6 @@ async def clear_facts():
 async def update_fact_index():
     global fact_index
     factnames = facts.keys()
-    regexp = re.compile("-")
     for name in factnames:
         if name in fact_index:
             continue
@@ -53,7 +51,7 @@ async def update_fact_index():
             continue
         else:
             fact_index.append(str(name))
-            if not regexp.search(name) and name not in basic_facts:
+            if "-" not in name and name not in basic_facts:
                 basic_facts.append(str(name))
 
 
