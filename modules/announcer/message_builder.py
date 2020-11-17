@@ -1,3 +1,16 @@
+"""
+HalpyBOT v1.5
+
+message_builder.py - Build the messages for the announcer
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+
 from typing import List
 
 send_to = ["#Repair-Requests", "#Code-Black", "#seal-bob"]

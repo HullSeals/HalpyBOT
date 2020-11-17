@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.5
+
+manual_case.py - Manual case creation module
+
+Copyright (c) 2020 The Hull Seals,
+All rights reserved
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 from typing import List
 from modules.util.checks import require_permission, DeniedMessage
 import logging
