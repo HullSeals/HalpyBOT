@@ -14,6 +14,7 @@ from typing import List
 from ..util.checks import require_permission, DeniedMessage
 from main import config
 import logging
+from ..configmanager.edit import config_write
 
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
@@ -27,9 +28,8 @@ async def cmd_nick(ctx, args: List[str]):
     logging.info(f"NICK CHANGE from {config['IRC']['nickname']} to {args[0]} by {ctx.sender}")
     await ctx.bot.set_nickname(args[0])
     # Write changes to config file
-    config['IRC']['nickname'] = args[0]
-    with open('config/config.ini', 'w') as conf:
-        config.write(conf)
+    await config_write('IRC', 'nickname', args[0])
+
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_prefix(ctx, args: List[str]):
@@ -41,12 +41,10 @@ async def cmd_prefix(ctx, args: List[str]):
     Aliases: n/a
     """
     logging.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")
-    config['IRC']['commandPrefix'] = args[0]
-    with open('config/config.ini', 'w') as conf:
-        config.write(conf)
-        await ctx.reply(f"Changed prefix to '{args[0]}'")
-        await ctx.bot.message(f"#cybers", f"Warning, prefix changed to {args[0]} by "
-                                          f"{ctx.sender}! Rik079!")
+    await config_write('IRC', 'commandPrefix', args[0])
+    await ctx.reply(f"Changed prefix to '{args[0]}'")
+    await ctx.bot.message(f"#cybers", f"Warning, prefix changed to {args[0]} by "
+                                      f"{ctx.sender}! Rik079!")
 
 
 # Create the command group
