@@ -122,7 +122,7 @@ async def recite_fact(ctx, args: List[str], fact: str):
         if len(args) == 0:
             return await ctx.bot.message(ctx.sender, facts[str(f"{fact}_no_args")][1])
         else:
-            return await ctx.bot.message(ctx.sender, f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)][1]})")
+            return await ctx.bot.message(ctx.sender, f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)][1]}")
 
     # PM only, 1 version
     if f"{fact}_no_args" not in facts and ctx.in_channel is False and req_dm is True:
@@ -133,7 +133,7 @@ async def recite_fact(ctx, args: List[str], fact: str):
         if len(args) == 0:
             return await ctx.reply(facts[str(fact)][1])
         else:
-            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)][1]})")
+            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)][1]}")
 
     # Public and PM, args and noargs
     if ctx.in_channel and req_dm is False:
