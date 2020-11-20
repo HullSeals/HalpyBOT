@@ -46,7 +46,7 @@ class HalpyBOT(pydle.Client):
     async def on_channel_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
         await commandhandler.on_channel_message(self, target, nick, message)
-        nicks = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
+        nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
         if target in config['Announcer']['channel'] and nick in nicks:
             await announcer.on_channel_message(self, target, nick, message)
 
