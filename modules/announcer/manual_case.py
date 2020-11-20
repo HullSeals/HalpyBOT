@@ -48,7 +48,7 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
     """
     message = f"xxxx MANKFCASE xxxx\n" \
               f"{' '.join(args)}\n" \
-              f"xxxx NEWKFCASE xxxx"
+              f"xxxx NEWCASE xxxx"
     for ch in send_to:
         await ctx.bot.message(ch, message)
         logging.info(f"Manual kingfisher case by {ctx.sender} in {ctx.channel}: {args}")
