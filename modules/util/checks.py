@@ -1,4 +1,15 @@
 """
+This file uses Open Source components.
+You can find the source code of their open source projects along with license
+information below. We acknowledge and are grateful to these developers for their contributions to open source.
+
+Project: SPARK / pipsqueak3 https://github.com/FuelRats/pipsqueak3
+License: https://github.com/FuelRats/pipsqueak3/blob/develop/LICENSE
+
+BSD 3-Clause License
+Copyright (c) 2018, The Fuel Rats Mischief
+All rights reserved.
+
 HalpyBOT v1.5
 
 checks.py - Check check check...
