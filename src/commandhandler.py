@@ -1,7 +1,7 @@
 """
 HalpyBOT v1.5
 
-commandhandler.py - Send messages to the correct modules
+commandhandler.py - Send messages to the correct src
 
 Copyright (c) 2020 The Hull Seals,
 All rights reserved
@@ -10,13 +10,13 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from modules.facts.fact import recite_fact
+from src.facts.fact import recite_fact
 import main
 from .announcer import manual_case
 from .util import shutdown, utils
 from .facts.fact import fact_index
-from modules.facts import fact_management
-from modules.botsettings import settings
+from src.facts import fact_management
+from src.botsettings import settings
 
 
 commandList = {

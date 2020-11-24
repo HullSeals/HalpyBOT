@@ -13,12 +13,12 @@ See license.md
 
 import pydle
 import logging
-import modules.commandhandler as commandhandler
+import src.commandhandler as commandhandler
 import asyncio
 import signal
 import functools
-from modules.announcer import announcer
-from modules.facts import fact
+from src.announcer import announcer
+from src.facts import fact
 import configparser
 
 config = configparser.ConfigParser()

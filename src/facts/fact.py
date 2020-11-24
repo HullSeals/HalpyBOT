@@ -14,7 +14,7 @@ See license.md
 from typing import List
 import mysql.connector
 import logging
-import modules.commandhandler
+import src.commandhandler
 from main import config
 import json
 
@@ -61,7 +61,7 @@ async def update_fact_index():
 
 async def add_fact(ctx, factname: str, facttext: str):
     # Check if not already a command
-    if factname in modules.commandhandler.commandList:
+    if factname in src.commandhandler.commandList:
         return await ctx.reply("Cannot register fact: already an existing command!")
     # Check if fact doesn't already exist
     if factname in fact_index:
@@ -107,7 +107,7 @@ async def get_facts():
     # check for connection
     if cnx is None:
         global facts
-        with open('modules/facts/backup_facts.json') as json_file:
+        with open('src/facts/backup_facts.json') as json_file:
             facts = json.load(json_file)
             return await update_fact_index()
     get_query = (f"SELECT factName, factText "
