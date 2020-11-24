@@ -11,7 +11,7 @@ See license.md
 """
 
 from typing import List
-from modules.util.checks import require_permission, DeniedMessage
+from src.util.checks import require_permission, DeniedMessage
 import logging
 from ..util.checks import require_channel
 
