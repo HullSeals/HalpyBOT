@@ -12,10 +12,10 @@ See license.md
 
 
 from ..util.checks import require_permission, DeniedMessage, require_dm
-from .fact import update_fact_index, basic_facts, get_facts
+from .fact import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from .fact import add_fact, remove_fact, clear_facts
+from .fact import add_fact, remove_fact, cnx
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
@@ -38,12 +38,11 @@ async def cmd_manual_ufi(ctx, args: List[str]):
     Aliases: fact_update
     """
     logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
-    await ctx.reply("Defenestrating facts...")
-    await ctx.reply("Clearing fact index...")
-    await clear_facts()
-    await ctx.reply("Fetching facts...")
-    await get_facts()
+    if cnx is None:
+        return await ctx.reply("Cannot update cache: bot running in online mode!")
     await ctx.reply("Updating...")
+    await clear_facts()
+    await get_facts()
     await update_fact_index()
     await ctx.reply("Done.")
 
@@ -56,14 +55,13 @@ async def cmd_addfact(ctx, args: List[str]):
     Usage: !addfact [name] <--dm> [facttext]
     Aliases: n/a
     """
+    # Check if running on online mode
+    if cnx is None:
+        return await ctx.reply("Cannot add fact: bot running in online mode!")
+    # Else, add fact
     factname = args[0]
-    if args[1] == "--dm":
-        reqdm = True
-        facttext = ' '.join(arg for arg in args[2:])
-    else:
-        reqdm = False
-        facttext = ' '.join(arg for arg in args[1:])
-    await add_fact(ctx, factname, facttext, reqdm)
+    facttext = ' '.join(arg for arg in args[1:])
+    await add_fact(ctx, factname, facttext)
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
@@ -74,5 +72,8 @@ async def cmd_deletefact(ctx, args: List[str]):
     Usage: !deletefact [factname]
     Aliases: n/a
     """
+    # Check if running on online mode
+    if cnx is None:
+        return await ctx.reply("Cannot remove fact: bot running in online mode!")
     factname = args[0]
     await remove_fact(ctx, factname)
