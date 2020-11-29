@@ -13,7 +13,7 @@ See license.md
 
 from typing import List
 
-send_to = ["#Repair-Requests", "#Code-Black", "#seal-bob"]
+send_to = ["#Repair-Requests", "#seal-bob"]
 
 async def codeblack(ctx, args: List[str]):
     message = f"xxxx CBCASE -- NEWCASE xxxx \n" \

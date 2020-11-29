@@ -25,6 +25,7 @@ commandList = {
     "mancase": manual_case.cmd_manual_case,
     "manualfish": manual_case.cmd_manual_kingfisher,
     "manfish": manual_case.cmd_manual_kingfisher,
+    "wssPing": manual_case.cmd_wss_ping,
     # Util commands
     "shutdown": shutdown.cmd_shutdown,
     "ping": utils.cmd_ping,

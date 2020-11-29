@@ -15,7 +15,7 @@ from src.util.checks import require_permission, DeniedMessage
 import logging
 from ..util.checks import require_channel
 
-send_to = ["#Repair-Requests", "#Code-Black", "#seal-bob"]
+send_to = ["#Repair-Requests", "#seal-bob"]
 
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
@@ -55,3 +55,17 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
     cn_message = f"New Manual KFCase Available -- <@&744998165714829334>\n" \
                  f"{' '.join(args)}"
     await ctx.bot.message("#case-notify", cn_message)
+
+
+@require_channel()
+@require_permission("DRILLED", message=DeniedMessage.DRILLED)
+async def cmd_wss_ping(ctx, args: List[str]):
+    """
+    Alert the "Why So Sealious" role that CMDRs are needed for this case. Annoying AF and not to be used lightly.
+
+    Usage: !wssPing
+    Aliases: none
+    """
+    cn_message = f"Attention to the Above Cases, Seals! -- <@&591822215238909966>"
+    await ctx.bot.message("#case-notify", cn_message)
+    await ctx.reply("Notification Sent!")
