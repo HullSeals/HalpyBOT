@@ -66,6 +66,6 @@ async def cmd_wss_ping(ctx, args: List[str]):
     Usage: !wssPing
     Aliases: none
     """
-    cn_message = f"Attention to the Above Cases, Seals! -- <@&591822215238909966>"
+    cn_message = f"Message from {ctx.sender}: Attention to the Above Cases, Seals! -- <@&591822215238909966>"
     await ctx.bot.message("#case-notify", cn_message)
     await ctx.reply("Notification Sent!")
