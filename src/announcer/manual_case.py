@@ -26,9 +26,9 @@ async def cmd_manual_case(ctx, args: List[str]):
     Usage: !manualcase [case info]
     Aliases: mancase
     """
-    message = f"xxxx MANCASE xxxx\n" \
+    message = f"xxxx MANCASE -- NEWCASE xxxx\n" \
               f"{' '.join(args)}\n" \
-              f"xxxx NEWCASE xxxx"
+              f"xxxxxxxx"
     for ch in send_to:
         await ctx.bot.message(ch, message)
         logging.info(f"Manual case by {ctx.sender} in {ctx.channel}: {args}")
@@ -46,9 +46,9 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
     Usage: !manualfish [case info]
     Aliases: manfish
     """
-    message = f"xxxx MANKFCASE xxxx\n" \
+    message = f"xxxx MANKFCASE -- NEWCASE xxxx\n" \
               f"{' '.join(args)}\n" \
-              f"xxxx NEWCASE xxxx"
+              f"xxxxxxxx"
     for ch in send_to:
         await ctx.bot.message(ch, message)
         logging.info(f"Manual kingfisher case by {ctx.sender} in {ctx.channel}: {args}")
