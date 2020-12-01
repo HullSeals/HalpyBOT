@@ -98,6 +98,5 @@ async def kingfisher_plterr(ctx, args: List[str]):
         await ctx.bot.message(ch, message)
 
 async def ppwk(ctx, args: List[str]):
-    message = f"Paperwork for case {args[0]} completed by {args[1]}"
     for ch in send_to('Announcer.paperwork', 'channels'):
-        await ctx.bot.message(ch, message)
+        await ctx.bot.message(ch, f"Paperwork for case {args[0]} completed by {args[1]}")
