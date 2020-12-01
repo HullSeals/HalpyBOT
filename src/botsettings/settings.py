@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.1
 
 settings.py - bot settings modification module
 

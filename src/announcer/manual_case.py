@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.1
 
 manual_case.py - Manual case creation module
 
