@@ -33,6 +33,7 @@ commandList = {
     "test_command": utils.cmd_test,
     "joinchannel": utils.cmd_joinchannel,
     "partchannel": utils.cmd_part,
+    "forcejoin": utils.cmd_sajoin,
     # Fact management commands
     "allfacts": fact_management.cmd_allfacts,
     "fact_update": fact_management.cmd_manual_ufi,
