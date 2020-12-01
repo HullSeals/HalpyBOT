@@ -37,11 +37,17 @@ class AnnouncerContext:
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     # Seperate arguments
     parts = message.split(" -~~- ")
-    casetype = parts[0]
-    args = parts[1:]
-    ctx = AnnouncerContext(bot, channel, sender)
-    if casetype in caseIndicatorsList:
-        logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
-        return await caseIndicatorsList[casetype](ctx, args)
+    if parts[0] = PPWK:
+        args = parts[1:]
+        ctx = AnnouncerContext(bot, channel, sender)
+        logging.info(f"Paperwork Completion from {sender}: {message}")
+        return await ppwk(ctx, args)
     else:
-        return
+        casetype = parts[0]
+        args = parts[1:]
+        ctx = AnnouncerContext(bot, channel, sender)
+        if casetype in caseIndicatorsList:
+            logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
+            return await caseIndicatorsList[casetype](ctx, args)
+        else:
+            return
