@@ -37,7 +37,7 @@ class AnnouncerContext:
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     # Seperate arguments
     parts = message.split(" -~~- ")
-    if parts[0] == "PPWK" :
+    if parts[0] == "PPWK":
         args = parts[1:]
         ctx = AnnouncerContext(bot, channel, sender)
         logging.info(f"Paperwork Completion from {sender}: {message}")
