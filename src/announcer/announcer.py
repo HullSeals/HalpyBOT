@@ -44,7 +44,6 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
     args = parts[1:]
     ctx = AnnouncerContext(bot, channel, sender)
     if anntype in annList:
-        print("TEST2")
         logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
         return await annList[anntype](ctx, args)
     else:
