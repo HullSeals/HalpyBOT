@@ -107,4 +107,4 @@ async def cmd_sajoin(ctx, args: List[str]):
         await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
         return
     else:
-        await ctx.reply("That's not a valid channel!")
+        await ctx.reply("I can't move people there.")
