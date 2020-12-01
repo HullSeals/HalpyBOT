@@ -42,7 +42,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         ctx = AnnouncerContext(bot, channel, sender)
         logging.info(f"Paperwork Completion from {sender}: {message}")
         return await ppwk(ctx, args)
-    else
+    else:
         casetype = parts[0]
         args = parts[1:]
         ctx = AnnouncerContext(bot, channel, sender)
