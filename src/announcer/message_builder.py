@@ -12,15 +12,17 @@ See license.md
 
 
 from typing import List
+import main
 
-send_to = ["#Repair-Requests", "#seal-bob"]
+def send_to(annmodule: str, type: str):
+    return [entry.strip() for entry in main.config.get(annmodule, type).split(',')]
 
 async def codeblack(ctx, args: List[str]):
     message = f"xxxx CBCASE -- NEWCASE xxxx \n" \
               f"CMDR: {args[0]} -- Platform: {args[1]} System: {args[2]} -- Hull: {args[3]} \n" \
               f"Can synth: {args[4]} -- O2 timer: {args[5]} \n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def pc(ctx, args: List[str]):
@@ -28,7 +30,7 @@ async def pc(ctx, args: List[str]):
               f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def xb(ctx, args: List[str]):
@@ -36,7 +38,7 @@ async def xb(ctx, args: List[str]):
               f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def ps(ctx, args: List[str]):
@@ -44,7 +46,7 @@ async def ps(ctx, args: List[str]):
               f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def plterr(ctx, args: List[str]):
@@ -52,7 +54,7 @@ async def plterr(ctx, args: List[str]):
               f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def kingfisher_xb(ctx, args: List[str]):
@@ -62,7 +64,7 @@ async def kingfisher_xb(ctx, args: List[str]):
               f"Coordinates: {args[4]}\n" \
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def kingfisher_pc(ctx, args: List[str]):
@@ -72,7 +74,7 @@ async def kingfisher_pc(ctx, args: List[str]):
               f"Coordinates: {args[4]}\n" \
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def kingfisher_ps(ctx, args: List[str]):
@@ -82,7 +84,7 @@ async def kingfisher_ps(ctx, args: List[str]):
               f"Coordinates: {args[4]}\n" \
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def kingfisher_plterr(ctx, args: List[str]):
@@ -92,10 +94,9 @@ async def kingfisher_plterr(ctx, args: List[str]):
               f"Coordinates: {args[4]}\n" \
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
 
 async def ppwk(ctx, args: List[str]):
-    message = f"Paperwork for case {args[0]} completed by {args[1]}"
-    for ch in send_to:
-        await ctx.bot.message(ch, message)
+    for ch in send_to('Announcer.paperwork', 'channels'):
+        await ctx.bot.message(ch, f"Paperwork for case {args[0]} completed by {args[1]}")

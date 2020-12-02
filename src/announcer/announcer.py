@@ -16,7 +16,8 @@ from . import message_builder as mb
 import logging
 
 
-caseIndicatorsList = {
+annList = {
+    # Cases
     "CODEBLACK": mb.codeblack,
     "PC": mb.pc,
     "XB": mb.xb,
@@ -25,7 +26,9 @@ caseIndicatorsList = {
     "XBFISH": mb.kingfisher_xb,
     "PCFISH": mb.kingfisher_pc,
     "PSFISH": mb.kingfisher_ps,
-    "PLTERRFISH": mb.kingfisher_plterr
+    "PLTERRFISH": mb.kingfisher_plterr,
+    # Other
+    "PPWK": mb.ppwk,
 }
 
 class AnnouncerContext:
@@ -37,17 +40,11 @@ class AnnouncerContext:
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     # Seperate arguments
     parts = message.split(" -~~- ")
-    if parts[0] == "PPWK" :
-        args = parts[1:]
-        ctx = AnnouncerContext(bot, channel, sender)
-        logging.info(f"Paperwork Completion from {sender}: {message}")
-        return await mb.ppwk(ctx, args)
+    anntype = parts[0]
+    args = parts[1:]
+    ctx = AnnouncerContext(bot, channel, sender)
+    if anntype in annList:
+        logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
+        return await annList[anntype](ctx, args)
     else:
-        casetype = parts[0]
-        args = parts[1:]
-        ctx = AnnouncerContext(bot, channel, sender)
-        if casetype in caseIndicatorsList:
-            logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
-            return await caseIndicatorsList[casetype](ctx, args)
-        else:
-            return
+        return
