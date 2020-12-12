@@ -58,7 +58,7 @@ class Context:
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(main.config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
-        command = parts[0]
+        command = parts[0].lower()
         args = parts[1:]
         in_channel = True
         ctx = Context(bot, channel, sender, in_channel)
@@ -73,7 +73,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
 async def on_private_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(main.config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
-        command = parts[0]
+        command = parts[0].lower()
         args = parts[1:]
         in_channel = False
         ctx = Context(bot, channel, sender, in_channel)
