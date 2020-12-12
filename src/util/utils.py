@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.1
 
 utils.py - miscellaneous management commands
 
@@ -87,3 +87,24 @@ async def cmd_part(ctx, args: List[str]):
 @require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
 async def cmd_test(ctx, args: List[str]):
     return
+
+joinableChannels = {
+"#debrief",
+"#Code-Black",
+"#Repair-Requests"
+}
+
+@require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
+async def cmd_sajoin(ctx, args: List[str]):
+    """
+    Make the bot force a user to join a channel.
+
+    Usage: !forcejoin [user] [channel]
+    Aliases: n/a
+    """
+    if args[1] in joinableChannels:
+        await ctx.bot.rawmsg('SAJOIN', args[0], args[1])
+        await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
+        return
+    else:
+        await ctx.reply("I can't move people there.")

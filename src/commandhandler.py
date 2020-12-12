@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.1
 
 commandhandler.py - Send messages to the correct src
 
@@ -25,6 +25,7 @@ commandList = {
     "mancase": manual_case.cmd_manual_case,
     "manualfish": manual_case.cmd_manual_kingfisher,
     "manfish": manual_case.cmd_manual_kingfisher,
+    "wssPing": manual_case.cmd_wss_ping,
     # Util commands
     "shutdown": shutdown.cmd_shutdown,
     "ping": utils.cmd_ping,
@@ -32,6 +33,7 @@ commandList = {
     "test_command": utils.cmd_test,
     "joinchannel": utils.cmd_joinchannel,
     "partchannel": utils.cmd_part,
+    "forcejoin": utils.cmd_sajoin,
     # Fact management commands
     "allfacts": fact_management.cmd_allfacts,
     "fact_update": fact_management.cmd_manual_ufi,
@@ -56,7 +58,7 @@ class Context:
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(main.config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
-        command = parts[0]
+        command = parts[0].lower()
         args = parts[1:]
         in_channel = True
         ctx = Context(bot, channel, sender, in_channel)
@@ -71,7 +73,7 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
 async def on_private_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(main.config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
-        command = parts[0]
+        command = parts[0].lower()
         args = parts[1:]
         in_channel = False
         ctx = Context(bot, channel, sender, in_channel)

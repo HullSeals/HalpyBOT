@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.1
 
 announcer.py - Client announcement handler
 
@@ -16,7 +16,8 @@ from . import message_builder as mb
 import logging
 
 
-caseIndicatorsList = {
+annList = {
+    # Cases
     "CODEBLACK": mb.codeblack,
     "PC": mb.pc,
     "XB": mb.xb,
@@ -25,7 +26,9 @@ caseIndicatorsList = {
     "XBFISH": mb.kingfisher_xb,
     "PCFISH": mb.kingfisher_pc,
     "PSFISH": mb.kingfisher_ps,
-    "PLTERRFISH": mb.kingfisher_plterr
+    "PLTERRFISH": mb.kingfisher_plterr,
+    # Other
+    "PPWK": mb.ppwk,
 }
 
 class AnnouncerContext:
@@ -37,11 +40,11 @@ class AnnouncerContext:
 async def on_channel_message(bot: main, channel: str, sender: str, message: str):
     # Seperate arguments
     parts = message.split(" -~~- ")
-    casetype = parts[0]
+    anntype = parts[0]
     args = parts[1:]
     ctx = AnnouncerContext(bot, channel, sender)
-    if casetype in caseIndicatorsList:
+    if anntype in annList:
         logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
-        return await caseIndicatorsList[casetype](ctx, args)
+        return await annList[anntype](ctx, args)
     else:
         return

@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.1
 
 settings.py - bot settings modification module
 
@@ -22,7 +22,7 @@ async def cmd_nick(ctx, args: List[str]):
     """
     Change the nickname of the bot
 
-    Usage: !settings_nick [newnick]
+    Usage: !settings nick [newnick]
     Aliases: n/a
     """
     logging.info(f"NICK CHANGE from {config['IRC']['nickname']} to {args[0]} by {ctx.sender}")
@@ -37,7 +37,7 @@ async def cmd_prefix(ctx, args: List[str]):
     Oh boy, I hope you know what you're doing...
     Change the prefix
 
-    Usage: !settings_prefix [newprefix]
+    Usage: !settings prefix [newprefix]
     Aliases: n/a
     """
     logging.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")

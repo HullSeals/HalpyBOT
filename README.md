@@ -1,8 +1,8 @@
-# HalpyBOT 1.5
+# HalpyBOT 1.1
 This is the repository for HalpyBOT, the Hull Seals IRC Chatbot Assistant.
 
 # Description
-This repository houses all of the files required to build and host your own version of the Hull Seals IRC Chat Assistant, known to us as HalpyBOT. The system is how we manage cases, recite prepared instructions for Clients and Seals, and monitor our IRC network - all in one conveneient bot. 
+This repository houses all of the files required to build and host your own version of the Hull Seals IRC Chat Assistant, known to us as HalpyBOT. The system is how we manage cases, recite prepared instructions for Clients and Seals, and monitor our IRC network - all in one conveneient bot.
 
 This bot is in ACTIVE DEVELOPMENT, with many core features not yet implemented.
 
