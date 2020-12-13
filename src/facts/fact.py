@@ -135,10 +135,7 @@ async def recite_fact(ctx, args: List[str], fact: str):
             return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
 
     # Public and PM, args and noargs
-    if ctx.in_channel:
-        if len(args) == 0:
-            await ctx.reply(facts[f"{str(fact)}_no_args"])
-        else:
-            await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+    if len(args) == 0:
+        await ctx.reply(facts[f"{str(fact)}_no_args"])
     else:
-        return
+        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
