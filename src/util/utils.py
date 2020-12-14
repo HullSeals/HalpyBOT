@@ -17,6 +17,7 @@ from .checks import require_dm, require_permission, DeniedMessage
 from main import config
 import pydle
 
+joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 
 async def cmd_ping(ctx, args: List[str]):
     """
@@ -88,11 +89,6 @@ async def cmd_part(ctx, args: List[str]):
 async def cmd_test(ctx, args: List[str]):
     return
 
-joinableChannels = {
-"#debrief",
-"#Code-Black",
-"#Repair-Requests"
-}
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_sajoin(ctx, args: List[str]):
