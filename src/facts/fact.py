@@ -115,7 +115,7 @@ async def get_facts():
     try:
         cursor.execute(get_query)
     except mysql.connector.Error as er:
-        print(f"ERROR in getting facts from DB: {er}")
+        logging.error(f"ERROR in getting facts from DB: {er}")
     for (factName, factText) in cursor:
         facts[str(factName)] = factText
     await update_fact_index()

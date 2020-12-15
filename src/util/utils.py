@@ -27,7 +27,6 @@ async def cmd_ping(ctx, args: List[str]):
     Usage: !ping
     Aliases: n/a
     """
-    logging.info(f"PING {ctx.sender} {ctx.channel}")
     await ctx.reply("Pong!")
 
 @require_dm()
@@ -39,7 +38,6 @@ async def cmd_say(ctx, args: List[str]):
     Usage: !say [channel] [text]
     Aliases: n/a
     """
-    logging.info(f"PUPPET SAY {ctx.sender} {ctx.channel}")
     await ctx.bot.message(str(args[0]), ' '.join(args[1:]))
 
 
@@ -104,7 +102,7 @@ async def cmd_sajoin(ctx, args: List[str]):
     try:
         user = await ctx.bot.whois(nickname=args[0])
     except AttributeError:  # This is retarded. I know.
-        logging.info(f"Unable to WHOIS on !forcejoin user: {args[0]}. See {ctx.channel}")
+        logging.error(f"Unable to WHOIS on !forcejoin user: {args[0]}. See {ctx.channel}")
         return await ctx.reply("That user doesn't seem to exist!")
 
     channels = [ch.translate({ord(c): None for c in '+%@&~'}) for ch in user['channels']]
