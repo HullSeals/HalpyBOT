@@ -28,5 +28,5 @@ async def cmd_shutdown(ctx, args: List[str]):
     Usage: !shutdown
     Aliases: n/a
     """
-    logging.info("Shutdown has been ordered by {0}".format(ctx.sender))
+    logging.critical(f"Shutdown has been ordered by {ctx.sender}")
     os.kill(os.getpid(), signal.SIGUSR2)
