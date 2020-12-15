@@ -119,10 +119,9 @@ async def cmd_sajoin(ctx, args: List[str]):
 
     # Then, let user join the channel
     await ctx.bot.rawmsg('SAJOIN', args[0], args[1])
-    await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
 
     # Now we manually confirm that the SAJOIN was successful
     if str(args[1]) in channels:
-        return await ctx.reply(f"{args[0]} is now in {args[1]}.")
+        return await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
     else:
         return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")
