@@ -12,10 +12,10 @@ See license.md
 
 
 from ..util.checks import require_permission, DeniedMessage, require_dm
-from .fact import update_fact_index, basic_facts, clear_facts, get_facts
+from src.database.fact import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from .fact import add_fact, remove_fact, cnx
+from src.database.fact import add_fact, remove_fact, cnx
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)

@@ -10,11 +10,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from src.facts.fact import recite_fact
+from src.database.fact import recite_fact
 import main
 from .announcer import manual_case
 from .util import shutdown, utils
-from .facts.fact import fact_index
+from src.database.fact import fact_index
 from src.facts import fact_management
 from src.botsettings import settings
 

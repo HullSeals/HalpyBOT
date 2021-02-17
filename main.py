@@ -18,7 +18,7 @@ import asyncio
 import signal
 import functools
 from src.announcer import announcer
-from src.facts import fact
+from src.database import fact
 import configparser
 
 config = configparser.ConfigParser()
