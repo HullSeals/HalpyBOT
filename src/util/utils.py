@@ -60,7 +60,7 @@ async def cmd_joinchannel(ctx, args: List[str]):
                 config.write(conf)
             await ctx.reply("Config file updated.")
             return
-        except pydle.client.AlreadyInChannel as er:
+        except pydle.client.AlreadyInChannel:
             await ctx.reply("Bot is already in that channel!")
     else:
         await ctx.reply("That's not a channel!")
@@ -85,7 +85,7 @@ async def cmd_part(ctx, args: List[str]):
 # Just leave this here, it makes it easier to test stuff.
 @require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
 async def cmd_test(ctx, args: List[str]):
-    return
+    pass
 
 
 @require_channel()
