@@ -41,7 +41,7 @@ class HalpyBOT(pydle.Client):
         print("Connected!")
         for channel in channels:
             await self.join(channel)
-            logging.info(channel)
+            logging.info(f"Joining {channel}")
 
     async def on_channel_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)

@@ -57,7 +57,7 @@ async def cmd_addfact(ctx, args: List[str]):
     """
     # Check if running on online mode
     if cnx is None:
-        return await ctx.reply("Cannot add fact: bot running in online mode!")
+        return await ctx.reply("Cannot add fact: bot running in offline mode!")
     # Else, add fact
     factname = args[0]
     facttext = ' '.join(arg for arg in args[1:])

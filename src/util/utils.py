@@ -13,10 +13,11 @@ See license.md
 
 from typing import List
 import logging
-from .checks import require_dm, require_permission, DeniedMessage
+from .checks import require_channel, require_dm, require_permission, DeniedMessage
 from main import config
 import pydle
 
+joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 
 async def cmd_ping(ctx, args: List[str]):
     """
@@ -26,7 +27,6 @@ async def cmd_ping(ctx, args: List[str]):
     Usage: !ping
     Aliases: n/a
     """
-    logging.info(f"PING {ctx.sender} {ctx.channel}")
     await ctx.reply("Pong!")
 
 @require_dm()
@@ -38,7 +38,6 @@ async def cmd_say(ctx, args: List[str]):
     Usage: !say [channel] [text]
     Aliases: n/a
     """
-    logging.info(f"PUPPET SAY {ctx.sender} {ctx.channel}")
     await ctx.bot.message(str(args[0]), ' '.join(args[1:]))
 
 
@@ -61,7 +60,7 @@ async def cmd_joinchannel(ctx, args: List[str]):
                 config.write(conf)
             await ctx.reply("Config file updated.")
             return
-        except pydle.client.AlreadyInChannel as er:
+        except pydle.client.AlreadyInChannel:
             await ctx.reply("Bot is already in that channel!")
     else:
         await ctx.reply("That's not a channel!")
@@ -86,14 +85,10 @@ async def cmd_part(ctx, args: List[str]):
 # Just leave this here, it makes it easier to test stuff.
 @require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
 async def cmd_test(ctx, args: List[str]):
-    return
+    pass
 
-joinableChannels = {
-"#debrief",
-"#Code-Black",
-"#Repair-Requests"
-}
 
+@require_channel()
 @require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_sajoin(ctx, args: List[str]):
     """
@@ -102,9 +97,31 @@ async def cmd_sajoin(ctx, args: List[str]):
     Usage: !forcejoin [user] [channel]
     Aliases: n/a
     """
-    if args[1] in joinableChannels:
-        await ctx.bot.rawmsg('SAJOIN', args[0], args[1])
-        await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
-        return
+    botuser = await ctx.bot.whois(config['IRC']['nickname'])  # FIXME ew, un-stupidify this ASAP
+
+    try:
+        user = await ctx.bot.whois(nickname=args[0])
+    except AttributeError:  # This is retarded. I know.
+        logging.error(f"Unable to WHOIS on !forcejoin user: {args[0]}. See {ctx.channel}")
+        return await ctx.reply("That user doesn't seem to exist!")
+
+    channels = [ch.translate({ord(c): None for c in '+%@&~'}) for ch in user['channels']]
+
+    if args[1] not in joinableChannels:
+        return await ctx.reply("I can't move people there.")
+
+    if str(args[1]) in channels:
+        return await ctx.reply("User is already on that channel!")
+
+    # Check if bot is oper. Let's do this properly later
+    if not botuser['oper']:
+        return await ctx.reply("Cannot comply: I'm not an IRC operator! Contact a cyberseal")
+
+    # Then, let user join the channel
+    await ctx.bot.rawmsg('SAJOIN', args[0], args[1])
+
+    # Now we manually confirm that the SAJOIN was successful
+    if str(args[1]) in channels:
+        return await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
     else:
-        await ctx.reply("I can't move people there.")
+        return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")
