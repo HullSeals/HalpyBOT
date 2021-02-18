@@ -87,7 +87,6 @@ async def cmd_part(ctx, args: List[str]):
 async def cmd_test(ctx, args: List[str]):
     pass
 
-
 @require_channel()
 @require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_sajoin(ctx, args: List[str]):

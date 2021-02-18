@@ -10,13 +10,14 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from src.database.fact import recite_fact
+from src.facts.fact import recite_fact
 import main
 from .announcer import manual_case
 from .util import shutdown, utils
-from src.database.fact import fact_index
-from src.facts import fact_management
+from src.database.database import fact_index
+from src.facts import fact
 from src.botsettings import settings
+from src.delayedboard import delayed
 
 
 commandList = {
@@ -35,13 +36,15 @@ commandList = {
     "partchannel": utils.cmd_part,
     "forcejoin": utils.cmd_sajoin,
     # Fact management commands
-    "allfacts": fact_management.cmd_allfacts,
-    "fact_update": fact_management.cmd_manual_ufi,
-    "ufi": fact_management.cmd_manual_ufi,
-    "addfact": fact_management.cmd_addfact,
-    "deletefact": fact_management.cmd_deletefact,
+    "allfacts": fact.cmd_allfacts,
+    "fact_update": fact.cmd_manual_ufi,
+    "ufi": fact.cmd_manual_ufi,
+    "addfact": fact.cmd_addfact,
+    "deletefact": fact.cmd_deletefact,
     # Settings commands
     "settings": settings.cmd_group_settings,
+    # Delayed case manager
+    "delaycase": delayed.createDelayedCase,
 }
 
 class Context:

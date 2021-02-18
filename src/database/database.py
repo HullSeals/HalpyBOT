@@ -1,7 +1,7 @@
 """
 HalpyBOT v1.1
 
-fact.py - Main fact module
+database.py - Main database interaction module
 
 Copyright (c) 2020 The Hull Seals,
 All rights reserved
@@ -11,7 +11,6 @@ See license.md
 """
 
 
-from typing import List
 import mysql.connector
 import logging
 import src.commandhandler
@@ -34,7 +33,7 @@ try:
     cursor = cnx.cursor()
 except mysql.connector.Error as error:
     cnx = None
-    print(f"Cannot connect to database, starting fact module in offline mode: {error}")
+    print(f"Cannot connect to database, starting in offline mode: {error}")
 
 
 async def on_connect():
@@ -121,21 +120,11 @@ async def get_facts():
     await update_fact_index()
 
 
-async def recite_fact(ctx, args: List[str], fact: str):
-
-    # Sanity check
-    if fact not in facts:
-        return await ctx.reply("Cannot find fact! contact a cyberseal")
-
-    # Public and PM, 1 version
-    if f"{fact}_no_args" not in facts:
-        if len(args) == 0:
-            return await ctx.reply(facts[str(fact)])
-        else:
-            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
-
-    # Public and PM, args and noargs
-    if len(args) == 0:
-        await ctx.reply(facts[f"{str(fact)}_no_args"])
-    else:
-        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+async def create_delayed_case(ctx, casestat, message):
+    in_args = [casestat, message, ctx.sender, 0, 0, 0]
+    out_args = []
+    cursor.callproc('spCreateDelayedCase', in_args)
+    for result in cursor.stored_results():
+        out_args.append(result.fetchall())
+    out_args = list(out_args[0][0])
+    return out_args

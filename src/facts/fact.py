@@ -1,7 +1,7 @@
 """
 HalpyBOT v1.1
 
-fact_management.py - Fact module settings commands
+fact.py - Fact module settings commands
 
 Copyright (c) 2020 The Hull Seals,
 All rights reserved
@@ -10,12 +10,13 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+from ..database.database import facts
 
 from ..util.checks import require_permission, DeniedMessage, require_dm
-from src.database.fact import update_fact_index, basic_facts, clear_facts, get_facts
+from src.database.database import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from src.database.fact import add_fact, remove_fact, cnx
+from src.database.database import add_fact, remove_fact, cnx
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
@@ -77,3 +78,23 @@ async def cmd_deletefact(ctx, args: List[str]):
         return await ctx.reply("Cannot remove fact: bot running in online mode!")
     factname = args[0]
     await remove_fact(ctx, factname)
+
+
+async def recite_fact(ctx, args: List[str], fact: str):
+
+    # Sanity check
+    if fact not in facts:
+        return await ctx.reply("Cannot find fact! contact a cyberseal")
+
+    # Public and PM, 1 version
+    if f"{fact}_no_args" not in facts:
+        if len(args) == 0:
+            return await ctx.reply(facts[str(fact)])
+        else:
+            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+
+    # Public and PM, args and noargs
+    if len(args) == 0:
+        await ctx.reply(facts[f"{str(fact)}_no_args"])
+    else:
+        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
