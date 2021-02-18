@@ -35,6 +35,6 @@ async def createDelayedCase(ctx, args: List[str]):
     results = await create_delayed_case(ctx, case_status, message)
 
     if results[1] == 0:
-        return await ctx.reply(f"Case #{results[0]} has been successfully created.")
+        return await ctx.reply(f"Started a new Delayed Case with the ID #{results[0]} and status code {case_status}.")
     elif results[1] == 1:
         return await ctx.reply("Cannot create case: contact a cyberseal")
