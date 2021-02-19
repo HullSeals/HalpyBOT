@@ -32,6 +32,9 @@ async def createDelayedCase(ctx, args: List[str]):
     case_status = args[0]
     message = ' '.join(args[1:])
 
+    if len(message) > 400:
+        return await ctx.reply("Cannot create case: maximum length for notes is 400 characters.")
+
     # Create the case
     results = await create_delayed_case(case_status, message, ctx.sender)
 
