@@ -31,6 +31,7 @@ try:
                                   database=dbconfig['database'])
     print("Database connection established")
     cursor = cnx.cursor()
+    cnx.autocommit = True
 except mysql.connector.Error as error:
     cnx = None
     print(f"Cannot connect to database, starting in offline mode: {error}")
