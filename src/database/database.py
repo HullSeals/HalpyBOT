@@ -14,27 +14,13 @@ See license.md
 import mysql.connector
 import logging
 import src.commandhandler
-from main import config
 import json
-
-dbconfig = config['Database']
+from . import cnx, cursor
 
 facts = {}
 
 fact_index = []
 basic_facts = []
-
-try:
-    cnx = mysql.connector.connect(user=dbconfig['user'],
-                                  password=dbconfig['password'],
-                                  host=dbconfig['host'],
-                                  database=dbconfig['database'])
-    print("Database connection established")
-    cursor = cnx.cursor()
-    cnx.autocommit = True
-except mysql.connector.Error as error:
-    cnx = None
-    print(f"Cannot connect to database, starting in offline mode: {error}")
 
 
 async def on_connect():

@@ -40,7 +40,7 @@ async def cmd_manual_ufi(ctx, args: List[str]):
     """
     logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
     if cnx is None:
-        return await ctx.reply("Cannot update cache: bot running in online mode!")
+        return await ctx.reply("Cannot update cache: bot running in offline mode!")
     await ctx.reply("Updating...")
     await clear_facts()
     await get_facts()
@@ -75,7 +75,7 @@ async def cmd_deletefact(ctx, args: List[str]):
     """
     # Check if running on online mode
     if cnx is None:
-        return await ctx.reply("Cannot remove fact: bot running in online mode!")
+        return await ctx.reply("Cannot remove fact: bot running in offline mode!")
     factname = args[0]
     await remove_fact(ctx, factname)
 
