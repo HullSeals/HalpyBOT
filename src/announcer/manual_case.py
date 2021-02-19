@@ -3,8 +3,8 @@ HalpyBOT v1.1
 
 manual_case.py - Manual case creation module
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md

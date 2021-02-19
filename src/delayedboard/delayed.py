@@ -1,10 +1,10 @@
 """
 HalpyBOT v1.1
 
-database.py - Main database interaction module
+delayed.py - Delayed Case Board commands
 
 Copyright (c) 2021 The Hull Seals,
-All rights reserved
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
