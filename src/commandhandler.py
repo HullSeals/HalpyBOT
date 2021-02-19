@@ -14,7 +14,7 @@ from src.facts.fact import recite_fact
 import main
 from .announcer import manual_case
 from .util import shutdown, utils
-from src.database.database import fact_index
+from src.database.facts import fact_index
 from src.facts import fact
 from src.botsettings import settings
 from src.delayedboard import delayed

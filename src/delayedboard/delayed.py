@@ -11,7 +11,7 @@ See license.md
 """
 
 from typing import List
-from ..database.database import create_delayed_case, reopen_delayed_case
+from ..database.delayedboard import create_delayed_case, reopen_delayed_case
 from ..util.checks import require_channel, require_permission, DeniedMessage
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
