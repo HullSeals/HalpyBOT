@@ -49,6 +49,7 @@ commandList = {
     "endcase": delayed.cmd_closeDelayedCase,
     "close": delayed.cmd_closeDelayedCase,
     "updatestatus": delayed.cmd_updateDelayedStatus,
+    "updatenotes": delayed.cmd_updateDelayedNotes,
 }
 
 class Context:

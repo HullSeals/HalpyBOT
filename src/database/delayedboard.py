@@ -41,3 +41,13 @@ async def update_delayed_status(cID, casestat, author):
         out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
     return out_args
+
+
+async def update_delayed_notes(cID, message, author):
+    in_args = [int(cID), str(message), author, 0, 0, 0]
+    out_args = []
+    cursor.callproc('spUpdateMsgDelayedCase', in_args)
+    for result in cursor.stored_results():
+        out_args.append(result.fetchall())
+    out_args = list(out_args[0][0])
+    return out_args

@@ -11,7 +11,8 @@ See license.md
 """
 
 from typing import List
-from ..database.delayedboard import create_delayed_case, reopen_delayed_case, update_delayed_status
+from ..database.delayedboard import create_delayed_case, reopen_delayed_case, update_delayed_status, \
+     update_delayed_notes
 from ..util.checks import require_channel, require_permission, DeniedMessage
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
@@ -95,7 +96,7 @@ async def cmd_closeDelayedCase(ctx, args: List[str]):
 @require_channel()
 async def cmd_updateDelayedStatus(ctx, args: List[str]):
     """
-    Close a case on the delayed board
+    Update the status of a case on the delayed board
 
     Usage: !updatestatus [case ID] [case status]
     Aliases: n/a
@@ -113,5 +114,36 @@ async def cmd_updateDelayedStatus(ctx, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Case #{results[0]} now has status {casestat}.")
+    else:
+        return await ctx.reply(str(results[2]))
+
+
+@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@require_channel()
+async def cmd_updateDelayedNotes(ctx, args: List[str]):
+    """
+    Update the notes of a case on the delayed board
+
+    Usage: !updatenotes [case ID] [new notes]
+    Aliases n/a
+    """
+    message = ' '.join(args[1:])
+
+    # Input validation
+    if len(args) < 1 or not args[0].isnumeric():
+        return await ctx.reply("Cannot comply: no valid case number was provided.")
+
+    if len(args) < 2:
+        return await ctx.reply("Cannot comply: no new notes for the case were provided.")
+
+    if len(message) > 400:
+        return await ctx.reply("Cannot update notes: maximum length for notes is 400 characters.")
+
+    cID = int(args[0])
+
+    results = await update_delayed_notes(cID, message, ctx.sender)
+
+    if results[1] == 0:
+        return await ctx.reply(f"Notes for case #{results[0]} have been updated.")
     else:
         return await ctx.reply(str(results[2]))
