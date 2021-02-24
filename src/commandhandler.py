@@ -48,6 +48,7 @@ commandList = {
     "reopen": delayed.cmd_ReopenDelayedCase,
     "endcase": delayed.cmd_closeDelayedCase,
     "close": delayed.cmd_closeDelayedCase,
+    "updatestatus": delayed.cmd_updateDelayedStatus,
 }
 
 class Context:

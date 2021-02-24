@@ -89,3 +89,29 @@ async def cmd_closeDelayedCase(ctx, args: List[str]):
         return await ctx.reply(f"Case #{results[0]} closed.")
     else:
         return await ctx.reply(str(results[2]))
+
+
+@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@require_channel()
+async def cmd_updateDelayedStatus(ctx, args: List[str]):
+    """
+    Close a case on the delayed board
+
+    Usage: !updatestatus [case ID] [case status]
+    Aliases: n/a
+    """
+    # Input validation
+    if len(args) < 1 or not args[0].isnumeric():
+        return await ctx.reply("Cannot comply: no valid case number was provided.")
+
+    if len(args) < 2 or args[1] not in '12':
+        return await ctx.reply("Cannot comply: please set a valid status code")
+
+    cID = int(args[0])
+    casestat = int(args[1])
+    results = await update_delayed_status(cID, casestat, ctx.sender)
+
+    if results[1] == 0:
+        return await ctx.reply(f"Case #{results[0]} now has status {casestat}.")
+    else:
+        return await ctx.reply(str(results[2]))
