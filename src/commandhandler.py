@@ -44,8 +44,10 @@ commandList = {
     # Settings commands
     "settings": settings.cmd_group_settings,
     # Delayed case manager
-    "delaycase": delayed.createDelayedCase,
-    "reopen": delayed.ReopenDelayedCase,
+    "delaycase": delayed.cmd_createDelayedCase,
+    "reopen": delayed.cmd_ReopenDelayedCase,
+    "endcase": delayed.cmd_closeDelayedCase,
+    "close": delayed.cmd_closeDelayedCase,
 }
 
 class Context:
