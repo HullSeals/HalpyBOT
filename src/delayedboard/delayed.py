@@ -161,3 +161,43 @@ async def cmd_checkDelayedCases(ctx, args: List[str]):
         return await ctx.reply("No Cases marked Delayed. Good Job, Seals!")
     else:
         return await ctx.reply(f"{count} Cases Marked as Delayed! Monitor them here: https://hullse.al/delayedCases")
+
+
+@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@require_channel()
+async def cmd_updateDelayedCase(ctx, args: List[str]):
+    """
+    Update details of a case on the Delayed Board
+
+    Usage: !updatecase [case ID] (case status) (case notes)
+    Aliases: n/a
+    """
+    # Input validation
+    if len(args) < 1 or not args[0].isnumeric():
+        return await ctx.reply("Cannot comply: no valid case number was provided.")
+    if len(args) < 2:
+        return await ctx.reply("Cannot comply: no new case status and/or notes were provided.")
+
+    # If only a new status or notes are supplied, yeet it at their own commands
+    if len(args) == 2 and args[1].isnumeric():
+        return await cmd_updateDelayedStatus(ctx, args)
+    if len(args) >= 2 and not args[1].isnumeric():
+        return await cmd_updateDelayedNotes(ctx, args)
+
+    # Both: call procedures back to back
+    cID = int(args[0])
+    casestat = int(args[1])
+    message = ' '.join(args[2:])
+
+    statusout = await update_delayed_status(cID, casestat, ctx.sender)
+    notesout = await update_delayed_notes(cID, message, ctx.sender)
+
+    if notesout[1] == 0 and statusout[1] == 0:
+        return await ctx.reply(f"Status and notes for Case #{statusout[0]} successfully updated")
+    if notesout[1] != 0 or statusout[1] != 0:
+        # Don't send error message twice if it's identical for status and notes
+        if notesout[2] == statusout[2]:
+            await ctx.reply(statusout[2])
+        else:
+            await ctx.reply(notesout[2])
+            await ctx.reply(statusout[2])

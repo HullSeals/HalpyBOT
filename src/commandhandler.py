@@ -51,6 +51,7 @@ commandList = {
     "updatestatus": delayed.cmd_updateDelayedStatus,
     "updatenotes": delayed.cmd_updateDelayedNotes,
     "delaystatus": delayed.cmd_checkDelayedCases,
+    "updatecase": delayed.cmd_updateDelayedCase,
 }
 
 class Context:
