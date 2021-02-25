@@ -51,3 +51,12 @@ async def update_delayed_notes(cID, message, author):
         out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
     return out_args
+
+async def check_delayed_cases():
+    cursor.execute("SELECT COUNT(ID) "
+                   "FROM casestatus "
+                   "WHERE case_status IN (1, 2);")
+    for res in cursor.fetchall():
+        result = res[0]
+    # Return the total amount of open delayed cases on the board
+    return result

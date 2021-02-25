@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 from ..database.delayedboard import create_delayed_case, reopen_delayed_case, update_delayed_status, \
-     update_delayed_notes
+     update_delayed_notes, check_delayed_cases
 from ..util.checks import require_channel, require_permission, DeniedMessage
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
@@ -51,7 +51,7 @@ async def cmd_ReopenDelayedCase(ctx, args: List[str]):
     """
     Reopen a case on the Delayed-board
 
-    Usage: !updatecase [case ID] (case status) (case notes)
+    Usage: !reopen [case ID] [case status]
     Aliases: n/a
     """
     # input validation
@@ -147,3 +147,17 @@ async def cmd_updateDelayedNotes(ctx, args: List[str]):
         return await ctx.reply(f"Notes for case #{results[0]} have been updated.")
     else:
         return await ctx.reply(str(results[2]))
+
+
+async def cmd_checkDelayedCases(ctx, args: List[str]):
+    """
+    Check the Delayed Board for cases
+
+    Usage: !delaystatys
+    Aliases: n/a
+    """
+    count = await check_delayed_cases()
+    if count == 0:
+        return await ctx.reply("No Cases marked Delayed. Good Job, Seals!")
+    else:
+        return await ctx.reply(f"{count} Cases Marked as Delayed! Monitor them here: https://hullse.al/delayedCases")
