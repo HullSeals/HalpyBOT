@@ -11,15 +11,27 @@ See license.md
 """
 
 from . import cursor
+import re
+
+# Using this method, really hurts my brain cell (singular), and I'm sorry if yours, dear
+# reader, do too. I really am.
+def strip_non_ascii(string: str):
+    res = re.subn(r'[^\x00-\x7f]', r'', string)
+    if res != (string, 0):
+        return res[0], True
+    else:
+        return res[0], False
 
 
-async def create_delayed_case(casestat, message: str, author: str):
-    in_args = [int(casestat), str(message), author, 0, 0, 0]
+async def create_delayed_case(casestat, message, author):
+    message = strip_non_ascii(message)
+    in_args = [int(casestat), str(message[0]), author, 0, 0, 0]
     out_args = []
     cursor.callproc('spCreateDelayedCase', in_args)
     for result in cursor.stored_results():
         out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
+    out_args.append(True if message[1] else False)
     return out_args
 
 
@@ -44,12 +56,14 @@ async def update_delayed_status(cID, casestat, author):
 
 
 async def update_delayed_notes(cID, message, author):
-    in_args = [int(cID), str(message), author, 0, 0, 0]
+    message = strip_non_ascii(message)
+    in_args = [int(cID), str(message[0]), author, 0, 0, 0]
     out_args = []
     cursor.callproc('spUpdateMsgDelayedCase', in_args)
     for result in cursor.stored_results():
         out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
+    out_args.append(True if message[1] else False)
     return out_args
 
 async def check_delayed_cases():

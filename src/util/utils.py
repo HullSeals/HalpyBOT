@@ -19,6 +19,13 @@ import pydle
 
 joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 
+async def get_user_channels(ctx, user: str):
+    try:
+        whois = await ctx.bot.whois(nickname=user)
+        return [ch.translate({ord(c): None for c in '+%@&~'}).lower() for ch in whois['channels']]
+    except:
+        return
+
 async def cmd_ping(ctx, args: List[str]):
     """
     https://tinyurl.com/yylju9hg
@@ -87,6 +94,7 @@ async def cmd_part(ctx, args: List[str]):
 async def cmd_test(ctx, args: List[str]):
     pass
 
+# Abandon all hope ye who enter here
 @require_channel()
 @require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_sajoin(ctx, args: List[str]):
@@ -96,20 +104,15 @@ async def cmd_sajoin(ctx, args: List[str]):
     Usage: !forcejoin [user] [channel]
     Aliases: n/a
     """
-    botuser = await ctx.bot.whois(config['IRC']['nickname'])  # FIXME ew, un-stupidify this ASAP
+    args[1] = args[1].lower()
+    botuser = await ctx.bot.whois(config['IRC']['nickname'])  # FIXME find a proper way to do this
 
-    try:
-        user = await ctx.bot.whois(nickname=args[0])
-    except AttributeError:  # This is retarded. I know.
-        logging.error(f"Unable to WHOIS on !forcejoin user: {args[0]}. See {ctx.channel}")
-        return await ctx.reply("That user doesn't seem to exist!")
-
-    channels = [ch.translate({ord(c): None for c in '+%@&~'}) for ch in user['channels']]
+    channels = await get_user_channels(ctx, args[0])
 
     if args[1] not in joinableChannels:
         return await ctx.reply("I can't move people there.")
 
-    if str(args[1]) in channels:
+    if args[1] in channels:
         return await ctx.reply("User is already on that channel!")
 
     # Check if bot is oper. Let's do this properly later
@@ -120,7 +123,9 @@ async def cmd_sajoin(ctx, args: List[str]):
     await ctx.bot.rawmsg('SAJOIN', args[0], args[1])
 
     # Now we manually confirm that the SAJOIN was successful
-    if str(args[1]) in channels:
+    channels = await get_user_channels(ctx, args[0])
+
+    if args[1] in channels:
         return await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
     else:
         return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")

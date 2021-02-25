@@ -39,6 +39,9 @@ async def cmd_createDelayedCase(ctx, args: List[str]):
     # Create the case
     results = await create_delayed_case(case_status, message, ctx.sender)
 
+    if results[3]:
+        await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")
+
     if results[1] == 0:
         return await ctx.reply(f"Started a new Delayed Case with the ID #{results[0]} and status code {case_status}.")
     elif results[1] == 1:
@@ -143,6 +146,9 @@ async def cmd_updateDelayedNotes(ctx, args: List[str]):
 
     results = await update_delayed_notes(cID, message, ctx.sender)
 
+    if results[3]:
+       await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")
+
     if results[1] == 0:
         return await ctx.reply(f"Notes for case #{results[0]} have been updated.")
     else:
@@ -191,6 +197,9 @@ async def cmd_updateDelayedCase(ctx, args: List[str]):
 
     statusout = await update_delayed_status(cID, casestat, ctx.sender)
     notesout = await update_delayed_notes(cID, message, ctx.sender)
+
+    if notesout[3]:
+        await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")
 
     if notesout[1] == 0 and statusout[1] == 0:
         return await ctx.reply(f"Status and notes for Case #{statusout[0]} successfully updated")
