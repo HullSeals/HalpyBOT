@@ -3,21 +3,24 @@ HalpyBOT v1.1
 
 commandhandler.py - Send messages to the correct src
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
 """
 
-from src.facts.fact import recite_fact
+import src.commands
+import src.commands.bot_management.puppet
+import src.commands.bot_management.settings
+import src.commands.forcejoin.forcejoin
+from src.commands.fact.fact import recite_fact
 import main
-from .announcer import manual_case
-from .util import shutdown, utils
-from .facts.fact import fact_index
-from src.facts import fact_management
-from src.botsettings import settings
-
+from src.commands.announcer import manual_case
+from src.packages.database.facts import fact_index
+from src.commands.fact import fact
+from src.commands.bot_management import settings, shutdown
+from src.commands.delayedboard import delayedboard
 
 commandList = {
     # Announcer commands
@@ -28,20 +31,29 @@ commandList = {
     "wssPing": manual_case.cmd_wss_ping,
     # Util commands
     "shutdown": shutdown.cmd_shutdown,
-    "ping": utils.cmd_ping,
-    "say": utils.cmd_say,
-    "test_command": utils.cmd_test,
-    "joinchannel": utils.cmd_joinchannel,
-    "partchannel": utils.cmd_part,
-    "forcejoin": utils.cmd_sajoin,
+    "ping": src.commands.cmd_ping,
+    "say": src.commands.bot_management.puppet.cmd_say,
+    "joinchannel": src.commands.bot_management.settings.cmd_joinchannel,
+    "partchannel": src.commands.bot_management.settings.cmd_part,
+    "forcejoin": src.commands.forcejoin.forcejoin.cmd_sajoin,
     # Fact management commands
-    "allfacts": fact_management.cmd_allfacts,
-    "fact_update": fact_management.cmd_manual_ufi,
-    "ufi": fact_management.cmd_manual_ufi,
-    "addfact": fact_management.cmd_addfact,
-    "deletefact": fact_management.cmd_deletefact,
+    "allfacts": fact.cmd_allfacts,
+    "fact_update": fact.cmd_manual_ufi,
+    "ufi": fact.cmd_manual_ufi,
+    "addfact": fact.cmd_addfact,
+    "deletefact": fact.cmd_deletefact,
     # Settings commands
-    "settings": settings.cmd_group_settings,
+    "bot_management": settings.cmd_group_settings,
+    # Delayed case manager
+    "delaycase": delayedboard.cmd_createDelayedCase,
+    "reopen": delayedboard.cmd_ReopenDelayedCase,
+    "endcase": delayedboard.cmd_closeDelayedCase,
+    "close": delayedboard.cmd_closeDelayedCase,
+    "updatestatus": delayedboard.cmd_updateDelayedStatus,
+    "updatenotes": delayedboard.cmd_updateDelayedNotes,
+    "delaystatus": delayedboard.cmd_checkDelayedCases,
+    "checkstatus": delayedboard.cmd_checkDelayedCases,
+    "updatecase": delayedboard.cmd_updateDelayedCase,
 }
 
 class Context:

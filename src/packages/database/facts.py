@@ -1,40 +1,26 @@
 """
 HalpyBOT v1.1
 
-fact.py - Main fact module
+facts.py - Database interaction for the fact module
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
 """
 
 
-from typing import List
 import mysql.connector
 import logging
-import src.commandhandler
-from main import config
+import src.packages.command.commandhandler
 import json
-
-dbconfig = config['Database']
+from . import cnx, cursor
 
 facts = {}
 
 fact_index = []
 basic_facts = []
-
-try:
-    cnx = mysql.connector.connect(user=dbconfig['user'],
-                                  password=dbconfig['password'],
-                                  host=dbconfig['host'],
-                                  database=dbconfig['database'])
-    print("Database connection established")
-    cursor = cnx.cursor()
-except mysql.connector.Error as error:
-    cnx = None
-    print(f"Cannot connect to database, starting fact module in offline mode: {error}")
 
 
 async def on_connect():
@@ -61,7 +47,7 @@ async def update_fact_index():
 
 async def add_fact(ctx, factname: str, facttext: str):
     # Check if not already a command
-    if factname in src.commandhandler.commandList:
+    if factname in src.packages.command.commandhandler.commandList:
         return await ctx.reply("Cannot register fact: already an existing command!")
     # Check if fact doesn't already exist
     if factname in fact_index:
@@ -115,27 +101,7 @@ async def get_facts():
     try:
         cursor.execute(get_query)
     except mysql.connector.Error as er:
-        print(f"ERROR in getting facts from DB: {er}")
+        logging.error(f"ERROR in getting facts from DB: {er}")
     for (factName, factText) in cursor:
         facts[str(factName)] = factText
     await update_fact_index()
-
-
-async def recite_fact(ctx, args: List[str], fact: str):
-
-    # Sanity check
-    if fact not in facts:
-        return await ctx.reply("Cannot find fact! contact a cyberseal")
-
-    # Public and PM, 1 version
-    if f"{fact}_no_args" not in facts:
-        if len(args) == 0:
-            return await ctx.reply(facts[str(fact)])
-        else:
-            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
-
-    # Public and PM, args and noargs
-    if len(args) == 0:
-        await ctx.reply(facts[f"{str(fact)}_no_args"])
-    else:
-        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")

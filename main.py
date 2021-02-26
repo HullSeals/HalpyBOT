@@ -4,8 +4,8 @@ HalpyBOT v1.1
 > For the Hull Seals, with a boot to the head
 Rixxan
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
@@ -13,12 +13,12 @@ See license.md
 
 import pydle
 import logging
-import src.commandhandler as commandhandler
+import src.packages.command.commandhandler as commandhandler
 import asyncio
 import signal
 import functools
-from src.announcer import announcer
-from src.facts import fact
+from src.packages.announcer import announcer
+from src.packages.database import facts
 import configparser
 
 config = configparser.ConfigParser()
@@ -34,14 +34,14 @@ class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         await super().on_connect()
-        await fact.on_connect()
+        await facts.on_connect()
         print("Fact module loaded successfully")
         await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
         logging.info("Connected")
         print("Connected!")
         for channel in channels:
             await self.join(channel)
-            logging.info(channel)
+            logging.info(f"Joining {channel}")
 
     async def on_channel_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
