@@ -24,7 +24,7 @@ See license.md
 
 import functools
 from typing import List
-from src.datamodels.user import User
+from src.packages.datamodels.user import User
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,
@@ -74,8 +74,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
             level = int(requiredlevel[req_level])
             # If permission is not correct, send deniedMessage
             if userlevel < level:
-                await ctx.reply(message)
-                pass
+                return await ctx.reply(message)
             else:
                 return await function(ctx, args)
 

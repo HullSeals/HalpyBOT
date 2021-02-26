@@ -17,7 +17,7 @@ import logging
 
 from typing import List
 
-from src.util.checks import require_permission, DeniedMessage, require_dm
+from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
 
 @require_dm()
 @require_permission("ADMIN", message=DeniedMessage.ADMIN)

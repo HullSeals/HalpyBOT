@@ -11,9 +11,9 @@ See license.md
 """
 
 from typing import List
-from src.util.checks import require_permission, DeniedMessage
+from src.packages.checks.checks import require_permission, DeniedMessage
 import logging
-from ..util.checks import require_channel
+from src.packages.checks.checks import require_channel
 
 send_to = ["#Repair-Requests", "#seal-bob"]
 

@@ -11,16 +11,7 @@ See license.md
 """
 
 from . import cursor
-import re
-
-# Using this method, really hurts my brain cell (singular), and I'm sorry if yours, dear
-# reader, do too. I really am.
-def strip_non_ascii(string: str):
-    res = re.subn(r'[^\x00-\x7f]', r'', string)
-    if res != (string, 0):
-        return res[0], True
-    else:
-        return res[0], False
+from ..utils.utils import strip_non_ascii
 
 
 async def create_delayed_case(casestat, message, author):
@@ -74,3 +65,4 @@ async def check_delayed_cases():
         result = res[0]
     # Return the total amount of open delayed cases on the board
     return result
+

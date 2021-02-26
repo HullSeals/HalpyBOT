@@ -1,7 +1,7 @@
 """
 HalpyBOT v1.1
 
-delayed.py - Delayed Case Board commands
+delayedboard.py - Delayed Case Board commands
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.
@@ -11,9 +11,9 @@ See license.md
 """
 
 from typing import List
-from ..database.delayedboard import create_delayed_case, reopen_delayed_case, update_delayed_status, \
+from src.packages.database.delayedboard import create_delayed_case, reopen_delayed_case, update_delayed_status, \
      update_delayed_notes, check_delayed_cases
-from ..util.checks import require_channel, require_permission, DeniedMessage
+from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()

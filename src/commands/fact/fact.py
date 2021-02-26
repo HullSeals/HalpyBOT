@@ -1,7 +1,7 @@
 """
 HalpyBOT v1.1
 
-fact.py - Fact module settings commands
+fact.py - Fact module bot_management commands
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.
@@ -10,13 +10,13 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database.facts import facts
+from src.packages.database.facts import facts
 
-from ..util.checks import require_permission, DeniedMessage, require_dm
-from src.database.facts import update_fact_index, basic_facts, clear_facts, get_facts
+from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
+from src.packages.database.facts import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from src.database.facts import add_fact, remove_fact, cnx
+from src.packages.database.facts import add_fact, remove_fact, cnx
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
