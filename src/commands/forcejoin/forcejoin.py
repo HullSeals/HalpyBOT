@@ -15,12 +15,14 @@ from typing import List
 from main import config
 from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
 from src.packages.utils.utils import get_user_channels
+from .. import Commands
 
 joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 
 
 @require_channel()
 @require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
+@Commands.command("forcejoin")
 async def cmd_sajoin(ctx, args: List[str]):
     """
     Make the bot force a user to join a channel.

@@ -10,51 +10,21 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import src.commands
-import src.commands.bot_management.puppet
-import src.commands.bot_management.settings
-import src.commands.forcejoin.forcejoin
-from src.commands.fact.fact import recite_fact
+from typing import List
 import main
-from src.commands.announcer import manual_case
-from src.packages.database.facts import fact_index
-from src.commands.fact import fact
-from src.commands.bot_management import settings, shutdown
-from src.commands.delayedboard import delayedboard
+from ..database.facts import fact_index, facts
 
-commandList = {
-    # Announcer commands
-    "manualcase": manual_case.cmd_manual_case,
-    "mancase": manual_case.cmd_manual_case,
-    "manualfish": manual_case.cmd_manual_kingfisher,
-    "manfish": manual_case.cmd_manual_kingfisher,
-    "wssPing": manual_case.cmd_wss_ping,
-    # Util commands
-    "shutdown": shutdown.cmd_shutdown,
-    "ping": src.commands.cmd_ping,
-    "say": src.commands.bot_management.puppet.cmd_say,
-    "joinchannel": src.commands.bot_management.settings.cmd_joinchannel,
-    "partchannel": src.commands.bot_management.settings.cmd_part,
-    "forcejoin": src.commands.forcejoin.forcejoin.cmd_sajoin,
-    # Fact management commands
-    "allfacts": fact.cmd_allfacts,
-    "fact_update": fact.cmd_manual_ufi,
-    "ufi": fact.cmd_manual_ufi,
-    "addfact": fact.cmd_addfact,
-    "deletefact": fact.cmd_deletefact,
-    # Settings commands
-    "bot_management": settings.cmd_group_settings,
-    # Delayed case manager
-    "delaycase": delayedboard.cmd_createDelayedCase,
-    "reopen": delayedboard.cmd_ReopenDelayedCase,
-    "endcase": delayedboard.cmd_closeDelayedCase,
-    "close": delayedboard.cmd_closeDelayedCase,
-    "updatestatus": delayedboard.cmd_updateDelayedStatus,
-    "updatenotes": delayedboard.cmd_updateDelayedNotes,
-    "delaystatus": delayedboard.cmd_checkDelayedCases,
-    "checkstatus": delayedboard.cmd_checkDelayedCases,
-    "updatecase": delayedboard.cmd_updateDelayedCase,
-}
+class Commands:
+
+    commandList = {}
+
+    @classmethod
+    def command(cls, *args):
+        def decorator(function):
+            for name in args:
+                cls.commandList[str(name)] = function
+            return function
+        return decorator
 
 class Context:
     def __init__(self, bot: main, channel: str, sender: str, in_channel: bool):
@@ -74,8 +44,8 @@ async def on_channel_message(bot: main, channel: str, sender: str, message: str)
         args = parts[1:]
         in_channel = True
         ctx = Context(bot, channel, sender, in_channel)
-        if command in commandList:
-            return await commandList[command](ctx, args)
+        if command in Commands.commandList:
+            return await Commands.commandList[command](ctx, args)
         elif command in fact_index:
             return await recite_fact(ctx, args, fact=str(command))
         else:
@@ -89,9 +59,29 @@ async def on_private_message(bot: main, channel: str, sender: str, message: str)
         args = parts[1:]
         in_channel = False
         ctx = Context(bot, channel, sender, in_channel)
-        if command in commandList.keys():
-            return await commandList[command](ctx, args)
+        if command in Commands.commandList.keys():
+            return await Commands.commandList[command](ctx, args)
         elif command in fact_index:
             return await recite_fact(ctx, args, fact=str(command))
         else:
             return
+
+
+async def recite_fact(ctx, args: List[str], fact: str):
+
+    # Sanity check
+    if fact not in facts:
+        return await ctx.reply("Cannot find fact! contact a cyberseal")
+
+    # Public and PM, 1 version
+    if f"{fact}_no_args" not in facts:
+        if len(args) == 0:
+            return await ctx.reply(facts[str(fact)])
+        else:
+            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+
+    # Public and PM, args and noargs
+    if len(args) == 0:
+        await ctx.reply(facts[f"{str(fact)}_no_args"])
+    else:
+        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")

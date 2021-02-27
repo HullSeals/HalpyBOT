@@ -24,6 +24,7 @@ async def get_user_channels(ctx, user: str):
 def strip_non_ascii(string: str):
     res = re.subn(r'[^\x00-\x7f]', r'', string)
     if res != (string, 0):
+        # Return new string and True if characters were removed
         return res[0], True
     else:
         return res[0], False

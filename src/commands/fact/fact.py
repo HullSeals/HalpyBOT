@@ -10,16 +10,17 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from src.packages.database.facts import facts
 
 from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
 from src.packages.database.facts import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
 from src.packages.database.facts import add_fact, remove_fact, cnx
+from .. import Commands
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
+@Commands.command("allfacts")
 async def cmd_allfacts(ctx, args: List[str]):
     """
     List all registered facts
@@ -31,6 +32,7 @@ async def cmd_allfacts(ctx, args: List[str]):
     await ctx.reply(listallfacts)
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Commands.command("ufi", "fact_update")
 async def cmd_manual_ufi(ctx, args: List[str]):
     """
     Manually update the fact cache and index
@@ -49,11 +51,12 @@ async def cmd_manual_ufi(ctx, args: List[str]):
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
+@Commands.command("addfact")
 async def cmd_addfact(ctx, args: List[str]):
     """
     Add a new fact to the database
 
-    Usage: !addfact [name] <--dm> [facttext]
+    Usage: !addfact [name] (--dm) [facttext]
     Aliases: n/a
     """
     # Check if running on online mode
@@ -66,6 +69,7 @@ async def cmd_addfact(ctx, args: List[str]):
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
+@Commands.command("deletefact")
 async def cmd_deletefact(ctx, args: List[str]):
     """
     Delete a fact from the database
@@ -80,21 +84,3 @@ async def cmd_deletefact(ctx, args: List[str]):
     await remove_fact(ctx, factname)
 
 
-async def recite_fact(ctx, args: List[str], fact: str):
-
-    # Sanity check
-    if fact not in facts:
-        return await ctx.reply("Cannot find fact! contact a cyberseal")
-
-    # Public and PM, 1 version
-    if f"{fact}_no_args" not in facts:
-        if len(args) == 0:
-            return await ctx.reply(facts[str(fact)])
-        else:
-            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
-
-    # Public and PM, args and noargs
-    if len(args) == 0:
-        await ctx.reply(facts[f"{str(fact)}_no_args"])
-    else:
-        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
