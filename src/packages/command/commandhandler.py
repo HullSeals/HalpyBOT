@@ -14,6 +14,12 @@ from typing import List
 import main
 from ..database.facts import fact_index, facts
 
+class CommandAlreadyExists(Exception):
+    """
+    Raised when a command is registered twice
+    """
+
+
 class Commands:
 
     commandList = {}
@@ -22,6 +28,8 @@ class Commands:
     def command(cls, *args):
         def decorator(function):
             for name in args:
+                if name in cls.commandList.keys():
+                    raise CommandAlreadyExists
                 cls.commandList[str(name)] = function
             return function
         return decorator
