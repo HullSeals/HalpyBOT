@@ -31,7 +31,7 @@ async def cmd_sajoin(ctx, args: List[str]):
     Aliases: n/a
     """
     args[1] = args[1].lower()
-    botuser = await ctx.bot.whois(config['IRC']['nickname'])  # FIXME I never want to look at this anymore
+    botuser = await ctx.bot.whois(ctx.bot.nickname)
 
     channels = await get_user_channels(ctx, args[0])
 
