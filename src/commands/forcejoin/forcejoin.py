@@ -16,6 +16,7 @@ from main import config
 from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
 from src.packages.utils.utils import get_user_channels
 from .. import Commands
+from src.packages.datamodels.user import User
 
 joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 
@@ -33,7 +34,7 @@ async def cmd_sajoin(ctx, args: List[str]):
     args[1] = args[1].lower()
     botuser = await ctx.bot.whois(ctx.bot.nickname)
 
-    channels = await get_user_channels(ctx, args[0])
+    channels = await User.get_channels(ctx, args[0])
 
     if args[1] not in joinableChannels:
         return await ctx.reply("I can't move people there.")

@@ -11,28 +11,34 @@ from __future__ import annotations
 
 from typing import Union, Optional
 from dataclasses import dataclass
-from pydle import BasicClient
+from ..command.commandhandler import Context
 
 
 @dataclass(frozen=True)
 class User:
+    oper: bool
+    idle: int
     away: bool
     away_message: Optional[str]
     username: str
     hostname: str
     realname: str
     identified: bool
+    channels: set
+    server: str
+    server_info: str
+    secure: bool
     account: Optional[str]
     nickname: str
 
     @classmethod
-    async def get_info(cls, bot: BasicClient, nickname: str) -> Optional[User]:
+    async def get_info(cls, ctx: Context, nickname: str) -> Optional[User]:
         # fetch the user object from pydle
-        data = bot.users.get(nickname.casefold(), None)
+        data = await ctx.bot.whois(nickname)
 
         # if we got a object back
         if data:
-            return cls(**data)
+            return cls(**data, nickname=nickname)
 
     @classmethod
     def process_vhost(cls, vhost: Union[str, None]) -> Optional[str]:
@@ -51,3 +57,9 @@ class User:
 
         # return the corresponding vhost
         return f"{host}.hullseals.space"
+
+    @classmethod
+    async def get_channels(cls, ctx: Context, nick: str) -> Optional[list]:
+        user = await ctx.bot.whois(nick)
+        channels = user['channels']
+        return [ch.translate({ord(c): None for c in '+%@&~'}).lower() for ch in channels]
