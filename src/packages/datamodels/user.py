@@ -1,9 +1,24 @@
 """
-Copyright (c) 2018 The Fuel Rat Mischief,
-All rights reserved.
-Licensed under the BSD 3-Clause License.
+This file uses Open Source components.
+You can find the source code of their open source projects along with license
+information below. We acknowledge and are grateful to these developers for their contributions to open source.
 
-Thanks to TFRM and Theunkn0wn1 for letting us use this.
+Project: SPARK / pipsqueak3 https://github.com/FuelRats/pipsqueak3
+License: https://github.com/FuelRats/pipsqueak3/blob/develop/LICENSE
+
+BSD 3-Clause License
+Copyright (c) 2018, The Fuel Rats Mischief
+All rights reserved.
+
+HalpyBOT v1.1
+
+user.py - User dataclass
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
 """
 
 
