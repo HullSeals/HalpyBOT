@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.1
+HalpyBOT v1.2
 
 forcejoin.py - SAJOIN command module
 

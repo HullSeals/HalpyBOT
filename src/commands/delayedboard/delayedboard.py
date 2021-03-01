@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.1
+HalpyBOT v1.2
 
 delayedboard.py - Delayed Case Board commands
 
@@ -27,7 +27,7 @@ async def cmd_createDelayedCase(ctx, args: List[str]):
     Aliases: n/a
     """
     # input validation
-    if len(args) == 0 or args[0] not in '12':
+    if len(args) == 0 or args[0] not in ['1', '2']:
         return await ctx.reply("Cannot create case: no valid case mode was given.")
     if len(args[1:]) == 0:
         return await ctx.reply("Cannot create case: no notes provided by user.")
@@ -61,7 +61,7 @@ async def cmd_ReopenDelayedCase(ctx, args: List[str]):
     Aliases: n/a
     """
     # input validation
-    if len(args) < 2 or args[1] not in '12':
+    if len(args) < 2 or args[1] not in ['1', '2']:
         return await ctx.reply("Cannot reopen case: no valid case number/case status was provided.")
     elif not args[0].isnumeric():
         return await ctx.reply("No valid case number was provided.")
@@ -153,7 +153,7 @@ async def cmd_updateDelayedNotes(ctx, args: List[str]):
     results = await update_delayed_notes(cID, message, ctx.sender)
 
     if results[3]:
-       await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")
+        await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")
 
     if results[1] == 0:
         return await ctx.reply(f"Notes for case #{results[0]} have been updated.")
@@ -201,6 +201,10 @@ async def cmd_updateDelayedCase(ctx, args: List[str]):
     cID = int(args[0])
     casestat = int(args[1])
     message = ' '.join(args[2:])
+
+    # One more round of input validation
+    if casestat not in [1, 2]:
+        return await ctx.reply("Cannot comply: please set a valid status code")
 
     statusout = await update_delayed_status(cID, casestat, ctx.sender)
     notesout = await update_delayed_notes(cID, message, ctx.sender)
