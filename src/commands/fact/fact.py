@@ -1,24 +1,26 @@
 """
-HalpyBOT v1.1
+HalpyBOT v1.2
 
-fact_management.py - Fact module settings commands
+fact.py - Fact module bot_management commands
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
 """
 
 
-from ..util.checks import require_permission, DeniedMessage, require_dm
-from .fact import update_fact_index, basic_facts, clear_facts, get_facts
+from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
+from src.packages.database.facts import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from .fact import add_fact, remove_fact, cnx
+from src.packages.database.facts import add_fact, remove_fact, cnx
+from .. import Commands
 
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
+@Commands.command("allfacts")
 async def cmd_allfacts(ctx, args: List[str]):
     """
     List all registered facts
@@ -30,6 +32,7 @@ async def cmd_allfacts(ctx, args: List[str]):
     await ctx.reply(listallfacts)
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Commands.command("ufi", "fact_update")
 async def cmd_manual_ufi(ctx, args: List[str]):
     """
     Manually update the fact cache and index
@@ -39,7 +42,7 @@ async def cmd_manual_ufi(ctx, args: List[str]):
     """
     logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
     if cnx is None:
-        return await ctx.reply("Cannot update cache: bot running in online mode!")
+        return await ctx.reply("Cannot update cache: bot running in offline mode!")
     await ctx.reply("Updating...")
     await clear_facts()
     await get_facts()
@@ -48,16 +51,17 @@ async def cmd_manual_ufi(ctx, args: List[str]):
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
+@Commands.command("addfact")
 async def cmd_addfact(ctx, args: List[str]):
     """
     Add a new fact to the database
 
-    Usage: !addfact [name] <--dm> [facttext]
+    Usage: !addfact [name] (--dm) [facttext]
     Aliases: n/a
     """
     # Check if running on online mode
     if cnx is None:
-        return await ctx.reply("Cannot add fact: bot running in online mode!")
+        return await ctx.reply("Cannot add fact: bot running in offline mode!")
     # Else, add fact
     factname = args[0]
     facttext = ' '.join(arg for arg in args[1:])
@@ -65,6 +69,7 @@ async def cmd_addfact(ctx, args: List[str]):
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
+@Commands.command("deletefact")
 async def cmd_deletefact(ctx, args: List[str]):
     """
     Delete a fact from the database
@@ -74,6 +79,8 @@ async def cmd_deletefact(ctx, args: List[str]):
     """
     # Check if running on online mode
     if cnx is None:
-        return await ctx.reply("Cannot remove fact: bot running in online mode!")
+        return await ctx.reply("Cannot remove fact: bot running in offline mode!")
     factname = args[0]
     await remove_fact(ctx, factname)
+
+

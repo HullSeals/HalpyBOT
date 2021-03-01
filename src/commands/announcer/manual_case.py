@@ -1,24 +1,26 @@
 """
-HalpyBOT v1.1
+HalpyBOT v1.2
 
 manual_case.py - Manual case creation module
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
 """
 
 from typing import List
-from src.util.checks import require_permission, DeniedMessage
+from src.packages.checks.checks import require_permission, DeniedMessage
 import logging
-from ..util.checks import require_channel
+from src.packages.checks.checks import require_channel
+from .. import Commands
 
 send_to = ["#Repair-Requests", "#seal-bob"]
 
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
+@Commands.command("manualcase", "mancase")
 async def cmd_manual_case(ctx, args: List[str]):
     """
     Create a manual case
@@ -39,6 +41,7 @@ async def cmd_manual_case(ctx, args: List[str]):
 
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
+@Commands.command("manualfish", "manfish")
 async def cmd_manual_kingfisher(ctx, args: List[str]):
     """
     Create a manual kingfisher case
@@ -59,6 +62,7 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
 
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
+@Commands.command("wssPing")
 async def cmd_wss_ping(ctx, args: List[str]):
     """
     Alert the "Why So Sealious" role that CMDRs are needed for this case. Annoying AF and not to be used lightly.

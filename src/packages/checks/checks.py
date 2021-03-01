@@ -10,12 +10,12 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.1
+HalpyBOT v1.2
 
 checks.py - Check check check...
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
@@ -24,7 +24,7 @@ See license.md
 
 import functools
 from typing import List
-from src.datamodels.user import User
+from ..datamodels.user import User
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,
@@ -66,7 +66,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
         @functools.wraps(function)
         async def guarded(ctx, args: List[str]):
             # Get role
-            whois = await User.get_info(ctx.bot, nickname=ctx.sender)
+            whois = await User.get_info(ctx, ctx.sender)
             modes = User.process_vhost(whois.hostname)
             # Find user level
             userlevel = int(levels[modes])
@@ -74,8 +74,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
             level = int(requiredlevel[req_level])
             # If permission is not correct, send deniedMessage
             if userlevel < level:
-                await ctx.reply(message)
-                pass
+                return await ctx.reply(message)
             else:
                 return await function(ctx, args)
 
