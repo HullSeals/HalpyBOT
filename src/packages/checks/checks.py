@@ -10,7 +10,7 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.1
+HalpyBOT v1.2
 
 checks.py - Check check check...
 
@@ -66,7 +66,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
         @functools.wraps(function)
         async def guarded(ctx, args: List[str]):
             # Get role
-            whois = await User.get_info(ctx.bot, nickname=ctx.sender)
+            whois = await User.get_info(ctx, ctx.sender)
             modes = User.process_vhost(whois.hostname)
             # Find user level
             userlevel = int(levels[modes])

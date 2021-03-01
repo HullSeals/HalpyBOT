@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.1
+HalpyBOT v1.2
 
 fact.py - Fact module bot_management commands
 
