@@ -14,9 +14,11 @@ from typing import List
 from src.packages.database.delayedboard import create_delayed_case, reopen_delayed_case, update_delayed_status, \
      update_delayed_notes, check_delayed_cases
 from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
+from .. import Commands
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
+@Commands.command("delaycase")
 async def cmd_createDelayedCase(ctx, args: List[str]):
     """
     Create a new case on the Delayed-board
@@ -50,6 +52,7 @@ async def cmd_createDelayedCase(ctx, args: List[str]):
 
 @require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
 @require_channel()
+@Commands.command("reopen")
 async def cmd_ReopenDelayedCase(ctx, args: List[str]):
     """
     Reopen a case on the Delayed-board
@@ -75,6 +78,7 @@ async def cmd_ReopenDelayedCase(ctx, args: List[str]):
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
+@Commands.command("endcase", "close")
 async def cmd_closeDelayedCase(ctx, args: List[str]):
     """
     Close a case on the delayed board
@@ -97,6 +101,7 @@ async def cmd_closeDelayedCase(ctx, args: List[str]):
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
+@Commands.command("updatestatus")
 async def cmd_updateDelayedStatus(ctx, args: List[str]):
     """
     Update the status of a case on the delayed board
@@ -123,6 +128,7 @@ async def cmd_updateDelayedStatus(ctx, args: List[str]):
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
+@Commands.command("updatenotes")
 async def cmd_updateDelayedNotes(ctx, args: List[str]):
     """
     Update the notes of a case on the delayed board
@@ -154,13 +160,13 @@ async def cmd_updateDelayedNotes(ctx, args: List[str]):
     else:
         return await ctx.reply(str(results[2]))
 
-
+@Commands.command("delaystatus", "checkstatus")
 async def cmd_checkDelayedCases(ctx, args: List[str]):
     """
     Check the Delayed Board for cases
 
     Usage: !delaystatys
-    Aliases: n/a
+    Aliases: checkstatus
     """
     count = await check_delayed_cases()
     if count == 0:
@@ -171,6 +177,7 @@ async def cmd_checkDelayedCases(ctx, args: List[str]):
 
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
+@Commands.command("updatecase")
 async def cmd_updateDelayedCase(ctx, args: List[str]):
     """
     Update details of a case on the Delayed Board

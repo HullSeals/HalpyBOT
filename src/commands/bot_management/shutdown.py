@@ -18,9 +18,11 @@ import logging
 from typing import List
 
 from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
+from .. import Commands
 
 @require_dm()
 @require_permission("ADMIN", message=DeniedMessage.ADMIN)
+@Commands.command("shutdown")
 async def cmd_shutdown(ctx, args: List[str]):
     """
     Shut down the bot (restart if running as daemon)

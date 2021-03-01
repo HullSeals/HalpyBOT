@@ -18,6 +18,7 @@ from src.packages.checks.checks import require_permission, DeniedMessage
 from main import config
 import logging
 from src.packages.configmanager.edit import config_write
+from .. import Commands
 
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
@@ -51,6 +52,8 @@ async def cmd_prefix(ctx, args: List[str]):
 
 
 # Create the command group
+
+@Commands.command("settings", "bot_management")
 async def cmd_group_settings(ctx, args: List[str]):
     subcommands = {
         'nick': cmd_nick,
@@ -67,6 +70,7 @@ async def cmd_group_settings(ctx, args: List[str]):
 
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Commands.command("joinchannel")
 async def cmd_joinchannel(ctx, args: List[str]):
     """
     Make the bot join a channel. After restart, it will still be in the channel.
@@ -92,6 +96,7 @@ async def cmd_joinchannel(ctx, args: List[str]):
 
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Commands.command("partchannel")
 async def cmd_part(ctx, args: List[str]):
     """
     Make the bot leave the channel it's currently in
