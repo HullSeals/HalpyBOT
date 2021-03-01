@@ -1,6 +1,6 @@
 pydle~=0.9.4
 asyncio~=3.4.3
 pure-sasl~=0.6.2
-setuptools~=50.3.2
+setuptools~=54.0.0
 mysql-connector~=2.2.9
 mysql~=0.0.2

@@ -1,10 +1,10 @@
 """
-HalpyBOT v1.1
+HalpyBOT v1.2
 
 message_builder.py - Build the messages for the announcer
 
-Copyright (c) 2020 The Hull Seals,
-All rights reserved
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
