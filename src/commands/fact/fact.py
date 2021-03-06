@@ -15,7 +15,8 @@ from src.packages.checks.checks import require_permission, DeniedMessage, requir
 from src.packages.database.facts import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from src.packages.database.facts import add_fact, remove_fact, DatabaseConnection
+from src.packages.database.facts import add_fact, remove_fact, get_offline_facts
+from src.packages.database import NoDatabaseConnection
 from .. import Commands
 
 @require_dm()
@@ -41,13 +42,18 @@ async def cmd_manual_ufi(ctx, args: List[str]):
     Aliases: fact_update
     """
     logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
-    #if not has_cnx:
-        #return await ctx.reply("Cannot update cache: bot running in offline mode!")
-    await ctx.reply("Updating...")
-    await clear_facts()
-    await get_facts()
-    await update_fact_index()
-    await ctx.reply("Done.")
+    try:
+        await ctx.reply("Updating...")
+        await clear_facts()
+        await get_facts()
+        await update_fact_index()
+        await ctx.reply("Done.")
+    except NoDatabaseConnection:
+        await ctx.reply("Cannot update fact cache, running in OFFLINE MODE. "
+                        "Contact a cyberseal immediately!")
+        # Fetch offline facts, just in case the cache was flushed
+        await get_offline_facts()
+        await update_fact_index()
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
@@ -59,13 +65,13 @@ async def cmd_addfact(ctx, args: List[str]):
     Usage: !addfact [name] (--dm) [facttext]
     Aliases: n/a
     """
-    # Check if running on online mode
-    #if not has_cnx:
-        #return await ctx.reply("Cannot add fact: bot running in offline mode!")
-    # Else, add fact
     factname = args[0]
     facttext = ' '.join(arg for arg in args[1:])
-    await add_fact(ctx, factname, facttext)
+    try:
+        await add_fact(ctx, factname, facttext)
+    except NoDatabaseConnection:
+        return await ctx.reply("Cannot delete fact: running in OFFLINE MODE! "
+                               "Contact a cyberseal immediately.")
 
 
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
@@ -77,10 +83,9 @@ async def cmd_deletefact(ctx, args: List[str]):
     Usage: !deletefact [factname]
     Aliases: n/a
     """
-    # Check if running on online mode
-    #if not has_cnx:
-        #return await ctx.reply("Cannot remove fact: bot running in offline mode!")
     factname = args[0]
-    await remove_fact(ctx, factname)
-
-
+    try:
+        await remove_fact(ctx, factname)
+    except NoDatabaseConnection:
+        await ctx.reply("Cannot delete fact: running in OFFLINE MODE! "
+                        "Contact a cyberseal immediately.")
