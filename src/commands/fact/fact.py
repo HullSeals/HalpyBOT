@@ -16,6 +16,7 @@ from src.packages.database.facts import update_fact_index, basic_facts, clear_fa
 from typing import List
 import logging
 from src.packages.database.facts import add_fact, remove_fact, get_offline_facts
+from src.packages.database import NoDatabaseConnection
 from .. import Commands
 
 @require_dm()
@@ -47,7 +48,7 @@ async def cmd_manual_ufi(ctx, args: List[str]):
         await get_facts()
         await update_fact_index()
         await ctx.reply("Done.")
-    except ConnectionError:
+    except NoDatabaseConnection:
         await ctx.reply("Cannot update fact cache, running in OFFLINE MODE. "
                         "Contact a cyberseal immediately!")
         # Fetch offline facts, just in case the cache was flushed
@@ -68,7 +69,7 @@ async def cmd_addfact(ctx, args: List[str]):
     facttext = ' '.join(arg for arg in args[1:])
     try:
         await add_fact(ctx, factname, facttext)
-    except ConnectionError:
+    except NoDatabaseConnection:
         return await ctx.reply("Cannot delete fact: running in OFFLINE MODE! "
                                "Contact a cyberseal immediately.")
 
@@ -85,6 +86,6 @@ async def cmd_deletefact(ctx, args: List[str]):
     factname = args[0]
     try:
         await remove_fact(ctx, factname)
-    except ConnectionError:
+    except NoDatabaseConnection:
         await ctx.reply("Cannot delete fact: running in OFFLINE MODE! "
                         "Contact a cyberseal immediately.")

@@ -59,9 +59,16 @@ class DatabaseConnection:
                     logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
                     # Set offline mode, can only be removed by restart
                     offline_mode = True
-                    # TODO send messages to channels
+                    # TODO send announcement message
                     raise NoDatabaseConnection
                 continue
 
     def close(self):
         self.cnx.close()
+
+
+#   async def announce_offline(self):
+#       for ch in om_channels:
+#           await main.HalpyBOT.message(ch, "ATTENTION: HalpyBOT has entered OFFLINE MODE. "
+#                                           "Database-related functions are no longer available. "
+#                                           "Please contact a cyberseal immediately!")
