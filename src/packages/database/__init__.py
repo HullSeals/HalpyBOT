@@ -26,9 +26,15 @@ dbconfig = {"user": config['Database']['user'],
             "host": config['Database']['host'],
             "database": config['Database']['database']}
 
+# Assume not in offline mode
+offline_mode: bool = False
+
 class DatabaseConnection:
 
     def __init__(self):
+        global offline_mode
+        if offline_mode is True:
+            raise ConnectionError
         for _ in range(3):
             # Attempt to connect to the DB
             try:
@@ -44,6 +50,8 @@ class DatabaseConnection:
                 # And we do the same for when the connection fails
                 if _ == 2:
                     logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
+                    # Set offline mode, can only be removed by restart
+                    offline_mode = True
                     # TODO send messages to channels
                     raise ConnectionError
                 continue
