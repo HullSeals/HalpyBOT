@@ -15,7 +15,7 @@ from src.packages.checks.checks import require_permission, DeniedMessage, requir
 from src.packages.database.facts import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from src.packages.database.facts import add_fact, remove_fact, cnx
+from src.packages.database.facts import add_fact, remove_fact, DatabaseConnection
 from .. import Commands
 
 @require_dm()
@@ -41,8 +41,8 @@ async def cmd_manual_ufi(ctx, args: List[str]):
     Aliases: fact_update
     """
     logging.info(f"FACT INDEX UPDATE by {ctx.sender}")
-    if cnx is None:
-        return await ctx.reply("Cannot update cache: bot running in offline mode!")
+    #if not has_cnx:
+        #return await ctx.reply("Cannot update cache: bot running in offline mode!")
     await ctx.reply("Updating...")
     await clear_facts()
     await get_facts()
@@ -60,8 +60,8 @@ async def cmd_addfact(ctx, args: List[str]):
     Aliases: n/a
     """
     # Check if running on online mode
-    if cnx is None:
-        return await ctx.reply("Cannot add fact: bot running in offline mode!")
+    #if not has_cnx:
+        #return await ctx.reply("Cannot add fact: bot running in offline mode!")
     # Else, add fact
     factname = args[0]
     facttext = ' '.join(arg for arg in args[1:])
@@ -78,8 +78,8 @@ async def cmd_deletefact(ctx, args: List[str]):
     Aliases: n/a
     """
     # Check if running on online mode
-    if cnx is None:
-        return await ctx.reply("Cannot remove fact: bot running in offline mode!")
+    #if not has_cnx:
+        #return await ctx.reply("Cannot remove fact: bot running in offline mode!")
     factname = args[0]
     await remove_fact(ctx, factname)
 
