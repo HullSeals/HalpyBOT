@@ -39,7 +39,11 @@ async def cmd_createDelayedCase(ctx, args: List[str]):
         return await ctx.reply("Cannot create case: maximum length for notes is 400 characters.")
 
     # Create the case
-    results = await create_delayed_case(case_status, message, ctx.sender)
+    try:
+        results = await create_delayed_case(case_status, message, ctx.sender)
+    except ConnectionError:
+        return await ctx.reply("Cannot create case: running in OFFLINE MODE. "
+                               "Contact a cyberseal immediately!")
 
     if results[3]:
         await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")
@@ -68,7 +72,12 @@ async def cmd_ReopenDelayedCase(ctx, args: List[str]):
 
     cID = int(args[0])
     casestat = args[1]
-    results = await reopen_delayed_case(cID, casestat, ctx.sender)
+
+    try:
+        results = await reopen_delayed_case(cID, casestat, ctx.sender)
+    except ConnectionError:
+        return await ctx.reply("Cannot reopen case: running in OFFLINE MODE. "
+                               "Contact a cyberseal immediately!")
 
     if results[1] == 0:
         return await ctx.reply(f"Successfully reopened Delayed Case #{results[0]}.")
@@ -91,7 +100,12 @@ async def cmd_closeDelayedCase(ctx, args: List[str]):
         return await ctx.reply("Cannot comply: no valid case number was provided.")
 
     cID = int(args[0])
-    results = await update_delayed_status(cID, 3, ctx.sender)  # set casestat to 3 to close case
+
+    try:
+        results = await update_delayed_status(cID, 3, ctx.sender)  # set casestat to 3 to close case
+    except ConnectionError:
+        return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
+                               "Contact a cyberseal immediately!")
 
     if results[1] == 0:
         return await ctx.reply(f"Case #{results[0]} closed.")
@@ -118,7 +132,12 @@ async def cmd_updateDelayedStatus(ctx, args: List[str]):
 
     cID = int(args[0])
     casestat = int(args[1])
-    results = await update_delayed_status(cID, casestat, ctx.sender)
+
+    try:
+        results = await update_delayed_status(cID, casestat, ctx.sender)
+    except ConnectionError:
+        return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
+                               "Contact a cyberseal immediately!")
 
     if results[1] == 0:
         return await ctx.reply(f"Case #{results[0]} now has status {casestat}.")
@@ -150,7 +169,11 @@ async def cmd_updateDelayedNotes(ctx, args: List[str]):
 
     cID = int(args[0])
 
-    results = await update_delayed_notes(cID, message, ctx.sender)
+    try:
+        results = await update_delayed_notes(cID, message, ctx.sender)
+    except ConnectionError:
+        return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
+                               "Contact a cyberseal immediately!")
 
     if results[3]:
         await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")
@@ -168,7 +191,13 @@ async def cmd_checkDelayedCases(ctx, args: List[str]):
     Usage: !delaystatys
     Aliases: checkstatus
     """
-    count = await check_delayed_cases()
+
+    try:
+        count = await check_delayed_cases()
+    except ConnectionError:
+        return await ctx.reply("Cannot connect to board: running in OFFLINE MODE. "
+                               "Contact a cyberseal immediately!")
+
     if count == 0:
         return await ctx.reply("No Cases marked Delayed. Good Job, Seals!")
     else:
@@ -192,22 +221,27 @@ async def cmd_updateDelayedCase(ctx, args: List[str]):
         return await ctx.reply("Cannot comply: no new case status and/or notes were provided.")
 
     # If only a new status or notes are supplied, yeet it at their own commands
-    if len(args) == 2 and args[1].isnumeric():
-        return await cmd_updateDelayedStatus(ctx, args)
-    if len(args) >= 2 and not args[1].isnumeric():
-        return await cmd_updateDelayedNotes(ctx, args)
+    try:
+        if len(args) == 2 and args[1].isnumeric():
+            return await cmd_updateDelayedStatus(ctx, args)
+        if len(args) >= 2 and not args[1].isnumeric():
+            return await cmd_updateDelayedNotes(ctx, args)
 
-    # Both: call procedures back to back
-    cID = int(args[0])
-    casestat = int(args[1])
-    message = ' '.join(args[2:])
+        # Both: call procedures back to back
+        cID = int(args[0])
+        casestat = int(args[1])
+        message = ' '.join(args[2:])
 
-    # One more round of input validation
-    if casestat not in [1, 2]:
-        return await ctx.reply("Cannot comply: please set a valid status code")
+        # One more round of input validation
+        if casestat not in [1, 2]:
+            return await ctx.reply("Cannot comply: please set a valid status code")
 
-    statusout = await update_delayed_status(cID, casestat, ctx.sender)
-    notesout = await update_delayed_notes(cID, message, ctx.sender)
+        statusout = await update_delayed_status(cID, casestat, ctx.sender)
+        notesout = await update_delayed_notes(cID, message, ctx.sender)
+
+    except ConnectionError:
+        return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
+                               "Contact a cyberseal immediately!")
 
     if notesout[3]:
         await ctx.reply("WARNING: characters incompatible with the database have been removed from the notes.")

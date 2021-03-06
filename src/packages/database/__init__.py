@@ -10,10 +10,13 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+# PyCharm tells me these imports are not used, but they are. Do not remove.
 import configparser
 import mysql.connector
 from mysql.connector import Error as NoDatabaseConnection
 import logging
+
+from ..database import *
 
 config = configparser.ConfigParser()
 config.read('config/config.ini')
@@ -24,8 +27,6 @@ dbconfig = {"user": config['Database']['user'],
             "database": config['Database']['database']}
 
 class DatabaseConnection:
-
-    OM = False
 
     def __init__(self):
         for _ in range(3):
@@ -43,8 +44,8 @@ class DatabaseConnection:
                 # And we do the same for when the connection fails
                 if _ == 2:
                     logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
-                    OM = True
                     # TODO send messages to channels
+                    raise ConnectionError
                 continue
 
     def close(self):
