@@ -15,7 +15,7 @@ import mysql.connector
 import logging
 import src.packages.command.commandhandler
 import json
-from . import cnx, cursor
+from . import DatabaseConnection
 
 facts = {}
 
@@ -46,6 +46,7 @@ async def update_fact_index():
 
 
 async def add_fact(ctx, factname: str, facttext: str):
+    db = DatabaseConnection()
     # Check if not already a command
     if factname in src.packages.command.commandhandler.Commands.commandList:
         return await ctx.reply("Cannot register fact: already an existing command!")
@@ -55,7 +56,12 @@ async def add_fact(ctx, factname: str, facttext: str):
     add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor) "
                  f"VALUES (%s, %s, %s);")
     add_data = (str(factname), str(facttext), str(ctx.sender))
+    # FIXME quickfix
+    if not hasattr(db, "cnx"):
+        return await ctx.reply("Cannot add fact: bot running in offline mode.")
     try:
+        cnx = db.cnx
+        cursor = db.cursor
         cursor.execute(add_query, add_data)
         cnx.commit()
         logging.info(f"FACT ADDED {factname} by {ctx.sender}")
@@ -67,15 +73,23 @@ async def add_fact(ctx, factname: str, facttext: str):
     except mysql.connector.Error as er:
         print(f"ERROR in registering fact {factname} by {ctx.sender}: {er}")
         return await ctx.reply("Couldn't add fact! contact a cyber")
+    finally:
+        db.close()
 
 async def remove_fact(ctx, factname: str):
+    db = DatabaseConnection()
     # Check if fact exists
     if factname not in fact_index:
         return await ctx.reply("That fact doesn't exist!")
     remove_query = (f"DELETE FROM facts "
                     f"WHERE factName = %s;")
     remove_data = (str(factname),)
+    # FIXME quickfix
+    if not hasattr(db, "cnx"):
+        return await ctx.reply("Cannot remove fact: bot running in offline mode.")
     try:
+        cnx = db.cnx
+        cursor = db.cursor
         cursor.execute(remove_query, remove_data)
         cnx.commit()
         logging.info(f"FACT REMOVED {factname} by {ctx.sender}")
@@ -87,21 +101,25 @@ async def remove_fact(ctx, factname: str):
     except mysql.connector.Error as er:
         print(f"ERROR in deleting fact {factname} by {ctx.sender}: {er}")
         return await ctx.reply("Couldn't delete fact! contact a cyber")
+    finally:
+        db.close()
 
 
 async def get_facts():
-    # check for connection
-    if cnx is None:
+    db = DatabaseConnection()
+    get_query = (f"SELECT factName, factText "
+                 f"FROM facts")
+    # FIXME quickfix
+    if not hasattr(db, "cnx"):
+        # Get facts from the backup file if we have no connection
+        logging.error("ERROR in getting facts from DB")
         global facts
         with open('src/facts/backup_facts.json') as json_file:
             facts = json.load(json_file)
-            return await update_fact_index()
-    get_query = (f"SELECT factName, factText "
-                 f"FROM facts")
-    try:
-        cursor.execute(get_query)
-    except mysql.connector.Error as er:
-        logging.error(f"ERROR in getting facts from DB: {er}")
+        return await update_fact_index()
+    cursor = db.cursor
+    cursor.execute(get_query)
     for (factName, factText) in cursor:
         facts[str(factName)] = factText
     await update_fact_index()
+    db.close()
