@@ -12,21 +12,40 @@ See license.md
 
 import configparser
 import mysql.connector
+from mysql.connector import Error as NoDatabaseConnection
+import logging
 
 config = configparser.ConfigParser()
 config.read('config/config.ini')
 
-dbconfig = config['Database']
+dbconfig = {"user": config['Database']['user'],
+            "password": config['Database']['password'],
+            "host": config['Database']['host'],
+            "database": config['Database']['database']}
 
-try:
-    cnx = mysql.connector.connect(user=dbconfig['user'],
-                                  password=dbconfig['password'],
-                                  host=dbconfig['host'],
-                                  database=dbconfig['database'])
-    print("Database connection established")
-    cursor = cnx.cursor()
-    cnx.autocommit = True
-except mysql.connector.Error as error:
-    cnx = None
-    cursor = None
-    print(f"Cannot connect to database, starting in offline mode: {error}")
+class DatabaseConnection:
+
+    OM = False
+
+    def __init__(self):
+        for _ in range(3):
+            # Attempt to connect to the DB
+            try:
+                cnx = mysql.connector.connect(**dbconfig)
+                cursor = cnx.cursor()
+                cnx.autocommit = True
+                self.cnx = cnx
+                self.cursor = cursor
+                logging.info("Connection established.")
+                break
+            except NoDatabaseConnection as er:
+                logging.error(f"Unable to connect to DB, attempting a reconnect: {er}")
+                # And we do the same for when the connection fails
+                if _ == 2:
+                    logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
+                    OM = True
+                    # TODO send messages to channels
+                continue
+
+    def close(self):
+        self.cnx.close()
