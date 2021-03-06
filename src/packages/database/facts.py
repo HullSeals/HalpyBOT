@@ -15,7 +15,7 @@ import mysql.connector
 import logging
 import src.packages.command.commandhandler
 import json
-from . import DatabaseConnection
+from . import DatabaseConnection, NoDatabaseConnection
 
 facts = {}
 
@@ -68,9 +68,9 @@ async def add_fact(ctx, factname: str, facttext: str):
         await update_fact_index()
         await ctx.reply("Fact added successfully")
         db.close()
-    except ConnectionError:
+    except NoDatabaseConnection:
         print(f"ERROR in registering fact {factname} by {ctx.sender}")
-        raise ConnectionError
+        raise
 
 async def remove_fact(ctx, factname: str):
     try:
@@ -92,9 +92,9 @@ async def remove_fact(ctx, factname: str):
         await update_fact_index()
         db.close()
         await ctx.reply("Fact removed successfully.")
-    except ConnectionError:
+    except NoDatabaseConnection:
         print(f"ERROR in deleting fact {factname} by {ctx.sender}")
-        raise ConnectionError
+        raise
 
 async def get_facts(startup: bool = False):
     global facts
@@ -108,12 +108,12 @@ async def get_facts(startup: bool = False):
             facts[str(factName)] = factText
         await update_fact_index()
         db.close()
-    except ConnectionError:
+    except NoDatabaseConnection:
         # Get facts from the backup file if we have no connection
         logging.error("ERROR in getting facts from DB")
         await get_offline_facts()
         if not startup:
-            raise ConnectionError
+            raise
         return await update_fact_index()
 
 

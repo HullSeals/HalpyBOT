@@ -13,7 +13,6 @@ See license.md
 # PyCharm tells me these imports are not used, but they are. Do not remove.
 import configparser
 import mysql.connector
-from mysql.connector import Error as NoDatabaseConnection
 import logging
 
 from ..database import *
@@ -27,14 +26,22 @@ dbconfig = {"user": config['Database']['user'],
             "database": config['Database']['database']}
 
 # Assume not in offline mode
-offline_mode: bool = False
+offline_mode: bool = config.getboolean('Offline Mode', 'Enabled')
+
+om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
+
+class NoDatabaseConnection(ConnectionError):
+    """
+    Raised when 3 consecutive attempts at reconnection are unsuccessful
+    """
+    pass
 
 class DatabaseConnection:
 
     def __init__(self):
         global offline_mode
         if offline_mode is True:
-            raise ConnectionError
+            raise NoDatabaseConnection
         for _ in range(3):
             # Attempt to connect to the DB
             try:
@@ -45,7 +52,7 @@ class DatabaseConnection:
                 self.cursor = cursor
                 logging.info("Connection established.")
                 break
-            except NoDatabaseConnection as er:
+            except mysql.connector.Error as er:
                 logging.error(f"Unable to connect to DB, attempting a reconnect: {er}")
                 # And we do the same for when the connection fails
                 if _ == 2:
@@ -53,7 +60,7 @@ class DatabaseConnection:
                     # Set offline mode, can only be removed by restart
                     offline_mode = True
                     # TODO send messages to channels
-                    raise ConnectionError
+                    raise NoDatabaseConnection
                 continue
 
     def close(self):

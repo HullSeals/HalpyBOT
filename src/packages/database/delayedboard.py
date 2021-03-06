@@ -10,7 +10,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from . import DatabaseConnection
+from . import DatabaseConnection, NoDatabaseConnection
 from ..utils.utils import strip_non_ascii
 
 
@@ -24,8 +24,8 @@ async def create_delayed_case(casestat, message, author):
         cursor.callproc('spCreateDelayedCase', in_args)
         for result in cursor.stored_results():
             out_args.append(result.fetchall())
-    except ConnectionError:
-        raise ConnectionError
+    except NoDatabaseConnection:
+        raise
     out_args = list(out_args[0][0])
     db.close()
     out_args.append(True if message[1] else False)
@@ -39,8 +39,8 @@ async def reopen_delayed_case(cID, casestat, author):
         db = DatabaseConnection()
         cursor = db.cursor
         cursor.callproc('spReopenDelayedCase', in_args)
-    except ConnectionError:
-        raise ConnectionError
+    except NoDatabaseConnection:
+        raise
     for result in cursor.stored_results():
         out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
@@ -55,8 +55,8 @@ async def update_delayed_status(cID, casestat, author):
         db = DatabaseConnection()
         cursor = db.cursor
         cursor.callproc('spUpdateStatusDelayedCase', in_args)
-    except ConnectionError:
-        raise ConnectionError
+    except NoDatabaseConnection:
+        raise
     for result in cursor.stored_results():
         out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
@@ -72,8 +72,8 @@ async def update_delayed_notes(cID, message, author):
         db = DatabaseConnection()
         cursor = db.cursor
         cursor.callproc('spUpdateMsgDelayedCase', in_args)
-    except ConnectionError:
-        raise ConnectionError
+    except NoDatabaseConnection:
+        raise
     for result in cursor.stored_results():
         out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
@@ -92,5 +92,5 @@ async def check_delayed_cases():
             result = res[0]
         # Return the total amount of open delayed cases on the board
         return result
-    except ConnectionError:
-        raise ConnectionError
+    except NoDatabaseConnection:
+        raise
