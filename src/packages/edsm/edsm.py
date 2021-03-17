@@ -2,15 +2,15 @@ import requests
 import numpy as np
 
 
-def checksystem(systemlookup):
+async def checksystem(systemlookup):
     parameters = {"systemName": systemlookup}
     try:
         response = requests.get("https://www.edsm.net/api-v1/systems", params=parameters)
         responses = response.json()
         if responses:
-            systemcheck = "System exists in EDSM."
+            systemcheck = "System "+systemlookup + " exists in EDSM."
         else:
-            systemcheck = "System Not Found in EDSM. The system is probably unknown to EDSM, or may be misspelled."
+            systemcheck = "System "+systemlookup + " Not Found in EDSM."
     except requests.exceptions.Timeout:
         systemcheck = "EDSM Timed Out. Unable to verify System."
     except requests.exceptions.TooManyRedirects:
@@ -22,14 +22,17 @@ def checksystem(systemlookup):
     return systemcheck
 
 
-def locatecmdr(cmdrname):
+async def locatecmdr(cmdrname):
     parameters = {"commanderName": cmdrname, "showCoordinates": 1}
     try:
         response = requests.get("https://www.edsm.net/api-logs-v1/get-position", params=parameters)
         responses = response.json()
         cmdrs = responses['system']
         cmdrd = responses['date']
-        cmdrloc = "CMDR "+cmdrname+" was last seen in "+cmdrs+" on "+cmdrd+" UTC"
+        try:
+            cmdrloc = "CMDR " + cmdrname + " was last seen in " + cmdrs + " on " + cmdrd + " UTC"
+        except TypeError:
+            cmdrloc = "CMDR Not Found or Not Sharing Location on EDSM"
     except KeyError:
         cmdrloc = "CMDR Not Found or Not Sharing Location on EDSM"
     except requests.exceptions.Timeout:
@@ -43,7 +46,7 @@ def locatecmdr(cmdrname):
     return cmdrloc
 
 
-def checkdistance(sysa, sysb):
+async def checkdistance(sysa, sysb):
     para0 = {"systemName[]": sysa, "showCoordinates": 1}
     para1 = {"systemName[]": sysb, "showCoordinates": 1}
     sysax, sysay, sysaz, sysbx, sysby, sysbz, syserr, sysastat, sysbstat = 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -119,7 +122,7 @@ def checkdistance(sysa, sysb):
         except requests.exceptions.RequestException:
             syserr = "Unable to verify system."
     if sysastat == "Valid System" and sysbstat == "Valid System":
-        distancecheck = distancemath(sysax, sysbx, sysay, sysby, sysaz, sysbz)
+        distancecheck = await distancemath(sysax, sysbx, sysay, sysby, sysaz, sysbz)
         distancecheck = "The distance between " + sysa + " and " + sysb + " is " + distancecheck + " LY"
         return distancecheck
     elif syserr != 0:
@@ -130,7 +133,7 @@ def checkdistance(sysa, sysb):
         return distancecheck
 
 
-def distancemath(x1, x2, y1, y2, z1, z2):
+async def distancemath(x1, x2, y1, y2, z1, z2):
     p1 = np.array([x1, y1, z1])
     p2 = np.array([x2, y2, z2])
     squared_dist = np.sum((p1 - p2) ** 2, axis=0)

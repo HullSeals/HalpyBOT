@@ -18,6 +18,7 @@ from .bot_management import *
 from .delayedboard import *
 from .fact import *
 from .forcejoin import *
+from .edsm import *
 
 @Commands.command("ping")
 async def cmd_ping(ctx, args: List[str]):

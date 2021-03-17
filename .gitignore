@@ -1,5 +1,6 @@
 # Virtual environment
 /venv/
+/halpy/
 
 # Config files
 /config/config.ini
@@ -9,3 +10,6 @@
 
 # Python cache
 **/__pycache__
+
+#ideas and venv
+/.idea
