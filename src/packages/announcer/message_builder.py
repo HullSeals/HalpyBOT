@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2
+HalpyBOT v1.2.2
 
 message_builder.py - Build the messages for the announcer
 
