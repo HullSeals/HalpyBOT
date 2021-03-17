@@ -15,7 +15,7 @@ import mysql.connector
 import logging
 import src.packages.command.commandhandler
 import json
-from . import cnx, cursor
+from . import DatabaseConnection, NoDatabaseConnection
 
 facts = {}
 
@@ -24,7 +24,7 @@ basic_facts = []
 
 
 async def on_connect():
-    await get_facts()
+    await get_facts(startup=True)
 
 async def clear_facts():
     facts.clear()
@@ -56,6 +56,9 @@ async def add_fact(ctx, factname: str, facttext: str):
                  f"VALUES (%s, %s, %s);")
     add_data = (str(factname), str(facttext), str(ctx.sender))
     try:
+        db = DatabaseConnection()
+        cnx = db.cnx
+        cursor = db.cursor
         cursor.execute(add_query, add_data)
         cnx.commit()
         logging.info(f"FACT ADDED {factname} by {ctx.sender}")
@@ -64,18 +67,22 @@ async def add_fact(ctx, factname: str, facttext: str):
         await get_facts()
         await update_fact_index()
         await ctx.reply("Fact added successfully")
-    except mysql.connector.Error as er:
-        print(f"ERROR in registering fact {factname} by {ctx.sender}: {er}")
-        return await ctx.reply("Couldn't add fact! contact a cyber")
+        db.close()
+    except NoDatabaseConnection:
+        print(f"ERROR in registering fact {factname} by {ctx.sender}")
+        raise
 
 async def remove_fact(ctx, factname: str):
-    # Check if fact exists
-    if factname not in fact_index:
-        return await ctx.reply("That fact doesn't exist!")
-    remove_query = (f"DELETE FROM facts "
-                    f"WHERE factName = %s;")
-    remove_data = (str(factname),)
     try:
+        # Check if fact exists (this is in the try loop because we want the
+        if factname not in fact_index:
+            return await ctx.reply("That fact doesn't exist!")
+        remove_query = (f"DELETE FROM facts "
+                        f"WHERE factName = %s;")
+        remove_data = (str(factname),)
+        db = DatabaseConnection()
+        cnx = db.cnx
+        cursor = db.cursor
         cursor.execute(remove_query, remove_data)
         cnx.commit()
         logging.info(f"FACT REMOVED {factname} by {ctx.sender}")
@@ -83,25 +90,34 @@ async def remove_fact(ctx, factname: str):
         await clear_facts()
         await get_facts()
         await update_fact_index()
+        db.close()
         await ctx.reply("Fact removed successfully.")
-    except mysql.connector.Error as er:
-        print(f"ERROR in deleting fact {factname} by {ctx.sender}: {er}")
-        return await ctx.reply("Couldn't delete fact! contact a cyber")
+    except NoDatabaseConnection:
+        print(f"ERROR in deleting fact {factname} by {ctx.sender}")
+        raise
 
-
-async def get_facts():
-    # check for connection
-    if cnx is None:
-        global facts
-        with open('src/facts/backup_facts.json') as json_file:
-            facts = json.load(json_file)
-            return await update_fact_index()
+async def get_facts(startup: bool = False):
+    global facts
     get_query = (f"SELECT factName, factText "
                  f"FROM facts")
     try:
+        db = DatabaseConnection()
+        cursor = db.cursor
         cursor.execute(get_query)
-    except mysql.connector.Error as er:
-        logging.error(f"ERROR in getting facts from DB: {er}")
-    for (factName, factText) in cursor:
-        facts[str(factName)] = factText
-    await update_fact_index()
+        for (factName, factText) in cursor:
+            facts[str(factName)] = factText
+        await update_fact_index()
+        db.close()
+    except NoDatabaseConnection:
+        # Get facts from the backup file if we have no connection
+        logging.error("ERROR in getting facts from DB")
+        await get_offline_facts()
+        if not startup:
+            raise
+        return await update_fact_index()
+
+
+async def get_offline_facts():
+    global facts
+    with open('src/facts/backup_facts.json') as json_file:
+        facts = json.load(json_file)
