@@ -30,7 +30,7 @@ async def cmd_systemlookup(ctx, args: List[str]):
         return await ctx.reply("No system given! Please provide a system name.")
 
     try:
-        if await system_exists(system):
+        if await GalaxySystem.exists(name=system):
             return await ctx.reply(f"System {system} exists in EDSM")
         else:
             return await ctx.reply(f"System {system} not found in EDSM")
@@ -61,7 +61,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
 
     return await ctx.reply(f"CMDR {cmdr} was last seen in {system} on {date}")
 
-
+# TODO refactor
 @Commands.command("distance", "dist")
 async def cmd_distlookup(ctx, args: List[str]):
     """
@@ -86,4 +86,4 @@ async def cmd_distlookup(ctx, args: List[str]):
         try:
             return await ctx.reply(await checkdistance(pointa, pointb))
         except EDSMLookupError as er:
-            return await ctx.reply(str(errors=er))
+            return await ctx.reply(str(er))

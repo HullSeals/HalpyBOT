@@ -1,7 +1,11 @@
+from __future__ import annotations
 import requests
 import numpy as np
 import logging
+from dataclasses import dataclass
 
+from typing import Optional
+from ..datamodels.edsm_classes import SystemInfo, Coordinates
 
 class EDSMLookupError(Exception):
     """
@@ -19,30 +23,39 @@ class EDSMConnectionError(EDSMLookupError):
     while connecting to the EDSM API
     """
 
-async def system_exists(systemlookup):
-    systemlookup = systemlookup.strip()
-    try:
-        response = requests.get("https://www.edsm.net/api-v1/systems",
-                                params={"systemName": systemlookup})
-        responses = response.json()
-        confsys = responses[0]['name']
+@dataclass(frozen=True)
+class GalaxySystem:
+    name: str
+    coords: Coordinates
+    coordsLocked: bool
+    information: SystemInfo
 
-        if confsys.lower() == systemlookup.lower():
-            return True
+    @classmethod
+    async def get_info(cls, name) -> Optional[GalaxySystem]:
+        try:
+            response = requests.get("https://www.edsm.net/api-v1/system",
+                                    params={"systemName": name.strip(),
+                                            "showCoordinates": 1,
+                                            "showInformation": 1})
+            responses = response.json()
 
-        # FIXME get this to work, disabled it for now. Sorry, melon of water :/
-        # elif systemlookup.lower() == "mary":
-            # return "Stop it. Get some Help."
+        except requests.exceptions.RequestException as er:
+            logging.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
+            raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
+        # Return None if system doesn't exist
+        if len(responses) == 0:
+            return None
         else:
+            return cls(**responses)
+
+    @classmethod
+    async def exists(cls, name):
+        obj = await cls.get_info(name)
+        if obj is None:
             return False
-
-    except IndexError:  # Raised when we get no results
-        return False
-
-    except (ValueError, requests.exceptions.RequestException) as er:
-        logging.error(f"EDSM: Error in `system_exists()` lookup: {er}", exc_info=True)
-        raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
+        else:
+            return True
 
 
 async def locatecmdr(cmdrname):
@@ -58,7 +71,7 @@ async def locatecmdr(cmdrname):
         LastSeenSystem = responses['system']
         LastSeenDate = responses['date']
 
-    except (requests.exceptions.RequestException, ValueError) as er:
+    except requests.exceptions.RequestException as er:
         logging.error(f"EDSM: Error in `system_exists()` lookup: {er}", exc_info=True)
         raise EDSMConnectionError("Error! Unable to verify system.")
 
@@ -68,9 +81,10 @@ async def locatecmdr(cmdrname):
     return LastSeenSystem, LastSeenDate
 
 
-# TODO Split this behemoth up into multiple functions
+# TODO Split this behemoth up into multiple functions and refactor
 async def checkdistance(sysa, sysb):
     sysax, sysay, sysaz, sysbx, sysby, sysbz, syserr, sysastat, sysbstat = 0, 0, 0, 0, 0, 0, 0, 0, 0
+    # TODO simplify try-except block and handle exceptions the proper way
     try:
         query1 = requests.get("https://www.edsm.net/api-v1/systems",
                               params={"systemName[]": sysa, "showCoordinates": 1})
@@ -151,7 +165,7 @@ async def checkdistance(sysa, sysb):
         except requests.exceptions.RequestException:
             syserr = "Unable to verify system."
     if sysastat == "Valid System" and sysbstat == "Valid System":
-        distancecheck = await distancemath(sysax, sysbx, sysay, sysby, sysaz, sysbz)
+        distancecheck = await calc_distance(sysax, sysbx, sysay, sysby, sysaz, sysbz)
         distancecheck = f'{distancecheck:,}'
         distancecheck = "The distance between " + sysa + " and " + sysb + " is " + distancecheck + " LY"
     elif syserr != 0:
@@ -162,7 +176,7 @@ async def checkdistance(sysa, sysb):
         distancecheck = "ERROR! SysA: " + sysastat + " SysB: " + sysbstat
     return distancecheck
 
-
+# TODO refactor and split up
 async def checklandmarks(sysa):
     para0 = {"systemName[]": sysa, "showCoordinates": 1}
     sysax, sysay, sysaz, syserr, sysastat = 0, 0, 0, 0, 0
@@ -221,7 +235,7 @@ async def checklandmarks(sysa):
             lmx = lxcoords[i]
             lmy = lycoords[i]
             lmz = lzcoords[i]
-            distancecheck = await distancemath(sysax, lmx, sysay, lmy, sysaz, lmz)
+            distancecheck = await calc_distance(sysax, lmx, sysay, lmy, sysaz, lmz)
             if distancecheck < maxdist:
                 currclosest = currlandmark
                 maxdist = distancecheck
@@ -237,7 +251,7 @@ async def checklandmarks(sysa):
     return distancecheck
 
 
-async def distancemath(x1, x2, y1, y2, z1, z2):
+async def calc_distance(x1, x2, y1, y2, z1, z2):
     p1 = np.array([x1, y1, z1])
     p2 = np.array([x2, y2, z2])
     squared_dist = np.sum((p1 - p2) ** 2, axis=0)
