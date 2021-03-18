@@ -265,11 +265,11 @@ async def checklandmarks(sysa):
     if sysastat == "Valid System":
         currclosest = "none"
         maxdist = 10000
-        iteration = [0, 1, 2, 3, 4, 5]
+        iteration = [0, 1, 2, 3, 4, 5, 6]
         landmarks = ["Sol", "Beagle Point", "Colonia", "Sag A*", "HSRC Limpet's Call", "Galactic East (Chanoa QK-C d14-0)", "Galactic West (Sphiesi HX-L d7-0)"]
         lxcoords = [0, -1111.5625, -9530.5, 25.21875, -681.09375, 39307.25, -42213.8125]
         lycoords = [0, -134.21875, -910.28125, -20.90625, -950.5625, -92.4375, -19.21875]
-        lzcoords = [0, 65269.75, 19808.125, 25899.96875, 34219.34375,19338.375, 35418.71875]
+        lzcoords = [0, 65269.75, 19808.125, 25899.96875, 34219.34375, 19338.375, 35418.71875]
         for i in iteration:
             currlandmark = landmarks[i]
             lmx = lxcoords[i]
