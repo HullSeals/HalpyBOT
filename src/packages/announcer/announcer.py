@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2
+HalpyBOT v1.2.2
 
 announcer.py - Client announcement handler
 

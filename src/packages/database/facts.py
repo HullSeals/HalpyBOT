@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2
+HalpyBOT v1.2.2
 
 facts.py - Database interaction for the fact module
 
