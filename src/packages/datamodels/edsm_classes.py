@@ -15,7 +15,6 @@ class SystemInfo(TypedDict):
     security: str
     economy: str
 
-@dataclass(frozen=True)
 class Location:
     system: str
     coordinates: Coordinates
