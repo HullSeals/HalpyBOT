@@ -1,2 +1,2 @@
 from src.commands import *
-from .checks import *
+from src.packages import *
