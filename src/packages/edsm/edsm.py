@@ -226,10 +226,10 @@ async def checklandmarks(sysa):
         currclosest = "none"
         maxdist = 10000
         iteration = [0, 1, 2, 3, 4, 5]
-        landmarks = ["Sol", "Beagle Point", "Colonia", "Sag A*", "Jackson's Lighthouse", "HSRC Limpet's Call"]
-        lxcoords = [0, -1111.5625, -9530.5, 25.21875, 157, -681.09375]
-        lycoords = [0, -134.21875, -910.28125, -20.90625, -27, -950.5625]
-        lzcoords = [0, 65269.75, 19808.125, 25899.96875, -70, 34219.34375]
+        landmarks = ["Sol", "Beagle Point", "Colonia", "Sag A*", "HSRC Limpet's Call", "Galactic East (Chanoa QK-C d14-0)", "Galactic West (Sphiesi HX-L d7-0)"]
+        lxcoords = [0, -1111.5625, -9530.5, 25.21875, -681.09375, 39307.25, -42213.8125]
+        lycoords = [0, -134.21875, -910.28125, -20.90625, -950.5625, -92.4375, -19.21875]
+        lzcoords = [0, 65269.75, 19808.125, 25899.96875, 34219.34375,19338.375, 35418.71875]
         for i in iteration:
             currlandmark = landmarks[i]
             lmx = lxcoords[i]
@@ -241,7 +241,7 @@ async def checklandmarks(sysa):
                 maxdist = distancecheck
         if currclosest != "none":
             finaldistance = f'{maxdist:,}'
-            return "The closest landmark system is " + currclosest + " at " + finaldistance + "ly."
+            return "The closest landmark system is " + currclosest + " at " + finaldistance + " ly."
         else:
             return "No major landmark systems within 10,000 ly."
     elif syserr != 0:
