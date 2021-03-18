@@ -65,13 +65,19 @@ async def cmd_distlookup(ctx, args: List[str]):
 
     if not args:
         return await ctx.reply("Please provide two points to look up, separated by a :")
-    listToStr = ' '.join([str(elem) for elem in args])
-    points = listToStr.split(":", 1)
-    pointa = ''.join(points[0])
-    pointa = pointa.strip()
-    pointb = ''.join(points[1])
-    pointb = pointb.strip()
     try:
-        return await ctx.reply(await checkdistance(pointa, pointb))
-    except Exception as e:
-        return await ctx.reply(e)
+        listToStr = ' '.join([str(elem) for elem in args])
+        points = listToStr.split(":", 1)
+        pointa = ''.join(points[0])
+        pointa = pointa.strip()
+        pointb = ''.join(points[1])
+        pointb = pointb.strip()
+    except IndexError:
+        return await ctx.reply("Please provide two points to look up, separated by a :")
+    if not pointb:
+        return await ctx.reply("Please provide two points to look up, separated by a :")
+    else:
+        try:
+            return await ctx.reply(await checkdistance(pointa, pointb))
+        except Exception as e:
+            return await ctx.reply(e)

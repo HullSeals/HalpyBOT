@@ -3,14 +3,18 @@ import numpy as np
 
 
 async def checksystem(systemlookup):
+    systemlookup = systemlookup.strip()
     parameters = {"systemName": systemlookup}
     try:
         response = requests.get("https://www.edsm.net/api-v1/systems", params=parameters)
         responses = response.json()
-        if responses:
+        confsys = responses[0]['name']
+        if confsys.lower() == systemlookup.lower():
             systemcheck = "System "+systemlookup + " exists in EDSM."
         else:
             systemcheck = "System "+systemlookup + " Not Found in EDSM."
+    except IndexError:
+        systemcheck = "System "+systemlookup + " Not Found in EDSM."
     except requests.exceptions.Timeout:
         systemcheck = "EDSM Timed Out. Unable to verify System."
     except requests.exceptions.TooManyRedirects:
