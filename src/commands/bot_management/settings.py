@@ -69,8 +69,8 @@ async def cmd_group_settings(ctx, args: List[str]):
         await ctx.reply("Subcommand not found! Try !bot_management to see all the options")
 
 
-@require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 @Commands.command("joinchannel")
+@require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_joinchannel(ctx, args: List[str]):
     """
     Make the bot join a channel. After restart, it will still be in the channel.
@@ -95,8 +95,8 @@ async def cmd_joinchannel(ctx, args: List[str]):
         await ctx.reply("That's not a channel!")
 
 
-@require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 @Commands.command("partchannel")
+@require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_part(ctx, args: List[str]):
     """
     Make the bot leave the channel it's currently in
