@@ -149,8 +149,8 @@ async def checkdistance(sysa, sysb):
             res4 = query4.json()
             if res4:
                 sysbx = res4['coordinates']['x']
-                sysby = res4['coordinates']['x']
-                sysbz = res4['coordinates']['x']
+                sysby = res4['coordinates']['y']
+                sysbz = res4['coordinates']['z']
                 sysbstat = "Valid System"
             else:
                 sysbstat = "CMDR or System Not Found in EDSM."
