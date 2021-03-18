@@ -224,7 +224,7 @@ async def checklandmarks(sysa):
             syserr = "Unable to verify system."
     if sysastat == "Valid System":
         currclosest = "none"
-        maxdist = 5000
+        maxdist = 10000
         iteration = [0, 1, 2, 3, 4, 5]
         landmarks = ["Sol", "Beagle Point", "Colonia", "Sag A*", "Jackson's Lighthouse", "HSRC Limpet's Call"]
         lxcoords = [0, -1111.5625, -9530.5, 25.21875, 157, -681.09375]
@@ -243,11 +243,11 @@ async def checklandmarks(sysa):
             finaldistance = f'{maxdist:,}'
             return "The closest landmark system is " + currclosest + " at " + finaldistance + "ly."
         else:
-            return "No major landmark systems within 5,000 ly."
+            return "No major landmark systems within 10,000 ly."
     elif syserr != 0:
         distancecheck = "System Error: " + syserr
     else:
-        distancecheck = "ERROR! SysA: " + sysastat
+        distancecheck = "ERROR! " + sysastat
     return distancecheck
 
 

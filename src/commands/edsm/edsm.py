@@ -87,3 +87,23 @@ async def cmd_distlookup(ctx, args: List[str]):
             return await ctx.reply(await checkdistance(pointa, pointb))
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
+
+
+
+@Commands.command("landmark")
+async def cmd_landmarklookup(ctx, args: List[str]):
+    """
+    Calculate the closest landmark system to a known EDSM system.
+
+    Usage: !landmark
+    Aliases: n/a
+    """
+
+    system = ' '.join(args[0:])  # TODO replace by ctx method
+    if not system:
+        return await ctx.reply("No arguments given! Please provide a System or CMDR name.")
+    else:
+        try:
+            return await ctx.reply(await checklandmarks(system))
+        except Exception as e:
+            return await ctx.reply(str(er))
