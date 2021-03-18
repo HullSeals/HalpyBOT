@@ -55,11 +55,15 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
 
     try:
-        system, date = await locatecmdr(cmdr)
-    except EDSMLookupError as er:
+        location = await Commander.location(name=cmdr)
+    except EDSMConnectionError as er:
         return await ctx.reply(str(er))
 
-    return await ctx.reply(f"CMDR {cmdr} was last seen in {system} on {date}")
+    if location is None:
+        return await ctx.reply("CMDR not found or not sharing location on EDSM")
+    else:
+        return await ctx.reply(f"CMDR {cmdr} was last seen in {location.system} on {location.time}")
+
 
 # TODO refactor
 @Commands.command("distance", "dist")
@@ -89,7 +93,6 @@ async def cmd_distlookup(ctx, args: List[str]):
             return await ctx.reply(str(er))
 
 
-
 @Commands.command("landmark")
 async def cmd_landmarklookup(ctx, args: List[str]):
     """
@@ -105,5 +108,5 @@ async def cmd_landmarklookup(ctx, args: List[str]):
     else:
         try:
             return await ctx.reply(await checklandmarks(system))
-        except Exception as e:
+        except Exception as er:
             return await ctx.reply(str(er))

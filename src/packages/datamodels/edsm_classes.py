@@ -1,4 +1,5 @@
 from typing import *
+from dataclasses import dataclass
 
 class Coordinates(TypedDict):
     x: Union[float, int]
@@ -13,3 +14,9 @@ class SystemInfo(TypedDict):
     population: int
     security: str
     economy: str
+
+@dataclass(frozen=True)
+class Location:
+    system: str
+    coordinates: Coordinates
+    time: Optional[str]

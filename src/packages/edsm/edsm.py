@@ -5,7 +5,7 @@ import logging
 from dataclasses import dataclass
 
 from typing import Optional
-from ..datamodels.edsm_classes import SystemInfo, Coordinates
+from ..datamodels.edsm_classes import SystemInfo, Coordinates, Location
 
 class EDSMLookupError(Exception):
     """
@@ -51,34 +51,74 @@ class GalaxySystem:
 
     @classmethod
     async def exists(cls, name):
-        obj = await cls.get_info(name)
+        try:
+            obj = await cls.get_info(name)
+        except EDSMConnectionError:
+            raise
         if obj is None:
             return False
         else:
             return True
 
 
-async def locatecmdr(cmdrname):
+@dataclass(frozen=True)
+class Commander:
+    name: str
+    system: str
+    coordinates: Coordinates
+    date: Optional[str]
+    isDocked: bool
+    station: Optional[str]
+    dateDocked: Optional[str]
+    shipType: str
+    dateLastActivity: str
+    shipFuel: Optional
 
-    try:
-        response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
-                                params={"commanderName": cmdrname, "showCoordinates": 1})
-        responses = response.json()
+    @classmethod
+    async def get_cmdr(cls, name) -> Optional[Commander]:
+        try:
+            response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
+                                    params={"commanderName": name,
+                                            "showCoordinates": 1})
+            responses = response.json()
 
-        if responses['msgnum'] == 203:
-            raise NoResultsEDSM("CMDR not found or not sharing location on EDSM")
+            if responses['msgnum'] == 203:
+                return None
 
-        LastSeenSystem = responses['system']
-        LastSeenDate = responses['date']
+            # Why do we have to do this? come on, EDSM!
+            if not responses['isDocked']:
+                responses['station'], responses['dateDocked'] = None, None
 
-    except requests.exceptions.RequestException as er:
-        logging.error(f"EDSM: Error in `system_exists()` lookup: {er}", exc_info=True)
-        raise EDSMConnectionError("Error! Unable to verify system.")
+        except requests.exceptions.RequestException as er:
+            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
+            raise EDSMConnectionError("Error! Unable to get commander info.")
 
-    if LastSeenDate is None:
-        LastSeenDate = "an unknown date and time."
+        if len(responses) == 0:
+            return None
+        else:
+            # Throw out data we don't need
+            del responses['msgnum'], responses['msg'],\
+                responses['firstDiscover'], responses['url'], responses['shipId']
+            return cls(**responses, name=name)
 
-    return LastSeenSystem, LastSeenDate
+    @classmethod
+    async def location(cls, name) -> Optional[Location]:
+        try:
+            location = await Commander.get_cmdr(name=name)
+        except EDSMConnectionError:
+            raise
+
+        if location is None:
+            return None
+        else:
+            if location.date is None:
+                time = "an unknown date and time."
+            else:
+                time = location.date
+            return Location(system=location.system,
+                            coordinates=location.coordinates,
+                            time=time)
+
 
 
 # TODO Split this behemoth up into multiple functions and refactor
