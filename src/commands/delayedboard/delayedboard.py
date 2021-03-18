@@ -16,9 +16,9 @@ from src.packages.database import NoDatabaseConnection
 from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
 from .. import Commands
 
-@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
-@require_channel()
 @Commands.command("delaycase")
+@require_channel()
+@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 async def cmd_createDelayedCase(ctx, args: List[str]):
     """
     Create a new case on the Delayed-board

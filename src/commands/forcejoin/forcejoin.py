@@ -20,9 +20,9 @@ from src.packages.datamodels.user import User
 joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 
 
+@Commands.command("forcejoin")
 @require_channel()
 @require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
-@Commands.command("forcejoin")
 async def cmd_sajoin(ctx, args: List[str]):
     """
     Make the bot force a user to join a channel.
