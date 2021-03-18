@@ -163,6 +163,80 @@ async def checkdistance(sysa, sysb):
     return distancecheck
 
 
+async def checklandmarks(sysa):
+    para0 = {"systemName[]": sysa, "showCoordinates": 1}
+    sysax, sysay, sysaz, syserr, sysastat = 0, 0, 0, 0, 0
+    try:
+        query1 = requests.get("https://www.edsm.net/api-v1/systems", params=para0)
+        res1 = query1.json()
+        if res1:
+            sysax = res1[0]['coords']['x']
+            sysay = res1[0]['coords']['y']
+            sysaz = res1[0]['coords']['z']
+            sysastat = "Valid System"
+        else:
+            sysastat = "System Not Found in EDSM."
+    except KeyError:
+        sysastat = "System has no Coordinates."
+    except requests.exceptions.Timeout:
+        syserr = "EDSM Timed Out. Unable to verify System."
+    except requests.exceptions.TooManyRedirects:
+        syserr = "EDSM Didn't Respond. Unable to verify System."
+    except ValueError:
+        syserr = "Unable to verify System. JSON Decoding Failure."
+    except requests.exceptions.RequestException:
+        syserr = "Unable to verify system."
+    if sysastat != "Valid System":
+        try:
+            parameters = {"commanderName": sysa, 'showCoordinates': 1}
+            query3 = requests.get("https://www.edsm.net/api-logs-v1/get-position", params=parameters)
+            res3 = query3.json()
+            if res3:
+                sysax = res3['coordinates']['x']
+                sysay = res3['coordinates']['y']
+                sysaz = res3['coordinates']['z']
+                sysastat = "Valid System"
+            else:
+                sysastat = "CMDR or System Not Found in EDSM."
+        except KeyError:
+            sysastat = "CMDR or System Not Found in EDSM."
+        except requests.exceptions.Timeout:
+            syserr = "EDSM Timed Out. Unable to verify System."
+        except requests.exceptions.TooManyRedirects:
+            syserr = "EDSM Didn't Respond. Unable to verify System."
+        except ValueError:
+            syserr = "Unable to verify System. JSON Decoding Failure."
+        except requests.exceptions.RequestException:
+            syserr = "Unable to verify system."
+    if sysastat == "Valid System":
+        currclosest = "none"
+        maxdist = 5000
+        iteration = [0, 1, 2, 3, 4, 5]
+        landmarks = ["Sol", "Beagle Point", "Colonia", "Sag A*", "Jackson's Lighthouse", "HSRC Limpet's Call"]
+        lxcoords = [0, -1111.5625, -9530.5, 25.21875, 157, -681.09375]
+        lycoords = [0, -134.21875, -910.28125, -20.90625, -27, -950.5625]
+        lzcoords = [0, 65269.75, 19808.125, 25899.96875, -70, 34219.34375]
+        for i in iteration:
+            currlandmark = landmarks[i]
+            lmx = lxcoords[i]
+            lmy = lycoords[i]
+            lmz = lzcoords[i]
+            distancecheck = await distancemath(sysax, lmx, sysay, lmy, sysaz, lmz)
+            if distancecheck < maxdist:
+                currclosest = currlandmark
+                maxdist = distancecheck
+        if currclosest != "none":
+            finaldistance = f'{maxdist:,}'
+            return "The closest landmark system is " + currclosest + " at " + finaldistance + "ly."
+        else:
+            return "No major landmark systems within 5,000 ly."
+    elif syserr != 0:
+        distancecheck = "System Error: " + syserr
+    else:
+        distancecheck = "ERROR! SysA: " + sysastat
+    return distancecheck
+
+
 async def distancemath(x1, x2, y1, y2, z1, z2):
     p1 = np.array([x1, y1, z1])
     p2 = np.array([x2, y2, z2])
