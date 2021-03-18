@@ -16,9 +16,9 @@ from src.packages.checks.checks import require_dm, require_permission, DeniedMes
 from .. import Commands
 
 
+@Commands.command("say")
 @require_dm()
 @require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
-@Commands.command("say")
 async def cmd_say(ctx, args: List[str]):
     """
     Make the bot say something
