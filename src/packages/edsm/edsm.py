@@ -87,7 +87,7 @@ async def checkdistance(sysa, sysb):
             else:
                 sysastat = "System Not Found in EDSM."
         except KeyError:
-            sysastat = "System Not Found in EDSM."
+            sysastat = "System has no Coordinates."
         try:
             if res2:
                 sysbx = res2[0]['coords']['x']
@@ -97,7 +97,7 @@ async def checkdistance(sysa, sysb):
             else:
                 sysbstat = "System Not Found in EDSM."
         except KeyError:
-            sysbstat = "System Not Found in EDSM."
+            sysbstat = "System has no Coordinates."
     except requests.exceptions.Timeout:
         syserr = "EDSM Timed Out. Unable to verify System."
     except requests.exceptions.TooManyRedirects:
