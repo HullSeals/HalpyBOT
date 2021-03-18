@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 from src.packages.command.commandhandler import Commands
-
+from datetime import datetime
 from .announcer import *
 from .bot_management import *
 from .delayedboard import *
@@ -30,3 +30,16 @@ async def cmd_ping(ctx, args: List[str]):
     Aliases: n/a
     """
     await ctx.reply("Pong!")
+
+
+@Commands.command("utc")
+async def cmd_ping(ctx, args: List[str]):
+    """
+    Reply with the current UTC/In Game Time
+
+    Usage: !UTC
+    Aliases: n/a
+    """
+    current_utc = datetime.utcnow()
+    current_utc = current_utc.strftime("%H:%M:%S")
+    await ctx.reply("It is currently " + current_utc + " UTC")
