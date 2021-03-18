@@ -78,19 +78,25 @@ async def checkdistance(sysa, sysb):
         query2 = requests.get("https://www.edsm.net/api-v1/systems",
                               params={"systemName[]": sysb, "showCoordinates": 1})
         res2 = query2.json()
-        if res1:
-            sysax = res1[0]['coords']['x']
-            sysay = res1[0]['coords']['y']
-            sysaz = res1[0]['coords']['z']
-            sysastat = "Valid System"
-        else:
+        try:
+            if res1:
+                sysax = res1[0]['coords']['x']
+                sysay = res1[0]['coords']['y']
+                sysaz = res1[0]['coords']['z']
+                sysastat = "Valid System"
+            else:
+                sysastat = "System Not Found in EDSM."
+        except KeyError:
             sysastat = "System Not Found in EDSM."
-        if res2:
-            sysbx = res2[0]['coords']['x']
-            sysby = res2[0]['coords']['y']
-            sysbz = res2[0]['coords']['z']
-            sysbstat = "Valid System"
-        else:
+        try:
+            if res2:
+                sysbx = res2[0]['coords']['x']
+                sysby = res2[0]['coords']['y']
+                sysbz = res2[0]['coords']['z']
+                sysbstat = "Valid System"
+            else:
+                sysbstat = "System Not Found in EDSM."
+        except KeyError:
             sysbstat = "System Not Found in EDSM."
     except requests.exceptions.Timeout:
         syserr = "EDSM Timed Out. Unable to verify System."
