@@ -146,6 +146,7 @@ async def checkdistance(sysa, sysb):
             syserr = "Unable to verify system."
     if sysastat == "Valid System" and sysbstat == "Valid System":
         distancecheck = await distancemath(sysax, sysbx, sysay, sysby, sysaz, sysbz)
+        distancecheck = f'{distancecheck:,}'
         distancecheck = "The distance between " + sysa + " and " + sysb + " is " + distancecheck + " LY"
     elif syserr != 0:
         distancecheck = "System Error: " + syserr
@@ -162,5 +163,4 @@ async def distancemath(x1, x2, y1, y2, z1, z2):
     squared_dist = np.sum((p1 - p2) ** 2, axis=0)
     dist = np.sqrt(squared_dist)
     dist = np.around(dist, decimals=2, out=None)
-    dist = f'{dist:,}'
     return dist
