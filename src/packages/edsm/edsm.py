@@ -1,31 +1,48 @@
 import requests
 import numpy as np
+import logging
 
 
-async def checksystem(systemlookup):
+class EDSMLookupError(Exception):
+    """
+    Base class for lookup errors
+    """
+
+class NoResultsEDSM(EDSMLookupError):
+    """
+    No results for the given query were found with the EDSM API
+    """
+
+class EDSMConnectionError(EDSMLookupError):
+    """
+    Request failed due to an exception that occurred
+    while connecting to the EDSM API
+    """
+
+async def system_exists(systemlookup):
     systemlookup = systemlookup.strip()
-    parameters = {"systemName": systemlookup}
     try:
-        response = requests.get("https://www.edsm.net/api-v1/systems", params=parameters)
+        response = requests.get("https://www.edsm.net/api-v1/systems",
+                                params={"systemName": systemlookup})
         responses = response.json()
         confsys = responses[0]['name']
+
         if confsys.lower() == systemlookup.lower():
-            systemcheck = "System "+systemlookup + " exists in EDSM."
-        elif systemlookup.lower() == "mary":
-            systemcheck = "Stop it. Get some Help."
+            return True
+
+        # FIXME get this to work, disabled it for now. Sorry, melon of water :/
+        # elif systemlookup.lower() == "mary":
+            # return "Stop it. Get some Help."
+
         else:
-            systemcheck = "System "+systemlookup + " Not Found in EDSM."
-    except IndexError:
-        systemcheck = "System "+systemlookup + " Not Found in EDSM."
-    except requests.exceptions.Timeout:
-        systemcheck = "EDSM Timed Out. Unable to verify System."
-    except requests.exceptions.TooManyRedirects:
-        systemcheck = "EDSM Did Not Respond. Unable to verify System."
-    except ValueError:
-        systemcheck = "Unable to verify System. JSON Decoding Failure. Maybe the API is down?"
-    except requests.exceptions.RequestException:
-        systemcheck = "Error! Unable to verify system."
-    return systemcheck
+            return False
+
+    except IndexError:  # Raised when we get no results
+        return False
+
+    except (ValueError, requests.exceptions.RequestException) as er:
+        logging.error(f"EDSM: Error in `checksystem()` lookup: {er}", exc_info=True)
+        raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
 
 async def locatecmdr(cmdrname):
@@ -51,15 +68,15 @@ async def locatecmdr(cmdrname):
         cmdrloc = "Error! Unable to verify system."
     return cmdrloc
 
-
+# TODO Split this behemoth up into multiple functions
 async def checkdistance(sysa, sysb):
-    para0 = {"systemName[]": sysa, "showCoordinates": 1}
-    para1 = {"systemName[]": sysb, "showCoordinates": 1}
     sysax, sysay, sysaz, sysbx, sysby, sysbz, syserr, sysastat, sysbstat = 0, 0, 0, 0, 0, 0, 0, 0, 0
     try:
-        query1 = requests.get("https://www.edsm.net/api-v1/systems", params=para0)
+        query1 = requests.get("https://www.edsm.net/api-v1/systems",
+                              params={"systemName[]": sysa, "showCoordinates": 1})
         res1 = query1.json()
-        query2 = requests.get("https://www.edsm.net/api-v1/systems", params=para1)
+        query2 = requests.get("https://www.edsm.net/api-v1/systems",
+                              params={"systemName[]": sysb, "showCoordinates": 1})
         res2 = query2.json()
         if res1:
             sysax = res1[0]['coords']['x']

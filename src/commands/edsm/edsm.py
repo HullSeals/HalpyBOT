@@ -12,7 +12,6 @@ See license.md
 
 from typing import List
 from src.packages.edsm.edsm import *
-from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
 from .. import Commands
 
 
@@ -24,15 +23,20 @@ async def cmd_systemlookup(ctx, args: List[str]):
     Usage: !lookup
     Aliases: syslookup
     """
+    system = ' '.join(args[0:])  # TODO replace by ctx method
 
-    system = ' '.join(args[0:])
+    # Input validation
     if not system:
         return await ctx.reply("No system given! Please provide a system name.")
-    else:
-        try:
-            return await ctx.reply(await checksystem(system))
-        except Exception as e:
-            return await ctx.reply(e)
+
+    try:
+        if system_exists(system):
+            return await ctx.reply(f"System {system} exists in EDSM")
+        else:
+            return await ctx.reply(f"System {system} not found in EDSM")
+
+    except EDSMLookupError as er:
+        return await ctx.reply(er)  # Return error if one is raised down the call stack.
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
@@ -44,7 +48,7 @@ async def cmd_cmdrlookup(ctx, args: List[str]):
     Aliases: cmdrlookup, locate
     """
 
-    cmdr = ' '.join(args[0:])
+    cmdr = ' '.join(args[0:])  # TODO replace by ctx method
     if not cmdr:
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
     else:
@@ -68,10 +72,8 @@ async def cmd_distlookup(ctx, args: List[str]):
     try:
         listToStr = ' '.join([str(elem) for elem in args])
         points = listToStr.split(":", 1)
-        pointa = ''.join(points[0])
-        pointa = pointa.strip()
-        pointb = ''.join(points[1])
-        pointb = pointb.strip()
+        pointa = ''.join(points[0]).strip()
+        pointb = ''.join(points[1]).strip()
     except IndexError:
         return await ctx.reply("Please provide two points to look up, separated by a :")
     if not pointb:
@@ -79,5 +81,5 @@ async def cmd_distlookup(ctx, args: List[str]):
     else:
         try:
             return await ctx.reply(await checkdistance(pointa, pointb))
-        except Exception as e:
-            return await ctx.reply(e)
+        except EDSMLookupError as er:
+            return await ctx.reply(er)
