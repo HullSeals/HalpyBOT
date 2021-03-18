@@ -11,6 +11,8 @@ async def checksystem(systemlookup):
         confsys = responses[0]['name']
         if confsys.lower() == systemlookup.lower():
             systemcheck = "System "+systemlookup + " exists in EDSM."
+        elif systemlookup.lower() == "mary":
+            systemcheck = "Stop it. Get some Help."
         else:
             systemcheck = "System "+systemlookup + " Not Found in EDSM."
     except IndexError:
@@ -65,14 +67,14 @@ async def checkdistance(sysa, sysb):
             sysaz = res1[0]['coords']['z']
             sysastat = "Valid System"
         else:
-            sysastat = "System Not Found in EDSM. The system may be misspelled or not known to EDSM."
+            sysastat = "System Not Found in EDSM."
         if res2:
             sysbx = res2[0]['coords']['x']
             sysby = res2[0]['coords']['y']
             sysbz = res2[0]['coords']['z']
             sysbstat = "Valid System"
         else:
-            sysbstat = "System Not Found in EDSM. The system may be misspelled or not known to EDSM."
+            sysbstat = "System Not Found in EDSM."
     except requests.exceptions.Timeout:
         syserr = "EDSM Timed Out. Unable to verify System."
     except requests.exceptions.TooManyRedirects:
@@ -92,9 +94,9 @@ async def checkdistance(sysa, sysb):
                 sysaz = res3['coordinates']['z']
                 sysastat = "Valid System"
             else:
-                sysastat = "CMDR or System Not Found in EDSM. The system may be misspelled or not known to EDSM."
+                sysastat = "CMDR or System Not Found in EDSM."
         except KeyError:
-            sysastat = "CMDR or System Not Found in EDSM. The system may be misspelled or not known to EDSM."
+            sysastat = "CMDR or System Not Found in EDSM."
         except requests.exceptions.Timeout:
             syserr = "EDSM Timed Out. Unable to verify System."
         except requests.exceptions.TooManyRedirects:
@@ -114,9 +116,9 @@ async def checkdistance(sysa, sysb):
                 sysbz = res4['coordinates']['x']
                 sysbstat = "Valid System"
             else:
-                sysbstat = "CMDR or System Not Found in EDSM. The system may be misspelled or not known to EDSM."
+                sysbstat = "CMDR or System Not Found in EDSM."
         except KeyError:
-            sysbstat = "CMDR or System Not Found in EDSM. The system may be misspelled or not known to EDSM."
+            sysbstat = "CMDR or System Not Found in EDSM."
         except requests.exceptions.Timeout:
             syserr = "EDSM Timed Out. Unable to verify System."
         except requests.exceptions.TooManyRedirects:
@@ -128,13 +130,13 @@ async def checkdistance(sysa, sysb):
     if sysastat == "Valid System" and sysbstat == "Valid System":
         distancecheck = await distancemath(sysax, sysbx, sysay, sysby, sysaz, sysbz)
         distancecheck = "The distance between " + sysa + " and " + sysb + " is " + distancecheck + " LY"
-        return distancecheck
     elif syserr != 0:
         distancecheck = "System Error: " + syserr
-        return distancecheck
+    elif sysastat == sysbstat:
+        distancecheck = "Error! Both points failed: "+sysastat
     else:
         distancecheck = "ERROR! SysA: " + sysastat + " SysB: " + sysbstat
-        return distancecheck
+    return distancecheck
 
 
 async def distancemath(x1, x2, y1, y2, z1, z2):
