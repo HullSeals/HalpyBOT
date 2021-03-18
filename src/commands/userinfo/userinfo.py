@@ -16,9 +16,9 @@ from .. import Commands
 from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
 
 
+@Commands.command("whois")
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-@Commands.command("whois")
 async def cmd_whois(ctx, args: List[str]):
     """
     List user information of a given user
@@ -33,9 +33,9 @@ async def cmd_whois(ctx, args: List[str]):
     return await ctx.reply(await whois(cmdr))
 
 
+@Commands.command("whoami")
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-@Commands.command("whoami")
 async def cmd_whoami(ctx, args: List[str]):
     """
     List user information of a given user

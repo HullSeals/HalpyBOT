@@ -265,11 +265,11 @@ async def checklandmarks(sysa):
     if sysastat == "Valid System":
         currclosest = "none"
         maxdist = 10000
-        iteration = [0, 1, 2, 3, 4, 5, 6]
-        landmarks = ["Sol", "Beagle Point", "Colonia", "Sag A*", "HSRC Limpet's Call", "Galactic East (Chanoa QK-C d14-0)", "Galactic West (Sphiesi HX-L d7-0)"]
-        lxcoords = [0, -1111.5625, -9530.5, 25.21875, -681.09375, 39307.25, -42213.8125]
-        lycoords = [0, -134.21875, -910.28125, -20.90625, -950.5625, -92.4375, -19.21875]
-        lzcoords = [0, 65269.75, 19808.125, 25899.96875, 34219.34375, 19338.375, 35418.71875]
+        iteration = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        landmarks = ["Sol", "Beagle Point", "Colonia", "Sag A*", "HSRC Limpet's Call", "Galactic East (Chanoa QK-C d14-0)", "Galactic West (Sphiesi HX-L d7-0)", "Centauri Shores (Pria Chrea IW-N d6-19)", "Spinney (Spinney)", "Dante's Inferno (Auphaigh CL-Y g1)", "Star One (Byaa Thoi GC-D d12-0)"]
+        lxcoords = [0, -1111.5625, -9530.5, 25.21875, -681.09375, 39307.25, -42213.8125, 14730.53125, 18189.75, -9896.90625, -35413.03125]
+        lycoords = [0, -134.21875, -910.28125, -20.90625, -950.5625, -92.4375, -19.21875, 98.96875, 470.09375, -33.03125, -14.75]
+        lzcoords = [0, 65269.75, 19808.125, 25899.96875, 34219.34375, 19338.375, 35418.71875, 49486.9375, 13815.28125, 51274.5, 3821.46875]
         for i in iteration:
             currlandmark = landmarks[i]
             lmx = lxcoords[i]
