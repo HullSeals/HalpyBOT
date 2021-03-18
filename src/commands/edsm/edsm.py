@@ -30,32 +30,36 @@ async def cmd_systemlookup(ctx, args: List[str]):
         return await ctx.reply("No system given! Please provide a system name.")
 
     try:
-        if system_exists(system):
+        if await system_exists(system):
             return await ctx.reply(f"System {system} exists in EDSM")
         else:
             return await ctx.reply(f"System {system} not found in EDSM")
 
     except EDSMLookupError as er:
-        return await ctx.reply(er)  # Return error if one is raised down the call stack.
+        return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
-async def cmd_cmdrlookup(ctx, args: List[str]):
+async def cmd_cmdrlocate(ctx, args: List[str]):
     """
-    Check EDSM for the existence of a CMDR.
+    Check EDSM for the existence and location of a CMDR.
 
     Usage: !locatecmdr
     Aliases: cmdrlookup, locate
     """
 
     cmdr = ' '.join(args[0:])  # TODO replace by ctx method
+
+    # Input validation
     if not cmdr:
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
-    else:
-        try:
-            return await ctx.reply(await locatecmdr(cmdr))
-        except Exception as e:
-            return await ctx.reply(e)
+
+    try:
+        system, date = await locatecmdr(cmdr)
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))
+
+    return await ctx.reply(f"CMDR {cmdr} was last seen in {system} on {date}")
 
 
 @Commands.command("distance", "dist")
@@ -82,4 +86,4 @@ async def cmd_distlookup(ctx, args: List[str]):
         try:
             return await ctx.reply(await checkdistance(pointa, pointb))
         except EDSMLookupError as er:
-            return await ctx.reply(er)
+            return await ctx.reply(str(errors=er))

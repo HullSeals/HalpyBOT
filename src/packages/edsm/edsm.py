@@ -41,32 +41,32 @@ async def system_exists(systemlookup):
         return False
 
     except (ValueError, requests.exceptions.RequestException) as er:
-        logging.error(f"EDSM: Error in `checksystem()` lookup: {er}", exc_info=True)
+        logging.error(f"EDSM: Error in `system_exists()` lookup: {er}", exc_info=True)
         raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
 
 async def locatecmdr(cmdrname):
-    parameters = {"commanderName": cmdrname, "showCoordinates": 1}
+
     try:
-        response = requests.get("https://www.edsm.net/api-logs-v1/get-position", params=parameters)
+        response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
+                                params={"commanderName": cmdrname, "showCoordinates": 1})
         responses = response.json()
-        cmdrs = responses['system']
-        cmdrd = responses['date']
-        try:
-            cmdrloc = "CMDR " + cmdrname + " was last seen in " + cmdrs + " on " + cmdrd + " UTC"
-        except TypeError:
-            cmdrloc = "CMDR Not Found or Not Sharing Location on EDSM"
-    except KeyError:
-        cmdrloc = "CMDR Not Found or Not Sharing Location on EDSM"
-    except requests.exceptions.Timeout:
-        cmdrloc = "EDSM Timed Out. Unable to verify System."
-    except requests.exceptions.TooManyRedirects:
-        cmdrloc = "EDSM Did Not Respond. Unable to verify System."
-    except ValueError:
-        cmdrloc = "Unable to verify System. JSON Decoding Failure. Maybe the API is down?"
-    except requests.exceptions.RequestException:
-        cmdrloc = "Error! Unable to verify system."
-    return cmdrloc
+
+        if responses['msgnum'] == 203:
+            raise NoResultsEDSM("CMDR not found or not sharing location on EDSM")
+
+        LastSeenSystem = responses['system']
+        LastSeenDate = responses['date']
+
+    except (requests.exceptions.RequestException, ValueError) as er:
+        logging.error(f"EDSM: Error in `system_exists()` lookup: {er}", exc_info=True)
+        raise EDSMConnectionError("Error! Unable to verify system.")
+
+    if LastSeenDate is None:
+        LastSeenDate = "an unknown date and time."
+
+    return LastSeenSystem, LastSeenDate
+
 
 # TODO Split this behemoth up into multiple functions
 async def checkdistance(sysa, sysb):
