@@ -16,9 +16,9 @@ from src.packages.database import NoDatabaseConnection
 from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
 from .. import Commands
 
+@Commands.command("delaycase")
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
-@Commands.command("delaycase")
 async def cmd_createDelayedCase(ctx, args: List[str]):
     """
     Create a new case on the Delayed-board
@@ -54,9 +54,9 @@ async def cmd_createDelayedCase(ctx, args: List[str]):
         return await ctx.reply("Cannot create case: contact a cyberseal")
 
 
+@Commands.command("reopen")
 @require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
 @require_channel()
-@Commands.command("reopen")
 async def cmd_ReopenDelayedCase(ctx, args: List[str]):
     """
     Reopen a case on the Delayed-board
@@ -85,9 +85,9 @@ async def cmd_ReopenDelayedCase(ctx, args: List[str]):
         return await ctx.reply(str(results[2]))
 
 
+@Commands.command("endcase", "close")
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
-@Commands.command("endcase", "close")
 async def cmd_closeDelayedCase(ctx, args: List[str]):
     """
     Close a case on the delayed board
@@ -113,9 +113,9 @@ async def cmd_closeDelayedCase(ctx, args: List[str]):
         return await ctx.reply(str(results[2]))
 
 
+@Commands.command("updatestatus")
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
-@Commands.command("updatestatus")
 async def cmd_updateDelayedStatus(ctx, args: List[str]):
     """
     Update the status of a case on the delayed board
@@ -145,9 +145,9 @@ async def cmd_updateDelayedStatus(ctx, args: List[str]):
         return await ctx.reply(str(results[2]))
 
 
+@Commands.command("updatenotes")
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
-@Commands.command("updatenotes")
 async def cmd_updateDelayedNotes(ctx, args: List[str]):
     """
     Update the notes of a case on the delayed board
@@ -204,9 +204,9 @@ async def cmd_checkDelayedCases(ctx, args: List[str]):
         return await ctx.reply(f"{count} Cases Marked as Delayed! Monitor them here: https://hullse.al/delayedCases")
 
 
+@Commands.command("updatecase")
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
 @require_channel()
-@Commands.command("updatecase")
 async def cmd_updateDelayedCase(ctx, args: List[str]):
     """
     Update details of a case on the Delayed Board

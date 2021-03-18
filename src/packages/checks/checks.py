@@ -39,14 +39,14 @@ levels = {
 
 
 requiredlevel = {
-    "OWNER": '7',
-    "CYBERMGR": '6',
-    "CYBER": '5',
-    "ADMIN": '4',
-    "MODERATOR": '3',
-    "DRILLED": '2',
-    "PUP": '1',
-    "NONE": '0',
+    "OWNER": 7,
+    "CYBERMGR": 6,
+    "CYBER": 5,
+    "ADMIN": 4,
+    "MODERATOR": 3,
+    "DRILLED": 2,
+    "PUP": 1,
+    "NONE": 0,
 }
 
 class DeniedMessage:
@@ -69,7 +69,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
             whois = await User.get_info(ctx, ctx.sender)
             modes = User.process_vhost(whois.hostname)
             # Find user level
-            userlevel = int(levels[modes])
+            userlevel = levels[modes]
             # Convert required permission to level
             level = int(requiredlevel[req_level])
             # If permission is not correct, send deniedMessage

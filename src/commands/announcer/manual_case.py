@@ -18,9 +18,9 @@ from .. import Commands
 
 send_to = ["#Repair-Requests", "#seal-bob"]
 
+@Commands.command("manualcase", "mancase")
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-@Commands.command("manualcase", "mancase")
 async def cmd_manual_case(ctx, args: List[str]):
     """
     Create a manual case
@@ -39,9 +39,9 @@ async def cmd_manual_case(ctx, args: List[str]):
     await ctx.bot.message("#case-notify", cn_message)
 
 
+@Commands.command("manualfish", "manfish")
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-@Commands.command("manualfish", "manfish")
 async def cmd_manual_kingfisher(ctx, args: List[str]):
     """
     Create a manual kingfisher case
@@ -60,9 +60,9 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
     await ctx.bot.message("#case-notify", cn_message)
 
 
+@Commands.command("wssPing")
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-@Commands.command("wssPing")
 async def cmd_wss_ping(ctx, args: List[str]):
     """
     Alert the "Why So Sealious" role that CMDRs are needed for this case. Annoying AF and not to be used lightly.
