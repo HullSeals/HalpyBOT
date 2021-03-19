@@ -177,7 +177,7 @@ async def checkdistance(sysa: str, sysb: str):
 async def checklandmarks(SysName):
     global landmarks
     # Set default values
-    Coords, Is_Sys = 0, None
+    Coords, LMCoords, Is_Sys = 0, 0, None
 
     try:
         system = await GalaxySystem.get_info(name=SysName)
@@ -208,12 +208,11 @@ async def checklandmarks(SysName):
 
         for landmark in range(len(landmarks)):
             currlandmark = landmarks[landmark]['Name']
-            lmx = landmarks[landmark]['Coords']['x']
-            lmy = landmarks[landmark]['Coords']['y']
-            lmz = landmarks[landmark]['Coords']['z']
+            LMCoords = landmarks[landmark]['Coords']
 
-            distancecheck = await calc_distance(Coords['x'], lmx, Coords['y'], lmy, Coords['z'], lmz)
-
+            distancecheck = await calc_distance(Coords['x'], LMCoords['x'],
+                                                Coords['y'], LMCoords['y'],
+                                                Coords['z'], LMCoords['z'])
             if float(distancecheck) < float(maxdist):
                 currclosest = currlandmark
                 maxdist = distancecheck
