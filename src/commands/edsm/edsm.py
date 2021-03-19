@@ -108,11 +108,13 @@ async def cmd_landmarklookup(ctx, args: List[str]):
     Aliases: n/a
     """
 
-    system = ' '.join(args[0:])  # TODO replace by ctx method
-    if not system:
+    # Input validation
+    if not args[0]:
         return await ctx.reply("No arguments given! Please provide a System or CMDR name.")
-    else:
-        try:
-            return await ctx.reply(await checklandmarks(system))
-        except Exception as er:
-            return await ctx.reply(str(er))
+    system = ' '.join(args[0:])  # TODO replace by ctx method
+
+    try:
+        landmark, distance = await checklandmarks(SysName=system)
+        return await ctx.reply(f"The closest landmark system is {landmark} at {distance} LY.")
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))
