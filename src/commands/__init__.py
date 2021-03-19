@@ -75,8 +75,11 @@ async def cmd_dbping(ctx, args: List[str]):
     """
     start = time.time()
     latencycheck = await latency()
-    final = round(latencycheck - start, 2)
-    await ctx.reply("Database Latency: " + str(final) + " seconds")
+    if isinstance(latencycheck, float):
+        final = round(latencycheck - start, 2)
+        await ctx.reply("Database Latency: " + str(final) + " seconds")
+    else:
+        await ctx.reply(latencycheck)
 
 
 @Commands.command("edsmping")
