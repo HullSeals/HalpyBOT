@@ -123,21 +123,17 @@ class Commander:
 async def checkdistance(sysa: str, sysb: str):
 
     # Set default values
-    sysax, sysay, sysaz, sysbx, sysby, sysbz, syserr, is_SysA, is_SysB = 0, 0, 0, 0, 0, 0, 0, False, False
+    coordsA, coordsB, is_SysA, is_SysB = 0, 0, False, False
 
     try:
         system1 = await GalaxySystem.get_info(name=sysa)
         system2 = await GalaxySystem.get_info(name=sysb)
+
         if system1 is not None:
-            sysax = system1.coords['x']
-            sysay = system1.coords['y']
-            sysaz = system1.coords['z']
-            is_SysA = True
+            coordsA, is_SysA = system1.coords, True
         if system2 is not None:
-            sysbx = system2.coords['x']
-            sysby = system2.coords['y']
-            sysbz = system2.coords['z']
-            is_SysB = True
+            coordsB, is_SysB = system2.coords, True
+
     except EDSMLookupError:
         raise
 
@@ -145,10 +141,7 @@ async def checkdistance(sysa: str, sysb: str):
         try:
             cmdr1 = await Commander.location(name=sysa)
             if cmdr1 is not None:
-                sysax = cmdr1.coordinates['x']
-                sysay = cmdr1.coordinates['y']
-                sysaz = cmdr1.coordinates['z']
-                is_SysA = True
+                coordsA, is_SysA = cmdr1.coordinates, True
         except EDSMLookupError:
             raise
 
@@ -156,15 +149,13 @@ async def checkdistance(sysa: str, sysb: str):
         try:
             cmdr2 = await Commander.location(name=sysb)
             if cmdr2 is not None:
-                sysbx = cmdr2.coordinates['x']
-                sysby = cmdr2.coordinates['y']
-                sysbz = cmdr2.coordinates['z']
-                is_SysB = True
+                coordsB, is_SysB = cmdr2.coordinates, True
         except EDSMLookupError:
             raise
 
     if is_SysA and is_SysB:
-        distance = await calc_distance(sysax, sysbx, sysay, sysby, sysaz, sysbz)
+        distance = await calc_distance(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'],
+                                       coordsA['z'], coordsB['z'])
         distance = f'{distance:,}'
         return distance
 
