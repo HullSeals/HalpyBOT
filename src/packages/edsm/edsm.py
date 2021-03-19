@@ -97,6 +97,9 @@ class Commander:
         except requests.exceptions.RequestException as er:
             logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
+        except KeyError as er:
+            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
+            raise EDSMConnectionError("Error! Unable to get commander info.")
 
         if len(responses) == 0:
             return None

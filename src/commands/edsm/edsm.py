@@ -24,7 +24,7 @@ async def cmd_systemlookup(ctx, args: List[str]):
     Aliases: syslookup
     """
     system = ' '.join(args[0:])  # TODO replace by ctx method
-
+    system = system.strip()
     # Input validation
     if not system:
         return await ctx.reply("No system given! Please provide a system name.")
@@ -49,7 +49,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
     """
 
     cmdr = ' '.join(args[0:])  # TODO replace by ctx method
-
+    cmdr = cmdr.strip()
     # Input validation
     if not cmdr:
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
