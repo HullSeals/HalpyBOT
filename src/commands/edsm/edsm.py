@@ -65,7 +65,6 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
         return await ctx.reply(f"CMDR {cmdr} was last seen in {location.system} on {location.time}")
 
 
-# TODO refactor
 @Commands.command("distance", "dist")
 async def cmd_distlookup(ctx, args: List[str]):
     """
@@ -75,22 +74,29 @@ async def cmd_distlookup(ctx, args: List[str]):
     Aliases: dist
     """
 
+    # Input validation
     if not args:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
     try:
+        # Parse systems/CMDRs from string
         listToStr = ' '.join([str(elem) for elem in args])
         points = listToStr.split(":", 1)
-        pointa = ''.join(points[0]).strip()
-        pointb = ''.join(points[1]).strip()
+        pointa, pointb = ''.join(points[0]).strip(), ''.join(points[1]).strip()
+
     except IndexError:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
     if not pointb:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
     else:
+
         try:
-            return await ctx.reply(await checkdistance(pointa, pointb))
+            distance = await checkdistance(pointa, pointb)
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
+        return await ctx.reply(f"The distance between {pointa} and {pointb} is {distance} LY")
 
 
 @Commands.command("landmark")

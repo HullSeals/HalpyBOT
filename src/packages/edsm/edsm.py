@@ -50,7 +50,7 @@ class GalaxySystem:
             return cls(**responses)
 
     @classmethod
-    async def exists(cls, name):
+    async def exists(cls, name) -> bool:
         try:
             obj = await cls.get_info(name)
         except EDSMConnectionError:
@@ -120,101 +120,59 @@ class Commander:
                             time=time)
 
 
+async def checkdistance(sysa: str, sysb: str):
 
-# TODO Split this behemoth up into multiple functions and refactor
-async def checkdistance(sysa, sysb):
-    sysax, sysay, sysaz, sysbx, sysby, sysbz, syserr, sysastat, sysbstat = 0, 0, 0, 0, 0, 0, 0, 0, 0
-    # TODO simplify try-except block and handle exceptions the proper way
+    # Set default values
+    sysax, sysay, sysaz, sysbx, sysby, sysbz, syserr, is_SysA, is_SysB = 0, 0, 0, 0, 0, 0, 0, False, False
+
     try:
-        query1 = requests.get("https://www.edsm.net/api-v1/systems",
-                              params={"systemName[]": sysa, "showCoordinates": 1})
-        res1 = query1.json()
-        query2 = requests.get("https://www.edsm.net/api-v1/systems",
-                              params={"systemName[]": sysb, "showCoordinates": 1})
-        res2 = query2.json()
+        system1 = await GalaxySystem.get_info(name=sysa)
+        system2 = await GalaxySystem.get_info(name=sysb)
+        if system1 is not None:
+            sysax = system1.coords['x']
+            sysay = system1.coords['y']
+            sysaz = system1.coords['z']
+            is_SysA = True
+        if system2 is not None:
+            sysbx = system2.coords['x']
+            sysby = system2.coords['y']
+            sysbz = system2.coords['z']
+            is_SysB = True
+    except EDSMLookupError:
+        raise
+
+    if not is_SysA:
         try:
-            if res1:
-                sysax = res1[0]['coords']['x']
-                sysay = res1[0]['coords']['y']
-                sysaz = res1[0]['coords']['z']
-                sysastat = "Valid System"
-            else:
-                sysastat = "System Not Found in EDSM."
-        except KeyError:
-            sysastat = "System has no Coordinates."
+            cmdr1 = await Commander.location(name=sysa)
+            if cmdr1 is not None:
+                sysax = cmdr1.coordinates['x']
+                sysay = cmdr1.coordinates['y']
+                sysaz = cmdr1.coordinates['z']
+                is_SysA = True
+        except EDSMLookupError:
+            raise
+
+    if not is_SysB:
         try:
-            if res2:
-                sysbx = res2[0]['coords']['x']
-                sysby = res2[0]['coords']['y']
-                sysbz = res2[0]['coords']['z']
-                sysbstat = "Valid System"
-            else:
-                sysbstat = "System Not Found in EDSM."
-        except KeyError:
-            sysbstat = "System has no Coordinates."
-    except requests.exceptions.Timeout:
-        syserr = "EDSM Timed Out. Unable to verify System."
-    except requests.exceptions.TooManyRedirects:
-        syserr = "EDSM Didn't Respond. Unable to verify System."
-    except ValueError:
-        syserr = "Unable to verify System. JSON Decoding Failure."
-    except requests.exceptions.RequestException:
-        syserr = "Unable to verify system."
-    if sysastat != "Valid System":
-        try:
-            parameters = {"commanderName": sysa, 'showCoordinates': 1}
-            query3 = requests.get("https://www.edsm.net/api-logs-v1/get-position", params=parameters)
-            res3 = query3.json()
-            if res3:
-                sysax = res3['coordinates']['x']
-                sysay = res3['coordinates']['y']
-                sysaz = res3['coordinates']['z']
-                sysastat = "Valid System"
-            else:
-                sysastat = "CMDR or System Not Found in EDSM."
-        except KeyError:
-            sysastat = "CMDR or System Not Found in EDSM."
-        except requests.exceptions.Timeout:
-            syserr = "EDSM Timed Out. Unable to verify System."
-        except requests.exceptions.TooManyRedirects:
-            syserr = "EDSM Didn't Respond. Unable to verify System."
-        except ValueError:
-            syserr = "Unable to verify System. JSON Decoding Failure."
-        except requests.exceptions.RequestException:
-            syserr = "Unable to verify system."
-    if sysbstat != "Valid System":
-        try:
-            parameters = {"commanderName": sysb, 'showCoordinates': 1}
-            query4 = requests.get("https://www.edsm.net/api-logs-v1/get-position", params=parameters)
-            res4 = query4.json()
-            if res4:
-                sysbx = res4['coordinates']['x']
-                sysby = res4['coordinates']['y']
-                sysbz = res4['coordinates']['z']
-                sysbstat = "Valid System"
-            else:
-                sysbstat = "CMDR or System Not Found in EDSM."
-        except KeyError:
-            sysbstat = "CMDR or System Not Found in EDSM."
-        except requests.exceptions.Timeout:
-            syserr = "EDSM Timed Out. Unable to verify System."
-        except requests.exceptions.TooManyRedirects:
-            syserr = "EDSM Didn't Respond. Unable to verify System."
-        except ValueError:
-            syserr = "Unable to verify System. JSON Decoding Failure."
-        except requests.exceptions.RequestException:
-            syserr = "Unable to verify system."
-    if sysastat == "Valid System" and sysbstat == "Valid System":
-        distancecheck = await calc_distance(sysax, sysbx, sysay, sysby, sysaz, sysbz)
-        distancecheck = f'{distancecheck:,}'
-        distancecheck = "The distance between " + sysa + " and " + sysb + " is " + distancecheck + " LY"
-    elif syserr != 0:
-        distancecheck = "System Error: " + syserr
-    elif sysastat == sysbstat:
-        distancecheck = "Error! Both points failed: "+sysastat
-    else:
-        distancecheck = "ERROR! SysA: " + sysastat + " SysB: " + sysbstat
-    return distancecheck
+            cmdr2 = await Commander.location(name=sysb)
+            if cmdr2 is not None:
+                sysbx = cmdr2.coordinates['x']
+                sysby = cmdr2.coordinates['y']
+                sysbz = cmdr2.coordinates['z']
+                is_SysB = True
+        except EDSMLookupError:
+            raise
+
+    if is_SysA and is_SysB:
+        distance = await calc_distance(sysax, sysbx, sysay, sysby, sysaz, sysbz)
+        distance = f'{distance:,}'
+        return distance
+
+    if not is_SysA:
+        raise NoResultsEDSM(f"No system and/or commander named {sysa} was found in the EDSM database.")
+
+    if not is_SysB:
+        raise NoResultsEDSM(f"No system and/or commander named {sysb} was found in the EDSM database.")
 
 # TODO refactor and split up
 async def checklandmarks(sysa):
