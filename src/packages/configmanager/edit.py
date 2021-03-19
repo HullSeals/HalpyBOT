@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.2
+HalpyBOT v1.2.3
 
 edit.py - Write changes to config file
 

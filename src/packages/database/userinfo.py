@@ -1,7 +1,7 @@
 """
-HalpyBOT v1.2.2
+HalpyBOT v1.2.3
 
-facts.py - Database interaction for the fact module
+userinfo.py - Fetching information about a registered user.
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.
