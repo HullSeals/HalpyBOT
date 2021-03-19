@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.2
+HalpyBOT v1.2.3
 
 edsm.py - EDSM Interface commands
 
@@ -24,7 +24,7 @@ async def cmd_systemlookup(ctx, args: List[str]):
     Aliases: syslookup
     """
     system = ' '.join(args[0:])  # TODO replace by ctx method
-
+    system = system.strip()
     # Input validation
     if not system:
         return await ctx.reply("No system given! Please provide a system name.")
@@ -49,7 +49,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
     """
 
     cmdr = ' '.join(args[0:])  # TODO replace by ctx method
-
+    cmdr = cmdr.strip()
     # Input validation
     if not cmdr:
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
@@ -65,7 +65,6 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
         return await ctx.reply(f"CMDR {cmdr} was last seen in {location.system} on {location.time}")
 
 
-# TODO refactor
 @Commands.command("distance", "dist")
 async def cmd_distlookup(ctx, args: List[str]):
     """
@@ -75,22 +74,29 @@ async def cmd_distlookup(ctx, args: List[str]):
     Aliases: dist
     """
 
+    # Input validation
     if not args:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
     try:
+        # Parse systems/CMDRs from string
         listToStr = ' '.join([str(elem) for elem in args])
         points = listToStr.split(":", 1)
-        pointa = ''.join(points[0]).strip()
-        pointb = ''.join(points[1]).strip()
+        pointa, pointb = ''.join(points[0]).strip(), ''.join(points[1]).strip()
+
     except IndexError:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
     if not pointb:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
     else:
+
         try:
-            return await ctx.reply(await checkdistance(pointa, pointb))
+            distance = await checkdistance(pointa, pointb)
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
+        return await ctx.reply(f"The distance between {pointa} and {pointb} is {distance} LY")
 
 
 @Commands.command("landmark")
@@ -102,11 +108,13 @@ async def cmd_landmarklookup(ctx, args: List[str]):
     Aliases: n/a
     """
 
-    system = ' '.join(args[0:])  # TODO replace by ctx method
-    if not system:
+    # Input validation
+    if not args[0]:
         return await ctx.reply("No arguments given! Please provide a System or CMDR name.")
-    else:
-        try:
-            return await ctx.reply(await checklandmarks(system))
-        except Exception as er:
-            return await ctx.reply(str(er))
+    system = ' '.join(args[0:])  # TODO replace by ctx method
+
+    try:
+        landmark, distance = await checklandmarks(SysName=system)
+        return await ctx.reply(f"The closest landmark system is {landmark} at {distance} LY.")
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))

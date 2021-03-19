@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.2
+HalpyBOT v1.2.3
 
 > For the Hull Seals, with a boot to the head
 Rixxan
@@ -26,7 +26,7 @@ config.read('config/config.ini')
 
 channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
 
-logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s', 
+logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
                     level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
 
 
@@ -42,6 +42,7 @@ class HalpyBOT(pydle.Client):
         for channel in channels:
             await self.join(channel)
             logging.info(f"Joining {channel}")
+        await offlinecheck()
 
     async def on_channel_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
@@ -90,6 +91,28 @@ async def shutdown(signal, loop):
     list(map(lambda task: task.cancel(), tasks))
     results = await asyncio.gather(*tasks, return_exceptions=True)
     loop.stop()
+
+
+offline_mode: bool = config.getboolean('Offline Mode', 'Enabled')
+
+om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
+
+
+async def offlinecheck():
+    logging.debug("STARTING OFFLINECHECK")
+    try:
+        loop = asyncio.get_running_loop()
+        while True:
+            if offline_mode is True:
+                for ch in om_channels:
+                    await client.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. Contact a CyberSeal.")
+            await asyncio.sleep(300)
+            if offline_mode is False:
+                await asyncio.sleep(300)
+    except asyncio.exceptions.CancelledError:
+        pass
+
+
 
 LOOP = None
 
