@@ -77,3 +77,23 @@ async def cmd_dbping(ctx, args: List[str]):
     latencycheck = await latency()
     final = round(latencycheck - start, 2)
     await ctx.reply("Database Latency: " + str(final) + " seconds")
+
+
+@Commands.command("edsmping")
+@require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+async def cmd_edsmping(ctx, args: List[str]):
+    """
+    Reply with the latency between the Bot and the EDSM API.
+
+    Usage: !edsmping
+    Aliases: n/a
+    """
+    start = time.time()
+    try:
+        await GalaxySystem.exists(name="Sol")
+
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
+    finish = time.time()
+    final = round(finish - start, 2)
+    await ctx.reply("EDSM Latency: " + str(final) + " seconds")
