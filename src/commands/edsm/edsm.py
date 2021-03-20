@@ -54,6 +54,12 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
     Aliases: cmdrlookup, locate
     """
 
+    CacheOverride = False
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
+
     cmdr = ' '.join(args[0:])  # TODO replace by ctx method
     cmdr = cmdr.strip()
     # Input validation
@@ -61,7 +67,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
 
     try:
-        location = await Commander.location(name=cmdr)
+        location = await Commander.location(name=cmdr, CacheOverride=CacheOverride)
     except EDSMConnectionError as er:
         return await ctx.reply(str(er))
 

@@ -115,16 +115,24 @@ class Commander:
     dateLastActivity: str
     shipFuel: Optional
 
+    lookupCache = {}
+
     @classmethod
-    async def get_cmdr(cls, name) -> Optional[Commander]:
+    async def get_cmdr(cls, name, CacheOverride: bool = False) -> Optional[Commander]:
+
+        # Check if cached
+        if name.strip().upper() in Commander.lookupCache.keys() and CacheOverride is False:
+            # If less than five minutes ago return stored object
+            lookuptime = Commander.lookupCache[name.strip().upper()].time
+            cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
+            if time() < lookuptime + cachetime:
+                return Commander.lookupCache[name.strip().upper()].object
+
         try:
             response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
                                     params={"commanderName": name,
                                             "showCoordinates": 1})
             responses = response.json()
-
-            if responses['msgnum'] == 203:
-                return None
 
             # Why do we have to do this? come on, EDSM!
             if not responses['isDocked']:
@@ -134,18 +142,24 @@ class Commander:
             logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
 
-        if len(responses) == 0:
-            return None
+        # Return None if cmdr doesn't exist
+        breakpoint()
+        if len(responses) == 0 or responses['msgnum'] == 203:
+            cmdrobj = None
         else:
             # Throw out data we don't need
-            del responses['msgnum'], responses['msg'],\
+            del responses['msgnum'], responses['msg'], \
                 responses['firstDiscover'], responses['url'], responses['shipId']
-            return cls(**responses, name=name)
+            cmdrobj = cls(**responses, name=name)
+
+        # Store in cache and return
+        Commander.lookupCache[name.strip().upper()] = EDSMQuery(cmdrobj, time())
+        return cmdrobj
 
     @classmethod
-    async def location(cls, name) -> Optional[Location]:
+    async def location(cls, name, CacheOverride: bool = False) -> Optional[Location]:
         try:
-            location = await Commander.get_cmdr(name=name)
+            location = await Commander.get_cmdr(name=name, CacheOverride=CacheOverride)
         except EDSMConnectionError:
             raise
 
@@ -180,7 +194,7 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     if not is_SysA:
         try:
-            cmdr1 = await Commander.location(name=sysa)
+            cmdr1 = await Commander.location(name=sysa, CacheOverride=CacheOverride)
             if cmdr1 is not None:
                 coordsA, is_SysA = cmdr1.coordinates, True
         except EDSMLookupError:
@@ -188,7 +202,7 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     if not is_SysB:
         try:
-            cmdr2 = await Commander.location(name=sysb)
+            cmdr2 = await Commander.location(name=sysb, CacheOverride=CacheOverride)
             if cmdr2 is not None:
                 coordsB, is_SysB = cmdr2.coordinates, True
         except EDSMLookupError:
