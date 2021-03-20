@@ -220,13 +220,13 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
         raise NoResultsEDSM(f"No system and/or commander named {sysb} was found in the EDSM database.")
 
 
-async def checklandmarks(SysName):
+async def checklandmarks(SysName, CacheOverride: bool = False):
     global landmarks
     # Set default values
     Coords, LMCoords, Is_Sys = 0, 0, None
 
     try:
-        system = await GalaxySystem.get_info(name=SysName)
+        system = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
         if system is not None:
             Coords, Is_Sys = system.coords, True
     except EDSMLookupError:
@@ -235,7 +235,7 @@ async def checklandmarks(SysName):
     if system is None:
 
         try:
-            system = await Commander.location(name=SysName)
+            system = await Commander.location(name=SysName, CacheOverride=CacheOverride)
             if system is not None:
                 Coords, Is_Sys = system.coordinates, True
         except EDSMLookupError:
