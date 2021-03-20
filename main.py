@@ -13,22 +13,20 @@ See license.md
 
 import pydle
 import logging
-import src.packages.command.commandhandler as commandhandler
 import asyncio
 import signal
 import functools
+
+from src.packages.command import commandhandler
 from src.packages.announcer import announcer
 from src.packages.database import facts
-import configparser
+from src.packages.configmanager import config
 
-config = configparser.ConfigParser()
-config.read('config/config.ini')
 
 channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
 
 logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
                     level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
-
 
 class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine

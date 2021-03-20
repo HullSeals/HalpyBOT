@@ -12,10 +12,10 @@ See license.md
 
 from typing import List
 
-from main import config
-from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
+from ...packages.checks import *
 from .. import Commands
-from src.packages.datamodels.user import User
+from ...packages.datamodels import User
+from ...packages.configmanager import config
 
 joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 

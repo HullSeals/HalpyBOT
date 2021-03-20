@@ -1,1 +1,1 @@
-from ..userinfo.userinfo import *
+from .userinfo import *

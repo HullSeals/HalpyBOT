@@ -15,13 +15,13 @@ import requests
 import numpy as np
 import logging
 from dataclasses import dataclass
-from main import config
 import json
 from time import time
-
 from typing import Optional, Union
-from ..datamodels.edsm_classes import SystemInfo, Coordinates, Location
-from ..utils.utils import get_time_seconds
+
+from ..datamodels import SystemInfo, Coordinates, Location
+from ..utils import get_time_seconds
+from ..configmanager import config
 
 class EDSMLookupError(Exception):
     """

@@ -10,14 +10,14 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-
-from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
-from src.packages.database.facts import update_fact_index, basic_facts, clear_facts, get_facts
 from typing import List
 import logging
-from src.packages.database.facts import add_fact, remove_fact, get_offline_facts
-from src.packages.database import NoDatabaseConnection
+
+from ...packages.checks import *
+from ...packages.database.facts import *
+from ...packages.database import NoDatabaseConnection
 from .. import Commands
+
 
 @Commands.command("allfacts")
 @require_dm()

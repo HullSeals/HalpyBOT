@@ -13,11 +13,10 @@ See license.md
 from typing import List
 
 import pydle
-
-from src.packages.checks.checks import require_permission, DeniedMessage
-from main import config
 import logging
-from src.packages.configmanager.edit import config_write
+
+from ...packages.checks import *
+from ...packages.configmanager import config_write, config
 from .. import Commands
 
 

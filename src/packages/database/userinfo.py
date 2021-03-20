@@ -10,7 +10,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from . import DatabaseConnection, NoDatabaseConnection
+from . import *
 
 async def whois(subject):
     # Set default values

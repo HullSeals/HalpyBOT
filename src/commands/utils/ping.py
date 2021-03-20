@@ -1,8 +1,9 @@
+import time
+
 from .. import Commands
 from ...packages.checks import *
-import time
 from ...packages.database import latency
-from ...packages.edsm.edsm import GalaxySystem, EDSMLookupError
+from ...packages.edsm import GalaxySystem, EDSMLookupError
 
 @Commands.command("ping")
 async def cmd_ping(ctx, args: List[str]):

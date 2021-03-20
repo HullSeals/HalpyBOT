@@ -14,10 +14,9 @@ See license.md
 import os
 import signal
 import logging
-
 from typing import List
 
-from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
+from ...packages.checks import *
 from .. import Commands
 
 @Commands.command("shutdown")

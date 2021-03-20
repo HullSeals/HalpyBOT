@@ -23,10 +23,10 @@ See license.md
 
 
 from __future__ import annotations
-
 from typing import Union, Optional
 from dataclasses import dataclass
-from ..command.commandhandler import Context
+
+from ..command import Context
 
 
 @dataclass(frozen=True)

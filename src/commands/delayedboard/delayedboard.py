@@ -11,9 +11,10 @@ See license.md
 """
 
 from typing import List
-from src.packages.database.delayedboard import *
-from src.packages.database import NoDatabaseConnection
-from src.packages.checks.checks import require_channel, require_permission, DeniedMessage
+
+from ...packages.database.delayedboard import *
+from ...packages.database import NoDatabaseConnection
+from ...packages.checks import *
 from .. import Commands
 
 @Commands.command("delaycase")

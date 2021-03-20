@@ -24,7 +24,8 @@ See license.md
 
 import functools
 from typing import List
-from ..datamodels.user import User
+
+from ..datamodels import User
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,

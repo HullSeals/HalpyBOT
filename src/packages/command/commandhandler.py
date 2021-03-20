@@ -11,10 +11,22 @@ See license.md
 """
 
 from typing import List
-import main
-from ..database.facts import fact_index, facts
+import pydle
 
-class CommandAlreadyExists(Exception):
+from ..database.facts import fact_index, facts
+from ..configmanager import config
+
+class CommandException(Exception):
+    """
+    Base exception for all commands
+    """
+
+class CommandHandlerError(CommandException):
+    """
+    Base exception for command errors
+    """
+
+class CommandAlreadyExists(CommandHandlerError):
     """
     Raised when a command is registered twice
     """
@@ -36,7 +48,7 @@ class Commands:
 
 class Context:
 
-    def __init__(self, bot: main, channel: str, sender: str, in_channel: bool, message: str):
+    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str):
         self.bot = bot
         self.channel = channel
         self.sender = sender
@@ -47,8 +59,8 @@ class Context:
         await self.bot.reply(self.channel, self.sender, self.in_channel, message)
 
 
-async def on_message(bot: main, channel: str, sender: str, message: str):
-    if message.startswith(main.config['IRC']['commandPrefix']):
+async def on_message(bot: pydle.Client, channel: str, sender: str, message: str):
+    if message.startswith(config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
         command = parts[0].lower()
         args = parts[1:]

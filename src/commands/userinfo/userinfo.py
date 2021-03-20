@@ -11,9 +11,10 @@ See license.md
 """
 
 from typing import List
-from src.packages.database.userinfo import *
+
+from ...packages.database.userinfo import *
 from .. import Commands
-from src.packages.checks.checks import require_permission, DeniedMessage, require_dm
+from ...packages.checks import *
 
 
 @Commands.command("whois")

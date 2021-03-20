@@ -11,7 +11,8 @@ See license.md
 """
 
 from typing import List
-from src.packages.edsm.edsm import *
+
+from ...packages.edsm import *
 from .. import Commands
 
 
