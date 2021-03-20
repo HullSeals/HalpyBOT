@@ -23,14 +23,20 @@ async def cmd_systemlookup(ctx, args: List[str]):
     Usage: !lookup
     Aliases: syslookup
     """
-    system = ' '.join(args[0:])  # TODO replace by ctx method
-    system = system.strip()
+    CacheOverride = False
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
+
+    system = ' '.join(args[0:]).strip()
+
     # Input validation
     if not system:
         return await ctx.reply("No system given! Please provide a system name.")
 
     try:
-        if await GalaxySystem.exists(name=system):
+        if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
             return await ctx.reply(f"System {system} exists in EDSM")
         else:
             return await ctx.reply(f"System {system} not found in EDSM")
@@ -74,9 +80,15 @@ async def cmd_distlookup(ctx, args: List[str]):
     Aliases: dist
     """
 
+    CacheOverride = False
+
     # Input validation
     if not args:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
 
     try:
         # Parse systems/CMDRs from string
@@ -93,7 +105,7 @@ async def cmd_distlookup(ctx, args: List[str]):
     else:
 
         try:
-            distance = await checkdistance(pointa, pointb)
+            distance = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
         return await ctx.reply(f"The distance between {pointa} and {pointb} is {distance} LY")

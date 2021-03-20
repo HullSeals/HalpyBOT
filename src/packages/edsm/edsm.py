@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.2.3
+
+edsm.py - Elite: Dangerous Star Map API interface module
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 from __future__ import annotations
 import requests
 import numpy as np
@@ -5,9 +17,11 @@ import logging
 from dataclasses import dataclass
 from main import config
 import json
+from time import time
 
-from typing import Optional
+from typing import Optional, Union
 from ..datamodels.edsm_classes import SystemInfo, Coordinates, Location
+from ..utils.utils import get_time_seconds
 
 class EDSMLookupError(Exception):
     """
@@ -28,6 +42,12 @@ class EDSMConnectionError(EDSMLookupError):
 
 landmarks = []
 
+@dataclass()
+class EDSMQuery:
+    object: Union[GalaxySystem, Commander, None]
+    time: time()
+
+
 @dataclass(frozen=True)
 class GalaxySystem:
     name: str
@@ -35,11 +55,23 @@ class GalaxySystem:
     coordsLocked: bool
     information: SystemInfo
 
+    lookupCache = {}
+
     @classmethod
-    async def get_info(cls, name) -> Optional[GalaxySystem]:
+    async def get_info(cls, name, CacheOverride: bool = False) -> Optional[GalaxySystem]:
+
+        # Check if cached
+        if name.strip().upper() in GalaxySystem.lookupCache.keys() and CacheOverride is False:
+            # If less than five minutes ago return stored object
+            lookuptime = GalaxySystem.lookupCache[name.strip().upper()].time
+            cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
+            if time() < lookuptime + cachetime:
+                return GalaxySystem.lookupCache[name.strip().upper()].object
+
+        # Else, get the system from EDSM
         try:
             response = requests.get("https://www.edsm.net/api-v1/system",
-                                    params={"systemName": name.strip(),
+                                    params={"systemName": name,
                                             "showCoordinates": 1,
                                             "showInformation": 1})
             responses = response.json()
@@ -50,14 +82,18 @@ class GalaxySystem:
 
         # Return None if system doesn't exist
         if len(responses) == 0:
-            return None
+            sysobj = None
         else:
-            return cls(**responses)
+            sysobj = cls(**responses)
+
+        # Store in cache and return
+        GalaxySystem.lookupCache[name.strip().upper()] = EDSMQuery(sysobj, time())
+        return sysobj
 
     @classmethod
-    async def exists(cls, name) -> bool:
+    async def exists(cls, name, CacheOverride: bool = False) -> bool:
         try:
-            obj = await cls.get_info(name)
+            obj = await cls.get_info(name, CacheOverride)
         except EDSMConnectionError:
             raise
         if obj is None:
@@ -94,10 +130,7 @@ class Commander:
             if not responses['isDocked']:
                 responses['station'], responses['dateDocked'] = None, None
 
-        except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
-            raise EDSMConnectionError("Error! Unable to get commander info.")
-        except KeyError as er:
+        except (requests.exceptions.RequestException, KeyError) as er:
             logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
 
@@ -128,14 +161,14 @@ class Commander:
                             time=time)
 
 
-async def checkdistance(sysa: str, sysb: str):
+async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     # Set default values
     coordsA, coordsB, is_SysA, is_SysB = 0, 0, False, False
 
     try:
-        system1 = await GalaxySystem.get_info(name=sysa)
-        system2 = await GalaxySystem.get_info(name=sysb)
+        system1 = await GalaxySystem.get_info(name=sysa, CacheOverride=CacheOverride)
+        system2 = await GalaxySystem.get_info(name=sysb, CacheOverride=CacheOverride)
 
         if system1 is not None:
             coordsA, is_SysA = system1.coords, True
