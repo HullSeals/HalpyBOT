@@ -44,16 +44,12 @@ class HalpyBOT(pydle.Client):
             logging.info(f"Joining {channel}")
         await offlinecheck()
 
-    async def on_channel_message(self, target, nick, message):
+    async def on_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
-        await commandhandler.on_channel_message(self, target, nick, message)
+        await commandhandler.on_message(self, target, nick, message)
         nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
         if target in config['Announcer']['channel'] and nick in nicks:
             await announcer.on_channel_message(self, target, nick, message)
-
-    async def on_private_message(self, target, nick, message):
-        await super().on_private_message(target, nick, message)
-        await commandhandler.on_private_message(self, target, nick, message)
 
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
         if in_channel:
@@ -97,7 +93,6 @@ offline_mode: bool = config.getboolean('Offline Mode', 'Enabled')
 
 om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
 
-
 async def offlinecheck():
     logging.debug("STARTING OFFLINECHECK")
     try:
@@ -105,14 +100,13 @@ async def offlinecheck():
         while True:
             if offline_mode is True:
                 for ch in om_channels:
-                    await client.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. Contact a CyberSeal.")
+                    await client.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
+                                             "Contact a CyberSeal.")
             await asyncio.sleep(300)
             if offline_mode is False:
                 await asyncio.sleep(300)
     except asyncio.exceptions.CancelledError:
         pass
-
-
 
 LOOP = None
 

@@ -13,6 +13,7 @@ See license.md
 from typing import List
 import main
 from ..database.facts import fact_index, facts
+import pydle
 
 class CommandAlreadyExists(Exception):
     """
@@ -35,6 +36,7 @@ class Commands:
         return decorator
 
 class Context:
+
     def __init__(self, bot: main, channel: str, sender: str, in_channel: bool):
         self.bot = bot
         self.channel = channel
@@ -45,29 +47,14 @@ class Context:
         await self.bot.reply(self.channel, self.sender, self.in_channel, message)
 
 
-async def on_channel_message(bot: main, channel: str, sender: str, message: str):
+async def on_message(bot: main, channel: str, sender: str, message: str):
     if message.startswith(main.config['IRC']['commandPrefix']):
         parts = message[1:].split(" ")
         command = parts[0].lower()
         args = parts[1:]
-        in_channel = True
+        in_channel = (True if bot.is_channel(channel) else False)
         ctx = Context(bot, channel, sender, in_channel)
         if command in Commands.commandList:
-            return await Commands.commandList[command](ctx, args)
-        elif command in fact_index:
-            return await recite_fact(ctx, args, fact=str(command))
-        else:
-            return
-
-
-async def on_private_message(bot: main, channel: str, sender: str, message: str):
-    if message.startswith(main.config['IRC']['commandPrefix']):
-        parts = message[1:].split(" ")
-        command = parts[0].lower()
-        args = parts[1:]
-        in_channel = False
-        ctx = Context(bot, channel, sender, in_channel)
-        if command in Commands.commandList.keys():
             return await Commands.commandList[command](ctx, args)
         elif command in fact_index:
             return await recite_fact(ctx, args, fact=str(command))
