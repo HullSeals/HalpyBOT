@@ -14,6 +14,7 @@ See license.md
 import configparser
 import mysql.connector
 import logging
+import time
 
 from ..database import *
 
@@ -67,8 +68,14 @@ class DatabaseConnection:
         self.cnx.close()
 
 
-#   async def announce_offline(self):
-#       for ch in om_channels:
-#           await main.HalpyBOT.message(ch, "ATTENTION: HalpyBOT has entered OFFLINE MODE. "
-#                                           "Database-related functions are no longer available. "
-#                                           "Please contact a cyberseal immediately!")
+async def latency():
+    get_query = "SELECT 'latency';"
+    try:
+        db = DatabaseConnection()
+        cursor = db.cursor
+        cursor.execute(get_query)
+        db.close()
+    except NoDatabaseConnection:
+        raise
+    end = time.time()
+    return end
