@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 > For the Hull Seals, with a boot to the head
 Rixxan

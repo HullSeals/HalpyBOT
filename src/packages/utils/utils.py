@@ -1,7 +1,7 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
-utils.py - miscellaneous functions
+utils.py - miscellaneous utility functions
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.

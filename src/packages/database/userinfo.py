@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 userinfo.py - Fetching information about a registered user.
 

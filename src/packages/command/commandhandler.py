@@ -1,7 +1,7 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
-commandhandler.py - Send messages to the correct src
+commandhandler.py - Handle bot commands and facts
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.

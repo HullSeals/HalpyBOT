@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 edsm.py - EDSM Interface commands
 
@@ -21,7 +21,7 @@ async def cmd_systemlookup(ctx, args: List[str]):
     """
     Check EDSM for the existence of a system.
 
-    Usage: !lookup
+    Usage: !lookup <--new> [system name]
     Aliases: syslookup
     """
     CacheOverride = False
@@ -51,7 +51,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
     """
     Check EDSM for the existence and location of a CMDR.
 
-    Usage: !locatecmdr
+    Usage: !locatecmdr <--new> [cmdr name]
     Aliases: cmdrlookup, locate
     """
 
@@ -83,7 +83,7 @@ async def cmd_distlookup(ctx, args: List[str]):
     """
     Check EDSM for the distance between two known points.
 
-    Usage: !distance
+    Usage: !distance <--new> [system/cmdr 1] : [system/cmdr 2]
     Aliases: dist
     """
 
@@ -123,7 +123,7 @@ async def cmd_landmarklookup(ctx, args: List[str]):
     """
     Calculate the closest landmark system to a known EDSM system.
 
-    Usage: !landmark
+    Usage: !landmark [system/cmdr]
     Aliases: n/a
     """
 

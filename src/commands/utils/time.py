@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.3
+
+time.py - get in-game time
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 from typing import List
 from datetime import datetime
 

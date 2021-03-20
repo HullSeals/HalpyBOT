@@ -1,7 +1,7 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
-edsm.py - EDSM Interface commands
+userinfo.py - Seal whox lookup commands
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.
@@ -24,7 +24,7 @@ async def cmd_whois(ctx, args: List[str]):
     """
     List user information of a given user
 
-    Usage: !whois
+    Usage: !whois [user]
     Aliases: n/a
     """
     cmdr = ' '.join(args[0:])  # TODO replace by ctx method

@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.3
+
+ping.py - Ping the bot, database, and external services
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 import time
 
 from .. import Commands
