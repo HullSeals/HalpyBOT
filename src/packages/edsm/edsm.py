@@ -143,7 +143,6 @@ class Commander:
             raise EDSMConnectionError("Error! Unable to get commander info.")
 
         # Return None if cmdr doesn't exist
-        breakpoint()
         if len(responses) == 0 or responses['msgnum'] == 203:
             cmdrobj = None
         else:
