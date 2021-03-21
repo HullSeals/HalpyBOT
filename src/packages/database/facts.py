@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 facts.py - Database interaction for the fact module
 
@@ -13,8 +13,9 @@ See license.md
 
 import mysql.connector
 import logging
-import src.packages.command.commandhandler
 import json
+
+from ..command import commandhandler
 from . import DatabaseConnection, NoDatabaseConnection
 
 facts = {}
@@ -47,7 +48,7 @@ async def update_fact_index():
 
 async def add_fact(ctx, factname: str, facttext: str):
     # Check if not already a command
-    if factname in src.packages.command.commandhandler.Commands.commandList:
+    if factname in commandhandler.Commands.commandList:
         return await ctx.reply("Cannot register fact: already an existing command!")
     # Check if fact doesn't already exist
     if factname in fact_index:

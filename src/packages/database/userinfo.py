@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 userinfo.py - Fetching information about a registered user.
 
@@ -10,14 +10,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-
-import mysql.connector
-import logging
-import src.packages.command.commandhandler
-import json
-from . import DatabaseConnection, NoDatabaseConnection
+from . import *
 
 async def whois(subject):
+    # Set default values
+    uID, uCases, uName, uRegdate, uDW, uDW2 = None, None, None, None, None, None
     get_query = (
                 f"SELECT seal_ID, COUNT(DISTINCT c.case_ID) AS cases, GROUP_CONCAT(DISTINCT CONCAT(ss.seal_name, ', ', "
                 f"pl.platform_name) SEPARATOR '; '), DATE(join_date), IF(seal_ID<382, TRUE, FALSE) AS DW2Seal "
@@ -28,28 +25,22 @@ async def whois(subject):
                 " INNER JOIN pydle.view_joindate AS au ON au.id = ss.seal_ID"
                 " INNER JOIN pydle.view_irccore AS nc ON nc.id = ss.seal_ID"
                 " INNER JOIN pydle.view_ircnames AS na ON na.nc = nc.display"
-                " WHERE nick = '" + subject + "';")
+                " WHERE nick = %s;")
     try:
         db = DatabaseConnection()
         cursor = db.cursor
-        cursor.execute(get_query)
+        cursor.execute(get_query, (subject,))
         for res in cursor.fetchall():
-            uID = str(res[0])
-            uCases = str(res[1])
-            uName = str(res[2])
-            uRegdate = str(res[3])
-            uDW = res[4]
+            uID, uCases, uName, uRegdate, uDW = res
             if uDW == 1:
-                uDW2 = ", is a DW2 Veteran and Founder Seal with registered CMDRs of "
+                uDW2 = ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
             else:
-                uDW2 = ", with registered CMDRs of "
+                uDW2 = ", with registered CMDRs of"
         db.close()
         if uID == "None":
-            return ("No registered user found by that name!")
+            return "No registered user found by that name!"
         else:
-            return ("CMDR " + subject + " has a Seal ID of " + uID + ", registered on " + uRegdate + uDW2 + uName +
-                         ", and has been involved with " + uCases + " rescues.")
-    except mysql.connector.errors.InterfaceError:
-        return "SQL injection detected! Reporting and Failing..."
+            return f"CMDR {subject} has a Seal ID of {uID}, registered on {uRegdate} {uDW2} {uName}" \
+                   f", and has been involved with {uCases} rescues."
     except NoDatabaseConnection:
-        return "Error searching user. (0x6462636f6e6661696c)"
+        return "Error searching user."

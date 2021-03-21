@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 edsm.py - EDSM Interface commands
 
@@ -11,7 +11,8 @@ See license.md
 """
 
 from typing import List
-from src.packages.edsm.edsm import *
+
+from ...packages.edsm import *
 from .. import Commands
 
 
@@ -20,17 +21,23 @@ async def cmd_systemlookup(ctx, args: List[str]):
     """
     Check EDSM for the existence of a system.
 
-    Usage: !lookup
+    Usage: !lookup <--new> [system name]
     Aliases: syslookup
     """
-    system = ' '.join(args[0:])  # TODO replace by ctx method
-    system = system.strip()
+    CacheOverride = False
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
+
+    system = ' '.join(args[0:]).strip()
+
     # Input validation
     if not system:
         return await ctx.reply("No system given! Please provide a system name.")
 
     try:
-        if await GalaxySystem.exists(name=system):
+        if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
             return await ctx.reply(f"System {system} exists in EDSM")
         else:
             return await ctx.reply(f"System {system} not found in EDSM")
@@ -44,9 +51,15 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
     """
     Check EDSM for the existence and location of a CMDR.
 
-    Usage: !locatecmdr
+    Usage: !locatecmdr <--new> [cmdr name]
     Aliases: cmdrlookup, locate
     """
+
+    CacheOverride = False
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
 
     cmdr = ' '.join(args[0:])  # TODO replace by ctx method
     cmdr = cmdr.strip()
@@ -55,7 +68,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
 
     try:
-        location = await Commander.location(name=cmdr)
+        location = await Commander.location(name=cmdr, CacheOverride=CacheOverride)
     except EDSMConnectionError as er:
         return await ctx.reply(str(er))
 
@@ -70,13 +83,19 @@ async def cmd_distlookup(ctx, args: List[str]):
     """
     Check EDSM for the distance between two known points.
 
-    Usage: !distance
+    Usage: !distance <--new> [system/cmdr 1] : [system/cmdr 2]
     Aliases: dist
     """
+
+    CacheOverride = False
 
     # Input validation
     if not args:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
 
     try:
         # Parse systems/CMDRs from string
@@ -93,7 +112,7 @@ async def cmd_distlookup(ctx, args: List[str]):
     else:
 
         try:
-            distance = await checkdistance(pointa, pointb)
+            distance = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
         return await ctx.reply(f"The distance between {pointa} and {pointb} is {distance} LY")
@@ -104,17 +123,24 @@ async def cmd_landmarklookup(ctx, args: List[str]):
     """
     Calculate the closest landmark system to a known EDSM system.
 
-    Usage: !landmark
+    Usage: !landmark [system/cmdr]
     Aliases: n/a
     """
+
+    CacheOverride = False
 
     # Input validation
     if not args[0]:
         return await ctx.reply("No arguments given! Please provide a System or CMDR name.")
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
+
     system = ' '.join(args[0:])  # TODO replace by ctx method
 
     try:
-        landmark, distance = await checklandmarks(SysName=system)
+        landmark, distance = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
         return await ctx.reply(f"The closest landmark system is {landmark} at {distance} LY.")
     except EDSMLookupError as er:
         return await ctx.reply(str(er))

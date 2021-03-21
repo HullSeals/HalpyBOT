@@ -1,1 +1,1 @@
-from ..edsm.edsm import *
+from .edsm import *

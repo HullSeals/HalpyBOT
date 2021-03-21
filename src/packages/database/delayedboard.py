@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 delayedboard.py - Database interaction for Delayed Board commands
 
@@ -11,7 +11,7 @@ See license.md
 """
 
 from . import DatabaseConnection, NoDatabaseConnection
-from ..utils.utils import strip_non_ascii
+from ..utils import strip_non_ascii
 
 
 async def create_delayed_case(casestat, message, author):
