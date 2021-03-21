@@ -1,5 +1,5 @@
 """"
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 puppet.py - Bot sock puppet
 
@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from src.packages.checks.checks import require_dm, require_permission, DeniedMessage
+from ...packages.checks import *
 from .. import Commands
 
 

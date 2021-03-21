@@ -1,1 +1,1 @@
-from ..fact.fact import *
+from .fact import *

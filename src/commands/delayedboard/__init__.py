@@ -1,1 +1,1 @@
-from ..delayedboard.delayedboard import *
+from .delayedboard import *

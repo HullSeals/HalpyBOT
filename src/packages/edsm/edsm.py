@@ -1,13 +1,27 @@
+"""
+HalpyBOT v1.3
+
+edsm.py - Elite: Dangerous Star Map API interface module
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 from __future__ import annotations
 import requests
 import numpy as np
 import logging
 from dataclasses import dataclass
-from main import config
 import json
+from time import time
+from typing import Optional, Union
 
-from typing import Optional
-from ..datamodels.edsm_classes import SystemInfo, Coordinates, Location
+from ..datamodels import SystemInfo, Coordinates, Location
+from ..utils import get_time_seconds
+from ..configmanager import config
 
 class EDSMLookupError(Exception):
     """
@@ -28,6 +42,12 @@ class EDSMConnectionError(EDSMLookupError):
 
 landmarks = []
 
+@dataclass()
+class EDSMQuery:
+    object: Union[GalaxySystem, Commander, None]
+    time: time()
+
+
 @dataclass(frozen=True)
 class GalaxySystem:
     name: str
@@ -35,11 +55,23 @@ class GalaxySystem:
     coordsLocked: bool
     information: SystemInfo
 
+    lookupCache = {}
+
     @classmethod
-    async def get_info(cls, name) -> Optional[GalaxySystem]:
+    async def get_info(cls, name, CacheOverride: bool = False) -> Optional[GalaxySystem]:
+
+        # Check if cached
+        if name.strip().upper() in GalaxySystem.lookupCache.keys() and CacheOverride is False:
+            # If less than five minutes ago return stored object
+            lookuptime = GalaxySystem.lookupCache[name.strip().upper()].time
+            cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
+            if time() < lookuptime + cachetime:
+                return GalaxySystem.lookupCache[name.strip().upper()].object
+
+        # Else, get the system from EDSM
         try:
             response = requests.get("https://www.edsm.net/api-v1/system",
-                                    params={"systemName": name.strip(),
+                                    params={"systemName": name,
                                             "showCoordinates": 1,
                                             "showInformation": 1})
             responses = response.json()
@@ -50,14 +82,18 @@ class GalaxySystem:
 
         # Return None if system doesn't exist
         if len(responses) == 0:
-            return None
+            sysobj = None
         else:
-            return cls(**responses)
+            sysobj = cls(**responses)
+
+        # Store in cache and return
+        GalaxySystem.lookupCache[name.strip().upper()] = EDSMQuery(sysobj, time())
+        return sysobj
 
     @classmethod
-    async def exists(cls, name) -> bool:
+    async def exists(cls, name, CacheOverride: bool = False) -> bool:
         try:
-            obj = await cls.get_info(name)
+            obj = await cls.get_info(name, CacheOverride)
         except EDSMConnectionError:
             raise
         if obj is None:
@@ -79,40 +115,49 @@ class Commander:
     dateLastActivity: str
     shipFuel: Optional
 
+    lookupCache = {}
+
     @classmethod
-    async def get_cmdr(cls, name) -> Optional[Commander]:
+    async def get_cmdr(cls, name, CacheOverride: bool = False) -> Optional[Commander]:
+
+        # Check if cached
+        if name.strip().upper() in Commander.lookupCache.keys() and CacheOverride is False:
+            # If less than five minutes ago return stored object
+            lookuptime = Commander.lookupCache[name.strip().upper()].time
+            cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
+            if time() < lookuptime + cachetime:
+                return Commander.lookupCache[name.strip().upper()].object
+
         try:
             response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
                                     params={"commanderName": name,
                                             "showCoordinates": 1})
             responses = response.json()
 
-            if responses['msgnum'] == 203:
-                return None
+        except (requests.exceptions.RequestException, KeyError) as er:
+            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
+            raise EDSMConnectionError("Error! Unable to get commander info.")
 
+        # Return None if cmdr doesn't exist
+        if len(responses) == 0 or responses['msgnum'] == 203:
+            cmdrobj = None
+        else:
             # Why do we have to do this? come on, EDSM!
             if not responses['isDocked']:
                 responses['station'], responses['dateDocked'] = None, None
-
-        except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
-            raise EDSMConnectionError("Error! Unable to get commander info.")
-        except KeyError as er:
-            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
-            raise EDSMConnectionError("Error! Unable to get commander info.")
-
-        if len(responses) == 0:
-            return None
-        else:
             # Throw out data we don't need
-            del responses['msgnum'], responses['msg'],\
+            del responses['msgnum'], responses['msg'], \
                 responses['firstDiscover'], responses['url'], responses['shipId']
-            return cls(**responses, name=name)
+            cmdrobj = cls(**responses, name=name)
+
+        # Store in cache and return
+        Commander.lookupCache[name.strip().upper()] = EDSMQuery(cmdrobj, time())
+        return cmdrobj
 
     @classmethod
-    async def location(cls, name) -> Optional[Location]:
+    async def location(cls, name, CacheOverride: bool = False) -> Optional[Location]:
         try:
-            location = await Commander.get_cmdr(name=name)
+            location = await Commander.get_cmdr(name=name, CacheOverride=CacheOverride)
         except EDSMConnectionError:
             raise
 
@@ -128,14 +173,14 @@ class Commander:
                             time=time)
 
 
-async def checkdistance(sysa: str, sysb: str):
+async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     # Set default values
     coordsA, coordsB, is_SysA, is_SysB = 0, 0, False, False
 
     try:
-        system1 = await GalaxySystem.get_info(name=sysa)
-        system2 = await GalaxySystem.get_info(name=sysb)
+        system1 = await GalaxySystem.get_info(name=sysa, CacheOverride=CacheOverride)
+        system2 = await GalaxySystem.get_info(name=sysb, CacheOverride=CacheOverride)
 
         if system1 is not None:
             coordsA, is_SysA = system1.coords, True
@@ -147,7 +192,7 @@ async def checkdistance(sysa: str, sysb: str):
 
     if not is_SysA:
         try:
-            cmdr1 = await Commander.location(name=sysa)
+            cmdr1 = await Commander.location(name=sysa, CacheOverride=CacheOverride)
             if cmdr1 is not None:
                 coordsA, is_SysA = cmdr1.coordinates, True
         except EDSMLookupError:
@@ -155,7 +200,7 @@ async def checkdistance(sysa: str, sysb: str):
 
     if not is_SysB:
         try:
-            cmdr2 = await Commander.location(name=sysb)
+            cmdr2 = await Commander.location(name=sysb, CacheOverride=CacheOverride)
             if cmdr2 is not None:
                 coordsB, is_SysB = cmdr2.coordinates, True
         except EDSMLookupError:
@@ -174,13 +219,13 @@ async def checkdistance(sysa: str, sysb: str):
         raise NoResultsEDSM(f"No system and/or commander named {sysb} was found in the EDSM database.")
 
 
-async def checklandmarks(SysName):
+async def checklandmarks(SysName, CacheOverride: bool = False):
     global landmarks
     # Set default values
     Coords, LMCoords, Is_Sys = 0, 0, None
 
     try:
-        system = await GalaxySystem.get_info(name=SysName)
+        system = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
         if system is not None:
             Coords, Is_Sys = system.coords, True
     except EDSMLookupError:
@@ -189,7 +234,7 @@ async def checklandmarks(SysName):
     if system is None:
 
         try:
-            system = await Commander.location(name=SysName)
+            system = await Commander.location(name=SysName, CacheOverride=CacheOverride)
             if system is not None:
                 Coords, Is_Sys = system.coordinates, True
         except EDSMLookupError:

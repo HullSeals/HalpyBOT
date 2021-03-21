@@ -10,7 +10,7 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 checks.py - Check check check...
 
@@ -24,7 +24,8 @@ See license.md
 
 import functools
 from typing import List
-from ..datamodels.user import User
+
+from ..datamodels import User
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,

@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2.3
+HalpyBOT v1.3
 
 manual_case.py - Manual case creation module
 
@@ -11,9 +11,9 @@ See license.md
 """
 
 from typing import List
-from src.packages.checks.checks import require_permission, DeniedMessage
 import logging
-from src.packages.checks.checks import require_channel
+
+from ...packages.checks import *
 from .. import Commands
 
 send_to = ["#Repair-Requests", "#seal-bob"]

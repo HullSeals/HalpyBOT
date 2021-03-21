@@ -1,1 +1,1 @@
-from ..announcer import *
+from .manual_case import *

@@ -1,4 +1,4 @@
-from typing import *
+from typing import TypedDict, Union, Optional
 from dataclasses import dataclass
 
 class Coordinates(TypedDict):
