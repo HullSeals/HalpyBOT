@@ -32,7 +32,7 @@ async def cmd_manual_case(ctx, args: List[str]):
               f"{' '.join(args)}\n" \
               f"xxxxxxxx"
     for ch in config['Announcer.cases']['channels']:
-        #await ctx.bot.message(ch, message)
+        await ctx.bot.message(ch, message)
         logging.info(f"Manual case by {ctx.sender} in {ctx.channel}: {args}")
     cn_message = {
         "content" : f"New Manual Case -- " + config['Discord Notifications']['CaseNotify'] + "\n" \
