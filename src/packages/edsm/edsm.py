@@ -134,10 +134,6 @@ class Commander:
                                             "showCoordinates": 1})
             responses = response.json()
 
-            # Why do we have to do this? come on, EDSM!
-            if not responses['isDocked']:
-                responses['station'], responses['dateDocked'] = None, None
-
         except (requests.exceptions.RequestException, KeyError) as er:
             logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
@@ -146,6 +142,9 @@ class Commander:
         if len(responses) == 0 or responses['msgnum'] == 203:
             cmdrobj = None
         else:
+            # Why do we have to do this? come on, EDSM!
+            if not responses['isDocked']:
+                responses['station'], responses['dateDocked'] = None, None
             # Throw out data we don't need
             del responses['msgnum'], responses['msg'], \
                 responses['firstDiscover'], responses['url'], responses['shipId']
