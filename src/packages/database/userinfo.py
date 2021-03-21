@@ -31,11 +31,7 @@ async def whois(subject):
         cursor = db.cursor
         cursor.execute(get_query, (subject,))
         for res in cursor.fetchall():
-            uID = str(res[0])
-            uCases = str(res[1])
-            uName = str(res[2])
-            uRegdate = str(res[3])
-            uDW = res[4]
+            uID, uCases, uName, uRegdate, uDW = res
             if uDW == 1:
                 uDW2 = ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
             else:
