@@ -50,6 +50,7 @@ async def cmd_prefix(ctx, args: List[str]):
                                       f"{ctx.sender}! Rik079!")
 
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@require_channel()
 async def cmd_offline(ctx, args: List[str]):
     """
     Change the status of Offline mode.
@@ -57,18 +58,20 @@ async def cmd_offline(ctx, args: List[str]):
     Usage: !bot_management offline [Status]
     Aliases: settings offline
     """
-    if (args[0] == "True" or args[0] == "true") and config['Offline Mode']['enabled'] != 'True':
-        logging.info(f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to TRUE by {ctx.sender}")
-        # Write changes to config file
-        await config_write('Offline Mode', 'enabled', 'True')
-        await ctx.reply(f"Warning! Offline Mode Status Changed to TRUE")
-    elif (args[0] == "False" or args[0] == "false") and config['Offline Mode']['enabled'] != 'False':
-        logging.info(f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to FALSE by {ctx.sender}")
-        # Write changes to config file
-        await config_write('Offline Mode', 'enabled', 'False')
-        await ctx.reply(f"Warning! Offline Mode Status Changed to FALSE")
+    if not len(args) == 1:
+        return await ctx.reply("Usage: !bot_management offline [Status]")
+
+    if args[0].lower() == "true" and config['Offline Mode']['enabled'] != 'True':
+        set_to = "True"
+    elif args[0].lower() == "false" and config['Offline Mode']['enabled'] != 'False':
+        set_to = "False"
     else:
-        await ctx.reply("Error! Invalid parameters given or already in mode. Status not changed.")
+        return await ctx.reply("Error! Invalid parameters given or already in mode. Status not changed.")
+
+    logging.info(f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to {set_to.upper()} by {ctx.sender}")
+    # Write changes to config file
+    await config_write("Offline Mode", "enabled", "{0}".format(set_to))
+    await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")
 
 # Create the command group
 
