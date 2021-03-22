@@ -49,6 +49,29 @@ async def cmd_prefix(ctx, args: List[str]):
     await ctx.bot.message(f"#cybers", f"Warning, prefix changed to {args[0]} by "
                                       f"{ctx.sender}! Rik079!")
 
+@require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@require_channel()
+async def cmd_offline(ctx, args: List[str]):
+    """
+    Change the status of Offline mode.
+
+    Usage: !bot_management offline [Status]
+    Aliases: settings offline
+    """
+    if not len(args) == 1:
+        return await ctx.reply("Usage: !bot_management offline [Status]")
+
+    if args[0].lower() == "true" and config['Offline Mode']['enabled'] != 'True':
+        set_to = "True"
+    elif args[0].lower() == "false" and config['Offline Mode']['enabled'] != 'False':
+        set_to = "False"
+    else:
+        return await ctx.reply("Error! Invalid parameters given or already in mode. Status not changed.")
+
+    logging.info(f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to {set_to.upper()} by {ctx.sender}")
+    # Write changes to config file
+    await config_write("Offline Mode", "enabled", "{0}".format(set_to))
+    await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")
 
 # Create the command group
 
@@ -57,6 +80,7 @@ async def cmd_group_settings(ctx, args: List[str]):
     subcommands = {
         'nick': cmd_nick,
         'prefix': cmd_prefix,
+        'offline': cmd_offline,
     }
     if len(args) == 0:
         await ctx.reply(f"Available bot_management: {', '.join(scmd for scmd in subcommands.keys())}")

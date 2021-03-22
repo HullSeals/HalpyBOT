@@ -87,8 +87,6 @@ async def shutdown(signal, loop):
     loop.stop()
 
 
-offline_mode: bool = config.getboolean('Offline Mode', 'Enabled')
-
 om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
 
 async def offlinecheck():
@@ -96,12 +94,12 @@ async def offlinecheck():
     try:
         loop = asyncio.get_running_loop()
         while True:
-            if offline_mode is True:
+            if config['Offline Mode']['enabled'] == 'True':
                 for ch in om_channels:
                     await client.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
                                              "Contact a CyberSeal.")
             await asyncio.sleep(300)
-            if offline_mode is False:
+            if config['Offline Mode']['enabled'] == 'False':
                 await asyncio.sleep(300)
     except asyncio.exceptions.CancelledError:
         pass
