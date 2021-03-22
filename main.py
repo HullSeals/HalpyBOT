@@ -98,9 +98,9 @@ async def offlinecheck():
                 for ch in om_channels:
                     await client.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
                                              "Contact a CyberSeal.")
-            await asyncio.sleep(30)
+            await asyncio.sleep(300)
             if config['Offline Mode']['enabled'] == 'False':
-                await asyncio.sleep(30)
+                await asyncio.sleep(300)
     except asyncio.exceptions.CancelledError:
         pass
 
