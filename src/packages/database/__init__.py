@@ -15,6 +15,7 @@ import configparser
 import mysql.connector
 import logging
 import time
+from ..configmanager import config_write, config
 
 from ..database import *
 
@@ -59,7 +60,7 @@ class DatabaseConnection:
                 if _ == 2:
                     logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
                     # Set offline mode, can only be removed by restart
-                    offline_mode = True
+                    config_write('Offline Mode', 'enabled', 'True')
                     # TODO send announcement message
                     raise NoDatabaseConnection
                 continue
