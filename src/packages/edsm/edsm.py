@@ -41,6 +41,7 @@ class EDSMConnectionError(EDSMLookupError):
 
 
 landmarks = []
+dssas = []
 
 @dataclass()
 class EDSMQuery:
@@ -143,6 +144,8 @@ class Commander:
             cmdrobj = None
         else:
             # Why do we have to do this? come on, EDSM!
+            if 'isDocked' not in responses.keys():
+                raise EDSMConnectionError("Error! CMDR Exists, but unable to get info.")
             if not responses['isDocked']:
                 responses['station'], responses['dateDocked'] = None, None
             # Throw out data we don't need
@@ -266,6 +269,58 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
             return currclosest, f'{maxdist:,}'
         else:
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {SysName}.")
+
+    if not Is_Sys:
+        raise NoResultsEDSM(f"No system and/or commander named {SysName} was found in the EDSM database.")
+
+
+async def checkdssa(SysName, CacheOverride: bool = False):
+    global dssas
+    # Set default values
+    Coords, LMCoords, Is_Sys = 0, 0, None
+
+    try:
+        dssa = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
+        if dssa is not None:
+            Coords, Is_Sys = dssa.coords, True
+    except EDSMLookupError:
+        raise
+
+    if dssa is None:
+
+        try:
+            dssa = await Commander.location(name=SysName, CacheOverride=CacheOverride)
+            if dssa is not None:
+                Coords, Is_Sys = dssa.coordinates, True
+        except EDSMLookupError:
+            raise
+
+    if dssa is not None:
+
+        currclosest = None
+
+        # Load JSON file if dssa cache is empty, else we just get objects from the cache
+        if not dssas:
+            with open('src/packages/edsm/dssa.json') as jsonfile:
+                dssas = json.load(jsonfile)
+
+        maxdist = "999999999999" # Basically Infinite.
+
+        for dssa in range(len(dssas)):
+            currdssa = dssas[dssa]['name']
+            DSSACoords = dssas[dssa]['coords']
+
+            distancecheck = await calc_distance(Coords['x'], DSSACoords['x'],
+                                                Coords['y'], DSSACoords['y'],
+                                                Coords['z'], DSSACoords['z'])
+            if float(distancecheck) < float(maxdist):
+                currclosest = currdssa
+                maxdist = distancecheck
+
+        if currclosest is not None:
+            return currclosest, f'{maxdist:,}'
+        else:
+            raise NoResultsEDSM(f"No DSSA Carriers Found.")
 
     if not Is_Sys:
         raise NoResultsEDSM(f"No system and/or commander named {SysName} was found in the EDSM database.")

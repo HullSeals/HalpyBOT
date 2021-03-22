@@ -144,3 +144,33 @@ async def cmd_landmarklookup(ctx, args: List[str]):
         return await ctx.reply(f"The closest landmark system is {landmark} at {distance} LY.")
     except EDSMLookupError as er:
         return await ctx.reply(str(er))
+
+
+@Commands.command("dssa")
+async def cmd_dssalookup(ctx, args: List[str]):
+    """
+    Calculate the closest DSSA Carrier to a known EDSM system.
+
+    Usage: !dssa [system/cmdr]
+    Aliases: n/a
+    File Last Updated: 2021-03-22 w/ 93 Carrier
+    """
+
+    CacheOverride = False
+
+    # Input validation
+    if not args[0]:
+        return await ctx.reply("No arguments given! Please provide a System or CMDR name.")
+
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
+
+    system = ' '.join(args[0:])  # TODO replace by ctx method
+    system = system.strip()
+
+    try:
+        dssa, distance = await checkdssa(SysName=system, CacheOverride=CacheOverride)
+        return await ctx.reply(f"The closest DSSA Carrier System is in {dssa} at {distance} LY.")
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))
