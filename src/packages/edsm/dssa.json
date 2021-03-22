@@ -1,0 +1,738 @@
+[
+   {
+      "name":"Oorb Broae DF-A e6 (DSSA Sleeper Service)",
+      "coords":{
+         "x":2123.65625,
+         "y":2833.0625,
+         "z":29718.625
+      }
+   },
+   {
+      "name":"Beagle Point (DSSA Distant Worlds)",
+      "coords":{
+         "x":-1111.5625,
+         "y":-134.21875,
+         "z":65269.75
+      }
+   },
+   {
+      "name":"Aiphaisty OD-T e3-4 (DSSA Pride of Tel Fryr)",
+      "coords":{
+         "x":-17932.5625,
+         "y":220.96875,
+         "z":34160.28125
+      }
+   },
+   {
+      "name":"Hypuejaa RT-Q e5-83 (DSSA Enigma)",
+      "coords":{
+         "x":-11653.59375,
+         "y":-162.78125,
+         "z":28123.03125
+      }
+   },
+   {
+      "name":"Prai Hypoo TX-B d4 (IGAU Paradox Destiny)",
+      "coords":{
+         "x":-9214.875,
+         "y":-460.5625,
+         "z":7908.21875
+      }
+   },
+   {
+      "name":"Flyoo Prao JC-B d1-5 (IGAU Deep Space 12)",
+      "coords":{
+         "x":22469.8125,
+         "y":-47.28125,
+         "z":40008.34375
+      }
+   },
+   {
+      "name":"Eishoqs QM-J c10-1 (IGAU Deep Space 27)",
+      "coords":{
+         "x":-27067.9375,
+         "y":590.09375,
+         "z":17297.71875
+      }
+   },
+   {
+      "name":"Eishaw DB-W e2-0 (DSSA Tartarus)",
+      "coords":{
+         "x":4587.03125,
+         "y":-174.59375,
+         "z":59589.09375
+      }
+   },
+   {
+      "name":"Eocs Aihm XX-U d2-6 (DSSA Aristarchos)",
+      "coords":{
+         "x":22759.375,
+         "y":108.34375,
+         "z":-11033.40625
+      }
+   },
+   {
+      "name":"Floarps PI-B e2 (DSSA Sesame)",
+      "coords":{
+         "x":-859.90625,
+         "y":-117.53125,
+         "z":14426.34375
+      }
+   },
+   {
+      "name":"Voqooe BI-H d11-864 (CLB Voqooway)",
+      "coords":{
+         "x":-4770.75,
+         "y":-1508.1875,
+         "z":17819.75
+      }
+   },
+   {
+      "name":"Ihab JI-B d13-16 (DSSA Stelllar Oasis)",
+      "coords":{
+         "x":23399.1875,
+         "y":-9.5,
+         "z":46161.3125
+      }
+   },
+   {
+      "name":"Nuekea RP-M d8-161 (DSSA King's Pass)",
+      "coords":{
+         "x":9475.5,
+         "y":-263.40625,
+         "z":13771.21875
+      }
+   },
+   {
+      "name":"Engopr YH-L b14-2 (DSSA Nereus' Deep)",
+      "coords":{
+         "x":24463.625,
+         "y":-63.3125,
+         "z":3088.71875
+      }
+   },
+   {
+      "name":"Byae Aowsy GR-N d6-52 (TFS Carpe Vinum)",
+      "coords":{
+         "x":14407.625,
+         "y":17.5,
+         "z":44312.59375
+      }
+   },
+   {
+      "name":"Eock Prau WD-T d3-1 (DSSA Dryman's Hope)",
+      "coords":{
+         "x":26230.03125,
+         "y":-1151.0625,
+         "z":19811
+      }
+   },
+   {
+      "name":"Eord Prau ZK-N d7-711 (DSSA Nova Blues)",
+      "coords":{
+         "x":5832.03125,
+         "y":-596.03125,
+         "z":20083.5
+      }
+   },
+   {
+      "name":"NGC 3199 Sector XJ-A d10 (DSSA Kraut)",
+      "coords":{
+         "x":14544.0625,
+         "y":-237.625,
+         "z":3489.375
+      }
+   },
+   {
+      "name":"Phraa Blao HO-S c20-7 (DSSA Calllisto)",
+      "coords":{
+         "x":11261.21875,
+         "y":-163.25,
+         "z":34409.5625
+      }
+   },
+   {
+      "name":"Synuefuae CM-J d10-42 (DSSA Artemis Rest)",
+      "coords":{
+         "x":6233.65625,
+         "y":-54.5625,
+         "z":-113.6875
+      }
+   },
+   {
+      "name":"Byeia Thoea CA-A d2 (DSSA Andromeda Calling)",
+      "coords":{
+         "x":-33157.1875,
+         "y":19.46875,
+         "z":2846.8125
+      }
+   },
+   {
+      "name":"Eembaitl DL-Y d13 (DSSA Black Adder Port)",
+      "coords":{
+         "x":29456.5,
+         "y":110.78125,
+         "z":29782.0625
+      }
+   },
+   {
+      "name":"Eorm Chreou XS-U d2-14 (Michelle's Legacy)",
+      "coords":{
+         "x":-31117.15625,
+         "y":-21.53125,
+         "z":27367
+      }
+   },
+   {
+      "name":"Flyai Pre HR-V c2-1 (DSSA Wanderer's Rest)",
+      "coords":{
+         "x":-22903.09375,
+         "y":-1095.90625,
+         "z":40017.09375
+      }
+   },
+   {
+      "name":"Gleeque HW-N e6-149 (IGAU The Lemon Drop)",
+      "coords":{
+         "x":4995.59375,
+         "y":-2367.71875,
+         "z":25791.9375
+      }
+   },
+   {
+      "name":"Phreia Flyou FG-V d3-116 (CCN Tranquility)",
+      "coords":{
+         "x":-14327,
+         "y":-328.21875,
+         "z":23596.875
+      }
+   },
+   {
+      "name":"Aiphaitt AA-A h7 (Hayholt)",
+      "coords":{
+         "x":-5034.875,
+         "y":-19.03125,
+         "z":34009
+      }
+   },
+   {
+      "name":"Byoi Aowsy XD-L b40-0 (Galactic Unity)",
+      "coords":{
+         "x":-5466.90625,
+         "y":924.15625,
+         "z":44603.40625
+      }
+   },
+   {
+      "name":"Mycapp PJ-T b6-1 (DSSA Nostromo)",
+      "coords":{
+         "x":27236,
+         "y":-703.5625,
+         "z":24681.65625
+      }
+   },
+   {
+      "name":"Ooctarbs NR-W e1-0 (DSSA Jolly Roger)",
+      "coords":{
+         "x":12578.53125,
+         "y":288.59375,
+         "z":59505.46875
+      }
+   },
+   {
+      "name":"Hypau Aec IO-Z d13-0 (Explorer's Bar and Grill)",
+      "coords":{
+         "x":26874.21875,
+         "y":-18.6875,
+         "z":-7473.59375
+      }
+   },
+   {
+      "name":"Plaa Aec RY-B b41-1 (DSSA Ironside)",
+      "coords":{
+         "x":7881.59375,
+         "y":135.4375,
+         "z":7500.6875
+      }
+   },
+   {
+      "name":"Prooe Hypue FH-U e3-2 (RR-DSSA Rocksteady)",
+      "coords":{
+         "x":519.625,
+         "y":-80.15625,
+         "z":8671.5
+      }
+   },
+   {
+      "name":"Syreadiae JX-F c0 (KTL Frontier Sanctuary)",
+      "coords":{
+         "x":-9529.4375,
+         "y":-64.5,
+         "z":-7428.4375
+      }
+   },
+   {
+      "name":"Flyoo Groa SO-Z e0 (DSSA Solsen's Alastor)",
+      "coords":{
+         "x":-26482.4375,
+         "y":-78.78125,
+         "z":50335.125
+      }
+   },
+   {
+      "name":"Loijoae ZV-T c17-0 (DSSA Gene Roddenberry)",
+      "coords":{
+         "x":23595.90625,
+         "y":265.15625,
+         "z":32990.90625
+      }
+   },
+   {
+      "name":"Pla Aick GA-A e1 (DSSA Gam Nine)",
+      "coords":{
+         "x":34202.09375,
+         "y":7.09375,
+         "z":9181.96875
+      }
+   },
+   {
+      "name":"Xothae MA-A d2 (DSSA Chrysaetos Refuge)",
+      "coords":{
+         "x":-36207.90625,
+         "y":22.5625,
+         "z":29671.40625
+      }
+   },
+   {
+      "name":"Hyueths HS-H d11-5 (DLNV Leo's Vision)",
+      "coords":{
+         "x":-93.9375,
+         "y":-55.84375,
+         "z":-12836.96875
+      }
+   },
+   {
+      "name":"Phrae Prau NY-Y d1-15 (The Helix)",
+      "coords":{
+         "x":29786.75,
+         "y":-245.875,
+         "z":26047.875
+      }
+   },
+   {
+      "name":"Plae Broae DL-P d5-0 (ISF Mandy's Rest)",
+      "coords":{
+         "x":27225.75,
+         "y":-23.25,
+         "z":50621.09375
+      }
+   },
+   {
+      "name":"Schee Flyi DN-I d10-8604 (NECFC Huginn)",
+      "coords":{
+         "x":-4773.59375,
+         "y":-456.5625,
+         "z":22859
+      }
+   },
+   {
+      "name":"Dryau Aec JF-A d11 (DSSA Reginleif)",
+      "coords":{
+         "x":8552.28125,
+         "y":96.96875,
+         "z":-12582
+      }
+   },
+   {
+      "name":"Dryau Ausms KG-Y e3390 (DSSA Buurian Anchorage)",
+      "coords":{
+         "x":-1523.75,
+         "y":1340.6875,
+         "z":20976.59375
+      }
+   },
+   {
+      "name":"Eolls Graae TA-K c10-5 (DSSA Manatee)",
+      "coords":{
+         "x":-18792.5625,
+         "y":-564.96875,
+         "z":30120.3125
+      }
+   },
+   {
+      "name":"Uctailts UD-S d4-3 (DSSA Nest)",
+      "coords":{
+         "x":27648.65625,
+         "y":407.46875,
+         "z":42867.65625
+      }
+   },
+   {
+      "name":"Blia Chraei QU-M c21-0 (DSSA Alvin's Rest)",
+      "coords":{
+         "x":13378.59375,
+         "y":272.8125,
+         "z":53634.03125
+      }
+   },
+   {
+      "name":"Droett XD-T d3-22 (DSSA TFGI Kitty Corner)",
+      "coords":{
+         "x":26305.84375,
+         "y":75.03125,
+         "z":15908.40625
+      }
+   },
+   {
+      "name":"Myoangeia AT-U d2-244 (DSSA Unicorn's Rest)",
+      "coords":{
+         "x":-12989.9375,
+         "y":-4.90625,
+         "z":41429.0625
+      }
+   },
+   {
+      "name":"Scaulou SZ-M d8-911 (NECFC Muninn)",
+      "coords":{
+         "x":-6759.34375,
+         "y":-48.625,
+         "z":29166.1875
+      }
+   },
+   {
+      "name":"Abairdy XR-I b26-0 (HSRC Deep Thought)",
+      "coords":{
+         "x":28118.34375,
+         "y":617.625,
+         "z":35348.28125
+      }
+   },
+   {
+      "name":"Greae Phoea XF-D d13-507 (DSSA Totoro)",
+      "coords":{
+         "x":4826.25,
+         "y":-429.28125,
+         "z":16702.15625
+      }
+   },
+   {
+      "name":"Lyed YJ-I d9-0 (DSSA Somdy)",
+      "coords":{
+         "x":11007.46875,
+         "y":44.84375,
+         "z":-16899.75
+      }
+   },
+   {
+      "name":"Phrae Dryiae AM-J d10-0 (Lost Sanity)",
+      "coords":{
+         "x":20102.6875,
+         "y":-94.34375,
+         "z":-14260.3125
+      }
+   },
+   {
+      "name":"Byeeque ST-A b4-4 (Will's Haven)",
+      "coords":{
+         "x":-25007.28125,
+         "y":-478.78125,
+         "z":24627.375
+      }
+   },
+   {
+      "name":"Hypoe Bloae KZ-Z c16-6 (DSSA Erikson's Gateway)",
+      "coords":{
+         "x":-31101.71875,
+         "y":-86.4375,
+         "z":32944.625
+      }
+   },
+   {
+      "name":"Phroi Bluae QI-T e3-3454 (HSRC Limpet's Call)",
+      "coords":{
+         "x":-681.09375,
+         "y":-950.5625,
+         "z":34219.34375
+      }
+   },
+   {
+      "name":"Ploea Auscs ZA-A c16 (Four Corners Monument)",
+      "coords":{
+         "x":3534.4375,
+         "y":-13.6875,
+         "z":39901.0625
+      }
+   },
+   {
+      "name":"Bya Chria QY-Y d1-2 (DSSA Pilgrim's Harbor)",
+      "coords":{
+         "x":-19889.5,
+         "y":1041.15625,
+         "z":54150.65625
+      }
+   },
+   {
+      "name":"Fedgie FN-Q d6-45 (DSSA Argonautica)",
+      "coords":{
+         "x":13322.6875,
+         "y":-46.0625,
+         "z":-3035.71875
+      }
+   },
+   {
+      "name":"Phipoea WK-E d12-1374 (DSSA Ronin)",
+      "coords":{
+         "x":-497.09375,
+         "y":545.03125,
+         "z":28184.875
+      }
+   },
+   {
+      "name":"Synookiae IF-R d4-20 (DSSA Nameless Mist)",
+      "coords":{
+         "x":17753.90625,
+         "y":30,
+         "z":12187.5
+      }
+   },
+   {
+      "name":"Cloomeia FG-Y e95 (DSSA Heart of Gold)",
+      "coords":{
+         "x":11719.15625,
+         "y":112,
+         "z":24717.375
+      }
+   },
+   {
+      "name":"Greae Phio VK-O e6-4343 (DSSA Voidd Crusader)",
+      "coords":{
+         "x":1474.875,
+         "y":-657.21875,
+         "z":16723.75
+      }
+   },
+   {
+      "name":"Hyuqau WU-N c23-79 (DSSA Pegasus)",
+      "coords":{
+         "x":-925.25,
+         "y":-43.78125,
+         "z":35791.75
+      }
+   },
+   {
+      "name":"Ooc Fleau GG-F d11-0 (CEC Deus Vult!)",
+      "coords":{
+         "x":36945.625,
+         "y":143.46875,
+         "z":17868.0625
+      }
+   },
+   {
+      "name":"Bla Byoe PR-U c19-1 (RCS Chatsworth)",
+      "coords":{
+         "x":19851.9375,
+         "y":-103.71875,
+         "z":56114.75
+      }
+   },
+   {
+      "name":"Nuelou LX-A d1-0 (Cheetah Labs)",
+      "coords":{
+         "x":37792.25,
+         "y":-172.21875,
+         "z":13129.90625
+      }
+   },
+   {
+      "name":"Oob Aoscs BW-E d11-52 (DSSA Glomar Explorer)",
+      "coords":{
+         "x":16976.1875,
+         "y":43.53125,
+         "z":17829.375
+      }
+   },
+   {
+      "name":"Scheau Prou OI-Z d1-1 (DSSA Nowhere)",
+      "coords":{
+         "x":-36334.96875,
+         "y":-51.0625,
+         "z":24757.40625
+      }
+   },
+   {
+      "name":"Floalk QQ-Q c20-2 (IGAU Cygni-Vanguard)",
+      "coords":{
+         "x":-16043.34375,
+         "y":-562.40625,
+         "z":15207.375
+      }
+   },
+   {
+      "name":"Hedgo GL-P c5-4 (DSSA Maerzenbecher)",
+      "coords":{
+         "x":-22761.6875,
+         "y":10.1875,
+         "z":-3380.84375
+      }
+   },
+   {
+      "name":"Hypuae Bra RX-L d7-2 (DSSA Hope Dempsey)",
+      "coords":{
+         "x":-40068.4375,
+         "y":-19.6875,
+         "z":35453.5
+      }
+   },
+   {
+      "name":"Thraikoo PS-U e2-4 (IGAU Inverness)",
+      "coords":{
+         "x":-18646,
+         "y":-6.0625,
+         "z":7135.9375
+      }
+   },
+   {
+      "name":"Blie Phla GU-N b20-0 (DSSA Ijon Tichy)",
+      "coords":{
+         "x":-24338,
+         "y":51.15625,
+         "z":12187.71875
+      }
+   },
+   {
+      "name":"Flyoo Phio KM-F b55-0 (TMCV Spartacus)",
+      "coords":{
+         "x":21986.40625,
+         "y":-716.90625,
+         "z":10357.1875
+      }
+   },
+   {
+      "name":"Graesms CW-E d11-2 (CW Brazilian Flag)",
+      "coords":{
+         "x":-18761.375,
+         "y":3.3125,
+         "z":-10280.90625
+      }
+   },
+   {
+      "name":"Pha Flaae ZA-L d9-10 (HSRC Meow Force One)",
+      "coords":{
+         "x":-22038.5625,
+         "y":1105.40625,
+         "z":24057.25
+      }
+   },
+   {
+      "name":"Phleedgoe MY-G d11-275 (Smiler's Observatory)",
+      "coords":{
+         "x":-10566.625,
+         "y":-407.125,
+         "z":34516.03125
+      }
+   },
+   {
+      "name":"Scheau Blao TB-A c28-274 (Destiny Ascension)",
+      "coords":{
+         "x":4314.03125,
+         "y":-1091.46875,
+         "z":33450.0625
+      }
+   },
+   {
+      "name":"Thueche YB-B b5-0 (HSRC Deep Space Nine)",
+      "coords":{
+         "x":-13543.59375,
+         "y":-264.78125,
+         "z":52798.03125
+      }
+   },
+   {
+      "name":"Iowhowns DM-D d12-1 (Blackwater)",
+      "coords":{
+         "x":-32759.03125,
+         "y":143.5,
+         "z":16655.6875
+      }
+   },
+   {
+      "name":"Juenae YP-X c1-659 (Ayshire Lass)",
+      "coords":{
+         "x":22.6875,
+         "y":-1030.03125,
+         "z":25896.8125
+      }
+   },
+   {
+      "name":"Phae Auscs SP-E c25-1 (DSSA Wandering Star)",
+      "coords":{
+         "x":22360.125,
+         "y":18.8125,
+         "z":26900.3125
+      }
+   },
+   {
+      "name":"Thuechoea ZE-A g0 (Shepard's Dream)",
+      "coords":{
+         "x":-26997.03125,
+         "y":-48.75,
+         "z":53262.78125
+      }
+   },
+   {
+      "name":"Oob Brue KI-Z d1-9 (DSSA Humanities Sight)",
+      "coords":{
+         "x":-13591.8125,
+         "y":1222.84375,
+         "z":29866.375
+      }
+   },
+   {
+      "name":"Oumbaiqs WE-R d4-1 (DSSA Archer's Prize)",
+      "coords":{
+         "x":-21646,
+         "y":-5.78125,
+         "z":46713
+      }
+   },
+   {
+      "name":"Plae Chreou HK-A d6 (Walk in the Shadows)",
+      "coords":{
+         "x":-10639.6875,
+         "y":196.96875,
+         "z":47627.78125
+      }
+   },
+   {
+      "name":"Ploea Auscs ZA-A c16 (Four Corner's Monument)",
+      "coords":{
+         "x":3534.4375,
+         "y":-13.6875,
+         "z":39901.0625
+      }
+   },
+   {
+      "name":"Cho Thua NL-C b40-0 (DSSA Elanor)",
+      "coords":{
+         "x":-305.3125,
+         "y":2.5625,
+         "z":58686.4375
+      }
+   },
+   {
+      "name":"Eock Bluae QL-X c1-1 (DSSA Bougainville)",
+      "coords":{
+         "x":16025.21875,
+         "y":-1073.5,
+         "z":27206.59375
+      }
+   },
+   {
+      "name":"Thueche XK-B c2-1 (DSSA Emerald Tablet)",
+      "coords":{
+         "x":-13531.96875,
+         "y":-241.25,
+         "z":52802.8125
+      }
+   }
+]
