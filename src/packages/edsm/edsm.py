@@ -144,6 +144,8 @@ class Commander:
             cmdrobj = None
         else:
             # Why do we have to do this? come on, EDSM!
+            if not hasattr(responses, 'isDocked'):
+                raise EDSMConnectionError("Error! CMDR Exists, but unable to get info.")
             if not responses['isDocked']:
                 responses['station'], responses['dateDocked'] = None, None
             # Throw out data we don't need
