@@ -12,11 +12,11 @@ See license.md
 
 from typing import List
 import logging
+import requests
 
 from ...packages.checks import *
 from .. import Commands
-
-send_to = ["#Repair-Requests", "#seal-bob"]
+from ...packages.configmanager import config
 
 @Commands.command("manualcase", "mancase")
 @require_channel()
@@ -31,13 +31,19 @@ async def cmd_manual_case(ctx, args: List[str]):
     message = f"xxxx MANCASE -- NEWCASE xxxx\n" \
               f"{' '.join(args)}\n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in config['Announcer.cases']['channels'].split(", "):
         await ctx.bot.message(ch, message)
         logging.info(f"Manual case by {ctx.sender} in {ctx.channel}: {args}")
-    cn_message = f"New Manual Case Available -- <@&744998165714829334>\n" \
-                 f"{' '.join(args)}"
-    await ctx.bot.message("#case-notify", cn_message)
-
+    cn_message = {
+        "content" : f"New Manual Case -- " + config['Discord Notifications']['CaseNotify'] + "\n" \
+                    f"{' '.join(args)}",
+        "username" : "HalpyBOT"
+    }
+    url = config['Discord Notifications']['URL']
+    try:
+        requests.post(url, json=cn_message)
+    except requests.exceptions.HTTPError as err:
+        logging.error(err)
 
 @Commands.command("manualfish", "manfish")
 @require_channel()
@@ -52,24 +58,40 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
     message = f"xxxx MANKFCASE -- NEWCASE xxxx\n" \
               f"{' '.join(args)}\n" \
               f"xxxxxxxx"
-    for ch in send_to:
+    for ch in config['Announcer.cases']['channels'].split(", "):
         await ctx.bot.message(ch, message)
         logging.info(f"Manual kingfisher case by {ctx.sender} in {ctx.channel}: {args}")
-    cn_message = f"New Manual KFCase Available -- <@&744998165714829334>\n" \
-                 f"{' '.join(args)}"
-    await ctx.bot.message("#case-notify", cn_message)
+    cn_message = {
+        "content" : f"New Manual Kingfisher Case -- " + config['Discord Notifications']['CaseNotify'] + "\n" \
+                    f"{' '.join(args)}",
+        "username" : "HalpyBOT"
+    }
+    url = config['Discord Notifications']['URL']
+    try:
+        requests.post(url, json=cn_message)
+    except requests.exceptions.HTTPError as err:
+        logging.error(err)
 
 
-@Commands.command("wssPing")
+@Commands.command("tsping")
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-async def cmd_wss_ping(ctx, args: List[str]):
+async def cmd_trained_ping(ctx, args: List[str]):
     """
-    Alert the "Why So Sealious" role that CMDRs are needed for this case. Annoying AF and not to be used lightly.
+    Alert the "Trained Seals" role in Discord that CMDRs are needed for this case. Annoying AF and not to be used lightly.
 
-    Usage: !wssPing
+    Usage: !tsping
     Aliases: none
     """
-    cn_message = f"Message from {ctx.sender}: Attention to the Above Cases, Seals! -- <@&591822215238909966>"
-    await ctx.bot.message("#case-notify", cn_message)
+    logging.info(f"Manual kingfisher case by {ctx.sender} in {ctx.channel}: {args}")
+    cn_message = {
+        "content" : f"Attention to the Above Case, Seals! -- " + config['Discord Notifications']['TrainedRole'] + "\n" \
+                    f"Message triggered by {ctx.sender}",
+        "username" : "HalpyBOT"
+    }
+    url = config['Discord Notifications']['URL']
+    try:
+        requests.post(url, json = cn_message)
+    except requests.exceptions.HTTPError as err:
+        logging.error(err)
     await ctx.reply("Notification Sent!")
