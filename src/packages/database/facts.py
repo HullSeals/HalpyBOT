@@ -48,7 +48,7 @@ async def update_fact_index():
 
 async def add_fact(ctx, factname: str, facttext: str):
     # Check if not already a command
-    if factname in commandhandler.Commands.commandList:
+    if factname in commandhandler.CommandRoot.commandList:
         return await ctx.reply("Cannot register fact: already an existing command!")
     # Check if fact doesn't already exist
     if factname in fact_index:

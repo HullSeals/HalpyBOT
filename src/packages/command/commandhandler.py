@@ -48,45 +48,39 @@ class Commands:
 
     commandList = {}
     is_root: bool = False
+    group_name: str = "<ROOT>" if is_root else "Unknown Group Name"
 
-    class CommandInstance:
-        def __init__(self, function, main: bool, name: str):
-            Commands.commandList[name] = (function, main)
-
-    @classmethod
-    def command(cls, *args):
+    def command(self, *args):
         def decorator(function):
             for name in args:
-                cls.register(name, function, True if name == args[0] else False)
+                self.register(name, function, True if name == args[0] else False)
             return function
         return decorator
 
-    @classmethod
-    def register(cls, name, function, main: bool):
-        if name in cls.commandList.keys():
+    def register(self, name, function, main: bool):
+        if name in self.commandList.keys():
             raise CommandAlreadyExists
-        Commands.commandList[name] = (function, main)
+        self.commandList[name] = (function, main)
 
-    @classmethod
-    async def invoke(cls, Command, Context: Context, Arguments: List[str]):
-        # noinspection PyBroadException
+    async def invoke(self, Command, Context: Context, Arguments: List[str]):
+        # This is just an alias for __call__
         try:
-            return await Commands.commandList[Command][0](Context, Arguments)
-        # We actually want this to catch everything
+            await self.commandList[Command][0](Context, Arguments)
         except Exception as er:
-            raise CommandException(str(er))
+            raise CommandException(er)
 
-    @classmethod
-    async def get_commands(cls, mains: bool = False):
+    async def get_commands(self, mains: bool = False):
         if mains is False:
-            return list(Commands.commandList.keys())
+            return list(self.commandList.keys())
         else:
             cmdlist = []
-            for command in Commands.commandList:
-                if Commands.commandList[command][1] is True:
+            for command in self.commandList:
+                if self.commandList[command][1] is True:
                     cmdlist.append(str(command))
             return cmdlist
 
+
+CommandRoot = Commands()
 
 class CommandGroup:
 
@@ -95,7 +89,7 @@ class CommandGroup:
 
     def add_group(self, *names):
         for name in names:
-            Commands.register(name, self, True if name == names[0] else False)
+            CommandRoot.register(name, self, True if name == names[0] else False)
         self.group_name = names[0]
 
     def command(self, *args):
@@ -128,9 +122,9 @@ async def invoke_from_message(bot: pydle.Client, channel: str, sender: str, mess
         args = parts[1:]
         in_channel = (True if bot.is_channel(channel) else False)
         ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]))
-        if command in Commands.commandList:
+        if command in CommandRoot.commandList:
             try:
-                return await Commands.invoke(Command=command, Context=ctx, Arguments=args)
+                return await CommandRoot.invoke(Command=command, Context=ctx, Arguments=args)
             except CommandException as er:
                 await ctx.reply(f"Unable to execute command: {str(er)}")
         elif command in fact_index:
