@@ -51,6 +51,13 @@ class CommandGroup:
     group_name: str
     root: CommandGroup = None
 
+    @classmethod
+    def get_group(cls, name: str):
+        for group in cls.grouplist:
+            if name.lower() == group.group_name:
+                return group
+        return None
+
     def __init__(self, is_root: bool = False):
         self.commandList = {}
         if CommandGroup.root is not None and is_root is True:
@@ -82,17 +89,17 @@ class CommandGroup:
 
     async def __call__(self, Command: str, Context: Context, Arguments: List[str]):
         Command = Command.lower()
-        breakpoint()
         # Sanity check
         if Command not in self.commandList:
-            raise CommandHandlerError("Command not found.")
+            raise CommandHandlerError("(sub)command not found.")
         Cmd = self.commandList[Command][0]
         # TODO do this properly later
         if isinstance(Cmd, CommandGroup):
+            subgroup = CommandGroup.get_group(name=Cmd.group_name)
             if len(Arguments) < 1:
                 return await Context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
                                            f"{Cmd.group_name}: "
-                                           f"{', '.join(sub for sub in await self.get_commands(True))}")
+                                           f"{', '.join(sub for sub in await subgroup.get_commands(True))}")
             await Cmd(Command=Arguments[0],
                       Context=Context, Arguments=Arguments[1:])
         else:
