@@ -33,9 +33,9 @@ async def cmd_sajoin(ctx, args: List[str]):
     # Convert channel name to lower case to avoid issues with the already-in-channel check
     args[1] = args[1].lower()
 
-    botuser = await User.get_info(ctx, ctx.bot.nickname)
+    botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
 
-    channels = await User.get_channels(ctx, args[0])
+    channels = await User.get_channels(ctx.bot, args[0])
 
     if args[1] not in joinableChannels:
         return await ctx.reply("I can't move people there.")
@@ -51,7 +51,7 @@ async def cmd_sajoin(ctx, args: List[str]):
     await ctx.bot.rawmsg('SAJOIN', args[0], args[1])
 
     # Now we manually confirm that the SAJOIN was successful
-    channels = await User.get_channels(ctx, args[0])
+    channels = await User.get_channels(ctx.bot, args[0])
 
     if args[1] in channels:
         return await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")

@@ -47,8 +47,6 @@ class Context:
 class CommandGroup:
 
     grouplist = []
-    is_root: bool = False
-    group_name: str
     root: CommandGroup = None
 
     @classmethod
@@ -58,11 +56,30 @@ class CommandGroup:
                 return group
         return None
 
+    @classmethod
+    async def invoke_from_message(cls, bot: pydle.Client, channel: str, sender: str, message: str):
+        if message.startswith(config['IRC']['commandPrefix']):
+            parts = message[1:].split(" ")
+            command = parts[0].lower()
+            args = parts[1:]
+            in_channel = (True if bot.is_channel(channel) else False)
+            ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]))
+            if command in Commands.commandList:
+                try:
+                    return await cls.root(Command=command, Context=ctx, Arguments=args)
+                except CommandException as er:
+                    await ctx.reply(f"Unable to execute command: {str(er)}")
+            elif command in fact_index:
+                return await recite_fact(ctx, args, fact=str(command))
+            else:
+                return
+
     def __init__(self, is_root: bool = False):
+        self.is_root = is_root
+        self.group_name = ""
         self.commandList = {}
         if CommandGroup.root is not None and is_root is True:
             raise CommandHandlerError("Can only have one root group")
-        self.is_root = is_root
         if is_root is True:
             CommandGroup.root = self
             self.group_name = "<ROOT>"
@@ -93,7 +110,6 @@ class CommandGroup:
         if Command not in self.commandList:
             raise CommandHandlerError("(sub)command not found.")
         Cmd = self.commandList[Command][0]
-        # TODO do this properly later
         if isinstance(Cmd, CommandGroup):
             subgroup = CommandGroup.get_group(name=Cmd.group_name)
             if len(Arguments) < 1:
@@ -123,26 +139,6 @@ class CommandGroup:
             return cmdlist
 
 
-Commands = CommandGroup(is_root=True)
-
-async def invoke_from_message(bot: pydle.Client, channel: str, sender: str, message: str):
-    if message.startswith(config['IRC']['commandPrefix']):
-        parts = message[1:].split(" ")
-        command = parts[0].lower()
-        args = parts[1:]
-        in_channel = (True if bot.is_channel(channel) else False)
-        ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]))
-        if command in Commands.commandList:
-            try:
-                return await Commands(Command=command, Context=ctx, Arguments=args)
-            except CommandException as er:
-                await ctx.reply(f"Unable to execute command: {str(er)}")
-        elif command in fact_index:
-            return await recite_fact(ctx, args, fact=str(command))
-        else:
-            return
-
-
 async def recite_fact(ctx, args: List[str], fact: str):
 
     # Sanity check
@@ -161,3 +157,5 @@ async def recite_fact(ctx, args: List[str], fact: str):
         await ctx.reply(facts[f"{str(fact)}_no_args"])
     else:
         await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+
+Commands = CommandGroup(is_root=True)
