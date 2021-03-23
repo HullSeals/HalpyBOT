@@ -1,4 +1,4 @@
-from src.packages.command.commandhandler import Commands
+from src.packages.command import Commands
 from .announcer import *
 from .bot_management import *
 from .delayedboard import *

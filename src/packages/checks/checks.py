@@ -67,7 +67,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
         @functools.wraps(function)
         async def guarded(ctx, args: List[str]):
             # Get role
-            whois = await User.get_info(ctx, ctx.sender)
+            whois = await User.get_info(ctx.bot, ctx.sender)
             modes = User.process_vhost(whois.hostname)
             # Find user level
             userlevel = levels[modes]
