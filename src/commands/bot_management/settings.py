@@ -17,9 +17,11 @@ import logging
 
 from ...packages.checks import *
 from ...packages.configmanager import config_write, config
-from .. import Commands
+from ...packages.command import CommandGroup, Commands
 
+Settings = CommandGroup()
 
+@Settings.command("nick")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_nick(ctx, args: List[str]):
     """
@@ -34,6 +36,7 @@ async def cmd_nick(ctx, args: List[str]):
     await config_write('IRC', 'nickname', args[0])
 
 
+@Settings.command("prefix")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_prefix(ctx, args: List[str]):
     """
@@ -49,6 +52,7 @@ async def cmd_prefix(ctx, args: List[str]):
     await ctx.bot.message(f"#cybers", f"Warning, prefix changed to {args[0]} by "
                                       f"{ctx.sender}! Rik079!")
 
+@Settings.command("offline")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 @require_channel()
 async def cmd_offline(ctx, args: List[str]):
@@ -75,21 +79,7 @@ async def cmd_offline(ctx, args: List[str]):
 
 # Create the command group
 
-@Commands.command("settings", "bot_management")
-async def cmd_group_settings(ctx, args: List[str]):
-    subcommands = {
-        'nick': cmd_nick,
-        'prefix': cmd_prefix,
-        'offline': cmd_offline,
-    }
-    if len(args) == 0:
-        await ctx.reply(f"Available bot_management: {', '.join(scmd for scmd in subcommands.keys())}")
-    elif args[0] in subcommands.keys():
-        subcommand = args[0]
-        args = args[1:]
-        await subcommands[subcommand](ctx, args)
-    else:
-        await ctx.reply("Subcommand not found! Try !bot_management to see all the options")
+Settings.add_group("bot_management", "settings")
 
 
 @Commands.command("joinchannel")
