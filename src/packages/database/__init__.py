@@ -11,16 +11,12 @@ See license.md
 """
 
 # PyCharm tells me these imports are not used, but they are. Do not remove.
-import configparser
 import mysql.connector
 import logging
 import time
 from ..configmanager import config_write, config
 
 from ..database import *
-
-config = configparser.ConfigParser()
-config.read('config/config.ini')
 
 dbconfig = {"user": config['Database']['user'],
             "password": config['Database']['password'],
