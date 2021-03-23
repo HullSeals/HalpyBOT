@@ -46,13 +46,13 @@ class Context:
 
 class CommandGroup:
 
-    grouplist = []
-    root: CommandGroup = None
+    _grouplist = []
+    _root: CommandGroup = None
 
     @classmethod
     def get_group(cls, name: str):
-        for group in cls.grouplist:
-            if name.lower() == group.group_name:
+        for group in cls._grouplist:
+            if name.lower() == group.name:
                 return group
         return None
 
@@ -64,9 +64,9 @@ class CommandGroup:
             args = parts[1:]
             in_channel = (True if bot.is_channel(channel) else False)
             ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]))
-            if command in Commands.commandList:
+            if command in Commands._commandList:
                 try:
-                    return await cls.root(Command=command, Context=ctx, Arguments=args)
+                    return await cls._root(Command=command, Context=ctx, Arguments=args)
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
             elif command in fact_index:
@@ -74,35 +74,43 @@ class CommandGroup:
             else:
                 return
 
+    @property
+    def commandList(self):
+        return self._commandList
+
+    @property
+    def name(self):
+        return self._group_name
+
     def __init__(self, is_root: bool = False):
-        self.is_root = is_root
-        self.group_name = ""
-        self.commandList = {}
-        if CommandGroup.root is not None and is_root is True:
+        self._is_root = is_root
+        self._group_name = ""
+        self._commandList = {}
+        if CommandGroup._root is not None and is_root is True:
             raise CommandHandlerError("Can only have one root group")
         if is_root is True:
-            CommandGroup.root = self
-            self.group_name = "<ROOT>"
-        CommandGroup.grouplist.append(self)
+            CommandGroup._root = self
+            self._group_name = "<ROOT>"
+        CommandGroup._grouplist.append(self)
 
     def add_group(self, *names):
-        if self.is_root:
+        if self._is_root:
             raise CommandHandlerError("Can not add root group to any other group")
         for name in names:
-            CommandGroup.root.register(name, self, True if name == names[0] else False)
-        self.group_name = names[0]
+            CommandGroup._root._register(name, self, True if name == names[0] else False)
+        self._group_name = names[0]
 
     def command(self, *names):
         def decorator(function):
             for name in names:
-                self.register(name, function, True if name == names[0] else False)
+                self._register(name, function, True if name == names[0] else False)
             return function
         return decorator
 
-    def register(self, name, function, main: bool):
-        if name in self.commandList.keys():
+    def _register(self, name, function, main: bool):
+        if name in self._commandList.keys():
             raise CommandAlreadyExists
-        self.commandList[name] = (function, main)
+        self._commandList[name] = (function, main)
 
     async def __call__(self, Command: str, Context: Context, Arguments: List[str]):
         Command = Command.lower()
@@ -111,10 +119,10 @@ class CommandGroup:
             raise CommandHandlerError("(sub)command not found.")
         Cmd = self.commandList[Command][0]
         if isinstance(Cmd, CommandGroup):
-            subgroup = CommandGroup.get_group(name=Cmd.group_name)
+            subgroup = CommandGroup.get_group(name=Cmd._group_name)
             if len(Arguments) < 1:
                 return await Context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
-                                           f"{Cmd.group_name}: "
+                                           f"{Cmd._group_name}: "
                                            f"{', '.join(sub for sub in await subgroup.get_commands(True))}")
             await Cmd(Command=Arguments[0],
                       Context=Context, Arguments=Arguments[1:])
@@ -130,11 +138,11 @@ class CommandGroup:
 
     async def get_commands(self, mains: bool = False):
         if mains is False:
-            return list(self.commandList.keys())
+            return list(self._commandList.keys())
         else:
             cmdlist = []
-            for command in self.commandList:
-                if self.commandList[command][1] is True:
+            for command in self._commandList:
+                if self._commandList[command][1] is True:
                     cmdlist.append(str(command))
             return cmdlist
 
