@@ -20,6 +20,7 @@ from ...packages.configmanager import config_write, config
 from ...packages.command import CommandGroup, Commands
 
 Settings = CommandGroup()
+Settings.add_group("bot_management", "settings")
 
 @Settings.command("nick")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
@@ -76,10 +77,6 @@ async def cmd_offline(ctx, args: List[str]):
     # Write changes to config file
     await config_write("Offline Mode", "enabled", "{0}".format(set_to))
     await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")
-
-# Create the command group
-
-Settings.add_group("bot_management", "settings")
 
 
 @Commands.command("joinchannel")

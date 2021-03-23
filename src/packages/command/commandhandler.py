@@ -9,7 +9,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+from __future__ import annotations
 from typing import List
 import pydle
 
@@ -44,16 +44,34 @@ class Context:
         await self.bot.reply(self.channel, self.sender, self.in_channel, message)
 
 
-class Commands:
+class CommandGroup:
 
-    commandList = {}
+    grouplist = []
     is_root: bool = False
-    group_name: str = "<ROOT>" if is_root else "Unknown Group Name"
+    group_name: str
+    root: CommandGroup = None
 
-    def command(self, *args):
+    def __init__(self, is_root: bool = False):
+        self.commandList = {}
+        if CommandGroup.root is not None and is_root is True:
+            raise CommandHandlerError("Can only have one root group")
+        self.is_root = is_root
+        if is_root is True:
+            CommandGroup.root = self
+            self.group_name = "<ROOT>"
+        CommandGroup.grouplist.append(self)
+
+    def add_group(self, *names):
+        if self.is_root:
+            raise CommandHandlerError("Can not add root group to any other group")
+        for name in names:
+            CommandGroup.root.register(name, self, True if name == names[0] else False)
+        self.group_name = names[0]
+
+    def command(self, *names):
         def decorator(function):
-            for name in args:
-                self.register(name, function, True if name == args[0] else False)
+            for name in names:
+                self.register(name, function, True if name == names[0] else False)
             return function
         return decorator
 
@@ -62,12 +80,30 @@ class Commands:
             raise CommandAlreadyExists
         self.commandList[name] = (function, main)
 
+    async def __call__(self, Command: str, Context: Context, Arguments: List[str]):
+        Command = Command.lower()
+        breakpoint()
+        # Sanity check
+        if Command not in self.commandList:
+            raise CommandHandlerError("Command not found.")
+        Cmd = self.commandList[Command][0]
+        # TODO do this properly later
+        if isinstance(Cmd, CommandGroup):
+            if len(Arguments) < 1:
+                return await Context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
+                                           f"{Cmd.group_name}: "
+                                           f"{', '.join(sub for sub in await self.get_commands(True))}")
+            await Cmd(Command=Arguments[0],
+                      Context=Context, Arguments=Arguments[1:])
+        else:
+            try:
+                await Cmd(Context, Arguments)
+            except Exception as er:
+                raise CommandException(er)
+
     async def invoke(self, Command, Context: Context, Arguments: List[str]):
-        # This is just an alias for __call__
-        try:
-            await self.commandList[Command][0](Context, Arguments)
-        except Exception as er:
-            raise CommandException(er)
+        # This is just an alias for __call__:
+        await self.__call__(Command, Context, Arguments)
 
     async def get_commands(self, mains: bool = False):
         if mains is False:
@@ -80,40 +116,7 @@ class Commands:
             return cmdlist
 
 
-CommandRoot = Commands()
-
-class CommandGroup:
-
-    subcommandList = {}
-    group_name: str = "Unknown Group Name"
-
-    def add_group(self, *names):
-        for name in names:
-            CommandRoot.register(name, self, True if name == names[0] else False)
-        self.group_name = names[0]
-
-    def command(self, *args):
-        def decorator(function):
-            for name in args:
-                if name in self.subcommandList.keys():
-                    raise CommandAlreadyExists
-                self.subcommandList[name] = (function, True if name == args[0] else False)
-            return function
-
-        return decorator
-
-    async def __call__(self, Context: Context, Arguments: List[str]):
-        if len(Arguments) == 0:
-            return await Context.reply(f"Available {str(self.group_name)}: "
-                                       f"{', '.join(scmd for scmd in self.subcommandList.keys())}")
-        subcommand = Arguments[0].lower()
-        if subcommand in self.subcommandList.keys():
-            args = Arguments[1:]
-            await self.subcommandList[subcommand][0](Context, args)
-        else:
-            await Context.reply(f"Subcommand not found! Try {config['IRC']['commandPrefix']}"
-                                f"{self.group_name} to see all the options")
-
+Commands = CommandGroup(is_root=True)
 
 async def invoke_from_message(bot: pydle.Client, channel: str, sender: str, message: str):
     if message.startswith(config['IRC']['commandPrefix']):
@@ -122,9 +125,9 @@ async def invoke_from_message(bot: pydle.Client, channel: str, sender: str, mess
         args = parts[1:]
         in_channel = (True if bot.is_channel(channel) else False)
         ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]))
-        if command in CommandRoot.commandList:
+        if command in Commands.commandList:
             try:
-                return await CommandRoot.invoke(Command=command, Context=ctx, Arguments=args)
+                return await Commands(Command=command, Context=ctx, Arguments=args)
             except CommandException as er:
                 await ctx.reply(f"Unable to execute command: {str(er)}")
         elif command in fact_index:
