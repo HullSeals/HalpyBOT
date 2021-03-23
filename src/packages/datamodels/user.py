@@ -25,8 +25,7 @@ See license.md
 from __future__ import annotations
 from typing import Union, Optional
 from dataclasses import dataclass
-
-from ..command import Context
+import pydle
 
 
 @dataclass(frozen=True)
@@ -47,9 +46,9 @@ class User:
     nickname: str
 
     @classmethod
-    async def get_info(cls, ctx: Context, nickname: str) -> Optional[User]:
+    async def get_info(cls, bot: pydle.Client, nickname: str) -> Optional[User]:
         # fetch the user object from pydle
-        data = await ctx.bot.whois(nickname)
+        data = await bot.whois(nickname)
 
         # if we got a object back
         if data:
@@ -76,7 +75,7 @@ class User:
         return f"{host}.hullseals.space"
 
     @classmethod
-    async def get_channels(cls, ctx: Context, nick: str) -> Optional[list]:
-        user = await ctx.bot.whois(nick)
+    async def get_channels(cls, bot: pydle.Client, nick: str) -> Optional[list]:
+        user = await bot.whois(nick)
         channels = user['channels']
         return [ch.translate({ord(c): None for c in '+%@&~'}).lower() for ch in channels]
