@@ -57,7 +57,6 @@ class DatabaseConnection:
                     logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
                     # Set offline mode, can only be removed by restart
                     config_write('Offline Mode', 'enabled', 'True')
-                    # TODO send announcement message
                     raise NoDatabaseConnection
                 continue
 

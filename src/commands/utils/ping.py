@@ -14,7 +14,7 @@ import time
 
 from .. import Commands
 from ...packages.checks import *
-from ...packages.database import latency
+from ...packages.database import latency, NoDatabaseConnection
 from ...packages.edsm import GalaxySystem, EDSMLookupError
 
 @Commands.command("ping")
@@ -38,7 +38,10 @@ async def cmd_dbping(ctx, args: List[str]):
     Aliases: n/a
     """
     start = time.time()
-    latencycheck = await latency()
+    try:
+        latencycheck = await latency()
+    except NoDatabaseConnection:
+        return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):
         final = round(latencycheck - start, 2)
         await ctx.reply("Database Latency: " + str(final) + " seconds")

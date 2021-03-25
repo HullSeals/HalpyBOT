@@ -16,7 +16,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config/config.ini')
 
-async def config_write(module: str, key: str, value):
+def config_write(module: str, key: str, value):
     logging.info(f"{module}, {key} set to {value}")
     config[module][key] = value
     with open('config/config.ini', 'w') as conf:
