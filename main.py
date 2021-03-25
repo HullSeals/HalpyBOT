@@ -19,7 +19,7 @@ import functools
 
 from src.packages.command import CommandGroup
 from src.packages.announcer import announcer
-from src.packages.database import facts
+from src.packages.database import facts, DatabaseConnection, NoDatabaseConnection
 from src.packages.configmanager import config
 
 
@@ -40,10 +40,12 @@ class HalpyBOT(pydle.Client):
         for channel in channels:
             await self.join(channel)
             logging.info(f"Joining {channel}")
-        await offlinecheck()
+        await self.offline_monitor()
 
     async def on_message(self, target, nick, message):
         await super().on_channel_message(target, nick, message)
+        if message == f"{self.nickname} prefix":
+            return await self.message(target, f"Prefix: {config['IRC']['commandPrefix']}")
         await CommandGroup.invoke_from_message(self, target, nick, message)
         nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
         if target in config['Announcer']['channel'] and nick in nicks:
@@ -54,6 +56,28 @@ class HalpyBOT(pydle.Client):
             await self.message(channel, message)
         else:
             await self.message(sender, message)
+
+    # FIXME this works for now but take a look at this when time allows.
+    async def offline_monitor(self):
+        logging.debug("STARTING OFFLINECHECK")
+        try:
+            loop = asyncio.get_running_loop()
+            while True:
+                if config['Offline Mode']['enabled'] == 'True' and \
+                   config['Offline Mode']['warning override'] == 'False':
+                    for ch in om_channels:
+                        await self.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
+                                               "Contact a CyberSeal.")
+                await asyncio.sleep(300)
+                if config['Offline Mode']['enabled'] == 'False':
+                    # We only need to start the connection, DatabaseConnection will trip the CB if neccesary
+                    try:
+                        DatabaseConnection()
+                    except NoDatabaseConnection:
+                        continue
+                    await asyncio.sleep(300)
+        except asyncio.exceptions.CancelledError:
+            pass
 
 
 # Define the Client, mostly pulled from config.ini
@@ -88,21 +112,6 @@ async def shutdown(signal, loop):
 
 
 om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
-
-async def offlinecheck():
-    logging.debug("STARTING OFFLINECHECK")
-    try:
-        loop = asyncio.get_running_loop()
-        while True:
-            if config['Offline Mode']['enabled'] == 'True':
-                for ch in om_channels:
-                    await client.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
-                                             "Contact a CyberSeal.")
-            await asyncio.sleep(300)
-            if config['Offline Mode']['enabled'] == 'False':
-                await asyncio.sleep(300)
-    except asyncio.exceptions.CancelledError:
-        pass
 
 LOOP = None
 
