@@ -30,7 +30,7 @@ async def cmd_systemlookup(ctx, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    system = ' '.join(args[0:]).strip()
+    system = ctx.message.strip()
 
     # Input validation
     if not system:
@@ -61,8 +61,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    cmdr = ' '.join(args[0:])  # TODO replace by ctx method
-    cmdr = cmdr.strip()
+    cmdr = ctx.message.strip()
     # Input validation
     if not cmdr:
         return await ctx.reply("No arguments given! Please provide a CMDR name.")
@@ -137,7 +136,7 @@ async def cmd_landmarklookup(ctx, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    system = ' '.join(args[0:])  # TODO replace by ctx method
+    system = ctx.message.strip()
 
     try:
         landmark, distance = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
@@ -166,8 +165,7 @@ async def cmd_dssalookup(ctx, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    system = ' '.join(args[0:])  # TODO replace by ctx method
-    system = system.strip()
+    system = ctx.message.strip()
 
     try:
         dssa, distance = await checkdssa(SysName=system, CacheOverride=CacheOverride)
