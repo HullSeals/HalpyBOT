@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2
+HalpyBOT v1.3
 
 message_builder.py - Build the messages for the announcer
 
@@ -10,7 +10,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-
+from ..edsm import *
 from typing import List
 import main
 
@@ -24,6 +24,20 @@ async def codeblack(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def pc(ctx, args: List[str]):
     message = f"xxxx PCCASE -- NEWCASE xxxx \n" \
@@ -32,6 +46,20 @@ async def pc(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def xb(ctx, args: List[str]):
     message = f"xxxx XBCASE -- NEWCASE xxxx \n" \
@@ -40,6 +68,20 @@ async def xb(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def ps(ctx, args: List[str]):
     message = f"xxxx PSCASE -- NEWCASE xxxx \n" \
@@ -48,6 +90,20 @@ async def ps(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def plterr(ctx, args: List[str]):
     message = f"xxxx PLATFORM_ERROR -- NEWCASE xxxx \n" \
@@ -56,6 +112,20 @@ async def plterr(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def kingfisher_xb(ctx, args: List[str]):
     message = f"xxxx XBKFCASE -- NEWCASE xxxx\n" \
@@ -66,6 +136,20 @@ async def kingfisher_xb(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def kingfisher_pc(ctx, args: List[str]):
     message = f"xxxx PCKFCASE -- NEWCASE xxxx\n" \
@@ -76,6 +160,20 @@ async def kingfisher_pc(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def kingfisher_ps(ctx, args: List[str]):
     message = f"xxxx PSKFCASE -- NEWCASE xxxx\n" \
@@ -86,6 +184,20 @@ async def kingfisher_ps(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def kingfisher_plterr(ctx, args: List[str]):
     message = f"xxxx PLATFORM_ERROR -- NEWCASE xxxx\n" \
@@ -96,6 +208,20 @@ async def kingfisher_plterr(ctx, args: List[str]):
               f"xxxxxxxx"
     for ch in send_to('Announcer.cases', 'channels'):
         await ctx.bot.message(ch, message)
+        try:
+            if await GalaxySystem.exists(name=args[2], CacheOverride=False):
+                try:
+                    landmark, distance = await checklandmarks(SysName=args[2], CacheOverride=False)
+                    return await ctx.bot.message(ch, f"System exists in EDSM. The closest landmark system is {landmark} at {distance} LY.")
+                except NoResultsEDSM:
+                    return await ctx.bot.message(ch, f"System {args[2]} exists, but no landmark system nearby.")
+                except EDSMLookupError as er:
+                    return await ctx.reply(str(er))
+            else:
+                return await ctx.bot.message(ch, f"System {args[2]} not found in EDSM")
+
+        except EDSMLookupError as er:
+            return await ctx.bot.message(str(er))  # Return error if one is raised down the call stack.
 
 async def ppwk(ctx, args: List[str]):
     for ch in send_to('Announcer.paperwork', 'channels'):

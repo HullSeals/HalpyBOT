@@ -1,2 +1,2 @@
-from src.commands import *
-from src.packages import *
+from .commands import *
+from .packages import *

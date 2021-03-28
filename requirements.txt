@@ -4,3 +4,6 @@ pure-sasl~=0.6.2
 setuptools~=54.0.0
 mysql-connector~=2.2.9
 mysql~=0.0.2
+numpy~=1.20.1
+requests~=2.25.1
+pytest~=6.2.2

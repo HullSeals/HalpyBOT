@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2
+HalpyBOT v1.3
 
 settings.py - bot settings commands
 
@@ -13,14 +13,16 @@ See license.md
 from typing import List
 
 import pydle
-
-from src.packages.checks.checks import require_permission, DeniedMessage
-from main import config
 import logging
-from src.packages.configmanager.edit import config_write
-from .. import Commands
 
+from ...packages.checks import *
+from ...packages.configmanager import config_write, config
+from ...packages.command import CommandGroup, Commands
 
+Settings = CommandGroup()
+Settings.add_group("bot_management", "settings")
+
+@Settings.command("nick")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_nick(ctx, args: List[str]):
     """
@@ -32,9 +34,10 @@ async def cmd_nick(ctx, args: List[str]):
     logging.info(f"NICK CHANGE from {config['IRC']['nickname']} to {args[0]} by {ctx.sender}")
     await ctx.bot.set_nickname(args[0])
     # Write changes to config file
-    await config_write('IRC', 'nickname', args[0])
+    config_write('IRC', 'nickname', args[0])
 
 
+@Settings.command("prefix")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 async def cmd_prefix(ctx, args: List[str]):
     """
@@ -45,28 +48,68 @@ async def cmd_prefix(ctx, args: List[str]):
     Aliases: settings prefix
     """
     logging.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")
-    await config_write('IRC', 'commandPrefix', args[0])
+    config_write('IRC', 'commandPrefix', args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
     await ctx.bot.message(f"#cybers", f"Warning, prefix changed to {args[0]} by "
                                       f"{ctx.sender}! Rik079!")
 
+@Settings.command("offline")
+@require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@require_channel()
+async def cmd_offline(ctx, args: List[str]):
+    """
+    Change the status of Offline mode.
 
-# Create the command group
+    Usage: !bot_management offline [Status]
+    Aliases: settings offline
+    """
+    if not len(args) == 1:
+        if len(args) == 0:
+            return await ctx.reply(f"Current offline setting: {config['Offline Mode']['enabled']}")
+        return await ctx.reply("Usage: !bot_management offline [Status]")
 
-@Commands.command("settings", "bot_management")
-async def cmd_group_settings(ctx, args: List[str]):
-    subcommands = {
-        'nick': cmd_nick,
-        'prefix': cmd_prefix,
-    }
-    if len(args) == 0:
-        await ctx.reply(f"Available bot_management: {', '.join(scmd for scmd in subcommands.keys())}")
-    elif args[0] in subcommands.keys():
-        subcommand = args[0]
-        args = args[1:]
-        await subcommands[subcommand](ctx, args)
+    if args[0].lower() == "true" and config['Offline Mode']['enabled'] != 'True':
+        set_to = "True"
+    elif args[0].lower() == "false" and config['Offline Mode']['enabled'] != 'False':
+        set_to = "False"
+        config_write('Offline Mode', 'warning override', 'False')
     else:
-        await ctx.reply("Subcommand not found! Try !bot_management to see all the options")
+        return await ctx.reply("Error! Invalid parameters given or already in mode. Status not changed.")
+
+    logging.info(f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to {set_to.upper()} by {ctx.sender}")
+    # Write changes to config file
+    config_write("Offline Mode", "enabled", "{0}".format(set_to))
+    await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")
+
+
+@Settings.command("warning_override")
+@require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+async def cmd_override_omw(ctx, args: List[str]):
+    """
+    Enable override for offline mode notifications
+
+    Usage: !settings warning_override [Enable/True | Disable/False]
+    Aliases: n/a
+    """
+
+    if len(args) not in (0, 1):
+        return await ctx.reply("Cannot comply: invalid parameters given.")
+    if len(args) == 0:
+        return await ctx.reply(f"Warning Override setting: {config['Offline Mode']['warning override']}")
+
+    request = args[0].lower()
+
+    if request in ('enable', 'true'):
+        config_write('Offline Mode', 'warning override', 'True')
+        request = True
+    elif request in ('disable', 'false'):
+        config_write('Offline Mode', 'warning override', 'False')
+        request = False
+    else:
+        return await ctx.reply("Usage: !settings warning_override [enable | disable]")
+
+    return await ctx.reply(f"Override has been {'enabled.' if request is True else 'disabled.'} You MUST "
+                           f"inform an on-duty cyberseal of this action immediately.")
 
 
 @Commands.command("joinchannel")

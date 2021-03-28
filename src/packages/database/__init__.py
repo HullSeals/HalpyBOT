@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.2
+HalpyBOT v1.3
 
 database\__init__.py - Database connection initialization script
 
@@ -11,14 +11,12 @@ See license.md
 """
 
 # PyCharm tells me these imports are not used, but they are. Do not remove.
-import configparser
 import mysql.connector
 import logging
+import time
+from ..configmanager import config_write, config
 
 from ..database import *
-
-config = configparser.ConfigParser()
-config.read('config/config.ini')
 
 dbconfig = {"user": config['Database']['user'],
             "password": config['Database']['password'],
@@ -58,8 +56,7 @@ class DatabaseConnection:
                 if _ == 2:
                     logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
                     # Set offline mode, can only be removed by restart
-                    offline_mode = True
-                    # TODO send announcement message
+                    config_write('Offline Mode', 'enabled', 'True')
                     raise NoDatabaseConnection
                 continue
 
@@ -67,8 +64,14 @@ class DatabaseConnection:
         self.cnx.close()
 
 
-#   async def announce_offline(self):
-#       for ch in om_channels:
-#           await main.HalpyBOT.message(ch, "ATTENTION: HalpyBOT has entered OFFLINE MODE. "
-#                                           "Database-related functions are no longer available. "
-#                                           "Please contact a cyberseal immediately!")
+async def latency():
+    get_query = "SELECT 'latency';"
+    try:
+        db = DatabaseConnection()
+        cursor = db.cursor
+        cursor.execute(get_query)
+        db.close()
+    except NoDatabaseConnection:
+        raise
+    end = time.time()
+    return end
