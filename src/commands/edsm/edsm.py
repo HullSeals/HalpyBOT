@@ -24,17 +24,17 @@ async def cmd_systemlookup(ctx, args: List[str]):
     Usage: !lookup <--new> [system name]
     Aliases: syslookup
     """
-    CacheOverride = False
 
+    # Input validation
+    if not args:
+        return await ctx.reply("No system given! Please provide a system name.")
+
+    CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
         del args[0]
 
-    system = ' '.join(args[0:]).strip()
-
-    # Input validation
-    if not system:
-        return await ctx.reply("No system given! Please provide a system name.")
+    system = ctx.message.strip()
 
     try:
         if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
@@ -55,17 +55,16 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
     Aliases: cmdrlookup, locate
     """
 
-    CacheOverride = False
+    # Input validation
+    if not args:
+        return await ctx.reply("No arguments given! Please provide a CMDR name.")
 
+    CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
         del args[0]
 
-    cmdr = ' '.join(args[0:])  # TODO replace by ctx method
-    cmdr = cmdr.strip()
-    # Input validation
-    if not cmdr:
-        return await ctx.reply("No arguments given! Please provide a CMDR name.")
+    cmdr = ctx.message.strip()
 
     try:
         location = await Commander.location(name=cmdr, CacheOverride=CacheOverride)
@@ -87,12 +86,11 @@ async def cmd_distlookup(ctx, args: List[str]):
     Aliases: dist
     """
 
-    CacheOverride = False
-
     # Input validation
     if not args:
         return await ctx.reply("Please provide two points to look up, separated by a :")
 
+    CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
         del args[0]
@@ -137,7 +135,7 @@ async def cmd_landmarklookup(ctx, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    system = ' '.join(args[0:])  # TODO replace by ctx method
+    system = ctx.message.strip()
 
     try:
         landmark, distance = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
@@ -166,8 +164,7 @@ async def cmd_dssalookup(ctx, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    system = ' '.join(args[0:])  # TODO replace by ctx method
-    system = system.strip()
+    system = ctx.message.strip()
 
     try:
         dssa, distance = await checkdssa(SysName=system, CacheOverride=CacheOverride)
