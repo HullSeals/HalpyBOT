@@ -74,7 +74,7 @@ class GalaxySystem:
             response = requests.get("https://www.edsm.net/api-v1/system",
                                     params={"systemName": name,
                                             "showCoordinates": 1,
-                                            "showInformation": 1})
+                                            "showInformation": 1}, timeout=10)
             responses = response.json()
 
         except requests.exceptions.RequestException as er:
@@ -132,7 +132,7 @@ class Commander:
         try:
             response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
                                     params={"commanderName": name,
-                                            "showCoordinates": 1})
+                                            "showCoordinates": 1}, timeout=10)
             responses = response.json()
 
         except (requests.exceptions.RequestException, KeyError) as er:
