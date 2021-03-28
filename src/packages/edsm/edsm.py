@@ -179,58 +179,58 @@ class Commander:
 async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     # Set default values
-    coordsA, coordsB, is_SysA, is_SysB = 0, 0, False, False
+    coordsA, coordsB = None, None
 
     try:
         system1 = await GalaxySystem.get_info(name=sysa, CacheOverride=CacheOverride)
         system2 = await GalaxySystem.get_info(name=sysb, CacheOverride=CacheOverride)
 
         if system1 is not None:
-            coordsA, is_SysA = system1.coords, True
+            coordsA = system1.coords
         if system2 is not None:
-            coordsB, is_SysB = system2.coords, True
+            coordsB = system2.coords
 
     except EDSMLookupError:
         raise
 
-    if not is_SysA:
+    if not coordsA:
         try:
             cmdr1 = await Commander.location(name=sysa, CacheOverride=CacheOverride)
             if cmdr1 is not None:
-                coordsA, is_SysA = cmdr1.coordinates, True
+                coordsA = cmdr1.coordinates
         except EDSMLookupError:
             raise
 
-    if not is_SysB:
+    if not coordsB:
         try:
             cmdr2 = await Commander.location(name=sysb, CacheOverride=CacheOverride)
             if cmdr2 is not None:
-                coordsB, is_SysB = cmdr2.coordinates, True
+                coordsB = cmdr2.coordinates
         except EDSMLookupError:
             raise
 
-    if is_SysA and is_SysB:
+    if coordsA and coordsB:
         distance = await calc_distance(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'],
                                        coordsA['z'], coordsB['z'])
         distance = f'{distance:,}'
         return distance
 
-    if not is_SysA:
-        raise NoResultsEDSM(f"No system and/or commander named {sysa} was found in the EDSM database.")
+    if not coordsA:
+        raise NoResultsEDSM(f"No system and/or commander named '{sysa}' was found in the EDSM database.")
 
-    if not is_SysB:
-        raise NoResultsEDSM(f"No system and/or commander named {sysb} was found in the EDSM database.")
+    if not coordsB:
+        raise NoResultsEDSM(f"No system and/or commander named '{sysb}' was found in the EDSM database.")
 
 
 async def checklandmarks(SysName, CacheOverride: bool = False):
     global landmarks
     # Set default values
-    Coords, LMCoords, Is_Sys = 0, 0, None
+    Coords, LMCoords, = None, None
 
     try:
         system = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
         if system is not None:
-            Coords, Is_Sys = system.coords, True
+            Coords = system.coords
     except EDSMLookupError:
         raise
 
@@ -239,7 +239,7 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
         try:
             system = await Commander.location(name=SysName, CacheOverride=CacheOverride)
             if system is not None:
-                Coords, Is_Sys = system.coordinates, True
+                Coords = system.coordinates
         except EDSMLookupError:
             raise
 
@@ -270,32 +270,32 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
         else:
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {SysName}.")
 
-    if not Is_Sys:
+    if not Coords:
         raise NoResultsEDSM(f"No system and/or commander named {SysName} was found in the EDSM database.")
 
 
 async def checkdssa(SysName, CacheOverride: bool = False):
     global dssas
     # Set default values
-    Coords, LMCoords, Is_Sys = 0, 0, None
+    Coords, LMCoords, maxdist = None, None, None
 
     try:
-        dssa = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
-        if dssa is not None:
-            Coords, Is_Sys = dssa.coords, True
+        sys = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
+        if sys:
+            Coords = sys.coords
     except EDSMLookupError:
         raise
 
-    if dssa is None:
+    if not sys:
 
         try:
-            dssa = await Commander.location(name=SysName, CacheOverride=CacheOverride)
-            if dssa is not None:
-                Coords, Is_Sys = dssa.coordinates, True
+            cmdr = await Commander.location(name=SysName, CacheOverride=CacheOverride)
+            if cmdr:
+                Coords = cmdr.coordinates
         except EDSMLookupError:
             raise
 
-    if dssa is not None:
+    if Coords:
 
         currclosest = None
 
@@ -304,8 +304,6 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             with open('src/packages/edsm/dssa.json') as jsonfile:
                 dssas = json.load(jsonfile)
 
-        maxdist = "999999999999" # Basically Infinite.
-
         for dssa in range(len(dssas)):
             currdssa = dssas[dssa]['name']
             DSSACoords = dssas[dssa]['coords']
@@ -313,7 +311,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             distancecheck = await calc_distance(Coords['x'], DSSACoords['x'],
                                                 Coords['y'], DSSACoords['y'],
                                                 Coords['z'], DSSACoords['z'])
-            if float(distancecheck) < float(maxdist):
+            if float(distancecheck) < float(maxdist) or maxdist is None:
                 currclosest = currdssa
                 maxdist = distancecheck
 
@@ -322,7 +320,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
         else:
             raise NoResultsEDSM(f"No DSSA Carriers Found.")
 
-    if not Is_Sys:
+    if not Coords:
         raise NoResultsEDSM(f"No system and/or commander named {SysName} was found in the EDSM database.")
 
 
