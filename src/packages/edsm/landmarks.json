@@ -1,0 +1,46 @@
+[
+    {
+      "Name": "Sol",
+      "Coords": {"x": 0, "y": 0, "z": 0}
+    },
+    {
+      "Name": "Beagle Point",
+      "Coords": {"x": -1111.5625, "y": -134.21875, "z": 65269.75}
+    },
+    {
+      "Name": "Colonia",
+      "Coords": {"x": -9530.5, "y": -910.28125, "z": 19808.125}
+    },
+    {
+      "Name": "Sag A*",
+      "Coords": {"x": 25.21875, "y": -20.90625, "z": 25899.96875}
+    },
+    {
+      "Name": "HSRC Limpet's Call",
+      "Coords": {"x": -681.09375, "y": -950.5625, "z": 34219.34375}
+    },
+    {
+      "Name": "Galactic East (Chanoa QK-C d14-0)",
+      "Coords": {"x": 39307.25, "y": -92.4375, "z": 19338.375}
+    },
+    {
+      "Name": "Galactic West (Sphiesi HX-L d7-0)",
+      "Coords": {"x": -42213.8125, "y": -19.21875, "z": 35418.71875}
+    },
+    {
+      "Name": "Centauri Shores (Pria Chrea IW-N d6-19)",
+      "Coords": {"x": 14730.53125, "y": 98.96875, "z": 49486.9375}
+    },
+    {
+      "Name": "Pueliae QT-R e4-0 (Spinney)",
+      "Coords": {"x": 18189.75, "y": 470.09375, "z": 13815.28125}
+    },
+    {
+      "Name": "Dante's Inferno (Auphaigh CL-Y g1)",
+      "Coords": {"x": -9896.90625, "y": 33.03125, "z": 51274.5}
+    },
+    {
+    "Name": "Star One (Byaa Thoi GC-D d12-0)",
+    "Coords": {"x": -35413.03125, "y": -14.75, "z": 3821.46875}
+    }
+]

@@ -10,7 +10,7 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.2
+HalpyBOT v1.3
 
 checks.py - Check check check...
 
@@ -24,7 +24,8 @@ See license.md
 
 import functools
 from typing import List
-from ..datamodels.user import User
+
+from ..datamodels import User
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,
@@ -66,7 +67,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
         @functools.wraps(function)
         async def guarded(ctx, args: List[str]):
             # Get role
-            whois = await User.get_info(ctx, ctx.sender)
+            whois = await User.get_info(ctx.bot, ctx.sender)
             modes = User.process_vhost(whois.hostname)
             # Find user level
             userlevel = levels[modes]

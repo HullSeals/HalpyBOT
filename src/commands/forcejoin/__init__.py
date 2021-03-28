@@ -1,1 +1,1 @@
-from ..forcejoin.forcejoin import *
+from .forcejoin import *
