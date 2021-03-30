@@ -30,6 +30,11 @@ import pydle
 
 @dataclass(frozen=True)
 class User:
+    """IRC User info
+
+    Info about a user from WHOIS
+
+    """
     oper: bool
     idle: int
     away: bool
@@ -47,6 +52,16 @@ class User:
 
     @classmethod
     async def get_info(cls, bot: pydle.Client, nickname: str) -> Optional[User]:
+        """Get WHOIS info about a user
+
+        Args:
+            bot (pydle.Client): IRC Client
+            nickname: User's nickname
+
+        Returns:
+            (Optional[User]): User object if successful, else None
+
+        """
         # fetch the user object from pydle
         data = await bot.whois(nickname)
 
@@ -57,7 +72,20 @@ class User:
             return None
 
     @classmethod
+    # FIXME this should be Optional[str], but I don't want to touch it now since I don't
+    # FIXME have time to test
     def process_vhost(cls, vhost: Union[str, None]) -> Optional[str]:
+        """Get a users vhost-role
+
+        Format <role>.hullseals.space
+
+        Args:
+            vhost (str): The full vhost of the user
+
+        Returns:
+            (Optional[str]): Vhost if identified, else None
+
+        """
         # sanity check
         if vhost is None:
             return None
@@ -76,6 +104,16 @@ class User:
 
     @classmethod
     async def get_channels(cls, bot: pydle.Client, nick: str) -> Optional[list]:
+        """Get a list of channels a user is on
+
+        Args:
+            bot (pydle.Client): IRC Client
+            nick (str): User's nickname
+
+        Returns:
+            (list): List of channels the user is on, without channel user status symbols
+
+        """
         user = await bot.whois(nick)
         channels = user['channels']
         return [ch.translate({ord(c): None for c in '+%@&~'}).lower() for ch in channels]
