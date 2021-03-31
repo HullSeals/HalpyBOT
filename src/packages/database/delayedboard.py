@@ -15,6 +15,25 @@ from ..utils import strip_non_ascii
 
 
 async def create_delayed_case(casestat, message, author):
+    """Create a new case on the Delayed Board
+
+
+    Args:
+        casestat (str): 1 for `needs seals`, 2 for `waiting for seals/client to arrive`
+        message (str): Notes for the case
+        author (str): Nickname of user who created the case
+
+    Returns:
+        (list):
+
+            0 - ID (int): the ID for the created case
+            1 - Status (int): `0` if successful, `1` if failed
+            2 - Error (str): If status 1, error message
+
+    Raises:
+        NoDatabaseConnection: When no connection to the database could be established
+
+    """
     message = strip_non_ascii(message)
     in_args = [int(casestat), str(message[0]), author, 0, 0, 0]
     out_args = []
@@ -33,6 +52,25 @@ async def create_delayed_case(casestat, message, author):
 
 
 async def reopen_delayed_case(cID, casestat, author):
+    """Reopen a previously closed case on the Delayed Board
+
+    Args:
+        cID (int): the ID of the case to be reopened
+        casestat (str): New status: 1 for `needs seals`,
+            2 for `waiting for seals/client to arrive`
+        author (str): Nickname of user
+
+    Returns:
+        (list):
+
+            0 - ID (int): ID of the reopened case
+            1 - Status (int): `0` if successful, `1` if failed
+            2 - Error (str): If status 1, error message
+
+    Raises:
+        NoDatabaseConnection: When no connection to the database could be established
+
+    """
     in_args = [int(cID), int(casestat), author, 0, 0, 0]
     out_args = []
     try:
@@ -49,6 +87,25 @@ async def reopen_delayed_case(cID, casestat, author):
 
 
 async def update_delayed_status(cID, casestat, author):
+    """Update status code of a Delayed Case
+
+    Args:
+        cID (int): the ID of the case to be updated
+        casestat (int): New status code: 1 for `needs seals`,
+            2 for `waiting for seals/client to arrive`
+        author (str): Nickname of user
+
+    Returns:
+        (list):
+
+            0 - ID (int): ID of the reopened case
+            1 - Status (int): `0` if successful, `1` if failed
+            2 - Error (str): If status 1, error message
+
+    Raises:
+        NoDatabaseConnection: When no connection to the database could be established
+
+    """
     in_args = [int(cID), int(casestat), author, 0, 0, 0]
     out_args = []
     try:
@@ -82,6 +139,15 @@ async def update_delayed_notes(cID, message, author):
     return out_args
 
 async def check_delayed_cases():
+    """Check for cases on the Delayed Board
+
+    Returns:
+        (int): Number of cases currently opened
+
+    Raises:
+        NoDatabaseConnection: When no connection to the database could be established
+
+    """
     try:
         db = DatabaseConnection()
         cursor = db.cursor
@@ -90,6 +156,7 @@ async def check_delayed_cases():
                        "WHERE case_status IN (1, 2);")
         for res in cursor.fetchall():
             result = res[0]
+        db.close()
         # Return the total amount of open delayed cases on the board
         return result
     except NoDatabaseConnection:
