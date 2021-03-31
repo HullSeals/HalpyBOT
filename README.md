@@ -49,4 +49,4 @@ Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome-t
 This project is governed under the [GNU General Public License v3.0](LICENSE) license.
 
 # Project Status
-The bot is running v1.3 in production, but still under active development.
+The bot is running v1.3.1 in production, but still under active development.

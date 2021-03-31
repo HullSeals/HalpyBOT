@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3
+HalpyBOT v1.3.1
 
 edsm.py - Elite: Dangerous Star Map API interface module
 
@@ -449,7 +449,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             distancecheck = await calc_distance(Coords['x'], DSSACoords['x'],
                                                 Coords['y'], DSSACoords['y'],
                                                 Coords['z'], DSSACoords['z'])
-            if float(distancecheck) < float(maxdist) or maxdist is None:
+            if maxdist is None or (float(distancecheck) < float(maxdist)):
                 currclosest = currdssa
                 maxdist = distancecheck
 

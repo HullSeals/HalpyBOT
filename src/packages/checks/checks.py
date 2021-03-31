@@ -10,7 +10,7 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.3
+HalpyBOT v1.3.1
 
 checks.py - Check check check...
 
