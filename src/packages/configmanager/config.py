@@ -17,6 +17,14 @@ config = configparser.ConfigParser()
 config.read('config/config.ini')
 
 def config_write(module: str, key: str, value):
+    """Write a value to the configuration file
+
+    Args:
+        module (str): The config module you want to write to
+        key (str): The config entry you want to edit
+        value (str): New value
+
+    """
     logging.info(f"{module}, {key} set to {value}")
     config[module][key] = value
     with open('config/config.ini', 'w') as conf:
