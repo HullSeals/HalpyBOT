@@ -11,7 +11,6 @@ See license.md
 """
 
 
-import mysql.connector
 import logging
 import json
 
@@ -107,18 +106,37 @@ async def get_facts(startup: bool = False):
         cursor.execute(get_query)
         for (factName, factText) in cursor:
             facts[str(factName)] = factText
-        await update_fact_index()
         db.close()
     except NoDatabaseConnection:
         # Get facts from the backup file if we have no connection
         logging.error("ERROR in getting facts from DB")
-        await get_offline_facts()
+        get_offline_facts()
         if not startup:
             raise
-        return await update_fact_index()
+    finally:
+        await update_fact_index()
 
 
-async def get_offline_facts():
+def get_offline_facts():
     global facts
-    with open('src/facts/backup_facts.json') as json_file:
+    with open('src/facts/backup_facts.json', 'r') as json_file:
         facts = json.load(json_file)
+
+async def recite_fact(ctx, args, fact: str):
+
+    # Sanity check
+    if fact not in facts:
+        return await ctx.reply("Cannot find fact! contact a cyberseal")
+
+    # Public and PM, 1 version
+    if f"{fact}_no_args" not in facts:
+        if len(args) == 0:
+            return await ctx.reply(facts[str(fact)])
+        else:
+            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+
+    # Public and PM, args and noargs
+    if len(args) == 0:
+        await ctx.reply(facts[f"{str(fact)}_no_args"])
+    else:
+        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")

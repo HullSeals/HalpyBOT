@@ -13,7 +13,7 @@ from __future__ import annotations
 from typing import List
 import pydle
 
-from ..database.facts import fact_index, facts
+from ..database.facts import fact_index, recite_fact
 from ..configmanager import config
 
 class CommandException(Exception):
@@ -146,24 +146,5 @@ class CommandGroup:
                     cmdlist.append(str(command))
             return cmdlist
 
-
-async def recite_fact(ctx, args: List[str], fact: str):
-
-    # Sanity check
-    if fact not in facts:
-        return await ctx.reply("Cannot find fact! contact a cyberseal")
-
-    # Public and PM, 1 version
-    if f"{fact}_no_args" not in facts:
-        if len(args) == 0:
-            return await ctx.reply(facts[str(fact)])
-        else:
-            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
-
-    # Public and PM, args and noargs
-    if len(args) == 0:
-        await ctx.reply(facts[f"{str(fact)}_no_args"])
-    else:
-        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
 
 Commands = CommandGroup(is_root=True)
