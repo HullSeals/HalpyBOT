@@ -56,3 +56,47 @@ Otherwise, use the type of request:
 `[Doc] Make documentation even more awesome`
 
 `[Fix] Solve issue that made bot eat rotten fish`
+
+## Other
+
+### Docstrings
+
+#### Non-commands
+
+This project uses [Google Style Python Docstrings](https://gist.github.com/redlotus/3bc387c2591e3e908c9b63b97b11d24e) for non-commands
+(functions that do not directly interact with a command handler)
+
+#### Commands
+
+For commands, use this simple, custom style:
+
+```python
+"""
+What this command does
+
+Usage: !primary_name <subcommand> [required argument] (optional argument)
+Aliases: secondary_name
+"""
+```
+
+#### Files
+
+Files that contain any meaningful code (use your own judgement here)
+have to start with a docstring of the following format:
+
+```python
+"""
+HalpyBOT v[VERSION]
+
+file_name.py - One-sentence description of what this file does.
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+```
+
+if the file makes use of licensed material, you must comply with all copyright
+and license notice requirements listed in the license of said material. 

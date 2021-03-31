@@ -1,5 +1,5 @@
 {
-    "about": "HalpyBOT v 1.1\nDeveloped by the Hull Seals, and based off of Pydle.\nHalpyBOT Docs: https://gitlab.com/hull-seals/code/irc/halpybot\nPydle: https://github.com/Shizmob/pydle/",
+    "about": "HalpyBOT v 1.3  -- OPERATING IN OFFLINE MODE\nDeveloped by the Hull Seals, and based off of Pydle.\nHalpyBOT Docs: https://gitlab.com/hull-seals/code/irc/halpybot\nPydle: https://github.com/Shizmob/pydle/",
     "go": "You're up. All others, stand down.",
     "go_no_args": "Mentioned Seals, You're up. All others, stand down.",
     "beacon": "To turn on your beacon, Go to the right-hand menu, and select to the 'Ship' tab. (1/2)\nUnder Functions, select 'Beacon', and then select 'Wing'. (2/2)",

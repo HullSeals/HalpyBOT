@@ -51,23 +51,45 @@ class EDSMQuery:
 
 @dataclass(frozen=True)
 class GalaxySystem:
+    """EDSM system object
+
+    System info received from the EDSM API.
+
+    """
     name: str
     coords: Coordinates
     coordsLocked: bool
     information: SystemInfo
 
-    lookupCache = {}
+    _lookupCache = {}
 
     @classmethod
     async def get_info(cls, name, CacheOverride: bool = False) -> Optional[GalaxySystem]:
+        """Get a system object from the EDSM API.
 
+        If the same object was requested less than
+        5 minutes ago, it will be retrieved from the internal lookup cache instead. This time
+        can be adjusted in config.ini
+
+        Args:
+            name (str): The system's name
+            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+
+        Returns:
+            (`GalaxySystem` or None): An EDSM system object, None if unsuccessful.
+
+        Raises:
+            EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+
+        """
         # Check if cached
-        if name.strip().upper() in GalaxySystem.lookupCache.keys() and CacheOverride is False:
+        if name.strip().upper() in cls._lookupCache.keys() and CacheOverride is False:
             # If less than five minutes ago return stored object
-            lookuptime = GalaxySystem.lookupCache[name.strip().upper()].time
+            lookuptime = cls._lookupCache[name.strip().upper()].time
             cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
             if time() < lookuptime + cachetime:
-                return GalaxySystem.lookupCache[name.strip().upper()].object
+                return cls._lookupCache[name.strip().upper()].object
 
         # Else, get the system from EDSM
         try:
@@ -88,11 +110,27 @@ class GalaxySystem:
             sysobj = cls(**responses)
 
         # Store in cache and return
-        GalaxySystem.lookupCache[name.strip().upper()] = EDSMQuery(sysobj, time())
+        cls._lookupCache[name.strip().upper()] = EDSMQuery(sysobj, time())
         return sysobj
 
     @classmethod
     async def exists(cls, name, CacheOverride: bool = False) -> bool:
+        """Check if a system exists in EDSM
+
+        This uses the same caching mechanics as get_info
+
+        Args:
+            name (str): The system's name
+            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+
+        Returns:
+            (bool): True if system exists in EDSM, else false
+
+        Raises:
+            EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+
+        """
         try:
             obj = await cls.get_info(name, CacheOverride)
         except EDSMConnectionError:
@@ -105,6 +143,11 @@ class GalaxySystem:
 
 @dataclass(frozen=True)
 class Commander:
+    """EDSM commander object
+
+    Commander info received from the EDSM API
+
+    """
     name: str
     system: str
     coordinates: Coordinates
@@ -116,18 +159,36 @@ class Commander:
     dateLastActivity: str
     shipFuel: Optional
 
-    lookupCache = {}
+    _lookupCache = {}
 
     @classmethod
     async def get_cmdr(cls, name, CacheOverride: bool = False) -> Optional[Commander]:
+        """Get info about a CMDR from EDSM
+
+        If the same object was requested less than
+        5 minutes ago, it will be retrieved from the internal lookup cache instead. This time
+        can be adjusted in config.ini
+
+        Args:
+            name (str): CMDR name
+            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+
+        Returns:
+            (`Commander` or None): Commander object if CMDR exists in EDSM, else None
+
+        Raises:
+            EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+
+        """
 
         # Check if cached
-        if name.strip().upper() in Commander.lookupCache.keys() and CacheOverride is False:
+        if name.strip().upper() in cls._lookupCache.keys() and CacheOverride is False:
             # If less than five minutes ago return stored object
-            lookuptime = Commander.lookupCache[name.strip().upper()].time
+            lookuptime = cls._lookupCache[name.strip().upper()].time
             cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
             if time() < lookuptime + cachetime:
-                return Commander.lookupCache[name.strip().upper()].object
+                return cls._lookupCache[name.strip().upper()].object
 
         try:
             response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
@@ -154,11 +215,36 @@ class Commander:
             cmdrobj = cls(**responses, name=name)
 
         # Store in cache and return
-        Commander.lookupCache[name.strip().upper()] = EDSMQuery(cmdrobj, time())
+        cls._lookupCache[name.strip().upper()] = EDSMQuery(cmdrobj, time())
         return cmdrobj
 
     @classmethod
     async def location(cls, name, CacheOverride: bool = False) -> Optional[Location]:
+        """Get a CMDRs location
+
+        Get a Location object for an EDSM commander.
+
+        Args:
+            name (str): CMDR name
+            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+
+        Returns:
+            (`Location` or None): CMDRs location if found, else None.
+
+                `Location.system` is the system the cmdr is currently in.
+                `Location.coordinates` can be accessed as a dict:
+
+                {
+                   "x": Union[float, int],
+                   "y": Union[float, int],
+                   "z": Union[float, int]
+                }
+
+        Raises:
+            EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+
+        """
         try:
             location = await Commander.get_cmdr(name=name, CacheOverride=CacheOverride)
         except EDSMConnectionError:
@@ -177,7 +263,24 @@ class Commander:
 
 
 async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
+    """Check distance between two EDSM points
 
+    Both data points must be known to EDSM.
+
+    Args:
+        sysa (str): Either a CMDR or system name
+        sysb (str): Either a CMDR or system name
+        CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+
+    Returns:
+        (str): Distance, formatted as xx,yyy.zz
+
+    Raises:
+        EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+        NoResultsEDSM: No point was found for either A, B, or both.
+
+    """
     # Set default values
     coordsA, coordsB = None, None
 
@@ -223,6 +326,23 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
 
 async def checklandmarks(SysName, CacheOverride: bool = False):
+    """Retrieve distance between EDSM point and landmark
+
+    The landmarks used in this function are specified in landmarks.json
+
+    Args:
+        SysName (str): Name of the EDSM object
+        CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+
+    Returns:
+        (str): Distance between point and landmark, in the format xx,yyy.zz
+
+    Raises:
+        EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+        NoResultsEDSM: No point was found for `SysName`
+
+    """
     global landmarks
     # Set default values
     Coords, LMCoords, = None, None
@@ -275,6 +395,24 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
 
 
 async def checkdssa(SysName, CacheOverride: bool = False):
+    """Check distance to nearest DSSA carrier
+
+    Last updated 2021-03-22 w/ 93 Carrier
+
+    Args:
+        SysName (str): System name
+        CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+
+    Returns:
+        (str): Distance between point and DSSA carrier, in the format xx,yyy.zz
+
+    Raises:
+        EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+        NoResultsEDSM: No point was found for `SysName`.
+
+
+    """
     global dssas
     # Set default values
     Coords, LMCoords, maxdist = None, None, None
@@ -325,6 +463,23 @@ async def checkdssa(SysName, CacheOverride: bool = False):
 
 
 async def calc_distance(x1, x2, y1, y2, z1, z2):
+    """Calculate distance XYZ -> XYZ
+
+    Only call this method directly when the coordinates of both points are known. If
+    only the point names are known, use `edsm/checkdistance` instead.
+
+    Args:
+        x1 (int or float): X-coordinate of point A
+        x2 (int or float): X-coordinate of point B
+        y1 (int or float): Y-coordinate of point A
+        y2 (int or float): Y-coordinate of point B
+        z1 (int or float): Z-coordinate of point A
+        z2 (int or float): Z-coordinate of point B
+
+    Returns:
+        (float): Distance between two points
+
+    """
     p1 = np.array([x1, y1, z1])
     p2 = np.array([x2, y2, z2])
     squared_dist = np.sum((p1 - p2) ** 2, axis=0)
