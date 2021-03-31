@@ -40,11 +40,11 @@ class Context:
         """Create message context object
 
         Args:
-            bot: botclient/pseudoclient
-            channel: channel message was sent in
-            sender: user who sent the message
-            in_channel: True if in a channel, False if in DM
-            message: message content
+            bot (`pydle.Client`): botclient/pseudoclient
+            channel (str): channel message was sent in
+            sender (str): user who sent the message
+            in_channel (bool): True if in a channel, False if in DM
+            message (str): message content
 
         """
         self.bot = bot
@@ -70,9 +70,6 @@ class CommandGroup:
 
     Group registered as CommandGroup._root will be loaded by client on startup
 
-    Methods:
-        (get_group): a
-
     """
 
     _grouplist = []
@@ -86,7 +83,7 @@ class CommandGroup:
             name (str): Name of the command group
 
         Returns:
-            (Optional[CommandGroup]): Command group object if found, else None
+            (`CommandGroup` or None): Command group object if found, else None
 
         """
         for group in cls._grouplist:
@@ -102,10 +99,10 @@ class CommandGroup:
         with arguments [1, "test"]
 
         Args:
-            bot: botclient/pseudoclient the command was called from
-            channel: channel the message was sent in
-            sender: user who invoked the command
-            message: content of the message
+            bot (`pydle.Client`): botclient/pseudoclient the command was called from
+            channel (str): channel the message was sent in
+            sender (str): user who invoked the command
+            message (str): content of the message
 
         """
         if message.startswith(config['IRC']['commandPrefix']):
@@ -126,7 +123,7 @@ class CommandGroup:
 
     @property
     def commandList(self):
-        """str: list of commands in this group"""
+        """dict: list of commands in this group"""
         return self._commandList
 
     @property
@@ -183,6 +180,12 @@ class CommandGroup:
 
         Args:
             *names: Command names
+
+        Notes:
+            This decorator must ALWAYS be the first decorator used on a command.
+            Failure to comply with this guideline might result in authorization checks
+            not working properly (security issue!) revoked fish privileges, and most importantly,
+            being chased by Rik with a cleaver
 
         """
         def decorator(function):

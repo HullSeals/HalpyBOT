@@ -76,7 +76,7 @@ class GalaxySystem:
             CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
 
         Returns:
-            (Optional[GalaxySystem]): An EDSM system object, None if unsuccessful.
+            (`GalaxySystem` or None): An EDSM system object, None if unsuccessful.
 
         Raises:
             EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
@@ -174,7 +174,7 @@ class Commander:
             CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
 
         Returns:
-            (Optional[Commander]): Commander object if CMDR exists in EDSM, else None
+            (`Commander` or None): Commander object if CMDR exists in EDSM, else None
 
         Raises:
             EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
@@ -229,7 +229,8 @@ class Commander:
             CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
 
         Returns:
-            (Optional[Location]): CMDRs location if found, else None.
+            (`Location` or None): CMDRs location if found, else None.
+
                 `Location.system` is the system the cmdr is currently in.
                 `Location.coordinates` can be accessed as a dict:
 
@@ -337,7 +338,6 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
         (str): Distance between point and landmark, in the format xx,yyy.zz
 
     Raises:
-        Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
                 by default.
         NoResultsEDSM: No point was found for `SysName`

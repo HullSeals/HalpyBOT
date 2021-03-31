@@ -122,6 +122,24 @@ async def update_delayed_status(cID, casestat, author):
 
 
 async def update_delayed_notes(cID, message, author):
+    """Update notes of a Delayed Board case
+
+    Args:
+        cID (int): Delayed Case ID of the case we want to edit
+        message (str): new case notes
+        author (str): User who invoked command
+
+    Returns:
+        (list):
+
+            0 - ID (int): ID of the reopened case
+            1 - Status (int): `0` if successful, `1` if failed
+            2 - Error (str): If status 1, error message
+
+    Raises:
+        NoDatabaseConnection: When no connection to the database could be established
+
+    """
     message = strip_non_ascii(message)
     in_args = [int(cID), str(message[0]), author, 0, 0, 0]
     out_args = []
@@ -148,6 +166,8 @@ async def check_delayed_cases():
         NoDatabaseConnection: When no connection to the database could be established
 
     """
+    # Set default value
+    result = None
     try:
         db = DatabaseConnection()
         cursor = db.cursor

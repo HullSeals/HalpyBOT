@@ -19,6 +19,7 @@ class SystemInfo(TypedDict):
 
 @dataclass()
 class Location:
+    """EDSM location object"""
     system: str
     coordinates: Coordinates
     time: Optional[str]
