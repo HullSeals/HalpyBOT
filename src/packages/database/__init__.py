@@ -37,6 +37,15 @@ class NoDatabaseConnection(ConnectionError):
 class DatabaseConnection:
 
     def __init__(self):
+        """Create a new database connection
+
+        When we can't establish a connection, two more retries are attempted. If both fail,
+        we enter Offline Mode.
+
+        Raises:
+            NoDatabaseConnection: Raised when 3 consecutive connection attempts are unsuccessful
+
+        """
         global offline_mode
         if offline_mode is True:
             raise NoDatabaseConnection
@@ -61,10 +70,17 @@ class DatabaseConnection:
                 continue
 
     def close(self):
+        """Close a DB connection"""
         self.cnx.close()
 
 
 async def latency():
+    """Ping the database and get latency
+
+    Returns:
+        Database connection latency
+
+    """
     get_query = "SELECT 'latency';"
     try:
         db = DatabaseConnection()
