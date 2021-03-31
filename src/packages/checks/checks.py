@@ -10,7 +10,7 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.3
+HalpyBOT v1.3.1
 
 checks.py - Check check check...
 
@@ -62,6 +62,15 @@ class DeniedMessage:
 
 
 def require_permission(req_level: str, message: str = "Access Denied."):
+    """Require permission for a command
+
+    Args:
+        req_level (str): Required authorization level:
+            `NONE`, `PUP`, `DRILLED`, `MODERATOR`, `ADMIN`, `CYBER`, `CYBERMGR`, `OWNER`
+        message (str): Message we send when user does not have authorization.
+            Default: `Access Denied.`
+
+    """
 
     def decorator(function):
         @functools.wraps(function)
@@ -85,6 +94,7 @@ def require_permission(req_level: str, message: str = "Access Denied."):
 
 
 def require_dm():
+    """Require command to be executed in a Direct Message with the bot"""
 
     def decorator(function):
         @functools.wraps(function)
@@ -100,6 +110,7 @@ def require_dm():
 
 
 def require_channel():
+    """Require command to be executed in an IRC channel"""
 
     def decorator(function):
         @functools.wraps(function)

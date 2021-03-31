@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3
+HalpyBOT v1.3.1
 
 utils.py - miscellaneous utility functions
 
@@ -14,6 +14,18 @@ import re
 
 
 def strip_non_ascii(string: str):
+    """Strip non-ASCII characters from a string
+
+    Args:
+        string (str): String that needs to be sanitized
+
+    Returns:
+        (tuple): A tuple with the values:
+
+            - string (str): Stripped string
+            - has_stripped (bool): True is characters were removed, else False
+
+    """
     res = re.subn(r'[^\x00-\x7f]', r'', string)
     if res != (string, 0):
         # Return new string and True if characters were removed
@@ -23,6 +35,18 @@ def strip_non_ascii(string: str):
 
 
 async def get_time_seconds(time: str):
+    """Get time in seconds from a hh:mm:ss format
+
+    Args:
+        time (str): Time, in a hh:mm:ss format
+
+    Returns:
+        (int): Time in seconds
+
+    Raises:
+        ValueError: String does not match required format
+
+    """
     pattern = re.compile("(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)")
     if not re.match(pattern, time):
         raise ValueError("get_time_seconds input does not match hh:mm:ss format")
