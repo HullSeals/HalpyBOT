@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3
+HalpyBOT v1.3.1
 
 userinfo.py - Fetching information about a registered user.
 
@@ -8,6 +8,9 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
+
+This module is due for a rewrite, and not documented.
+
 """
 
 from . import *

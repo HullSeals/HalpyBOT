@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3
+HalpyBOT v1.3.1
 
 ping.py - Ping the bot, database, and external services
 

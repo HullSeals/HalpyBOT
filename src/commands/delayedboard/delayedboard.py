@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3
+HalpyBOT v1.3.1
 
 delayedboard.py - Delayed Case Board commands
 
