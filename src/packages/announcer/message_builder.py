@@ -28,7 +28,13 @@ async def codeblack(ctx, args: List[str]):
         await ctx.bot.message(ch, message2)
 
 async def case(ctx, args: List[str]):
-    message = f"xxxx {args[1]}CASE -- NEWCASE xxxx \n" \
+    if args[1] == "PlayStation":
+        type = "PS"
+    elif args[1] == "PC":
+        type = "PC"
+    elif args[1] == "Xbox":
+        type = "XB"
+    message = f"xxxx {type}CASE -- NEWCASE xxxx \n" \
               f"CMDR: {args[0]} -- Platform: {args[1]} \n" \
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
@@ -48,7 +54,13 @@ async def plterr(ctx, args: List[str]):
         await ctx.bot.message(ch, message2)
 
 async def kingfisher(ctx, args: List[str]):
-    message = f"xxxx {args[1]}KFCASE -- NEWCASE xxxx\n" \
+    if args[1] == "PlayStation":
+        type = "PS"
+    elif args[1] == "PC":
+        type = "PC"
+    elif args[1] == "Xbox":
+        type = "XB"
+    message = f"xxxx {type}KFCASE -- NEWCASE xxxx\n" \
               f"CMDR: {args[0]} -- Platform: {args[1]}\n" \
               f"System: {args[2]} -- Planet: {args[3]}\n" \
               f"Coordinates: {args[4]}\n" \
