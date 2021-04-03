@@ -317,7 +317,7 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
         distance = await calc_distance(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'],
                                        coordsA['z'], coordsB['z'])
         distance = f'{distance:,}'
-        direction = await calc_direction(coordsA['x'], coordsB['x'], coordsA['z'], coordsB['z'])
+        direction = await calc_direction(coordsB['x'], coordsA['x'], coordsB['z'], coordsA['z'])
         return distance, direction
 
     if not coordsA:
