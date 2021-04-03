@@ -457,8 +457,11 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             if maxdist is None or (float(distancecheck) < float(maxdist)):
                 currclosest = currdssa
                 maxdist = distancecheck
+                currDSSAx = DSSACoords['x']
+                currDSSAy = DSSACoords['y']
 
         if currclosest is not None:
+            direction = await calc_direction(Coords['x'], currDSSAx, Coords['y'], currDSSAy)
             return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No DSSA Carriers Found.")
