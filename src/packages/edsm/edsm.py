@@ -386,11 +386,11 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
             if float(distancecheck) < float(maxdist):
                 currclosest = currlandmark
                 maxdist = distancecheck
-                currx = LMCoords['x']
-                curry = LMCoords['y']
+                currLandmarkx = LMCoords['x']
+                currLandmarky = LMCoords['y']
 
         if currclosest is not None:
-            direction = await calc_direction(Coords['x'], currx['x'], Coords['y'], curry['y'])
+            direction = await calc_direction(Coords['x'], currLandmarkx, Coords['y'], currLandmarky)
             return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {SysName}.")
@@ -508,6 +508,6 @@ async def calc_direction(x1, x2, y1, y2):
         degrees_final = 360 + degrees_temp
     else:
         degrees_final = degrees_temp
-    directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
+    directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
     compass_lookup = round(degrees_final / 45)
     return directions[compass_lookup]
