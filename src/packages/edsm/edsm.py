@@ -318,8 +318,7 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
                                        coordsA['z'], coordsB['z'])
         distance = f'{distance:,}'
         direction = await calc_direction(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'])
-        final = f'{distance} LY to the {direction}'
-        return final
+        return distance, direction
 
     if not coordsA:
         raise NoResultsEDSM(f"No system and/or commander named '{sysa}' was found in the EDSM database.")
@@ -387,9 +386,12 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
             if float(distancecheck) < float(maxdist):
                 currclosest = currlandmark
                 maxdist = distancecheck
+                currx = lmcoords['x']
+                curry = lmcoords['y']
 
         if currclosest is not None:
-            return currclosest, f'{maxdist:,}'
+            direction = await calc_direction(coordsA['x'], lmcoords['x'], coordsA['y'], lmcoords['y'])
+            return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {SysName}.")
 
@@ -455,9 +457,12 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             if maxdist is None or (float(distancecheck) < float(maxdist)):
                 currclosest = currdssa
                 maxdist = distancecheck
+                currx = DSSACoords['x']
+                curry = DSSACoords['y']
 
         if currclosest is not None:
-            return currclosest, f'{maxdist:,}'
+            direction = await calc_direction(coordsA['x'], DSSACoords['x'], coordsA['y'], DSSACoords['y'])
+            return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No DSSA Carriers Found.")
 
@@ -492,6 +497,10 @@ async def calc_distance(x1, x2, y1, y2, z1, z2):
 
 
 async def calc_direction(x1, x2, y1, y2):
+    """
+    Calculate direction
+    Uses some Fancy Math(TM) to determine the approximate cardinal direction in 2D space between two points.
+    """
     d1 = (y2-y1)
     d2 = (x2-x1)
     degrees_temp = math.atan2(d2, d1)/math.pi*180
@@ -501,4 +510,4 @@ async def calc_direction(x1, x2, y1, y2):
         degrees_final = degrees_temp
     directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
     compass_lookup = round(degrees_final / 45)
-    return compass_brackets[compass_lookup]
+    return directions[compass_lookup]
