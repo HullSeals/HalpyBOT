@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 message_builder.py - Build the messages for the announcer
 
@@ -8,14 +8,14 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
+
+This module is due for a rewrite, and not documented
+
 """
 
 from ..edsm import *
 from typing import List
-import main
-
-def send_to(annmodule: str, type: str):
-    return [entry.strip() for entry in main.config.get(annmodule, type).split(',')]
+from ...packages.configmanager import config
 
 async def codeblack(ctx, args: List[str]):
     message = f"xxxx CBCASE -- NEWCASE xxxx \n" \
@@ -23,7 +23,7 @@ async def codeblack(ctx, args: List[str]):
               f"Can synth: {args[4]} -- O2 timer: {args[5]} \n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -33,7 +33,7 @@ async def pc(ctx, args: List[str]):
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -43,7 +43,7 @@ async def xb(ctx, args: List[str]):
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -53,7 +53,7 @@ async def ps(ctx, args: List[str]):
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -63,7 +63,7 @@ async def plterr(ctx, args: List[str]):
               f"System: {args[2]} -- Hull: {args[3]} \n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -75,7 +75,7 @@ async def kingfisher_xb(ctx, args: List[str]):
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -87,7 +87,7 @@ async def kingfisher_pc(ctx, args: List[str]):
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -99,7 +99,7 @@ async def kingfisher_ps(ctx, args: List[str]):
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
@@ -111,13 +111,13 @@ async def kingfisher_plterr(ctx, args: List[str]):
               f"Type: {args[5]}\n" \
               f"xxxxxxxx"
     message2 = await casecheck(ctx, sys=args[2])
-    for ch in send_to('Announcer.cases', 'channels'):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         await ctx.bot.message(ch, message2)
 
 
 async def ppwk(ctx, args: List[str]):
-    for ch in send_to('Announcer.paperwork', 'channels'):
+    for ch in config['Announcer.paperwork']['channels'].split():
         await ctx.bot.message(ch, f"Paperwork for case {args[0]} completed by {args[1]}")
 
 

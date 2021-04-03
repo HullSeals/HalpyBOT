@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 edsm.py - Elite: Dangerous Star Map API interface module
 

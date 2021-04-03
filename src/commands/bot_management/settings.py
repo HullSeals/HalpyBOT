@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 settings.py - bot settings commands
 
@@ -147,7 +147,7 @@ async def cmd_part(ctx, args: List[str]):
     Usage: !partchannel
     Aliases: n/a
     """
-    channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
+    channels = config['Channels']['ChannelList'].split()
     await ctx.bot.part(message=f"PART by {ctx.sender}", channel=ctx.channel)
     channels.remove(str(ctx.channel))
     config['Channels']['ChannelList'] = ', '.join(ch for ch in channels)
