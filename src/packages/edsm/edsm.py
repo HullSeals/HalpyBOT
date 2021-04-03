@@ -510,4 +510,5 @@ async def calc_direction(x1, x2, y1, y2):
         degrees_final = degrees_temp
     directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
     compass_lookup = round(degrees_final / 45)
-    return directions[compass_lookup]
+    result = f'{directions[compass_lookup]} ({degrees_final})'
+    return result
