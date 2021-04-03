@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 utils.py - miscellaneous utility functions
 
@@ -47,7 +47,7 @@ async def get_time_seconds(time: str):
         ValueError: String does not match required format
 
     """
-    pattern = re.compile("(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)")
+    pattern = re.compile(r"(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)")
     if not re.match(pattern, time):
         raise ValueError("get_time_seconds input does not match hh:mm:ss format")
     res = pattern.search(time)

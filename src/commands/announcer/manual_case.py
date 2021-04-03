@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 manual_case.py - Manual case creation module
 
@@ -31,7 +31,7 @@ async def cmd_manual_case(ctx, args: List[str]):
     message = f"xxxx MANCASE -- NEWCASE xxxx\n" \
               f"{' '.join(args)}\n" \
               f"xxxxxxxx"
-    for ch in config['Announcer.cases']['channels'].split(", "):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         logging.info(f"Manual case by {ctx.sender} in {ctx.channel}: {args}")
     cn_message = {
@@ -58,7 +58,7 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
     message = f"xxxx MANKFCASE -- NEWCASE xxxx\n" \
               f"{' '.join(args)}\n" \
               f"xxxxxxxx"
-    for ch in config['Announcer.cases']['channels'].split(", "):
+    for ch in config['Announcer.cases']['channels'].split():
         await ctx.bot.message(ch, message)
         logging.info(f"Manual kingfisher case by {ctx.sender} in {ctx.channel}: {args}")
     cn_message = {
