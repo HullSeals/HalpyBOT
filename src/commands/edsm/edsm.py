@@ -167,7 +167,7 @@ async def cmd_dssalookup(ctx, args: List[str]):
     system = ctx.message.strip()
 
     try:
-        dssa, distance, direction = await checkdssa(SysName=system, CacheOverride=CacheOverride)
-        return await ctx.reply(f"The closest DSSA Carrier System is in {dssa}, {distance} LY {direction}.")
+        dssa, distance = await checkdssa(SysName=system, CacheOverride=CacheOverride)
+        return await ctx.reply(f"The closest DSSA Carrier System is in {dssa}, {distance} LY.")
     except EDSMLookupError as er:
         return await ctx.reply(str(er))
