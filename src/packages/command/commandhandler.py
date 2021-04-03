@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 commandhandler.py - Handle bot commands and facts
 
@@ -74,6 +74,10 @@ class CommandGroup:
 
     _grouplist = []
     _root: CommandGroup = None
+
+    @property
+    def root(self):
+        return self._root
 
     @classmethod
     def get_group(cls, name: str):

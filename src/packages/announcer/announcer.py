@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 announcer.py - Client announcement handler
 
@@ -8,6 +8,9 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
+
+This module is due for a rewrite, and not documented
+
 """
 
 import pydle
@@ -37,7 +40,7 @@ class AnnouncerContext:
         self.channel = channel
         self.sender = sender
 
-async def on_channel_message(bot: pydle.Client, channel: str, sender: str, message: str):
+async def announce(bot: pydle.Client, channel: str, sender: str, message: str):
     # Seperate arguments
     parts = message.split(" -~~- ")
     anntype = parts[0]

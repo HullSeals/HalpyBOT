@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.4
+
+edsm_classes.py - (data)classes for the EDSM module
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 from typing import TypedDict, Union, Optional
 from dataclasses import dataclass
 
