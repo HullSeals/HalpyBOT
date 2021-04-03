@@ -31,7 +31,7 @@ logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
 
 # Define the Client, mostly pulled from config.ini
 client = HalpyBOT(
-    config['IRC']['nickname'],
+    nickname=config['IRC']['nickname'],
     sasl_identity=config['SASL']['identity'],
     sasl_password=config['SASL']['password'],
     sasl_username=config['SASL']['username']
@@ -42,6 +42,7 @@ async def start():
     await client.connect(config['IRC']['server'], config['IRC']['port'],
                          tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
     client.version = __version__
+    client.prefix = config['IRC']['commandPrefix']
 
 
 # Signal handler

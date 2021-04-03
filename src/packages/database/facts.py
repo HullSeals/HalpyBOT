@@ -26,9 +26,6 @@ fact_index = []
 basic_facts = []
 
 
-async def on_connect():
-    await get_facts(startup=True)
-
 async def clear_facts():
     facts.clear()
     fact_index.clear()
