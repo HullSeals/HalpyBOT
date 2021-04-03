@@ -19,7 +19,7 @@ def send_to(annmodule: str, type: str):
 
 
 async def codeblack(ctx, args: List[str]):
-    message = f"xxxx CBCASE -- NEWCASE xxxx \n" \
+    message = f"xxxx CBCASE -- NEWCASE -- {args[1]}CASE xxxx \n" \
               f"CMDR: {args[0]} -- Platform: {args[1]} System: {args[2]} -- Hull: {args[3]} \n" \
               f"Can synth: {args[4]} -- O2 timer: {args[5]} \n" \
               f"xxxxxxxx"
