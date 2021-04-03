@@ -110,10 +110,10 @@ async def cmd_distlookup(ctx, args: List[str]):
     else:
 
         try:
-            distance = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
+            distance, direction = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
-        return await ctx.reply(f"{pointa} is {distance} LY to the {direction} of {pointb}.")
+        return await ctx.reply(f"{pointa} is {distance} LY {direction} of {pointb}.")
 
 
 @Commands.command("landmark")
@@ -138,8 +138,8 @@ async def cmd_landmarklookup(ctx, args: List[str]):
     system = ctx.message.strip()
 
     try:
-        landmark, distance = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
-        return await ctx.reply(f"The closest landmark system is {landmark}, {distance} LY to the {direction}.")
+        landmark, distance, direction = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
+        return await ctx.reply(f"The closest landmark system is {landmark}, {distance} LY {direction}.")
     except EDSMLookupError as er:
         return await ctx.reply(str(er))
 
@@ -167,7 +167,7 @@ async def cmd_dssalookup(ctx, args: List[str]):
     system = ctx.message.strip()
 
     try:
-        dssa, distance = await checkdssa(SysName=system, CacheOverride=CacheOverride)
-        return await ctx.reply(f"The closest DSSA Carrier System is in {dssa}, {distance} LY to the {direction}.")
+        dssa, distance, direction = await checkdssa(SysName=system, CacheOverride=CacheOverride)
+        return await ctx.reply(f"The closest DSSA Carrier System is in {dssa}, {distance} LY {direction}.")
     except EDSMLookupError as er:
         return await ctx.reply(str(er))
