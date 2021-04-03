@@ -274,7 +274,10 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
         CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
-        (str): Distance, formatted as xx,yyy.zz
+        (tuple): A tuple with the following values:
+
+            - Distance (str): formatted as xx,yyy.zz
+            - Cardinal direction (str): Cardinal direction from point A to B
 
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
@@ -497,9 +500,29 @@ async def calc_distance(x1, x2, y1, y2, z1, z2):
 
 
 async def calc_direction(x1, x2, y1, y2):
-    """
-    Calculate direction
-    Uses some Fancy Math(TM) to determine the approximate cardinal direction in 2D space between two points.
+    """Calculate direction
+
+    Uses some Fancy Math™ to determine the approximate
+    cardinal direction in 2D space between two points.
+
+    Args:
+        x1 (int or float): X-coordinate of point A
+        x2 (int or float): X-coordinate of point B
+        y1 (int or float): Y-coordinate of point A
+        y2 (int or float): Y-coordinate of point B
+
+    Returns:
+        (str): Cardinal direction from A to B, one of the following values:
+
+            * North
+            * NE
+            * East
+            * SE
+            * South
+            * SW
+            * West
+            * NW
+
     """
     xdeterminer = (x2-x1)
     ydeterminer = (y2-y1)
