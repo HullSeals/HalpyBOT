@@ -113,7 +113,7 @@ async def cmd_distlookup(ctx, args: List[str]):
             distance = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
-        return await ctx.reply(f"The distance between {pointa} and {pointb} is {distance} LY")
+        return await ctx.reply(f"The distance between {pointa} and {pointb} is {distance}.")
 
 
 @Commands.command("landmark")

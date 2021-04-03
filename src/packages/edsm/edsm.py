@@ -316,7 +316,9 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
         distance = await calc_distance(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'],
                                        coordsA['z'], coordsB['z'])
         distance = f'{distance:,}'
-        return distance
+        direction = await calc_direction(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'])
+        final = f'{distance} LY to the {direction}'
+        return final
 
     if not coordsA:
         raise NoResultsEDSM(f"No system and/or commander named '{sysa}' was found in the EDSM database.")
@@ -486,3 +488,16 @@ async def calc_distance(x1, x2, y1, y2, z1, z2):
     dist = np.sqrt(squared_dist)
     dist = np.around(dist, decimals=2, out=None)
     return float(dist)
+
+
+async def calc_direction(x1, x2, y1, y2):
+    d1 = (y2-y1)
+    d2 = (x2-x1)
+    degrees_temp = math.atan2(d2, d1)/math.pi*180
+    if degrees_temp < 0:
+        degrees_final = 360 + degrees_temp
+    else:
+        degrees_final = degrees_temp
+    directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
+    compass_lookup = round(degrees_final / 45)
+    return compass_brackets[compass_lookup]
