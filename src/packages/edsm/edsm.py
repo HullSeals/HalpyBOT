@@ -14,6 +14,7 @@ from __future__ import annotations
 import requests
 import numpy as np
 import logging
+import math
 from dataclasses import dataclass
 import json
 from time import time
@@ -273,7 +274,10 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
         CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
-        (str): Distance, formatted as xx,yyy.zz
+        (tuple): A tuple with the following values:
+
+            - Distance (str): formatted as xx,yyy.zz
+            - Cardinal direction (str): Cardinal direction from point A to B
 
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
@@ -316,7 +320,8 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
         distance = await calc_distance(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'],
                                        coordsA['z'], coordsB['z'])
         distance = f'{distance:,}'
-        return distance
+        direction = await calc_direction(coordsB['x'], coordsA['x'], coordsB['z'], coordsA['z'])
+        return distance, direction
 
     if not coordsA:
         raise NoResultsEDSM(f"No system and/or commander named '{sysa}' was found in the EDSM database.")
@@ -384,9 +389,12 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
             if float(distancecheck) < float(maxdist):
                 currclosest = currlandmark
                 maxdist = distancecheck
+                currLandmarkx = LMCoords['x']
+                currLandmarkz = LMCoords['z']
 
         if currclosest is not None:
-            return currclosest, f'{maxdist:,}'
+            direction = await calc_direction(Coords['x'], currLandmarkx, Coords['z'], currLandmarkz)
+            return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {SysName}.")
 
@@ -452,9 +460,12 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             if maxdist is None or (float(distancecheck) < float(maxdist)):
                 currclosest = currdssa
                 maxdist = distancecheck
+                currDSSAx = DSSACoords['x']
+                currDSSAz = DSSACoords['z']
 
         if currclosest is not None:
-            return currclosest, f'{maxdist:,}'
+            direction = await calc_direction(Coords['x'], currDSSAx, Coords['z'], currDSSAz)
+            return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No DSSA Carriers Found.")
 
@@ -486,3 +497,44 @@ async def calc_distance(x1, x2, y1, y2, z1, z2):
     dist = np.sqrt(squared_dist)
     dist = np.around(dist, decimals=2, out=None)
     return float(dist)
+
+
+async def calc_direction(x1, x2, y1, y2):
+    """Calculate direction
+
+    Uses some Fancy Math™ to determine the approximate
+    cardinal direction in 2D space between two points.
+
+    Args:
+        x1 (int or float): X-coordinate of point A
+        x2 (int or float): X-coordinate of point B
+        y1 (int or float): Y-coordinate of point A
+        y2 (int or float): Y-coordinate of point B
+
+    Returns:
+        (str): Cardinal direction from A to B, one of the following values:
+
+            * North
+            * NE
+            * East
+            * SE
+            * South
+            * SW
+            * West
+            * NW
+
+    """
+    # Treat the coordinates like a right triangle - this is Trig that I swore off of after high school.
+    xdeterminer = (x2-x1)
+    ydeterminer = (y2-y1)
+    degrees_temp = math.atan2(xdeterminer, ydeterminer)/math.pi*180
+    # All Coordinates must be Positive.
+    if degrees_temp < 0:
+        degrees_final = 360 + degrees_temp
+    else:
+        degrees_final = degrees_temp
+    #Round to nearest degree, treat Directions as an array and compass_lookup as the array item number.
+    directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
+    compass_lookup = round(degrees_final / 45)
+    result = f'{directions[compass_lookup]}'
+    return result
