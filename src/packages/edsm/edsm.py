@@ -501,9 +501,9 @@ async def calc_direction(x1, x2, y1, y2):
     Calculate direction
     Uses some Fancy Math(TM) to determine the approximate cardinal direction in 2D space between two points.
     """
-    d1 = (y2-y1)
-    d2 = (x2-x1)
-    degrees_temp = math.atan2(d2, d1)/math.pi*180
+    xdeterminer = (x2-x1)
+    ydeterminer = (y2-y1)
+    degrees_temp = math.atan2(xdeterminer, ydeterminer)/math.pi*180
     if degrees_temp < 0:
         degrees_final = 360 + degrees_temp
     else:
