@@ -524,13 +524,16 @@ async def calc_direction(x1, x2, y1, y2):
             * NW
 
     """
+    # Treat the coordinates like a right triangle - this is Trig that I swore off of after high school.
     xdeterminer = (x2-x1)
     ydeterminer = (y2-y1)
     degrees_temp = math.atan2(xdeterminer, ydeterminer)/math.pi*180
+    # All Coordinates must be Positive.
     if degrees_temp < 0:
         degrees_final = 360 + degrees_temp
     else:
         degrees_final = degrees_temp
+    #Round to nearest degree, treat Directions as an array and compass_lookup as the array item number.
     directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
     compass_lookup = round(degrees_final / 45)
     result = f'{directions[compass_lookup]}'
