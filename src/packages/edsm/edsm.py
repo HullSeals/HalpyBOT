@@ -387,10 +387,10 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
                 currclosest = currlandmark
                 maxdist = distancecheck
                 currLandmarkx = LMCoords['x']
-                currLandmarky = LMCoords['y']
+                currLandmarkz = LMCoords['z']
 
         if currclosest is not None:
-            direction = await calc_direction(Coords['x'], currLandmarkx, Coords['y'], currLandmarky)
+            direction = await calc_direction(Coords['x'], currLandmarkx, Coords['z'], currLandmarkz)
             return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {SysName}.")
@@ -458,10 +458,10 @@ async def checkdssa(SysName, CacheOverride: bool = False):
                 currclosest = currdssa
                 maxdist = distancecheck
                 currDSSAx = DSSACoords['x']
-                currDSSAy = DSSACoords['y']
+                currDSSAz = DSSACoords['z']
 
         if currclosest is not None:
-            direction = await calc_direction(Coords['x'], currDSSAx, Coords['y'], currDSSAy)
+            direction = await calc_direction(Coords['x'], currDSSAx, Coords['z'], currDSSAz)
             return currclosest, f'{maxdist:,}', direction
         else:
             raise NoResultsEDSM(f"No DSSA Carriers Found.")
