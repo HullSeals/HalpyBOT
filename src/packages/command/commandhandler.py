@@ -75,10 +75,6 @@ class CommandGroup:
     _grouplist = []
     _root: CommandGroup = None
 
-    @property
-    def root(self):
-        return self._root
-
     @classmethod
     def get_group(cls, name: str):
         """Get a command group by name

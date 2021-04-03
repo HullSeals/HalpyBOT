@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 database\__init__.py - Database connection initialization script
 
