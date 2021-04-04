@@ -17,6 +17,9 @@ from .. import Commands
 from ...packages.datamodels import User
 from ...packages.configmanager import config
 
+joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
+
+
 @Commands.command("forcejoin")
 @require_channel()
 @require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
@@ -34,7 +37,7 @@ async def cmd_sajoin(ctx, args: List[str]):
 
     channels = await User.get_channels(ctx.bot, args[0])
 
-    if args[1] not in config['Force join command']['joinable'].split():
+    if args[1] not in joinableChannels:
         return await ctx.reply("I can't move people there.")
 
     if args[1] in channels:

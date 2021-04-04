@@ -8,9 +8,6 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
-
-This module is due for a rewrite, and not documented
-
 """
 
 import pydle
@@ -22,13 +19,13 @@ from . import message_builder as mb
 annList = {
     # Cases
     "CODEBLACK": mb.codeblack,
-    "PC": mb.pc,
-    "XB": mb.xb,
-    "PS4": mb.ps,
+    "PC": mb.case,
+    "XB": mb.case,
+    "PS4": mb.case,
     "PLTERR": mb.plterr,
-    "XBFISH": mb.kingfisher_xb,
-    "PCFISH": mb.kingfisher_pc,
-    "PSFISH": mb.kingfisher_ps,
+    "XBFISH": mb.kingfisher,
+    "PCFISH": mb.kingfisher,
+    "PSFISH": mb.kingfisher,
     "PLTERRFISH": mb.kingfisher_plterr,
     # Other
     "PPWK": mb.ppwk,
@@ -40,7 +37,7 @@ class AnnouncerContext:
         self.channel = channel
         self.sender = sender
 
-async def announce(bot: pydle.Client, channel: str, sender: str, message: str):
+async def on_channel_message(bot: pydle.Client, channel: str, sender: str, message: str):
     # Seperate arguments
     parts = message.split(" -~~- ")
     anntype = parts[0]
