@@ -6,4 +6,3 @@ from .database import *
 from .datamodels import *
 from .edsm import *
 from .utils import *
-from .ircclient import *
