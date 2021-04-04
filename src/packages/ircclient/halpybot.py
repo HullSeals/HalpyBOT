@@ -15,9 +15,10 @@ import logging
 
 import pydle
 
-from src import config, DatabaseConnection, NoDatabaseConnection, CommandGroup
-from src.packages.announcer import announcer
-from src.packages.database import facts
+from ...packages.command import CommandGroup
+from ...packages.announcer import announcer
+from ...packages.database import facts, DatabaseConnection, NoDatabaseConnection
+from ...packages.configmanager import config
 
 channels = config['Channels']['ChannelList'].split()
 om_channels = config['Offline Mode']['announce_channels'].split()
@@ -35,7 +36,7 @@ class HalpyBOT(pydle.Client):
         # Function we send command messages to
         self._commandhandler = CommandGroup.invoke_from_message
         self._announcer = announcer.announce
-        logging.info("CLIENT: Command handler + announcer"
+        logging.info("CLIENT: Command handler + announcer "
                      "started and ready to go.")
 
     @property

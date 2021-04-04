@@ -19,7 +19,7 @@ import asyncio
 import signal
 import functools
 
-from src.halpybot import HalpyBOT
+from src.packages.ircclient import HalpyBOT
 from src.packages.configmanager import config
 
 __version__ = "1.4.0"
@@ -39,10 +39,10 @@ client = HalpyBOT(
 
 
 async def start():
-    await client.connect(config['IRC']['server'], config['IRC']['port'],
-                         tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
     client.version = __version__
     client.prefix = config['IRC']['commandPrefix']
+    await client.connect(config['IRC']['server'], config['IRC']['port'],
+                         tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
 
 
 # Signal handler
