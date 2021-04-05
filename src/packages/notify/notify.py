@@ -11,20 +11,29 @@ See license.md
 """
 
 import boto3
-import logging
 import re
+import logging
 from ..configmanager import config
 
-
-logger = logging.getLogger(__name__)
-
 sns = boto3.client("sns",
-                   region_name=config['Notify']['region'], #AWS Region
-                   aws_access_key_id=config['Notify']['access'], #AWS IAM Access Key
-                   aws_secret_access_key=config['Notify']['secret']) #AWS IAM Secret
+                   region_name=config['Notify']['region'],  # AWS Region
+                   aws_access_key_id=config['Notify']['access'],  # AWS IAM Access Key
+                   aws_secret_access_key=config['Notify']['secret'])  # AWS IAM Secret
+
 
 async def listTopics():
-    #List all SNS Topics on the Acct
+    """Subscribe
+
+     List all SNS topics on the given account.
+
+     Args:
+         None.
+
+     Returns:
+         (str): A list of all topics configured in common-name format.
+
+     """
+    # List all SNS Topics on the Acct
     response = sns.list_topics()
     topics = response["Topics"]
     numTopics = len(topics)
@@ -38,31 +47,54 @@ async def listTopics():
         else:
             reply = str(reply) + ", " + str(parts[5])
         i += 1
-    reply = f"I can notify these groups: {reply}"
+    reply = f"I can notify these groups: {reply}"  # We cut the full ARNs down to just the "common names" at the end.
     return reply
 
+
 async def subscribe(topic, endpoint):
-    #Subscribe a phone number to SMS over SNS
+    """Subscribe
+
+     Adds a given email or phone number to the notification pool.
+
+     Args:
+         topic (str): The group the message is being sent to.
+         endpoint (str): The Phone Number or Email for the group.
+
+     Returns:
+         (str): Confirmation of subscription or an error.
+
+     """
     regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,24}$'
     regex2 = '^\+?[1-9]\d{1,14}$'
-    if (re.search(regex, endpoint)):
+    if re.search(regex, endpoint):
         # Create email subscription
         sns.subscribe(TopicArn=topic, Protocol='email', Endpoint=endpoint)
         shorttopic = topic.split(":")
         reply = f"Subscription of {endpoint} to topic {shorttopic[5]} over Email pending confirmation."
-    elif (re.search(regex2, endpoint)):
+    elif re.search(regex2, endpoint):
         # Create sms subscription
         sns.subscribe(TopicArn=topic, Protocol='sms', Endpoint=endpoint)
         shorttopic = topic.split(":")
         reply = f"Successfully subscribed {endpoint} to topic {shorttopic[5]} over SMS."
     else:
-        logger.exception("Invalid Email or Phone provided: '%s'! Aborting.", endpoint)
+        logging.debug("Invalid Email or Phone provided: '%s'! Aborting.", endpoint)
         reply = "Invalid Email or Phone. No subscription generated."
     return reply
 
 
-async def listSubByTopic(topic_arn, shorttopic):
-    # List subscriptions by topic
+async def listSubByTopic(topic_arn, short_topic):
+    """List Subscribers
+
+     List subscriptions by topic.
+
+     Args:
+         topic_arn (str): The group the message is being sent to.
+         short_topic (str): The friendly name of the group.
+
+     Returns:
+         (str): All numbers, emails, etc subscribed to the topic.
+
+     """
     response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
     subscriptions = response["Subscriptions"]
     numSubs = len(subscriptions)
@@ -73,13 +105,26 @@ async def listSubByTopic(topic_arn, shorttopic):
         if reply is None:
             reply = str(member)
         else:
-            reply = str(reply) + ", "+ str(member)
+            reply = str(reply) + ", " + str(member)
         i += 1
-    reply = f"The following endpoints are subscribed to the {shorttopic} group: {reply}"
+    reply = f"The following endpoints are subscribed to the {short_topic} group: {reply}"
     return reply
 
 
 async def sendNotification(topic, message, subject):
+    """Send Notifications
+
+     Send Notifications to the specified group. Abuse this and I hunt you.
+
+     Args:
+         topic (str): The group the message is being sent to.
+         message (str): The entire text of the message being sent.
+         subject (str): The subject of the message, if the endpoint is an email.
+
+     Returns:
+         (str): Either the error code of a failed sending attempt or a confirmation that the message was sent.
+
+     """
     try:
         sns.publish(TopicArn=topic,
                     Message=message,
@@ -87,5 +132,5 @@ async def sendNotification(topic, message, subject):
         shorttopic = topic.split(":")
         status = f"Message Sent to group {shorttopic[5]}. Please only send one message per issue!"
     except Exception as e:
-        status =  f"ERROR!: {str(e)}"
+        status = f"ERROR!: {str(e)}"
     return status
