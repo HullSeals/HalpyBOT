@@ -9,7 +9,6 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-from typing import List
 
 from ...packages.notify import *
 from ...packages.checks import *
@@ -54,7 +53,7 @@ async def cmd_listnotify(ctx, args: List[str]):
     return await ctx.reply(reply)
 
 
-@Commands.command("subnotify", "alertme", "addsub")
+@Commands.command("subnotify", "alertme", "addsub", "subscribe")
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
 @require_dm()
 async def cmd_subscribe(ctx, args: List[str]):
@@ -66,7 +65,8 @@ async def cmd_subscribe(ctx, args: List[str]):
     """
     if not args:
         return await ctx.reply("No Group Given!")
-    if args[0].lower().strip() == "staff" or args[0].lower().strip() == "moderators" or args[0].lower().strip() == "hull-seals-staff":
+    if args[0].lower().strip() == "staff" or args[0].lower().strip() == "moderators" \
+            or args[0].lower().strip() == "hull-seals-staff":
         reply = await subscribe(config['Notify']['staff'], args[1].strip())
     elif args[0].lower().strip() == "cybers" or args[0].lower().strip() == "cyberseals":
         reply = await subscribe(config['Notify']['cybers'], args[1].strip())
@@ -92,6 +92,7 @@ async def cmd_notifytech(ctx, args: List[str]):
     message = f"OPSIG used by {ctx.sender}: {message}"
     reply = await sendNotification(topic, message, subject)
     return await ctx.reply(reply)
+
 
 @Commands.command("summontech", "calltech", "shitsfucked", "cybersig")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
