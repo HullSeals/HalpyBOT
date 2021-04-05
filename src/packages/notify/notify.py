@@ -16,7 +16,7 @@ import logging
 from ..configmanager import config
 
 sns = boto3.client("sns",
-                   region_name=config['Notify']['region'],  # AWS Region
+                   region_name=config.get('Notify', 'region', fallback='eu-west-1'),  # AWS Region. Defaults to EU-West-1 if none specified in config. (Not ours, but a random one chosen)
                    aws_access_key_id=config['Notify']['access'],  # AWS IAM Access Key
                    aws_secret_access_key=config['Notify']['secret'])  # AWS IAM Secret
 
@@ -131,6 +131,6 @@ async def sendNotification(topic, message, subject):
                     Subject=subject)
         shorttopic = topic.split(":")
         status = f"Message Sent to group {shorttopic[5]}. Please only send one message per issue!"
-    except Exception as e:
+    except boto3.Exception as e:
         status = f"ERROR!: {str(e)}"
     return status
