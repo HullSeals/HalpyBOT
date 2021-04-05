@@ -87,4 +87,5 @@ async def sendNotification(topic, message, subject):
         shorttopic = topic.split(":")
         status = f"Message Sent to group {shorttopic[5]}. Please only send one message per issue!"
     except Exception as e:
-        return f"ERROR!: {str(e)}"
+        status =  f"ERROR!: {str(e)}"
+    return status

@@ -14,6 +14,7 @@ from typing import List
 from ...packages.notify import *
 from ...packages.checks import *
 from .. import Commands
+from ...packages.configmanager import config
 
 
 @Commands.command("listgroups", "notifygroups")
@@ -53,7 +54,7 @@ async def cmd_listnotify(ctx, args: List[str]):
     return await ctx.reply(reply)
 
 
-@Commands.command("subscribenotify", "alertme", "addsub")
+@Commands.command("subnotify", "alertme", "addsub")
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
 @require_dm()
 async def cmd_subscribe(ctx, args: List[str]):
@@ -75,23 +76,36 @@ async def cmd_subscribe(ctx, args: List[str]):
     return await ctx.reply(reply)
 
 
-@Commands.command("", "", "")
+@Commands.command("summonstaff", "callstaff", "opsig")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
+@require_channel()
 async def cmd_notifytech(ctx, args: List[str]):
     """
     Send a notification to the Cyberseals.
 
-    Usage: ! [info]
-    Aliases:
+    Usage: !summonstaff [info]
+    Aliases: !callstaff, !opsig
     """
+    subject = "HALPYBOT: OpSignal Used"
+    topic = config['Notify']['staff']
+    message = ' '.join(args)
+    message = f"OPSIG used by {ctx.sender}: {message}"
+    reply = await sendNotification(topic, message, subject)
+    return await ctx.reply(reply)
 
-
-@Commands.command("", "", "")
+@Commands.command("summontech", "calltech", "shitsfucked", "cybersig")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
+@require_channel()
 async def cmd_notifystaff(ctx, args: List[str]):
     """
     Send a notification to the Staff.
 
-    Usage: ! [info]
-    Aliases:
+    Usage: !summontech [info]
+    Aliases:!calltech, !cybersig
     """
+    subject = "HALPYBOT: CyberSignal Used"
+    topic = config['Notify']['cybers']
+    message = ' '.join(args)
+    message = f"CYBERSIG used by {ctx.sender}: {message}"
+    reply = await sendNotification(topic, message, subject)
+    return await ctx.reply(reply)
