@@ -16,7 +16,7 @@ import logging
 from ..configmanager import config
 
 sns = boto3.client("sns",
-                   region_name=config.get('Notify', 'region', fallback='eu-west-1'),  # AWS Region. Defaults to EU-West-1 if none specified in config. (Not ours, but a random one chosen)
+                   region_name=config['Notify']['region'],  # AWS Region. 
                    aws_access_key_id=config['Notify']['access'],  # AWS IAM Access Key
                    aws_secret_access_key=config['Notify']['secret'])  # AWS IAM Secret
 
