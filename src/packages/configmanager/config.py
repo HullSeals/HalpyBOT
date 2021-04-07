@@ -16,6 +16,15 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config/config.ini')
 
+class ConfigException(Exception):
+    """Base class for configuration errors"""
+
+class ConfigWriteError(ConfigException):
+    """Unable to write to config file"""
+
+class ConfigValidationFailure(ConfigException):
+    """One or more required configuration entries are not present"""
+
 def config_write(module: str, key: str, value):
     """Write a value to the configuration file
 
@@ -27,5 +36,8 @@ def config_write(module: str, key: str, value):
     """
     logging.info(f"{module}, {key} set to {value}")
     config[module][key] = value
-    with open('config/config.ini', 'w') as conf:
-        config.write(conf)
+    try:
+        with open('config/config.ini', 'w') as conf:
+            config.write(conf)
+    except (FileNotFoundError, PermissionError) as ex:
+        raise ConfigException(str(ex))

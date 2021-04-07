@@ -18,6 +18,7 @@ from ...packages.configmanager import config
 
 @Commands.command("listgroups", "notifygroups")
 @require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+@require_aws()
 async def cmd_listgroups(ctx, args: List[str]):
     """
     List the existing notification groups.
@@ -32,6 +33,7 @@ async def cmd_listgroups(ctx, args: List[str]):
 @Commands.command("listnotify")
 @require_permission(req_level="OWNER", message=DeniedMessage.OWNER)
 @require_dm()
+@require_aws()
 async def cmd_listnotify(ctx, args: List[str]):
     """
     List contact details of particular groups.
@@ -56,6 +58,7 @@ async def cmd_listnotify(ctx, args: List[str]):
 @Commands.command("subnotify", "alertme", "addsub", "subscribe")
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
 @require_dm()
+@require_aws()
 async def cmd_subscribe(ctx, args: List[str]):
     """
     Add a user to a valid group
@@ -79,6 +82,7 @@ async def cmd_subscribe(ctx, args: List[str]):
 @Commands.command("summonstaff", "callstaff", "opsig")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
+@require_aws()
 async def cmd_notifytech(ctx, args: List[str]):
     """
     Send a notification to the Cyberseals.
@@ -97,6 +101,7 @@ async def cmd_notifytech(ctx, args: List[str]):
 @Commands.command("summontech", "calltech", "shitsfucked", "cybersig")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
+@require_aws()
 async def cmd_notifystaff(ctx, args: List[str]):
     """
     Send a notification to the Staff.

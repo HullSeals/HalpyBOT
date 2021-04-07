@@ -10,16 +10,19 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import boto3
 import re
 import logging
+import boto3
+
 from ..configmanager import config
 
-sns = boto3.client("sns",
-                   region_name=config['Notify']['region'],  # AWS Region. 
-                   aws_access_key_id=config['Notify']['access'],  # AWS IAM Access Key
-                   aws_secret_access_key=config['Notify']['secret'])  # AWS IAM Secret
-
+if config['Notify']['secret'] and config['Notify']['access']:
+    sns = boto3.client("sns",
+                       region_name=config['Notify']['region'],  # AWS Region.
+                       aws_access_key_id=config['Notify']['access'],  # AWS IAM Access Key
+                       aws_secret_access_key=config['Notify']['secret'])  # AWS IAM Secret
+else:
+    sns = None
 
 async def listTopics():
     """Subscribe
@@ -131,6 +134,6 @@ async def sendNotification(topic, message, subject):
                     Subject=subject)
         shorttopic = topic.split(":")
         status = f"Message Sent to group {shorttopic[5]}. Please only send one message per issue!"
-    except boto3.Exception as e:
+    except sns.exceptions as e:
         status = f"ERROR!: {str(e)}"
     return status
