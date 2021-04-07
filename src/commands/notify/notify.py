@@ -10,27 +10,35 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ...packages.notify import *
+import time
+
+from ...packages import notify
 from ...packages.checks import *
-from .. import Commands
+from ...packages.command import CommandGroup, Commands
 from ...packages.configmanager import config
 
+NotifyInfo = CommandGroup()
+NotifyInfo.add_group("notifyinfo", "notificationinfo")
 
-@Commands.command("listgroups", "notifygroups")
+# Set default value for 5 minute lock after someone called staff
+timer = None
+
+
+@NotifyInfo.command("groups")
 @require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
 @require_aws()
 async def cmd_listgroups(ctx, args: List[str]):
     """
     List the existing notification groups.
 
-    Usage: !listgroups
-    Aliases: notifygroups
+    Usage: !notifyinfo groups
+    Aliases: n/a
     """
-    reply = await listTopics()
+    reply = await notify.listTopics()
     return await ctx.reply(reply)
 
 
-@Commands.command("listnotify")
+@NotifyInfo.command("details", "endpoints")
 @require_permission(req_level="OWNER", message=DeniedMessage.OWNER)
 @require_dm()
 @require_aws()
@@ -38,21 +46,32 @@ async def cmd_listnotify(ctx, args: List[str]):
     """
     List contact details of particular groups.
 
-    Usage: !listnotify [group]
-    Aliases:
+    Usage: !notifyinfo details [group]
+    Aliases: notifyinfo endpoints
     """
     if not args:
         return await ctx.reply("No Group Given!")
-    group = ctx.message.strip()
-    group = group.lower()
-    if group == "staff" or group == "moderators" or group == "hull-seals-staff":
-        reply = await listSubByTopic(config['Notify']['staff'], "Hull-Seals-Staff")
-    elif group == "cybers" or group == "cyberseals":
-        reply = await listSubByTopic(config['Notify']['cybers'], "Cyberseals")
-    else:
-        reply = "Invalid group given. Aborting."
 
-    return await ctx.reply(reply)
+    group = ctx.message.strip().lower()
+
+    if group in ["staff", "moderators", "hull-seals-staff"]:
+        group = "staff"
+    elif group in ["cybers", "cyberseals"]:
+        group = "cybers"
+    else:
+        return await ctx.reply("Invalid group given.")
+
+    try:
+        results = await notify.listSubByTopic(config['Notify'][group])
+
+        if len(results) == 0:
+            return await ctx.reply("No users currently subscribed to that group.")
+
+        return await ctx.reply(f"Following endpoints are subscribed to '{group}': "
+                               f"{', '.join(str(sub) for sub in results)}")
+
+    except notify.SNSError:
+        return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
 
 
 @Commands.command("subnotify", "alertme", "addsub", "subscribe")
@@ -68,22 +87,31 @@ async def cmd_subscribe(ctx, args: List[str]):
     """
     if not args:
         return await ctx.reply("No Group Given!")
-    if args[0].lower().strip() == "staff" or args[0].lower().strip() == "moderators" \
-            or args[0].lower().strip() == "hull-seals-staff":
-        reply = await subscribe(config['Notify']['staff'], args[1].strip())
-    elif args[0].lower().strip() == "cybers" or args[0].lower().strip() == "cyberseals":
-        reply = await subscribe(config['Notify']['cybers'], args[1].strip())
-    else:
-        reply = "Invalid group given. Aborting."
 
-    return await ctx.reply(reply)
+    group = args[0].lower().strip()
+
+    if group in ["staff", "moderators", "hull-seals-staff"]:
+        group = "staff"
+    elif group in ["cybers", "cyberseals"]:
+        group = "cybers"
+    else:
+        return await ctx.reply("Please specify a valid group, for example: "
+                               "'moderators', 'cyberseals'")
+
+    try:
+        await notify.subscribe(config['Notify'][group], args[1])
+    except ValueError:
+        return await ctx.reply("Please specify a valid email address or phone number"
+                               "in international format.")
+    except notify.SubscriptionError:
+        return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
 
 @Commands.command("summonstaff", "callstaff", "opsig")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
 @require_aws()
-async def cmd_notifytech(ctx, args: List[str]):
+async def cmd_notifystaff(ctx, args: List[str]):
     """
     Send a notification to the Cyberseals.
 
@@ -94,17 +122,20 @@ async def cmd_notifytech(ctx, args: List[str]):
     topic = config['Notify']['staff']
     message = ' '.join(args)
     message = f"OPSIG used by {ctx.sender}: {message}"
-    reply = await sendNotification(topic, message, subject)
-    return await ctx.reply(reply)
+    try:
+        await notify.sendNotification(topic, message, subject)
+    except notify.NotificationFailure:
+        return await ctx.reply("Unable to send the notification!")
+    return await ctx.reply(f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!")
 
 
 @Commands.command("summontech", "calltech", "shitsfucked", "cybersig")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
 @require_aws()
-async def cmd_notifystaff(ctx, args: List[str]):
+async def cmd_notifycybers(ctx, args: List[str]):
     """
-    Send a notification to the Staff.
+    Send a notification to the Cyberseals.
 
     Usage: !summontech [info]
     Aliases:!calltech, !cybersig
@@ -113,5 +144,8 @@ async def cmd_notifystaff(ctx, args: List[str]):
     topic = config['Notify']['cybers']
     message = ' '.join(args)
     message = f"CYBERSIG used by {ctx.sender}: {message}"
-    reply = await sendNotification(topic, message, subject)
-    return await ctx.reply(reply)
+    try:
+        await notify.sendNotification(topic, message, subject)
+    except notify.NotificationFailure:
+        return await ctx.reply("Unable to send the notification!")
+    return await ctx.reply(f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!")

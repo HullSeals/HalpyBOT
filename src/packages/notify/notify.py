@@ -10,11 +10,28 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import re
+import re as REEE  # 🤫
 import logging
 import boto3
+import boto3.exceptions
 
 from ..configmanager import config
+
+class SNSError(Exception):
+    """
+    Base class for Halpy-SNS exceptions
+    """
+
+class NotificationFailure(SNSError):
+    """
+    Raised when unable to send notification
+    """
+
+class SubscriptionError(SNSError):
+    """
+    Could not add user to notification group
+    """
+
 
 if config['Notify']['secret'] and config['Notify']['access']:
     sns = boto3.client("sns",
@@ -64,58 +81,65 @@ async def subscribe(topic, endpoint):
          endpoint (str): The Phone Number or Email for the group.
 
      Returns:
-         (str): Confirmation of subscription or an error.
+         (str or None): Protocol if successful
+
+     Raises:
+         ValueError: Value is neither a phone number or email adress
+         SubscriptionError: Parameters are valid but subscription could not be registered
 
      """
-    regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,24}$'
-    regex2 = '^\+?[1-9]\d{1,14}$'
-    if re.search(regex, endpoint):
+    
+    mail = r'^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,24}$'
+    sms = r'^\+?[1-9]\d{1,14}$'
+    protocol = None
+    
+    if REEE.search(mail, endpoint):
         # Create email subscription
-        sns.subscribe(TopicArn=topic, Protocol='email', Endpoint=endpoint)
-        shorttopic = topic.split(":")
-        reply = f"Subscription of {endpoint} to topic {shorttopic[5]} over Email pending confirmation."
-    elif re.search(regex2, endpoint):
+        protocol = 'email'
+
+    elif REEE.search(sms, endpoint):
         # Create sms subscription
-        sns.subscribe(TopicArn=topic, Protocol='sms', Endpoint=endpoint)
-        shorttopic = topic.split(":")
-        reply = f"Successfully subscribed {endpoint} to topic {shorttopic[5]} over SMS."
-    else:
-        logging.debug("Invalid Email or Phone provided: '%s'! Aborting.", endpoint)
-        reply = "Invalid Email or Phone. No subscription generated."
-    return reply
+        protocol = 'sms'
+
+    if protocol is None:
+        raise ValueError
+
+    try:
+        sns.subscribe(TopicArn=topic, Protocol=protocol, Endpoint=endpoint)
+    except boto3.exceptions.Boto3Error as ex:
+        logging.info(f"NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.")
+        raise SubscriptionError(ex)
 
 
-async def listSubByTopic(topic_arn, short_topic):
+async def listSubByTopic(topic_arn):
     """List Subscribers
 
      List subscriptions by topic.
 
      Args:
          topic_arn (str): The group the message is being sent to.
-         short_topic (str): The friendly name of the group.
 
      Returns:
-         (str): All numbers, emails, etc subscribed to the topic.
+         (list): All numbers, emails, etc subscribed to the topic.
+
+     Raises:
+         SNSError: Raised when query to AWS was unsuccessful
 
      """
-    response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
+    try:
+        response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
+    except boto3.exceptions.Boto3Error:
+        raise SNSError("Could not retrieve subscriptions from AWS")
+
     subscriptions = response["Subscriptions"]
-    numSubs = len(subscriptions)
-    i = 0
-    reply = None
-    while i < numSubs:
-        member = response["Subscriptions"][i]["Endpoint"]
-        if reply is None:
-            reply = str(member)
-        else:
-            reply = str(reply) + ", " + str(member)
-        i += 1
-    reply = f"The following endpoints are subscribed to the {short_topic} group: {reply}"
-    return reply
+    sublist = []
+    for endpoint in subscriptions:
+        sublist.append(response[endpoint]["Endpoint"])
+    return sublist
 
 
 async def sendNotification(topic, message, subject):
-    """Send Notifications
+    """Send notification to a group
 
      Send Notifications to the specified group. Abuse this and I hunt you.
 
@@ -124,16 +148,13 @@ async def sendNotification(topic, message, subject):
          message (str): The entire text of the message being sent.
          subject (str): The subject of the message, if the endpoint is an email.
 
-     Returns:
-         (str): Either the error code of a failed sending attempt or a confirmation that the message was sent.
+     Raises:
+         NotificationFailure: Raised when notification could not be sent
 
      """
     try:
         sns.publish(TopicArn=topic,
                     Message=message,
                     Subject=subject)
-        shorttopic = topic.split(":")
-        status = f"Message Sent to group {shorttopic[5]}. Please only send one message per issue!"
-    except sns.exceptions as e:
-        status = f"ERROR!: {str(e)}"
-    return status
+    except boto3.exceptions.Boto3Error as ex:
+        raise NotificationFailure(ex)
