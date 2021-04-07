@@ -132,7 +132,7 @@ def require_aws():
         @functools.wraps(function)
         async def guarded(ctx, args: List[str]):
             if not config['Notify']['secret'] or not config['Notify']['access']:
-                raise ConfigValidationFailure("AWS Config data is required for this module.")
+                return await ctx.reply("Cannot comply: AWS Config data is required for this module.")
             else:
                 return await function(ctx, args)
 
