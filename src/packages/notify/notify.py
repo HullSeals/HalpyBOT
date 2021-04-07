@@ -88,11 +88,11 @@ async def subscribe(topic, endpoint):
          SubscriptionError: Parameters are valid but subscription could not be registered
 
      """
-    
+
     mail = r'^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,24}$'
     sms = r'^\+?[1-9]\d{1,14}$'
     protocol = None
-    
+
     if REEE.search(mail, endpoint):
         # Create email subscription
         protocol = 'email'
@@ -126,17 +126,19 @@ async def listSubByTopic(topic_arn):
          SNSError: Raised when query to AWS was unsuccessful
 
      """
-    try:
-        response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
-    except boto3.exceptions.Boto3Error:
-        raise SNSError("Could not retrieve subscriptions from AWS")
-
+    response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
     subscriptions = response["Subscriptions"]
-    sublist = []
-    for endpoint in subscriptions:
-        sublist.append(response[endpoint]["Endpoint"])
-    return sublist
-
+    numSubs = len(subscriptions)
+    i = 0
+    reply = None
+    while i < numSubs:
+        member = response["Subscriptions"][i]["Endpoint"]
+        if reply is None:
+            reply = str(member)
+        else:
+            reply = str(reply) + ", " + str(member)
+        i += 1
+    return reply
 
 async def sendNotification(topic, message, subject):
     """Send notification to a group

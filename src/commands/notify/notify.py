@@ -64,13 +64,11 @@ async def cmd_listnotify(ctx, args: List[str]):
 
     try:
         results = await notify.listSubByTopic(config['Notify'][group])
-
         if len(results) == 0:
             return await ctx.reply("No users currently subscribed to that group.")
         else:
             results = str(results)
-            return await ctx.reply(f"Following endpoints are subscribed to '{group}': "
-                                f"{', '.join(str(sub) for sub in results)}")
+            return await ctx.reply(f"Following endpoints are subscribed to group {group}: {results}")
 
     except notify.SNSError:
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
