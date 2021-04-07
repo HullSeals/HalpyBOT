@@ -16,6 +16,7 @@ from ...packages import notify
 from ...packages.checks import *
 from ...packages.command import CommandGroup, Commands
 from ...packages.configmanager import config
+import logging
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
@@ -52,23 +53,22 @@ async def cmd_listnotify(ctx, args: List[str]):
     if not args:
         return await ctx.reply("No Group Given!")
 
-    group = ctx.message.strip().lower()
+    group = args[0].lower().strip()
 
     if group in ["staff", "moderators", "hull-seals-staff"]:
         group = "staff"
     elif group in ["cybers", "cyberseals"]:
         group = "cybers"
     else:
-        return await ctx.reply("Invalid group given.")
+        return await ctx.reply(f"Invalid group given: {group}.")
 
     try:
         results = await notify.listSubByTopic(config['Notify'][group])
-
         if len(results) == 0:
             return await ctx.reply("No users currently subscribed to that group.")
-
-        return await ctx.reply(f"Following endpoints are subscribed to '{group}': "
-                               f"{', '.join(str(sub) for sub in results)}")
+        else:
+            results = str(results)
+            return await ctx.reply(f"Following endpoints are subscribed to group {group}: {results}")
 
     except notify.SNSError:
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
