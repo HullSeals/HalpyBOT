@@ -50,25 +50,22 @@ async def listTopics():
          None.
 
      Returns:
-         (str): A list of all topics configured in common-name format.
+         (list): A list of all topics configured in common-name format.
+
+     Raises:
+         SNSError: Raised when topic list could not be retrieved from AWS
 
      """
     # List all SNS Topics on the Acct
-    response = sns.list_topics()
+    try:
+        response = sns.list_topics()
+    except boto3.exceptions.Boto3Error as ex:
+        raise SNSError(ex)
     topics = response["Topics"]
-    numTopics = len(topics)
-    i = 0
-    reply = None
-    while i < numTopics:
-        member = response["Topics"][i]["TopicArn"]
-        parts = member.split(":")
-        if reply is None:
-            reply = str(parts[5])
-        else:
-            reply = str(reply) + ", " + str(parts[5])
-        i += 1
-    reply = f"I can notify these groups: {reply}"  # We cut the full ARNs down to just the "common names" at the end.
-    return reply
+    topicList = []
+    for topic in range(len(topics)):
+        topicList.append(topics[topic]["TopicArn"].split(":")[5])
+    return topicList
 
 
 async def subscribe(topic, endpoint):
@@ -126,19 +123,16 @@ async def listSubByTopic(topic_arn):
          SNSError: Raised when query to AWS was unsuccessful
 
      """
-    response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
+    try:
+        response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
+    except boto3.exceptions.Boto3Error as ex:
+        raise SNSError(ex)
     subscriptions = response["Subscriptions"]
-    numSubs = len(subscriptions)
-    i = 0
-    reply = None
-    while i < numSubs:
-        member = response["Subscriptions"][i]["Endpoint"]
-        if reply is None:
-            reply = str(member)
-        else:
-            reply = str(reply) + ", " + str(member)
-        i += 1
-    return reply
+    sublist = []
+    for sub in range(len(subscriptions)):
+        sublist.append(subscriptions[sub]["Endpoint"])
+    return sublist
+
 
 async def sendNotification(topic, message, subject):
     """Send notification to a group

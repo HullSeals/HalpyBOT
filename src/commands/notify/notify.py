@@ -35,8 +35,18 @@ async def cmd_listgroups(ctx, args: List[str]):
     Usage: !notifyinfo groups
     Aliases: n/a
     """
-    reply = await notify.listTopics()
-    return await ctx.reply(reply)
+    try:
+        results = await notify.listTopics()
+    except notify.SNSError:
+        return await ctx.reply("Unable to retrieve group data from AWS servers, "
+                               "poke Rixxan if this keeps occurring")
+
+    if len(results) == 0:
+        return await ctx.reply("No groups currently registered, contact Rixxan if you suspect "
+                               "this may be an error.")
+    else:
+        return await ctx.reply(f"Registered notification groups: "
+                               f"{', '.join(group for group in results)}")
 
 
 @NotifyInfo.command("details", "endpoints")
