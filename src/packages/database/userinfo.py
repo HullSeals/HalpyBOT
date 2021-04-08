@@ -13,7 +13,7 @@ This module is due for a rewrite, and not documented.
 
 """
 
-from . import *
+from . import DatabaseConnection, NoDatabaseConnection
 
 async def whois(subject):
     # Set default values

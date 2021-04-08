@@ -136,10 +136,10 @@ async def recite_fact(ctx, args, fact: str):
         if len(args) == 0:
             return await ctx.reply(facts[str(fact)])
         else:
-            return await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+            return await ctx.reply(f"{(' '.join(str(seal) for seal in args)).strip()}: {facts[str(fact)]}")
 
     # Public and PM, args and noargs
     if len(args) == 0:
         await ctx.reply(facts[f"{str(fact)}_no_args"])
     else:
-        await ctx.reply(f"{' '.join(str(seal) for seal in args)}: {facts[str(fact)]}")
+        await ctx.reply(f"{(' '.join(str(seal) for seal in args)).strip()}: {facts[str(fact)]}")
