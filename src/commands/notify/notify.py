@@ -21,8 +21,8 @@ import logging
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
 
-# Set default value for 5 minute lock after someone called staff
-timer = None
+# Set default value. This was originally Null but pylint didn't like that. Epoch gang!
+timer = 0
 
 
 @NotifyInfo.command("groups")
@@ -128,6 +128,9 @@ async def cmd_notifystaff(ctx, args: List[str]):
     Usage: !summonstaff [info]
     Aliases: !callstaff, !opsig
     """
+    if time.time() < timer + 5:
+        return await ctx.reply("Someone already called less than 5 minutes ago. "
+                               "hang on, staff is responding.")
     subject = "HALPYBOT: OpSignal Used"
     topic = config['Notify']['staff']
     message = ' '.join(args)
@@ -150,6 +153,12 @@ async def cmd_notifycybers(ctx, args: List[str]):
     Usage: !summontech [info]
     Aliases:!calltech, !cybersig
     """
+    global timer
+    # Check if last opsig or cybersig was sent > 5 min ago
+    # TODO move the minimum time between two notifications to config
+    if time.time() < timer + 5:
+        return await ctx.reply("Someone already called less than 5 minutes ago. "
+                               "hang on, staff is responding.")
     subject = "HALPYBOT: CyberSignal Used"
     topic = config['Notify']['cybers']
     message = ' '.join(args)
