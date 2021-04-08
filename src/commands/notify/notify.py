@@ -11,12 +11,13 @@ See license.md
 """
 
 import time
+from typing import List
 
 from ...packages import notify
-from ...packages.checks import *
+from ...packages.checks import require_permission, require_aws, require_dm, require_channel, DeniedMessage
 from ...packages.command import CommandGroup, Commands
 from ...packages.configmanager import config
-import logging
+from ...packages.utils import get_time_seconds
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
@@ -117,20 +118,20 @@ async def cmd_subscribe(ctx, args: List[str]):
         return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
 
-@Commands.command("summonstaff", "callstaff", "opsig")
+@Commands.command("summonstaff", "callstaff", "opsignal")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
 @require_aws()
 async def cmd_notifystaff(ctx, args: List[str]):
     """
-    Send a notification to the Cyberseals.
+    Send a notification to the Admins and Moderators.
 
     Usage: !summonstaff [info]
     Aliases: !callstaff, !opsig
     """
     global timer
     # Check if last staff call was < 5 min ago
-    if timer == 0 or time.time() < timer + 5:
+    if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
         return await ctx.reply("Someone already called less than 5 minutes ago. "
                                "hang on, staff is responding.")
     timer = time.time()
@@ -145,7 +146,7 @@ async def cmd_notifystaff(ctx, args: List[str]):
     return await ctx.reply(f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!")
 
 
-@Commands.command("summontech", "calltech", "shitsfucked", "cybersig")
+@Commands.command("summontech", "calltech", "shitsfucked", "cybersignal")
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
 @require_aws()
@@ -158,7 +159,7 @@ async def cmd_notifycybers(ctx, args: List[str]):
     """
     global timer
     # Check if last staff call was < 5 min ago
-    if timer == 0 or time.time() < timer + 5:
+    if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
         return await ctx.reply("Someone already called less than 5 minutes ago. "
                                "hang on, staff is responding.")
     timer = time.time()
