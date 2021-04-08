@@ -7,3 +7,4 @@ from .forcejoin import *
 from .edsm import *
 from .userinfo import *
 from .utils import *
+from .notify import *

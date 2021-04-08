@@ -26,6 +26,7 @@ import functools
 from typing import List
 
 from ..datamodels import User
+from ..configmanager import config, ConfigValidationFailure
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,
@@ -117,6 +118,21 @@ def require_channel():
         async def guarded(ctx, args: List[str]):
             if ctx.in_channel is False:
                 return
+            else:
+                return await function(ctx, args)
+
+        return guarded
+
+    return decorator
+
+def require_aws():
+    """Require Amazon Web Services configuration data to be specified in config"""
+
+    def decorator(function):
+        @functools.wraps(function)
+        async def guarded(ctx, args: List[str]):
+            if not config['Notify']['secret'] or not config['Notify']['access']:
+                return await ctx.reply("Cannot comply: AWS Config data is required for this module.")
             else:
                 return await function(ctx, args)
 

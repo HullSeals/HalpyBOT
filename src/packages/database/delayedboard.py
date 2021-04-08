@@ -14,7 +14,7 @@ from . import DatabaseConnection, NoDatabaseConnection
 from ..utils import strip_non_ascii
 
 
-async def create_delayed_case(casestat, message, author):
+async def createCase(casestat, message, author):
     """Create a new case on the Delayed Board
 
 
@@ -51,7 +51,7 @@ async def create_delayed_case(casestat, message, author):
     return out_args
 
 
-async def reopen_delayed_case(cID, casestat, author):
+async def reopenCase(cID, casestat, author):
     """Reopen a previously closed case on the Delayed Board
 
     Args:
@@ -86,7 +86,7 @@ async def reopen_delayed_case(cID, casestat, author):
     return out_args
 
 
-async def update_delayed_status(cID, casestat, author):
+async def updateCaseStatus(cID, casestat, author):
     """Update status code of a Delayed Case
 
     Args:
@@ -121,7 +121,7 @@ async def update_delayed_status(cID, casestat, author):
     return out_args
 
 
-async def update_delayed_notes(cID, message, author):
+async def updateCaseNotes(cID, message, author):
     """Update notes of a Delayed Board case
 
     Args:
@@ -156,7 +156,7 @@ async def update_delayed_notes(cID, message, author):
     db.close()
     return out_args
 
-async def check_delayed_cases():
+async def caseCheck():
     """Check for cases on the Delayed Board
 
     Returns:
