@@ -111,6 +111,7 @@ async def cmd_subscribe(ctx, args: List[str]):
 
     try:
         await notify.subscribe(config['Notify'][group], args[1])
+        return await ctx.reply(f"Subscription {args[1]} added to group {group}")
     except ValueError:
         return await ctx.reply("Please specify a valid email address or phone number"
                                "in international format.")
