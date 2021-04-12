@@ -98,7 +98,6 @@ async def get_facts(startup: bool = False):
     get_query = (f"SELECT factName, factText "
                  f"FROM facts")
     try:
-        breakpoint()
         with DatabaseConnection() as db:
             cursor = db.cursor()
             cursor.execute(get_query)

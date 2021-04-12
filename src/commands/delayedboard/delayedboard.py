@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from ...packages.database import delayedboard
+from ...packages.database import DelayedCase
 from ...packages.database import NoDatabaseConnection
 from ...packages.checks import *
 from .. import Commands
@@ -41,7 +41,7 @@ async def cmd_createDelayedCase(ctx, args: List[str]):
 
     # Create the case
     try:
-        results = await delayedboard.createCase(case_status, message, ctx.sender)
+        results = await DelayedCase.open(case_status, message, ctx.sender)
     except NoDatabaseConnection:
         return await ctx.reply("Cannot create case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -75,7 +75,7 @@ async def cmd_ReopenDelayedCase(ctx, args: List[str]):
     casestat = args[1]
 
     try:
-        results = await delayedboard.reopenCase(cID, casestat, ctx.sender)
+        results = await DelayedCase.reopen(cID, casestat, ctx.sender)
     except NoDatabaseConnection:
         return await ctx.reply("Cannot reopen case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -103,7 +103,7 @@ async def cmd_closeDelayedCase(ctx, args: List[str]):
     cID = int(args[0])
 
     try:
-        results = await delayedboard.updateCaseStatus(cID, 3, ctx.sender)  # set casestat to 3 to close case
+        results = await DelayedCase.status(cID, 3, ctx.sender)  # set casestat to 3 to close case
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -135,7 +135,7 @@ async def cmd_updateDelayedStatus(ctx, args: List[str]):
     casestat = int(args[1])
 
     try:
-        results = await delayedboard.updateCaseStatus(cID, casestat, ctx.sender)
+        results = await DelayedCase.status(cID, casestat, ctx.sender)
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -171,7 +171,7 @@ async def cmd_updateDelayedNotes(ctx, args: List[str]):
     cID = int(args[0])
 
     try:
-        results = await delayedboard.updateCaseNotes(cID, message, ctx.sender)
+        results = await DelayedCase.notes(cID, message, ctx.sender)
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -194,7 +194,7 @@ async def cmd_checkDelayedCases(ctx, args: List[str]):
     """
 
     try:
-        count = await delayedboard.caseCheck()
+        count = await DelayedCase.check()
     except NoDatabaseConnection:
         return await ctx.reply("Cannot connect to board: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -237,8 +237,8 @@ async def cmd_updateDelayedCase(ctx, args: List[str]):
         if casestat not in [1, 2]:
             return await ctx.reply("Cannot comply: please set a valid status code")
 
-        statusout = await delayedboard.updateCaseStatus(cID, casestat, ctx.sender)
-        notesout = await delayedboard.updateCaseNotes(cID, message, ctx.sender)
+        statusout = await DelayedCase.status(cID, casestat, ctx.sender)
+        notesout = await DelayedCase.notes(cID, message, ctx.sender)
 
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
