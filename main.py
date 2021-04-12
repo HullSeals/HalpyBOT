@@ -75,7 +75,8 @@ class HalpyBOT(pydle.Client):
                 if config['Offline Mode']['enabled'] == 'False':
                     # We only need to start the connection, DatabaseConnection will trip the CB if neccesary
                     try:
-                        DatabaseConnection()
+                        with DatabaseConnection() as db:
+                            db.ping()
                     except NoDatabaseConnection:
                         continue
                     await asyncio.sleep(300)

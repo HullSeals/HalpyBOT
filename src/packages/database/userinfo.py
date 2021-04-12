@@ -30,20 +30,23 @@ async def whois(subject):
                 " INNER JOIN pydle.view_ircnames AS na ON na.nc = nc.display"
                 " WHERE nick = %s;")
     try:
-        db = DatabaseConnection()
-        cursor = db.cursor
-        cursor.execute(get_query, (subject,))
-        for res in cursor.fetchall():
-            uID, uCases, uName, uRegdate, uDW = res
-            if uDW == 1:
-                uDW2 = ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
-            else:
-                uDW2 = ", with registered CMDRs of"
-        db.close()
-        if uID == "None":
-            return "No registered user found by that name!"
-        else:
-            return f"CMDR {subject} has a Seal ID of {uID}, registered on {uRegdate} {uDW2} {uName}" \
-                   f", and has been involved with {uCases} rescues."
+
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(get_query, (subject,))
+            for res in cursor.fetchall():
+                uID, uCases, uName, uRegdate, uDW = res
+                if uDW == 1:
+                    uDW2 = ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
+                else:
+                    uDW2 = ", with registered CMDRs of"
+
     except NoDatabaseConnection:
         return "Error searching user."
+
+    if uID == "None":
+        return "No registered user found by that name!"
+    else:
+        return f"CMDR {subject} has a Seal ID of {uID}, registered on {uRegdate} {uDW2} {uName}" \
+               f", and has been involved with {uCases} rescues."
+

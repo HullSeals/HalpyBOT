@@ -38,15 +38,14 @@ async def createCase(casestat, message, author):
     in_args = [int(casestat), str(message[0]), author, 0, 0, 0]
     out_args = []
     try:
-        db = DatabaseConnection()
-        cursor = db.cursor
-        cursor.callproc('spCreateDelayedCase', in_args)
-        for result in cursor.stored_results():
-            out_args.append(result.fetchall())
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spCreateDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
     except NoDatabaseConnection:
         raise
     out_args = list(out_args[0][0])
-    db.close()
     out_args.append(True if message[1] else False)
     return out_args
 
@@ -74,15 +73,14 @@ async def reopenCase(cID, casestat, author):
     in_args = [int(cID), int(casestat), author, 0, 0, 0]
     out_args = []
     try:
-        db = DatabaseConnection()
-        cursor = db.cursor
-        cursor.callproc('spReopenDelayedCase', in_args)
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spReopenDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
     except NoDatabaseConnection:
         raise
-    for result in cursor.stored_results():
-        out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
-    db.close()
     return out_args
 
 
@@ -109,15 +107,14 @@ async def updateCaseStatus(cID, casestat, author):
     in_args = [int(cID), int(casestat), author, 0, 0, 0]
     out_args = []
     try:
-        db = DatabaseConnection()
-        cursor = db.cursor
-        cursor.callproc('spUpdateStatusDelayedCase', in_args)
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spUpdateStatusDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
     except NoDatabaseConnection:
         raise
-    for result in cursor.stored_results():
-        out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
-    db.close()
     return out_args
 
 
@@ -144,16 +141,15 @@ async def updateCaseNotes(cID, message, author):
     in_args = [int(cID), str(message[0]), author, 0, 0, 0]
     out_args = []
     try:
-        db = DatabaseConnection()
-        cursor = db.cursor
-        cursor.callproc('spUpdateMsgDelayedCase', in_args)
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spUpdateMsgDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
     except NoDatabaseConnection:
         raise
-    for result in cursor.stored_results():
-        out_args.append(result.fetchall())
     out_args = list(out_args[0][0])
     out_args.append(True if message[1] else False)
-    db.close()
     return out_args
 
 async def caseCheck():
@@ -169,15 +165,14 @@ async def caseCheck():
     # Set default value
     result = None
     try:
-        db = DatabaseConnection()
-        cursor = db.cursor
-        cursor.execute("SELECT COUNT(ID) "
-                       "FROM casestatus "
-                       "WHERE case_status IN (1, 2);")
-        for res in cursor.fetchall():
-            result = res[0]
-        db.close()
-        # Return the total amount of open delayed cases on the board
-        return result
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute("SELECT COUNT(ID) "
+                           "FROM casestatus "
+                           "WHERE case_status IN (1, 2);")
+            for res in cursor.fetchall():
+                result = res[0]
     except NoDatabaseConnection:
         raise
+    # Return the total amount of open delayed cases on the board
+    return result

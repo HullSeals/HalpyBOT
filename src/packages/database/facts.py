@@ -59,20 +59,17 @@ async def add_fact(ctx, factname: str, facttext: str):
                  f"VALUES (%s, %s, %s);")
     add_data = (str(factname), str(facttext), str(ctx.sender))
     try:
-        db = DatabaseConnection()
-        cnx = db.cnx
-        cursor = db.cursor
-        cursor.execute(add_query, add_data)
-        cnx.commit()
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(add_query, add_data)
         logging.info(f"FACT ADDED {factname} by {ctx.sender}")
         # After fact is added to DB, update cache
         await clear_facts()
         await get_facts()
         await update_fact_index()
         await ctx.reply("Fact added successfully")
-        db.close()
     except NoDatabaseConnection:
-        print(f"ERROR in registering fact {factname} by {ctx.sender}")
+        logging.error(f"ERROR in registering fact {factname} by {ctx.sender}")
         raise
 
 async def remove_fact(ctx, factname: str):
@@ -83,17 +80,14 @@ async def remove_fact(ctx, factname: str):
         remove_query = (f"DELETE FROM facts "
                         f"WHERE factName = %s;")
         remove_data = (str(factname),)
-        db = DatabaseConnection()
-        cnx = db.cnx
-        cursor = db.cursor
-        cursor.execute(remove_query, remove_data)
-        cnx.commit()
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(remove_query, remove_data)
         logging.info(f"FACT REMOVED {factname} by {ctx.sender}")
         # After fact is removed from DB, update cache
         await clear_facts()
         await get_facts()
         await update_fact_index()
-        db.close()
         await ctx.reply("Fact removed successfully.")
     except NoDatabaseConnection:
         print(f"ERROR in deleting fact {factname} by {ctx.sender}")
@@ -104,12 +98,12 @@ async def get_facts(startup: bool = False):
     get_query = (f"SELECT factName, factText "
                  f"FROM facts")
     try:
-        db = DatabaseConnection()
-        cursor = db.cursor
-        cursor.execute(get_query)
-        for (factName, factText) in cursor:
-            facts[str(factName)] = factText
-        db.close()
+        breakpoint()
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(get_query)
+            for (factName, factText) in cursor:
+                facts[str(factName)] = factText
     except NoDatabaseConnection:
         # Get facts from the backup file if we have no connection
         logging.error("ERROR in getting facts from DB")
