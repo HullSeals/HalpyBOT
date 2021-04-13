@@ -73,7 +73,7 @@ class User:
 
     @classmethod
     # FIXME this should be Optional[str], but I don't want to touch it now since I don't
-    # FIXME have time to test
+    # have time to test
     def process_vhost(cls, vhost: Union[str, None]) -> Optional[str]:
         """Get a users vhost-role
 
