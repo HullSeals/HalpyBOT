@@ -374,7 +374,7 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
 
         # Load JSON file if landmarks cache is empty, else we just get objects from the cache
         if not landmarks:
-            with open('src/packages/edsm/landmarks.json') as jsonfile:
+            with open('data/edsm/landmarks.json') as jsonfile:
                 landmarks = json.load(jsonfile)
 
         maxdist = config['EDSM']['Maximum landmark distance']
@@ -447,7 +447,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
 
         # Load JSON file if dssa cache is empty, else we just get objects from the cache
         if not dssas:
-            with open('src/packages/edsm/dssa.json') as jsonfile:
+            with open('data/edsm/dssa.json') as jsonfile:
                 dssas = json.load(jsonfile)
 
         for dssa in range(len(dssas)):
@@ -533,7 +533,7 @@ async def calc_direction(x1, x2, y1, y2):
         degrees_final = 360 + degrees_temp
     else:
         degrees_final = degrees_temp
-    #Round to nearest degree, treat Directions as an array and compass_lookup as the array item number.
+    # Round to nearest degree, treat Directions as an array and compass_lookup as the array item number.
     directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
     compass_lookup = round(degrees_final / 45)
     result = f'{directions[compass_lookup]}'
