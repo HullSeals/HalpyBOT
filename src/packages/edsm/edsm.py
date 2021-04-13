@@ -141,6 +141,51 @@ class GalaxySystem:
         else:
             return True
 
+    @classmethod
+    async def get_nearby(cls, x, y, z):
+        """Get a nearby system based on coordinates from the EDSM API.
+
+        Args:
+            x (str): The subject x coordinate
+            y (str): The subject y coordinate
+            z (str): The subject z coordinate
+
+        Returns:
+            (tuple): a tuple with the following values:
+
+                - (str or None): An EDSM system object, None if unsuccessful.
+                - (str or None): Dist in LY from the coords to the EDSM system object, None if unsuccessful
+
+        Raises:
+            EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+
+        """
+        # Else, get the system from EDSM
+        try:
+            response = requests.get("https://www.edsm.net/api-v1/sphere-systems",
+                                    params={"x": x,
+                                            "y": y,
+                                            "z": z,
+                                            "radius": 100,
+                                            "minRadius": 1}, timeout=10)
+            responses = response.json()
+
+        except requests.exceptions.RequestException as er:
+            logging.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
+            raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
+
+        # Return None if system doesn't exist
+        if len(responses) == 0:
+            sysname = None
+            dist = None
+        else:
+            sysname = responses[0]["name"]
+            dist = responses[0]["distance"]
+
+        return sysname, dist
+
+
 @dataclass(frozen=True)
 class Commander:
     """EDSM commander object
