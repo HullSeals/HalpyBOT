@@ -18,7 +18,7 @@ import math
 from dataclasses import dataclass
 import json
 from time import time
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 from ..models import SystemInfo, Coordinates, Location
 from ..utils import get_time_seconds
@@ -140,7 +140,6 @@ class GalaxySystem:
             return False
         else:
             return True
-
 
 @dataclass(frozen=True)
 class Commander:

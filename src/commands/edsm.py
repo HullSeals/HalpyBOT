@@ -174,3 +174,30 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
         return await ctx.reply(f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {system}.")
     except EDSMLookupError as er:
         return await ctx.reply(str(er))
+
+
+@Commands.command("coordcheck", "coords")
+async def cmd_coordslookup(ctx, args: List[str]):
+    """
+    Check EDSM for a nearby EDSM known system to a set of coordinates.
+
+    Usage: !coords [x] [y] [z]
+    Aliases: coords
+    """
+
+    # Input validation
+    if not args:
+        return await ctx.reply("No system given! Please provide a system name.")
+
+    xcoord = args[0].strip()
+    ycoord = args[1].strip()
+    zcoord = args[2].strip()
+
+    try:
+        system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
+    if system is None:
+        return await ctx.reply(f"No systems known to EDSM within 100ly of {xcoord}, {ycoord}, {zcoord}.")
+    else:
+        return await ctx.reply(f"{system} is {dist} LY from {xcoord}, {ycoord}, {zcoord}.")
