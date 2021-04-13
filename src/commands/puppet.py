@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from ..packages.checks import *
+from ..packages.checks import require_permission, DeniedMessage, require_dm
 from ..packages.command import Commands
 from ..packages.models import Context
 

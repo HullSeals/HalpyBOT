@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from ..packages.checks import *
+from ..packages.checks import require_permission, require_channel, DeniedMessage
 from ..packages.command import Commands
 from ..packages.models import User
 from ..packages.configmanager import config

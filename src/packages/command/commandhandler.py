@@ -11,12 +11,11 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List
+from typing import List, Coroutine
 import pydle
 
-from ..database.facts import fact_index, recite_fact
+from ..facts import fact_index, recite_fact
 from ..configmanager import config
-from typing import Coroutine
 from ..models import Context
 
 

@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from ..packages.database.userinfo import *
+from src.packages.seals.userinfo import *
 from ..packages.command import Commands
 from ..packages.checks import *
 from ..packages.models import Context

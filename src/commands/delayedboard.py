@@ -12,7 +12,8 @@ See license.md
 
 from typing import List
 
-from ..packages.database import DelayedCase, NoDatabaseConnection
+from ..packages.database import NoDatabaseConnection
+from ..packages.delayedboard import DelayedCase
 from ..packages.checks import *
 from ..packages.command import Commands
 from ..packages.models import Context

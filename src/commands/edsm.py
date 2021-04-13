@@ -12,7 +12,9 @@ See license.md
 
 from typing import List
 
-from ..packages.edsm import *
+from ..packages.edsm import (GalaxySystem, Commander, EDSMLookupError,
+                             EDSMConnectionError, checkdistance, checklandmarks,
+                             checkdssa)
 from ..packages.command import Commands
 from ..packages.models import Context
 

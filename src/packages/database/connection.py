@@ -14,6 +14,7 @@ import mysql.connector
 from mysql.connector import MySQLConnection
 import logging
 import time
+
 from ..configmanager import config_write, config
 
 dbconfig = {"user": config['Database']['user'],

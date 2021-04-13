@@ -22,8 +22,12 @@ import functools
 
 from src.packages.command import CommandGroup
 from src.packages.announcer import announcer
-from src.packages.database import facts, DatabaseConnection, NoDatabaseConnection
+from src.packages.database import DatabaseConnection, NoDatabaseConnection
+from src.packages.facts import facthandler
 from src.packages.configmanager import config
+
+# Keep this here or our commands won't load
+from src import commands  # pylint: disable=unused-import
 
 
 channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
@@ -35,7 +39,7 @@ class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         await super().on_connect()
-        await facts.on_connect()
+        await facthandler.on_connect()
         print("Fact module loaded successfully")
         await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
         logging.info("Connected")
@@ -58,7 +62,7 @@ class HalpyBOT(pydle.Client):
 
         nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
         if target in config['Announcer']['channel'] and nick in nicks:
-            await announcer.on_channel_message(self, target, nick, message)
+            await announcer.handle_announcement(self, target, nick, message)
 
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
         if in_channel:

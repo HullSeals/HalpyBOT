@@ -1,7 +1,7 @@
 """
 HalpyBOT v1.4
 
-facts.py - Database interaction for the fact module
+facthandler.py - Database interaction for the fact module
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.
@@ -17,8 +17,7 @@ This module is due for a rewrite, and not documented.
 import logging
 import json
 
-from ..command import commandhandler
-from . import DatabaseConnection, NoDatabaseConnection
+from ..database import DatabaseConnection, NoDatabaseConnection
 
 facts = {}
 
@@ -50,8 +49,9 @@ async def update_fact_index():
 
 async def add_fact(ctx, factname: str, facttext: str):
     # Check if not already a command
-    if factname in commandhandler.Commands.commandList:
-        return await ctx.reply("Cannot register fact: already an existing command!")
+    # TODO removed this for now to avoid circular import. Just don't do stupid stuff :P
+    # if factname in Commands.commandList:
+        # return await ctx.reply("Cannot register fact: already an existing command!")
     # Check if fact doesn't already exist
     if factname in fact_index:
         return await ctx.reply("That fact already exists!")

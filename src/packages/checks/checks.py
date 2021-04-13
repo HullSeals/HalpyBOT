@@ -26,7 +26,7 @@ import functools
 from typing import List
 
 from ..models import User
-from ..configmanager import config, ConfigValidationFailure
+from ..configmanager import config
 
 levels = {
     "Rixxan.admin.hullseals.space": 7,

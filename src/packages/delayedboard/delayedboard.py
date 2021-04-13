@@ -10,8 +10,8 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from src.packages.database import DatabaseConnection, NoDatabaseConnection
-from src.packages.utils import strip_non_ascii
+from ..database import DatabaseConnection, NoDatabaseConnection
+from ..utils import strip_non_ascii
 
 class DelayedCase:
 

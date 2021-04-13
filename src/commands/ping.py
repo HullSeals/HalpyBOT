@@ -11,9 +11,10 @@ See license.md
 """
 
 import time
+from typing import List
 
 from ..packages.command import Commands
-from ..packages.checks import *
+from ..packages.checks import require_permission, DeniedMessage
 from ..packages.database import latency, NoDatabaseConnection
 from ..packages.edsm import GalaxySystem, EDSMLookupError
 from ..packages.models import Context

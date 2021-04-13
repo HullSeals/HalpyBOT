@@ -37,7 +37,7 @@ class AnnouncerContext:
         self.channel = channel
         self.sender = sender
 
-async def on_channel_message(bot: pydle.Client, channel: str, sender: str, message: str):
+async def handle_announcement(bot: pydle.Client, channel: str, sender: str, message: str):
     # Seperate arguments
     parts = message.split(" -~~- ")
     anntype = parts[0]

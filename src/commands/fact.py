@@ -14,7 +14,10 @@ from typing import List
 import logging
 
 from ..packages.checks import *
-from ..packages.database.facts import *
+# This will get a LOT better once the fact handler rework is done.
+from ..packages.facts.facthandler import (clear_facts, get_facts,
+                                          get_offline_facts, update_fact_index,
+                                          add_fact, remove_fact, basic_facts)
 from ..packages.database import NoDatabaseConnection
 from ..packages.command import Commands
 from ..packages.models import Context
