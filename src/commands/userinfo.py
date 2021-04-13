@@ -12,10 +12,10 @@ See license.md
 
 from typing import List
 
-from ...packages.database.userinfo import *
-from .. import Commands
-from ...packages.checks import *
-from ...packages.models import Context
+from ..packages.database.userinfo import *
+from ..packages.command import Commands
+from ..packages.checks import *
+from ..packages.models import Context
 
 
 @Commands.command("whois")

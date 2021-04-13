@@ -12,11 +12,10 @@ See license.md
 
 from typing import List
 
-from ...packages.database import DelayedCase
-from ...packages.database import NoDatabaseConnection
-from ...packages.checks import *
-from .. import Commands
-from ...packages.models import Context
+from ..packages.database import DelayedCase, NoDatabaseConnection
+from ..packages.checks import *
+from ..packages.command import Commands
+from ..packages.models import Context
 
 @Commands.command("delaycase")
 @require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)

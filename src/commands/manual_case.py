@@ -14,10 +14,10 @@ from typing import List
 import logging
 import requests
 
-from ...packages.checks import *
-from .. import Commands
-from ...packages.configmanager import config
-from ...packages.models import Context
+from ..packages.checks import *
+from ..packages.command import Commands
+from ..packages.configmanager import config
+from ..packages.models import Context
 
 @Commands.command("manualcase", "mancase")
 @require_channel()

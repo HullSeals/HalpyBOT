@@ -13,12 +13,12 @@ See license.md
 import time
 from typing import List
 
-from ...packages import notify
-from ...packages.checks import require_permission, require_aws, require_dm, require_channel, DeniedMessage
-from ...packages.command import CommandGroup, Commands
-from ...packages.configmanager import config
-from ...packages.utils import get_time_seconds
-from ...packages.models import Context
+from ..packages import notify
+from ..packages.checks import require_permission, require_aws, require_dm, require_channel, DeniedMessage
+from ..packages.command import CommandGroup, Commands
+from ..packages.configmanager import config
+from ..packages.utils import get_time_seconds
+from ..packages.models import Context
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")

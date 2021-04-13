@@ -13,8 +13,8 @@ See license.md
 from typing import List
 from datetime import datetime
 
-from .. import Commands
-from ...packages.models import Context
+from ..packages.command import Commands
+from ..packages.models import Context
 
 @Commands.command("utc")
 async def cmd_utc(ctx: Context, args: List[str]):

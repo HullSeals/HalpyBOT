@@ -13,11 +13,11 @@ See license.md
 from typing import List
 import logging
 
-from ...packages.checks import *
-from ...packages.database.facts import *
-from ...packages.database import NoDatabaseConnection
-from .. import Commands
-from ...packages.models import Context
+from ..packages.checks import *
+from ..packages.database.facts import *
+from ..packages.database import NoDatabaseConnection
+from ..packages.command import Commands
+from ..packages.models import Context
 
 
 @Commands.command("allfacts")

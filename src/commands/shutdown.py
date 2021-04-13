@@ -16,9 +16,9 @@ import signal
 import logging
 from typing import List
 
-from ...packages.checks import *
-from .. import Commands
-from ...packages.models import Context
+from ..packages.checks import *
+from ..packages.command import Commands
+from ..packages.models import Context
 
 @Commands.command("shutdown")
 @require_dm()

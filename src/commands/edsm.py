@@ -12,9 +12,9 @@ See license.md
 
 from typing import List
 
-from ...packages.edsm import *
-from .. import Commands
-from ...packages.models import Context
+from ..packages.edsm import *
+from ..packages.command import Commands
+from ..packages.models import Context
 
 
 @Commands.command("lookup", "syslookup")

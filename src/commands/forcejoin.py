@@ -12,11 +12,11 @@ See license.md
 
 from typing import List
 
-from ...packages.checks import *
-from .. import Commands
-from ...packages.models import User
-from ...packages.configmanager import config
-from ...packages.models import Context
+from ..packages.checks import *
+from ..packages.command import Commands
+from ..packages.models import User
+from ..packages.configmanager import config
+from ..packages.models import Context
 
 joinableChannels = [entry.strip() for entry in config.get('Force join command', 'joinable').split(',')]
 

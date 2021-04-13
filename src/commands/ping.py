@@ -12,11 +12,11 @@ See license.md
 
 import time
 
-from .. import Commands
-from ...packages.checks import *
-from ...packages.database import latency, NoDatabaseConnection
-from ...packages.edsm import GalaxySystem, EDSMLookupError
-from ...packages.models import Context
+from ..packages.command import Commands
+from ..packages.checks import *
+from ..packages.database import latency, NoDatabaseConnection
+from ..packages.edsm import GalaxySystem, EDSMLookupError
+from ..packages.models import Context
 
 @Commands.command("ping")
 async def cmd_ping(ctx: Context, args: List[str]):
