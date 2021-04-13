@@ -17,11 +17,12 @@ import requests
 from ...packages.checks import *
 from .. import Commands
 from ...packages.configmanager import config
+from ...packages.models import Context
 
 @Commands.command("manualcase", "mancase")
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-async def cmd_manual_case(ctx, args: List[str]):
+async def cmd_manual_case(ctx: Context, args: List[str]):
     """
     Create a manual case
 
@@ -48,7 +49,7 @@ async def cmd_manual_case(ctx, args: List[str]):
 @Commands.command("manualfish", "manfish")
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-async def cmd_manual_kingfisher(ctx, args: List[str]):
+async def cmd_manual_kingfisher(ctx: Context, args: List[str]):
     """
     Create a manual kingfisher case
 
@@ -76,7 +77,7 @@ async def cmd_manual_kingfisher(ctx, args: List[str]):
 @Commands.command("tsping")
 @require_channel()
 @require_permission("DRILLED", message=DeniedMessage.DRILLED)
-async def cmd_trained_ping(ctx, args: List[str]):
+async def cmd_trained_ping(ctx: Context, args: List[str]):
     """
     Alert the "Trained Seals" role in Discord that CMDRs are needed for this case. Annoying AF and not to be used lightly.
 

@@ -17,12 +17,13 @@ from ...packages.checks import *
 from ...packages.database.facts import *
 from ...packages.database import NoDatabaseConnection
 from .. import Commands
+from ...packages.models import Context
 
 
 @Commands.command("allfacts")
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-async def cmd_allfacts(ctx, args: List[str]):
+async def cmd_allfacts(ctx: Context, args: List[str]):
     """
     List all registered facts
 
@@ -34,7 +35,7 @@ async def cmd_allfacts(ctx, args: List[str]):
 
 @Commands.command("ufi", "fact_update")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def cmd_manual_ufi(ctx, args: List[str]):
+async def cmd_manual_ufi(ctx: Context, args: List[str]):
     """
     Manually update the fact cache and index
 
@@ -58,7 +59,7 @@ async def cmd_manual_ufi(ctx, args: List[str]):
 
 @Commands.command("addfact")
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
-async def cmd_addfact(ctx, args: List[str]):
+async def cmd_addfact(ctx: Context, args: List[str]):
     """
     Add a new fact to the database
 
@@ -76,7 +77,7 @@ async def cmd_addfact(ctx, args: List[str]):
 
 @Commands.command("deletefact")
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
-async def cmd_deletefact(ctx, args: List[str]):
+async def cmd_deletefact(ctx: Context, args: List[str]):
     """
     Delete a fact from the database
 

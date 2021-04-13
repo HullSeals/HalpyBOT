@@ -14,12 +14,13 @@ from typing import List
 
 from ...packages.checks import *
 from .. import Commands
+from ...packages.models import Context
 
 
 @Commands.command("say")
 @require_dm()
 @require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
-async def cmd_say(ctx, args: List[str]):
+async def cmd_say(ctx: Context, args: List[str]):
     """
     Make the bot say something
 

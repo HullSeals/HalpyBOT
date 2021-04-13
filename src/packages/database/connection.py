@@ -19,7 +19,9 @@ from ..configmanager import config_write, config
 dbconfig = {"user": config['Database']['user'],
             "password": config['Database']['password'],
             "host": config['Database']['host'],
-            "database": config['Database']['database']}
+            "database": config['Database']['database'],
+            "connect_timeout": int(config['Database']['timeout']),
+            }
 
 # Assume not in offline mode
 offline_mode: bool = config.getboolean('Offline Mode', 'Enabled')

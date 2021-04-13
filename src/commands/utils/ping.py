@@ -16,9 +16,10 @@ from .. import Commands
 from ...packages.checks import *
 from ...packages.database import latency, NoDatabaseConnection
 from ...packages.edsm import GalaxySystem, EDSMLookupError
+from ...packages.models import Context
 
 @Commands.command("ping")
-async def cmd_ping(ctx, args: List[str]):
+async def cmd_ping(ctx: Context, args: List[str]):
     """
     https://tinyurl.com/yylju9hg
     Ping the bot, to check if it is alive
@@ -30,7 +31,7 @@ async def cmd_ping(ctx, args: List[str]):
 
 @Commands.command("dbping")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def cmd_dbping(ctx, args: List[str]):
+async def cmd_dbping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the Database.
 
@@ -50,7 +51,7 @@ async def cmd_dbping(ctx, args: List[str]):
 
 @Commands.command("edsmping")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def cmd_edsmping(ctx, args: List[str]):
+async def cmd_edsmping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the EDSM API.
 

@@ -25,7 +25,7 @@ See license.md
 import functools
 from typing import List
 
-from ..datamodels import User
+from ..models import User
 from ..configmanager import config, ConfigValidationFailure
 
 levels = {

@@ -46,10 +46,16 @@ class HalpyBOT(pydle.Client):
         await self.offline_monitor()
 
     async def on_message(self, target, nick, message):
+
+        if nick == self.nickname:
+            return  # Let's not react to ourselves shall we?
         await super().on_channel_message(target, nick, message)
+
         if message == f"{self.nickname} prefix":
             return await self.message(target, f"Prefix: {config['IRC']['commandPrefix']}")
+
         await CommandGroup.invoke_from_message(self, target, nick, message)
+
         nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
         if target in config['Announcer']['channel'] and nick in nicks:
             await announcer.on_channel_message(self, target, nick, message)

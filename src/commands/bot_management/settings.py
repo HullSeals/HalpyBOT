@@ -18,13 +18,14 @@ import logging
 from ...packages.checks import *
 from ...packages.configmanager import config_write, config
 from ...packages.command import CommandGroup, Commands
+from ...packages.models import Context
 
 Settings = CommandGroup()
 Settings.add_group("bot_management", "settings")
 
 @Settings.command("nick")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def cmd_nick(ctx, args: List[str]):
+async def cmd_nick(ctx: Context, args: List[str]):
     """
     Change the nickname of the bot
 
@@ -39,7 +40,7 @@ async def cmd_nick(ctx, args: List[str]):
 
 @Settings.command("prefix")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def cmd_prefix(ctx, args: List[str]):
+async def cmd_prefix(ctx: Context, args: List[str]):
     """
     Oh boy, I hope you know what you're doing...
     Change the prefix
@@ -56,7 +57,7 @@ async def cmd_prefix(ctx, args: List[str]):
 @Settings.command("offline")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
 @require_channel()
-async def cmd_offline(ctx, args: List[str]):
+async def cmd_offline(ctx: Context, args: List[str]):
     """
     Change the status of Offline mode.
 
@@ -84,7 +85,7 @@ async def cmd_offline(ctx, args: List[str]):
 
 @Settings.command("warning_override")
 @require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
-async def cmd_override_omw(ctx, args: List[str]):
+async def cmd_override_omw(ctx: Context, args: List[str]):
     """
     Enable override for offline mode notifications
 
@@ -114,7 +115,7 @@ async def cmd_override_omw(ctx, args: List[str]):
 
 @Commands.command("joinchannel")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def cmd_joinchannel(ctx, args: List[str]):
+async def cmd_joinchannel(ctx: Context, args: List[str]):
     """
     Make the bot join a channel. After restart, it will still be in the channel.
     To make it leave, use !partchannel
@@ -140,7 +141,7 @@ async def cmd_joinchannel(ctx, args: List[str]):
 
 @Commands.command("partchannel")
 @require_permission(req_level="CYBER", message=DeniedMessage.CYBER)
-async def cmd_part(ctx, args: List[str]):
+async def cmd_part(ctx: Context, args: List[str]):
     """
     Make the bot leave the channel it's currently in
 

@@ -20,7 +20,7 @@ import json
 from time import time
 from typing import Optional, Union
 
-from ..datamodels import SystemInfo, Coordinates, Location
+from ..models import SystemInfo, Coordinates, Location
 from ..utils import get_time_seconds
 from ..configmanager import config
 

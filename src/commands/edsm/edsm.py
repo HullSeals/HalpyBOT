@@ -14,10 +14,11 @@ from typing import List
 
 from ...packages.edsm import *
 from .. import Commands
+from ...packages.models import Context
 
 
 @Commands.command("lookup", "syslookup")
-async def cmd_systemlookup(ctx, args: List[str]):
+async def cmd_systemlookup(ctx: Context, args: List[str]):
     """
     Check EDSM for the existence of a system.
 
@@ -47,7 +48,7 @@ async def cmd_systemlookup(ctx, args: List[str]):
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
-async def cmd_cmdrlocate(ctx, args: List[str]):
+async def cmd_cmdrlocate(ctx: Context, args: List[str]):
     """
     Check EDSM for the existence and location of a CMDR.
 
@@ -78,7 +79,7 @@ async def cmd_cmdrlocate(ctx, args: List[str]):
 
 
 @Commands.command("distance", "dist")
-async def cmd_distlookup(ctx, args: List[str]):
+async def cmd_distlookup(ctx: Context, args: List[str]):
     """
     Check EDSM for the distance between two known points.
 
@@ -117,7 +118,7 @@ async def cmd_distlookup(ctx, args: List[str]):
 
 
 @Commands.command("landmark")
-async def cmd_landmarklookup(ctx, args: List[str]):
+async def cmd_landmarklookup(ctx: Context, args: List[str]):
     """
     Calculate the closest landmark system to a known EDSM system.
 
@@ -145,7 +146,7 @@ async def cmd_landmarklookup(ctx, args: List[str]):
 
 
 @Commands.command("dssa")
-async def cmd_dssalookup(ctx, args: List[str]):
+async def cmd_dssalookup(ctx: Context, args: List[str]):
     """
     Calculate the closest DSSA Carrier to a known EDSM system.
 

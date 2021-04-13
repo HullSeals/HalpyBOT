@@ -17,6 +17,8 @@ import pydle
 from ..database.facts import fact_index, recite_fact
 from ..configmanager import config
 from typing import Coroutine
+from ..models import Context
+
 
 class CommandException(Exception):
     """
@@ -32,37 +34,6 @@ class CommandAlreadyExists(CommandHandlerError):
     """
     Raised when a command is registered twice
     """
-
-class Context:
-    """Message context object"""
-
-    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str):
-        """Create message context object
-
-        Args:
-            bot (`pydle.Client`): botclient/pseudoclient
-            channel (str): channel message was sent in
-            sender (str): user who sent the message
-            in_channel (bool): True if in a channel, False if in DM
-            message (str): message content
-
-        """
-        self.bot = bot
-        self.channel = channel
-        self.sender = sender
-        self.in_channel = in_channel
-        self.message = message
-
-    async def reply(self, message: str):
-        """Send a message to the channel a message was sent in
-
-        If the command was invoked in a DM, the user will be replied to in DM.
-
-        Args:
-            message (str): The message to be sent
-
-        """
-        await self.bot.reply(self.channel, self.sender, self.in_channel, message)
 
 
 class CommandGroup:

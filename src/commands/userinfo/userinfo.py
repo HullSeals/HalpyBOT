@@ -15,12 +15,13 @@ from typing import List
 from ...packages.database.userinfo import *
 from .. import Commands
 from ...packages.checks import *
+from ...packages.models import Context
 
 
 @Commands.command("whois")
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-async def cmd_whois(ctx, args: List[str]):
+async def cmd_whois(ctx: Context, args: List[str]):
     """
     List user information of a given user
 
@@ -37,7 +38,7 @@ async def cmd_whois(ctx, args: List[str]):
 @Commands.command("whoami")
 @require_dm()
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
-async def cmd_whoami(ctx, args: List[str]):
+async def cmd_whoami(ctx: Context, args: List[str]):
     """
     List user information of a given user
 

@@ -14,9 +14,10 @@ from typing import List
 from datetime import datetime
 
 from .. import Commands
+from ...packages.models import Context
 
 @Commands.command("utc")
-async def cmd_utc(ctx, args: List[str]):
+async def cmd_utc(ctx: Context, args: List[str]):
     """
     Reply with the current UTC/In Game Time
 
@@ -32,7 +33,7 @@ async def cmd_utc(ctx, args: List[str]):
 
 
 @Commands.command("year")
-async def cmd_year(ctx, args: List[str]):
+async def cmd_year(ctx: Context, args: List[str]):
     """
     Reply with the current In Game Year
 

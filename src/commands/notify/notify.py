@@ -18,6 +18,7 @@ from ...packages.checks import require_permission, require_aws, require_dm, requ
 from ...packages.command import CommandGroup, Commands
 from ...packages.configmanager import config
 from ...packages.utils import get_time_seconds
+from ...packages.models import Context
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
@@ -29,7 +30,7 @@ timer = 0
 @NotifyInfo.command("groups")
 @require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
 @require_aws()
-async def cmd_listgroups(ctx, args: List[str]):
+async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     List the existing notification groups.
 
@@ -54,7 +55,7 @@ async def cmd_listgroups(ctx, args: List[str]):
 @require_permission(req_level="OWNER", message=DeniedMessage.OWNER)
 @require_dm()
 @require_aws()
-async def cmd_listnotify(ctx, args: List[str]):
+async def cmd_listnotify(ctx: Context, args: List[str]):
     """
     List contact details of particular groups.
 
@@ -89,7 +90,7 @@ async def cmd_listnotify(ctx, args: List[str]):
 @require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
 @require_dm()
 @require_aws()
-async def cmd_subscribe(ctx, args: List[str]):
+async def cmd_subscribe(ctx: Context, args: List[str]):
     """
     Add a user to a valid group
 
@@ -123,7 +124,7 @@ async def cmd_subscribe(ctx, args: List[str]):
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
 @require_aws()
-async def cmd_notifystaff(ctx, args: List[str]):
+async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
     Send a notification to the Admins and Moderators.
 
@@ -151,7 +152,7 @@ async def cmd_notifystaff(ctx, args: List[str]):
 @require_permission(req_level="PUP", message=DeniedMessage.PUP)
 @require_channel()
 @require_aws()
-async def cmd_notifycybers(ctx, args: List[str]):
+async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
     Send a notification to the Cyberseals.
 
