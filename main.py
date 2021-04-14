@@ -20,10 +20,9 @@ import asyncio
 import signal
 import functools
 
-from src.packages.command import CommandGroup
+from src.packages.command import CommandGroup, Facts
 from src.packages.announcer import announcer
 from src.packages.database import DatabaseConnection, NoDatabaseConnection
-from src.packages.facts import facthandler
 from src.packages.configmanager import config
 
 # Keep this here or our commands won't load
@@ -39,7 +38,7 @@ class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         await super().on_connect()
-        await facthandler.on_connect()
+        await Facts.fetch_facts()
         print("Fact module loaded successfully")
         await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
         logging.info("Connected")

@@ -1,6 +1,6 @@
 from . import delayedboard
 from . import edsm
-from . import fact
+# from . import fact
 from . import forcejoin
 from . import manual_case
 from . import notify
@@ -13,7 +13,7 @@ from . import userinfo
 
 __all__ = ["delayedboard",
            "edsm",
-           "fact",
+#           "fact",
            "forcejoin",
            "manual_case",
            "notify",

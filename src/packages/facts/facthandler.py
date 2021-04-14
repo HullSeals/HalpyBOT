@@ -8,131 +8,217 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
-
-This module is due for a rewrite, and not documented.
-
 """
 
 
-import logging
+from __future__ import annotations
+from typing import List, Optional
 import json
 
 from ..database import DatabaseConnection, NoDatabaseConnection
+from ..configmanager import config
 
-facts = {}
+class FactHandlerError(Exception):
+    """
+    Base class for fact handler exceptions
+    """
 
-fact_index = []
-basic_facts = []
+class FactUpdateError(FactHandlerError):
+    """
+    Unable to update a fact attribute to the database
+    """
+
+class Fact:
+
+    def __init__(self, ID: Optional[int], name: str, lang: str, text: str, author: str):
+        if ID is None:
+            self._offline = True
+        self._ID = ID
+        self._name = name
+        self._lang = lang
+        self._text = text
+        self._author = author
+
+    @property
+    def ID(self):
+        return self._ID
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def language(self):
+        return self._lang.upper()
+
+    @property
+    def text(self):
+        return self._text
+
+    @property
+    def author(self):
+        return self._author
+
+    @name.setter
+    def name(self, newname: str):
+        # TODO check if new name not already a fact/command
+        self._name = newname
+        self._write()
+
+    @text.setter
+    def text(self, newtext: str):
+        self._text = newtext
+        self._write()
+
+    def _write(self):
+        # Don't write to DB if we're editing an offline fact.
+        # We shouldn't ever end up in this situation, anyway
+        if self._offline:
+            return
+        try:
+            with DatabaseConnection() as db:
+                cursor = db.cursor()
+                args = (self._name, self._lang.upper(), self._text, self._author, self._ID)
+                cursor.execute(f"UPDATE {config['Facts']['table']} "
+                               f"SET factName = %s, factLang = %s, factText = %s, "
+                               f"factEditedBy = %s "
+                               f"WHERE factID = %s", args)
+        except NoDatabaseConnection:
+            raise FactUpdateError("Fact was probably updated locally but could "
+                                  "not be uploaded to the database.")
 
 
-async def on_connect():
-    await get_facts(startup=True)
+class FactHandler:
 
-async def clear_facts():
-    facts.clear()
-    fact_index.clear()
-    basic_facts.clear()
+    def __init__(self):
+        self.factCache = {}
 
-async def update_fact_index():
-    global fact_index
-    factnames = facts.keys()
-    for name in factnames:
-        if name in fact_index:
-            continue
-        if "_no_args" in name:
-            continue
+    async def get_fact_object(self, name: str, lang: str = "en") -> Optional[Fact]:
+        """Get a fact object by name
+
+        If no language is specified, we get the English fact by default
+
+        Args:
+            name (str): Name of the fact, without a -xx language suffix
+            lang (str): fact language code as specified in ISO-639-1
+
+        Returns:
+            (`Fact` or None) Fact object if exists, else None
+
+        """
+        if name in self.factCache.keys():
+            return self.factCache[name]
         else:
-            fact_index.append(str(name))
-            if "-" not in name and name not in basic_facts:
-                basic_facts.append(str(name))
+            return None
 
+    async def fetch_facts(self, preserve_current: bool = False):
+        """Refresh fact cache.
 
-async def add_fact(ctx, factname: str, facttext: str):
-    # Check if not already a command
-    # TODO removed this for now to avoid circular import. Just don't do stupid stuff :P
-    # if factname in Commands.commandList:
-        # return await ctx.reply("Cannot register fact: already an existing command!")
-    # Check if fact doesn't already exist
-    if factname in fact_index:
-        return await ctx.reply("That fact already exists!")
-    add_query = (f"INSERT INTO facts (FactName, FactText, FactAuthor) "
-                 f"VALUES (%s, %s, %s);")
-    add_data = (str(factname), str(facttext), str(ctx.sender))
-    try:
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
-            cursor.execute(add_query, add_data)
-        logging.info(f"FACT ADDED {factname} by {ctx.sender}")
-        # After fact is added to DB, update cache
-        await clear_facts()
-        await get_facts()
-        await update_fact_index()
-        await ctx.reply("Fact added successfully")
-    except NoDatabaseConnection:
-        logging.error(f"ERROR in registering fact {factname} by {ctx.sender}")
-        raise
+        If a database connection is available, we will get the facts from there.
+        Else, we get it from the backup files.
 
-async def remove_fact(ctx, factname: str):
-    try:
-        # Check if fact exists (this is in the try loop because we want the
-        if factname not in fact_index:
-            return await ctx.reply("That fact doesn't exist!")
-        remove_query = (f"DELETE FROM facts "
-                        f"WHERE factName = %s;")
-        remove_data = (str(factname),)
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
-            cursor.execute(remove_query, remove_data)
-        logging.info(f"FACT REMOVED {factname} by {ctx.sender}")
-        # After fact is removed from DB, update cache
-        await clear_facts()
-        await get_facts()
-        await update_fact_index()
-        await ctx.reply("Fact removed successfully.")
-    except NoDatabaseConnection:
-        print(f"ERROR in deleting fact {factname} by {ctx.sender}")
-        raise
+        Args:
+            preserve_current (bool): If True, and database connection is not available,
+                we don't attempt to update the fact cache at all and just leave it as it is.
 
-async def get_facts(startup: bool = False):
-    global facts
-    get_query = (f"SELECT factName, factText "
-                 f"FROM facts")
-    try:
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
-            cursor.execute(get_query)
-            for (factName, factText) in cursor:
-                facts[str(factName)] = factText
-    except NoDatabaseConnection:
-        # Get facts from the backup file if we have no connection
-        logging.error("ERROR in getting facts from DB")
-        get_offline_facts()
-        if not startup:
+        """
+        try:
+            await self._from_database()
+        except FactUpdateError:
+            if not preserve_current:
+                await self._from_local()
             raise
-    finally:
-        await update_fact_index()
 
+    async def _from_database(self):
+        """Get facts from database and update the cache"""
+        try:
+            with DatabaseConnection() as db:
+                cursor = db.cursor()
+                cursor.execute(f"SELECT factID, factName, factLang, factText, factAuthor "
+                               f"FROM {config['Facts']['table']}")
+                self._flush_cache()
+                for (ID, Name, Lang, Text, Author) in cursor:
+                    self.factCache[[Name, Lang]] = Fact(int(ID), Name, Lang, Text, Author)
+        except NoDatabaseConnection:
+            raise FactUpdateError("Unable to fetch facts from database")
 
-def get_offline_facts():
-    global facts
-    with open('src/facts/backup_facts.json', 'r') as json_file:
-        facts = json.load(json_file)
+    async def _from_local(self):
+        """Get facts from local backup file and update the cache"""
+        with open("data/facts/backup_facts.json") as jsonfile:
+            backupfile = json.load(jsonfile)
+        self._flush_cache()
+        for fact in backupfile.keys():
+            # Get lang and fact. This is stupid, just ignore
+            if '-' in fact:
+                factname = str(fact).split('-')[0]
+                lang = str(fact).split('-')[1]
+            else:
+                factname = fact
+                lang = "en"
+            self.factCache[factname, lang] = Fact(None, backupfile[factname], lang, fact, "HalpyBOT OM")
 
-async def recite_fact(ctx, args, fact: str):
+    def _flush_cache(self):
+        """Flush the fact cache. Use with care"""
+        self.factCache.clear()
 
-    # Sanity check
-    if fact not in facts:
-        return await ctx.reply("Cannot find fact! contact a cyberseal")
+    async def add_fact(self, name: str, lang: str, text: str, author: str):
+        """Add a new fact
 
-    # Public and PM, 1 version
-    if f"{fact}_no_args" not in facts:
-        if len(args) == 0:
-            return await ctx.reply(facts[str(fact)])
-        else:
-            return await ctx.reply(f"{(' '.join(str(seal) for seal in args)).strip()}: {facts[str(fact)]}")
+        If the fact name corresponds to an existing fact in combination
+        with the language, or to an existing command, the fact handler refuses
+        to create it.
 
-    # Public and PM, args and noargs
-    if len(args) == 0:
-        await ctx.reply(facts[f"{str(fact)}_no_args"])
-    else:
-        await ctx.reply(f"{(' '.join(str(seal) for seal in args)).strip()}: {facts[str(fact)]}")
+        Args:
+            name (str): name of the fact
+            lang (str): language code, as specified in ISO-639-1
+            text (str): Text of the fact, including formatting
+            author (str): Author of the fact
+
+        """
+        pass
+
+    async def update_fact(self, name: Optional[str] = None,
+                          text: Optional[str] = None):
+        """Update a fact name or text
+
+        If no value is specified for name or text, we don't update it.
+        It's not possible to change a fact language.
+
+        Args:
+            name (str): New name of the fact
+            text (str): New text for the fact
+
+        """
+        pass
+
+    async def delete_fact(self, name: str, lang: str = "en"):
+        """Delete a fact
+
+        Fact is immediately deleted from both local storage and the database;
+        use with care.
+
+        Args:
+            name (str): Name of the fact to be deleted
+            lang (str): Fact language ISO-639-1 code. English by default
+
+        Returns:
+
+        """
+        pass
+
+    async def list(self, lang: Optional[str] = "en") -> List[str]:
+        """Get a list of facts
+
+        Get a list of all facts from internal memory.
+
+        Args:
+            lang (str): Fact language ISO-639-1 code. English by default
+
+        Returns:
+            (list) a list of all fact names
+
+        """
+        pass
+
+async def fact_from_message() -> Optional[Fact]:
+    pass

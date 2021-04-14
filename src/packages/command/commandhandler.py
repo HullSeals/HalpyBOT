@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import List, Coroutine
 import pydle
 
-from ..facts import fact_index, recite_fact
+from ..facts import FactHandler
 from ..configmanager import config
 from ..models import Context
 
@@ -34,6 +34,8 @@ class CommandAlreadyExists(CommandHandlerError):
     Raised when a command is registered twice
     """
 
+
+Facts = FactHandler()
 
 class CommandGroup:
     """Group of commands
@@ -86,8 +88,10 @@ class CommandGroup:
                     return await cls._root(Command=command, Context=ctx, Arguments=args)
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
-            elif command in fact_index:
-                return await recite_fact(ctx, args, fact=str(command))
+
+            # TODO create FactHandler method for this
+            elif command in Facts.factCache.keys():
+                return await ctx.reply(Facts.factCache[command].text)
             else:
                 return
 
