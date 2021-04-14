@@ -5,19 +5,14 @@ formatted and customized when creating or editing them.
 
 ## Formatting
 
-### Colour (NOT SUPPORTED YET)
 
-HalpyBOT will support three IRC colours: red, green, and blue.
+### Bold/Italics/Underlined
 
-`<<RED>>text<<RED>>`
-`<<GREEN>>text<<GREEN>>`
-`<<BLUE>>text<<BLUE>>`
-
-### Bold
-
-Text can be made bold:
+Pretty straightforward:
 
 `<<BOLD>>text<<BOLD>>`
+`<<ITALICS>>text<<ITALICS>>`
+`<<UNDERLINED>>text<<UNDERLINED>>`
 
 ## No args
 
