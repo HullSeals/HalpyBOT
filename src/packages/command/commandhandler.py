@@ -91,8 +91,12 @@ class CommandGroup:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
 
             # We have to get the language on the fly here because the fact cache stores it as tuple
-            elif (command.split('-')[0], lang) in self._factHandler.list():
-                return await self.invoke_fact(ctx, args, command.split('-')[0], lang)
+
+            elif command.split('-')[0] in await self._factHandler.get_fact_names():
+                factname = command.split('-')[0]
+                if lang not in list(await self._factHandler.get_fact_languages(factname)):
+                    lang = 'en'
+                return await self.invoke_fact(ctx, args, factname, lang)
 
     @property
     def commandList(self):
@@ -256,6 +260,7 @@ class CommandGroup:
         # Sanity check
         if (fact, lang) not in self._factHandler.list():
             raise CommandException("Cannot find fact, contact a cyberseal")
+        # Default to English if we don't have the specified language
         return await ctx.reply(await self._factHandler.fact_formatted(fact=(fact, lang),
                                                                       arguments=args))
 

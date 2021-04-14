@@ -38,6 +38,7 @@ class Fact:
         self._name = name
         self._lang = lang
         self._text = self._parse_fact(text)
+        self._raw_text = text
         self._author = author
 
     @property
@@ -57,6 +58,10 @@ class Fact:
         return self._text
 
     @property
+    def raw_text(self):
+        return self._raw_text
+
+    @property
     def author(self):
         return self._author
 
@@ -68,7 +73,8 @@ class Fact:
 
     @text.setter
     def text(self, newtext: str):
-        self._text = newtext
+        self._text = self._parse_fact(newtext)
+        self._raw_text = newtext
         self._write()
 
     @staticmethod
@@ -130,8 +136,8 @@ class FactHandler:
             (`Fact` or None) Fact object if exists, else None
 
         """
-        if name in self._factCache.keys():
-            return self._factCache[name]
+        if (name, lang) in self._factCache.keys():
+            return self._factCache[name, lang]
         else:
             return None
 
@@ -200,6 +206,22 @@ class FactHandler:
 
         """
         pass
+
+    async def get_fact_languages(self, name: str):
+        langlist = []
+        for fact in self._factCache.keys():
+            if fact[0] == name:
+                langlist.append(fact[1])
+        return langlist
+
+    async def get_fact_names(self):
+        namelist = []
+        for fact in self._factCache.keys():
+            if fact[0] in namelist:
+                pass
+            else:
+                namelist.append(fact[0])
+        return namelist
 
     async def update_fact(self, name: Optional[str] = None,
                           text: Optional[str] = None):
