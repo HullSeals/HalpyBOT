@@ -20,7 +20,7 @@ import asyncio
 import signal
 import functools
 
-from src.packages.command import CommandGroup, Facts
+from src.packages.command import Commands, Facts
 from src.packages.announcer import announcer
 from src.packages.database import DatabaseConnection, NoDatabaseConnection
 from src.packages.configmanager import config
@@ -57,7 +57,7 @@ class HalpyBOT(pydle.Client):
         if message == f"{self.nickname} prefix":
             return await self.message(target, f"Prefix: {config['IRC']['commandPrefix']}")
 
-        await CommandGroup.invoke_from_message(self, target, nick, message)
+        await Commands.invoke_from_message(self, target, nick, message)
 
         nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
         if target in config['Announcer']['channel'] and nick in nicks:

@@ -14,6 +14,7 @@ See license.md
 from __future__ import annotations
 from typing import List, Optional
 import json
+import re
 
 from ..database import DatabaseConnection, NoDatabaseConnection
 from ..configmanager import config
@@ -36,7 +37,7 @@ class Fact:
         self._ID = ID
         self._name = name
         self._lang = lang
-        self._text = text
+        self._text = self._parse_fact(text)
         self._author = author
 
     @property
@@ -70,6 +71,22 @@ class Fact:
         self._text = newtext
         self._write()
 
+    @staticmethod
+    def _parse_fact(text: str):
+        repltable = {"<<BOLD>>": "\u0002",
+                     "<<ITALICS>>": "\u001D",
+                     "<<UNDERLINE>>": "\u001f",
+                     " %n% ": "\n"}
+        for token, new in repltable.items():
+            text = text.replace(token, new)
+        return text
+
+    def __del__(self):
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(f"DELETE FROM {config['Facts']['table']} "
+                           f"WHERE factID = %s", self._ID)
+
     def _write(self):
         # Don't write to DB if we're editing an offline fact.
         # We shouldn't ever end up in this situation, anyway
@@ -91,7 +108,14 @@ class Fact:
 class FactHandler:
 
     def __init__(self):
-        self.factCache = {}
+        """Create a new fact handler
+
+        Create a new fact manager object. On creation, this is still
+        'empty', and not able to process input. Do this by loading facts
+        and attaching it to a command handler.
+
+        """
+        self._factCache = {}
 
     async def get_fact_object(self, name: str, lang: str = "en") -> Optional[Fact]:
         """Get a fact object by name
@@ -106,8 +130,8 @@ class FactHandler:
             (`Fact` or None) Fact object if exists, else None
 
         """
-        if name in self.factCache.keys():
-            return self.factCache[name]
+        if name in self._factCache.keys():
+            return self._factCache[name]
         else:
             return None
 
@@ -138,7 +162,7 @@ class FactHandler:
                                f"FROM {config['Facts']['table']}")
                 self._flush_cache()
                 for (ID, Name, Lang, Text, Author) in cursor:
-                    self.factCache[[Name, Lang]] = Fact(int(ID), Name, Lang, Text, Author)
+                    self._factCache[Name, Lang] = Fact(int(ID), Name, Lang, Text, Author)
         except NoDatabaseConnection:
             raise FactUpdateError("Unable to fetch facts from database")
 
@@ -155,11 +179,11 @@ class FactHandler:
             else:
                 factname = fact
                 lang = "en"
-            self.factCache[factname, lang] = Fact(None, backupfile[factname], lang, fact, "HalpyBOT OM")
+            self._factCache[factname, lang] = Fact(None, backupfile[factname], lang, fact, "HalpyBOT OM")
 
     def _flush_cache(self):
         """Flush the fact cache. Use with care"""
-        self.factCache.clear()
+        self._factCache.clear()
 
     async def add_fact(self, name: str, lang: str, text: str, author: str):
         """Add a new fact
@@ -204,9 +228,9 @@ class FactHandler:
         Returns:
 
         """
-        pass
+        del self._factCache[name, lang]
 
-    async def list(self, lang: Optional[str] = "en") -> List[str]:
+    def list(self, lang: Optional[str] = None) -> List[tuple]:
         """Get a list of facts
 
         Get a list of all facts from internal memory.
@@ -218,7 +242,50 @@ class FactHandler:
             (list) a list of all fact names
 
         """
-        pass
+        if not lang:
+            return list(self._factCache.keys())
+        else:
+            langlist = []
+            for fact in self._factCache.keys():
+                if fact[1].lower() == lang.lower():
+                    langlist.append(fact[0])
+            return langlist
 
-async def fact_from_message() -> Optional[Fact]:
-    pass
+    async def fact_formatted(self, fact: tuple, arguments: List[str]):
+        """Format a ready-to-be-sent fact
+
+        If no arguments are supplied, we include the default one
+
+        Args:
+            fact:
+            arguments:
+
+        Returns:
+
+        """
+        reqfact = self._factCache[fact]
+        # Sanity check
+        if not reqfact:
+            raise FactHandlerError("Fact could not be found, even though it "
+                                   "should exist")
+        re_defarg = re.compile(r"({{(?P<defarg>.+)}})(?P<fact>.+)")
+        groups = re_defarg.search(reqfact.text)
+
+        # Set to True and include timestamp once I regret doing it this way: False
+
+        # If we have no args but a default one, send it
+        if not arguments and re.match(re_defarg, reqfact.text):
+            return str(groups.group('defarg')) + str(groups.group('fact'))
+
+        # If we have args, throw out the default argument
+        elif arguments and re.match(re_defarg, reqfact.text):
+            # Yes I could make this simpler but caveman brain understanding more good this way
+            return str(' '.join(arguments) + ': ' + groups.group('fact'))
+
+        # If we have arguments add them
+        elif arguments:
+            return str(' '.join(arguments) + ': ' + reqfact.text)
+
+        # Else (no args, no default arg)
+        else:
+            return str(reqfact.text)
