@@ -37,6 +37,7 @@ class Fact:
         self._ID = ID
         self._name = name
         self._lang = lang
+        self._default_argument = None
         self._text = self._parse_fact(text)
         self._raw_text = text
         self._author = author
@@ -54,6 +55,10 @@ class Fact:
         return self._lang.upper()
 
     @property
+    def default_argument(self):
+        return self._default_argument
+
+    @property
     def text(self):
         return self._text
 
@@ -67,7 +72,6 @@ class Fact:
 
     @name.setter
     def name(self, newname: str):
-        # TODO check if new name not already a fact/command
         self._name = newname
         self._write()
 
@@ -77,27 +81,27 @@ class Fact:
         self._raw_text = newtext
         self._write()
 
-    @staticmethod
-    def _parse_fact(text: str):
+    def _parse_fact(self, text: str):
+        re_defarg = re.compile(r"({{(?P<defarg>.+)}})(?P<fact>.+)")
+        groups = re_defarg.search(text)
+        if re.match(re_defarg, text):
+            self._default_argument = groups.group('defarg')
         repltable = {"<<BOLD>>": "\u0002",
                      "<<ITALICS>>": "\u001D",
                      "<<UNDERLINE>>": "\u001f",
                      " %n% ": "\n"}
         for token, new in repltable.items():
-            text = text.replace(token, new)
+            if self._default_argument:
+                text = groups.group('fact').replace(token, new)
+            else:
+                text = text.replace(token, new)
         return text
-
-    def __del__(self):
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
-            cursor.execute(f"DELETE FROM {config['Facts']['table']} "
-                           f"WHERE factID = %s", self._ID)
 
     def _write(self):
         # Don't write to DB if we're editing an offline fact.
         # We shouldn't ever end up in this situation, anyway
         if self._offline:
-            return
+            raise NoDatabaseConnection
         try:
             with DatabaseConnection() as db:
                 cursor = db.cursor()
@@ -205,7 +209,22 @@ class FactHandler:
             author (str): Author of the fact
 
         """
-        pass
+        # Check if we have an English fact:
+        if not await self.get_fact_object(name, lang):
+            raise ValueError("All registered facts must have an English version")
+        try:
+            with DatabaseConnection() as db:
+                cursor = db.cursor()
+                cursor.execute(f"INSERT INTO {config['Facts']['table']} "
+                               f"(factName, factLang, factText, factAuthor) "
+                               f"VALUES (%s, %s, %s, %s);", (name, lang, text, author))
+        except NoDatabaseConnection:
+            raise
+        # Reset the fact handler
+        try:
+            await self.fetch_facts(preserve_current=True)
+        except FactUpdateError:
+            raise
 
     async def get_fact_languages(self, name: str):
         langlist = []
@@ -223,20 +242,6 @@ class FactHandler:
                 namelist.append(fact[0])
         return namelist
 
-    async def update_fact(self, name: Optional[str] = None,
-                          text: Optional[str] = None):
-        """Update a fact name or text
-
-        If no value is specified for name or text, we don't update it.
-        It's not possible to change a fact language.
-
-        Args:
-            name (str): New name of the fact
-            text (str): New text for the fact
-
-        """
-        pass
-
     async def delete_fact(self, name: str, lang: str = "en"):
         """Delete a fact
 
@@ -250,7 +255,13 @@ class FactHandler:
         Returns:
 
         """
-        del self._factCache[name, lang]
+        try:
+            with DatabaseConnection() as db:
+                cursor = db.cursor()
+                cursor.execute(f"DELETE FROM {config['Facts']['table']} "
+                               f"WHERE factID = %s", (self._factCache[name, lang].ID,))
+        except NoDatabaseConnection:
+            raise
 
     def list(self, lang: Optional[str] = None) -> List[tuple]:
         """Get a list of facts
@@ -290,19 +301,10 @@ class FactHandler:
         if not reqfact:
             raise FactHandlerError("Fact could not be found, even though it "
                                    "should exist")
-        re_defarg = re.compile(r"({{(?P<defarg>.+)}})(?P<fact>.+)")
-        groups = re_defarg.search(reqfact.text)
-
-        # Set to True and include timestamp once I regret doing it this way: False
 
         # If we have no args but a default one, send it
-        if not arguments and re.match(re_defarg, reqfact.text):
-            return str(groups.group('defarg')) + str(groups.group('fact'))
-
-        # If we have args, throw out the default argument
-        elif arguments and re.match(re_defarg, reqfact.text):
-            # Yes I could make this simpler but caveman brain understanding more good this way
-            return str(' '.join(arguments) + ': ' + groups.group('fact'))
+        if not arguments and reqfact.default_argument:
+            return str(reqfact.default_argument) + str(reqfact.text)
 
         # If we have arguments add them
         elif arguments:
