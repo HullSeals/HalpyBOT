@@ -32,8 +32,7 @@ class FactUpdateError(FactHandlerError):
 class Fact:
 
     def __init__(self, ID: Optional[int], name: str, lang: str, text: str, author: str):
-        if ID is None:
-            self._offline = True
+        self._offline = True if ID is None else False
         self._ID = ID
         self._name = name
         self._lang = lang
@@ -158,10 +157,9 @@ class FactHandler:
         """
         try:
             await self._from_database()
-        except FactUpdateError:
+        except NoDatabaseConnection:
             if not preserve_current:
                 await self._from_local()
-            raise
 
     async def _from_database(self):
         """Get facts from database and update the cache"""
@@ -174,7 +172,7 @@ class FactHandler:
                 for (ID, Name, Lang, Text, Author) in cursor:
                     self._factCache[Name, Lang] = Fact(int(ID), Name, Lang, Text, Author)
         except NoDatabaseConnection:
-            raise FactUpdateError("Unable to fetch facts from database")
+            raise
 
     async def _from_local(self):
         """Get facts from local backup file and update the cache"""
@@ -189,7 +187,7 @@ class FactHandler:
             else:
                 factname = fact
                 lang = "en"
-            self._factCache[factname, lang] = Fact(None, backupfile[factname], lang, fact, "HalpyBOT OM")
+            self._factCache[factname, lang] = Fact(None, factname, lang, backupfile[factname], "HalpyBOT OM")
 
     def _flush_cache(self):
         """Flush the fact cache. Use with care"""
@@ -210,7 +208,7 @@ class FactHandler:
 
         """
         # Check if we have an English fact:
-        if not await self.get_fact_object(name, lang):
+        if not await self.get_fact_object(name, 'en') and lang.lower() != 'en':
             raise ValueError("All registered facts must have an English version")
         try:
             with DatabaseConnection() as db:
@@ -255,11 +253,15 @@ class FactHandler:
         Returns:
 
         """
+        if lang.lower() == 'en' and len(await self.get_fact_languages(name)) > 1:
+            raise FactHandlerError("Cannot delete English fact if other languages "
+                                   "are registered for that fact name.")
         try:
             with DatabaseConnection() as db:
                 cursor = db.cursor()
                 cursor.execute(f"DELETE FROM {config['Facts']['table']} "
                                f"WHERE factID = %s", (self._factCache[name, lang].ID,))
+                del self._factCache[name, lang]
         except NoDatabaseConnection:
             raise
 
