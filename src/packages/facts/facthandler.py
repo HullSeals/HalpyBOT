@@ -89,11 +89,10 @@ class Fact:
                      "<<ITALICS>>": "\u001D",
                      "<<UNDERLINE>>": "\u001f",
                      " %n% ": "\n"}
+        if self._default_argument:
+            text = groups.group('fact')
         for token, new in repltable.items():
-            if self._default_argument:
-                text = groups.group('fact').replace(token, new)
-            else:
-                text = text.replace(token, new)
+            text = text.replace(token, new)
         return text
 
     def _write(self):
@@ -104,7 +103,7 @@ class Fact:
         try:
             with DatabaseConnection() as db:
                 cursor = db.cursor()
-                args = (self._name, self._lang.upper(), self._text, self._author, self._ID)
+                args = (self._name, self._lang.lower(), self._raw_text, self._author, self._ID)
                 cursor.execute(f"UPDATE {config['Facts']['table']} "
                                f"SET factName = %s, factLang = %s, factText = %s, "
                                f"factEditedBy = %s "

@@ -15,7 +15,7 @@ from typing import List, Optional
 from ..packages.command import Commands, Facts
 from ..packages.models import Context
 from ..packages.facts import Fact, FactUpdateError, FactHandlerError
-from ..packages.checks import Require, Moderator, Admin
+from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.utils import language_codes
 
@@ -146,6 +146,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
 @Require.permission(Admin)
 async def cmd_editfact(ctx: Context, args: List[str]):
     """
+    Edit a fact
 
     Usage: !editfact [name-lang] [new text]
     Aliases: updatefact
@@ -165,3 +166,15 @@ async def cmd_editfact(ctx: Context, args: List[str]):
             return await ctx.reply("Fact successfully edited.")
         except NoDatabaseConnection:
             return await ctx.reply("Cannot comply: unable to edit fact in offline mode.")
+
+@Commands.command("ufi", "updatefactindex")
+@Require.permission(Cyberseal)
+async def cmd_ufi(ctx: Context, args: List[str]):
+    """
+    Manually update the fact cache.
+
+    Usage: !ufi
+    Aliases: updatefactindex
+    """
+    await Facts.fetch_facts()
+    return await ctx.reply("Fact cache updated.")
