@@ -1,8 +1,4 @@
-from .checks import (require_dm, require_channel, require_aws, require_permission,
-                     DeniedMessage)
+from .checks import Require, DeniedMessage
 
-__all__ = ["require_dm",
-           "require_channel",
-           "require_aws",
-           "require_permission",
+__all__ = ["Require",
            "DeniedMessage"]

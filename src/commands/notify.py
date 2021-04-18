@@ -14,7 +14,7 @@ import time
 from typing import List
 
 from ..packages import notify
-from ..packages.checks import require_permission, require_aws, require_dm, require_channel, DeniedMessage
+from ..packages.checks import Require, DeniedMessage
 from ..packages.command import CommandGroup, Commands
 from ..packages.configmanager import config
 from ..packages.utils import get_time_seconds
@@ -28,8 +28,8 @@ timer = 0
 
 
 @NotifyInfo.command("groups")
-@require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
-@require_aws()
+@Require.permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+@Require.AWS()
 async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     List the existing notification groups.
@@ -52,9 +52,9 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
 
 
 @NotifyInfo.command("details", "endpoints")
-@require_permission(req_level="OWNER", message=DeniedMessage.OWNER)
-@require_dm()
-@require_aws()
+@Require.permission(req_level="OWNER", message=DeniedMessage.OWNER)
+@Require.DM()
+@Require.AWS()
 async def cmd_listnotify(ctx: Context, args: List[str]):
     """
     List contact details of particular groups.
@@ -87,9 +87,9 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
 
 
 @Commands.command("subnotify", "alertme", "addsub", "subscribe")
-@require_permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
-@require_dm()
-@require_aws()
+@Require.permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
+@Require.DM()
+@Require.AWS()
 async def cmd_subscribe(ctx: Context, args: List[str]):
     """
     Add a user to a valid group
@@ -121,9 +121,9 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
 
 
 @Commands.command("summonstaff", "callstaff", "opsignal")
-@require_permission(req_level="PUP", message=DeniedMessage.PUP)
-@require_channel()
-@require_aws()
+@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.channel()
+@Require.AWS()
 async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
     Send a notification to the Admins and Moderators.
@@ -149,9 +149,9 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
 
 
 @Commands.command("summontech", "calltech", "shitsfucked", "cybersignal")
-@require_permission(req_level="PUP", message=DeniedMessage.PUP)
-@require_channel()
-@require_aws()
+@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.channel()
+@Require.AWS()
 async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
     Send a notification to the Cyberseals.

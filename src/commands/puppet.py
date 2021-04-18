@@ -12,14 +12,14 @@ See license.md
 
 from typing import List
 
-from ..packages.checks import require_permission, DeniedMessage, require_dm
+from ..packages.checks import Require, DeniedMessage
 from ..packages.command import Commands
 from ..packages.models import Context
 
 
 @Commands.command("say")
-@require_dm()
-@require_permission(req_level="CYBER", message=DeniedMessage.GENERIC)
+@Require.DM()
+@Require.permission(req_level="CYBER", message=DeniedMessage.GENERIC)
 async def cmd_say(ctx: Context, args: List[str]):
     """
     Make the bot say something

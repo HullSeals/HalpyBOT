@@ -16,12 +16,12 @@ import re
 from ..packages.command import Commands, Facts
 from ..packages.models import Context
 from ..packages.facts import Fact, FactUpdateError
-from ..packages.checks import require_dm, require_permission, DeniedMessage
+from ..packages.checks import Require, DeniedMessage
 from ..packages.database import NoDatabaseConnection
 
 @Commands.command("factinfo")
-@require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
-@require_dm()
+@Require.permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+@Require.DM()
 async def cmd_getfactdata(ctx: Context, args: List[str]):
     """
     Get information about a fact
@@ -47,7 +47,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
         return await ctx.reply(reply)
 
 @Commands.command("addfact")
-@require_permission(req_level="ADMIN", message="Please contact an admin "
+@Require.permission(req_level="ADMIN", message="Please contact an admin "
                                                "if you think a fact needs to be added")
 async def cmd_addfact(ctx: Context, args: List[str]):
     """

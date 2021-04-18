@@ -62,80 +62,84 @@ class DeniedMessage:
     OWNER = "You need to be a Rixxan to use this"
 
 
-def require_permission(req_level: str, message: str = "Access Denied."):
-    """Require permission for a command
+class Require:
 
-    Args:
-        req_level (str): Required authorization level:
-            `NONE`, `PUP`, `DRILLED`, `MODERATOR`, `ADMIN`, `CYBER`, `CYBERMGR`, `OWNER`
-        message (str): Message we send when user does not have authorization.
-            Default: `Access Denied.`
+    @staticmethod
+    def permission(req_level: str, message: str = "Access Denied."):
+        """Require permission for a command
 
-    """
+        Args:
+            req_level (str): Required authorization level:
+                `NONE`, `PUP`, `DRILLED`, `MODERATOR`, `ADMIN`, `CYBER`, `CYBERMGR`, `OWNER`
+            message (str): Message we send when user does not have authorization.
+                Default: `Access Denied.`
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            # Get role
-            whois = await User.get_info(ctx.bot, ctx.sender)
-            modes = User.process_vhost(whois.hostname)
-            # Find user level
-            userlevel = levels[modes]
-            # Convert required permission to level
-            level = int(requiredlevel[req_level])
-            # If permission is not correct, send deniedMessage
-            if userlevel < level:
-                return await ctx.reply(message)
-            else:
-                return await function(ctx, args)
+        """
 
-        return guarded
+        def decorator(function):
+            @functools.wraps(function)
+            async def guarded(ctx, args: List[str]):
+                # Get role
+                whois = await User.get_info(ctx.bot, ctx.sender)
+                modes = User.process_vhost(whois.hostname)
+                # Find user level
+                userlevel = levels[modes]
+                # Convert required permission to level
+                level = int(requiredlevel[req_level])
+                # If permission is not correct, send deniedMessage
+                if userlevel < level:
+                    return await ctx.reply(message)
+                else:
+                    return await function(ctx, args)
 
-    return decorator
+            return guarded
 
+        return decorator
 
-def require_dm():
-    """Require command to be executed in a Direct Message with the bot"""
+    @staticmethod
+    def DM():
+        """Require command to be executed in a Direct Message with the bot"""
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            if ctx.in_channel:
-                return
-            else:
-                return await function(ctx, args)
+        def decorator(function):
+            @functools.wraps(function)
+            async def guarded(ctx, args: List[str]):
+                if ctx.in_channel:
+                    return
+                else:
+                    return await function(ctx, args)
 
-        return guarded
+            return guarded
 
-    return decorator
+        return decorator
 
+    @staticmethod
+    def channel():
+        """Require command to be executed in an IRC channel"""
 
-def require_channel():
-    """Require command to be executed in an IRC channel"""
+        def decorator(function):
+            @functools.wraps(function)
+            async def guarded(ctx, args: List[str]):
+                if ctx.in_channel is False:
+                    return
+                else:
+                    return await function(ctx, args)
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            if ctx.in_channel is False:
-                return
-            else:
-                return await function(ctx, args)
+            return guarded
 
-        return guarded
+        return decorator
 
-    return decorator
+    @staticmethod
+    def AWS():
+        """Require Amazon Web Services configuration data to be specified in config"""
 
-def require_aws():
-    """Require Amazon Web Services configuration data to be specified in config"""
+        def decorator(function):
+            @functools.wraps(function)
+            async def guarded(ctx, args: List[str]):
+                if not config['Notify']['secret'] or not config['Notify']['access']:
+                    return await ctx.reply("Cannot comply: AWS Config data is required for this module.")
+                else:
+                    return await function(ctx, args)
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            if not config['Notify']['secret'] or not config['Notify']['access']:
-                return await ctx.reply("Cannot comply: AWS Config data is required for this module.")
-            else:
-                return await function(ctx, args)
+            return guarded
 
-        return guarded
-
-    return decorator
+        return decorator

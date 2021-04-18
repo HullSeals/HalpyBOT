@@ -14,13 +14,13 @@ from typing import List
 
 from ..packages.database import NoDatabaseConnection
 from ..packages.delayedboard import DelayedCase
-from ..packages.checks import *
+from ..packages.checks import Require, DeniedMessage
 from ..packages.command import Commands
 from ..packages.models import Context
 
 @Commands.command("delaycase")
-@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
-@require_channel()
+@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.channel()
 async def cmd_createDelayedCase(ctx: Context, args: List[str]):
     """
     Create a new case on the Delayed-board
@@ -57,8 +57,8 @@ async def cmd_createDelayedCase(ctx: Context, args: List[str]):
 
 
 @Commands.command("reopen")
-@require_permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
-@require_channel()
+@Require.permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+@Require.channel()
 async def cmd_ReopenDelayedCase(ctx: Context, args: List[str]):
     """
     Reopen a case on the Delayed-board
@@ -88,8 +88,8 @@ async def cmd_ReopenDelayedCase(ctx: Context, args: List[str]):
 
 
 @Commands.command("endcase", "close")
-@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
-@require_channel()
+@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.channel()
 async def cmd_closeDelayedCase(ctx: Context, args: List[str]):
     """
     Close a case on the delayed board
@@ -116,8 +116,8 @@ async def cmd_closeDelayedCase(ctx: Context, args: List[str]):
 
 
 @Commands.command("updatestatus")
-@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
-@require_channel()
+@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.channel()
 async def cmd_updateDelayedStatus(ctx: Context, args: List[str]):
     """
     Update the status of a case on the delayed board
@@ -148,8 +148,8 @@ async def cmd_updateDelayedStatus(ctx: Context, args: List[str]):
 
 
 @Commands.command("updatenotes")
-@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
-@require_channel()
+@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.channel()
 async def cmd_updateDelayedNotes(ctx: Context, args: List[str]):
     """
     Update the notes of a case on the delayed board
@@ -207,8 +207,8 @@ async def cmd_checkDelayedCases(ctx: Context, args: List[str]):
 
 
 @Commands.command("updatecase")
-@require_permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
-@require_channel()
+@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.channel()
 async def cmd_updateDelayedCase(ctx: Context, args: List[str]):
     """
     Update details of a case on the Delayed Board

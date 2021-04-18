@@ -16,13 +16,13 @@ import signal
 import logging
 from typing import List
 
-from ..packages.checks import require_permission, require_dm, DeniedMessage
+from ..packages.checks import Require, DeniedMessage
 from ..packages.command import Commands
 from ..packages.models import Context
 
 @Commands.command("shutdown")
-@require_dm()
-@require_permission("ADMIN", message=DeniedMessage.ADMIN)
+@Require.DM()
+@Require.permission("ADMIN", message=DeniedMessage.ADMIN)
 async def cmd_shutdown(ctx: Context, args: List[str]):
     """
     Shut down the bot (restart if running as daemon)

@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from ..packages.checks import require_permission, require_channel, DeniedMessage
+from ..packages.checks import Require, DeniedMessage
 from ..packages.command import Commands
 from ..packages.models import User
 from ..packages.configmanager import config
@@ -22,8 +22,8 @@ joinableChannels = [entry.strip() for entry in config.get('Force join command', 
 
 
 @Commands.command("forcejoin")
-@require_channel()
-@require_permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
+@Require.channel()
+@Require.permission(req_level="DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_sajoin(ctx: Context, args: List[str]):
     """
     Make the bot force a user to join a channel.

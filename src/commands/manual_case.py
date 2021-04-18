@@ -14,14 +14,14 @@ from typing import List
 import logging
 import requests
 
-from ..packages.checks import require_channel, require_permission, DeniedMessage
+from ..packages.checks import Require, DeniedMessage
 from ..packages.command import Commands
 from ..packages.configmanager import config
 from ..packages.models import Context
 
 @Commands.command("manualcase", "mancase")
-@require_channel()
-@require_permission("DRILLED", message=DeniedMessage.DRILLED)
+@Require.channel()
+@Require.permission("DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_manual_case(ctx: Context, args: List[str]):
     """
     Create a manual case
@@ -47,8 +47,8 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
         logging.error(err)
 
 @Commands.command("manualfish", "manfish")
-@require_channel()
-@require_permission("DRILLED", message=DeniedMessage.DRILLED)
+@Require.channel()
+@Require.permission("DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_manual_kingfisher(ctx: Context, args: List[str]):
     """
     Create a manual kingfisher case
@@ -75,8 +75,8 @@ async def cmd_manual_kingfisher(ctx: Context, args: List[str]):
 
 
 @Commands.command("tsping")
-@require_channel()
-@require_permission("DRILLED", message=DeniedMessage.DRILLED)
+@Require.channel()
+@Require.permission("DRILLED", message=DeniedMessage.DRILLED)
 async def cmd_trained_ping(ctx: Context, args: List[str]):
     """
     Alert the "Trained Seals" role in Discord that CMDRs are needed for this case.

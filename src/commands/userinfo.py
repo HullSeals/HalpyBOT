@@ -14,13 +14,13 @@ from typing import List
 
 from src.packages.seals.userinfo import *
 from ..packages.command import Commands
-from ..packages.checks import *
+from ..packages.checks import Require, DeniedMessage
 from ..packages.models import Context
 
 
 @Commands.command("whois")
-@require_dm()
-@require_permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.DM()
+@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
 async def cmd_whois(ctx: Context, args: List[str]):
     """
     List user information of a given user
@@ -36,8 +36,8 @@ async def cmd_whois(ctx: Context, args: List[str]):
 
 
 @Commands.command("whoami")
-@require_dm()
-@require_permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.DM()
+@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
 async def cmd_whoami(ctx: Context, args: List[str]):
     """
     List user information of a given user
