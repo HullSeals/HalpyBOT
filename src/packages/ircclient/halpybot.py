@@ -20,10 +20,8 @@ from ..command import Facts, Commands
 from ..configmanager import config
 from ..database import NoDatabaseConnection, DatabaseConnection
 
-channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
-om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
-
 class HalpyBOT(pydle.Client):
+
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         from src import commands
@@ -36,7 +34,7 @@ class HalpyBOT(pydle.Client):
         await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
         logging.info("Connected")
         print("Connected!")
-        for channel in channels:
+        for channel in config['Channels']['channellist'].split():
             await self.join(channel)
             logging.info(f"Joining {channel}")
         await self.offline_monitor()
@@ -52,8 +50,8 @@ class HalpyBOT(pydle.Client):
 
         await Commands.invoke_from_message(self, target, nick, message)
 
-        nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
-        if target in config['Announcer']['channel'] and nick in nicks:
+        nicks = config['Announcer']['nicks'].split()
+        if target in config['Announcer']['channel'].split() and nick in nicks:
             await announcer.handle_announcement(self, target, nick, message)
 
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
@@ -70,7 +68,7 @@ class HalpyBOT(pydle.Client):
             while True:
                 if config['Offline Mode']['enabled'] == 'True' and \
                    config['Offline Mode']['warning override'] == 'False':
-                    for ch in om_channels:
+                    for ch in config['Offline Mode']['announce_channels'].split():
                         await self.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
                                                "Contact a CyberSeal.")
                 await asyncio.sleep(300)
