@@ -20,10 +20,13 @@ import asyncio
 import signal
 import functools
 
-from src.packages.command import CommandGroup
+from src.packages.command import Commands, Facts
 from src.packages.announcer import announcer
-from src.packages.database import facts, DatabaseConnection, NoDatabaseConnection
+from src.packages.database import DatabaseConnection, NoDatabaseConnection
 from src.packages.configmanager import config
+
+# Keep this here or our commands won't load
+from src import commands  # pylint: disable=unused-import
 
 
 channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
@@ -35,7 +38,10 @@ class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         await super().on_connect()
-        await facts.on_connect()
+        try:
+            await Facts.fetch_facts(preserve_current=False)
+        except NoDatabaseConnection:
+            logging.error("FACTS: Loading facts from offline file, entering offline mode.")
         print("Fact module loaded successfully")
         await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
         logging.info("Connected")
@@ -46,13 +52,19 @@ class HalpyBOT(pydle.Client):
         await self.offline_monitor()
 
     async def on_message(self, target, nick, message):
+
+        if nick == self.nickname:
+            return  # Let's not react to ourselves shall we?
         await super().on_channel_message(target, nick, message)
+
         if message == f"{self.nickname} prefix":
             return await self.message(target, f"Prefix: {config['IRC']['commandPrefix']}")
-        await CommandGroup.invoke_from_message(self, target, nick, message)
+
+        await Commands.invoke_from_message(self, target, nick, message)
+
         nicks = [entry.strip() for entry in config.get('Announcer', 'nicks').split(',')]
         if target in config['Announcer']['channel'] and nick in nicks:
-            await announcer.on_channel_message(self, target, nick, message)
+            await announcer.handle_announcement(self, target, nick, message)
 
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
         if in_channel:
@@ -75,7 +87,8 @@ class HalpyBOT(pydle.Client):
                 if config['Offline Mode']['enabled'] == 'False':
                     # We only need to start the connection, DatabaseConnection will trip the CB if neccesary
                     try:
-                        DatabaseConnection()
+                        with DatabaseConnection() as db:
+                            db.ping()
                     except NoDatabaseConnection:
                         continue
                     await asyncio.sleep(300)
