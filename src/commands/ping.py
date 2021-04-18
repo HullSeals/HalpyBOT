@@ -14,7 +14,7 @@ import time
 from typing import List
 
 from ..packages.command import Commands
-from ..packages.checks import Require, DeniedMessage
+from ..packages.checks import Require, Cyberseal
 from ..packages.database import latency, NoDatabaseConnection
 from ..packages.edsm import GalaxySystem, EDSMLookupError
 from ..packages.models import Context
@@ -31,7 +31,7 @@ async def cmd_ping(ctx: Context, args: List[str]):
     await ctx.reply("Pong!")
 
 @Commands.command("dbping")
-@Require.permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Require.permission(Cyberseal)
 async def cmd_dbping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the Database.
@@ -51,7 +51,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
         await ctx.reply(latencycheck)
 
 @Commands.command("edsmping")
-@Require.permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Require.permission(Cyberseal)
 async def cmd_edsmping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the EDSM API.

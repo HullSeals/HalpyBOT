@@ -14,12 +14,12 @@ from typing import List
 
 from ..packages.database import NoDatabaseConnection
 from ..packages.delayedboard import DelayedCase
-from ..packages.checks import Require, DeniedMessage
+from ..packages.checks import Require, Drilled, Moderator
 from ..packages.command import Commands
 from ..packages.models import Context
 
 @Commands.command("delaycase")
-@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.permission(Drilled)
 @Require.channel()
 async def cmd_createDelayedCase(ctx: Context, args: List[str]):
     """
@@ -57,7 +57,7 @@ async def cmd_createDelayedCase(ctx: Context, args: List[str]):
 
 
 @Commands.command("reopen")
-@Require.permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+@Require.permission(Moderator)
 @Require.channel()
 async def cmd_ReopenDelayedCase(ctx: Context, args: List[str]):
     """
@@ -88,7 +88,7 @@ async def cmd_ReopenDelayedCase(ctx: Context, args: List[str]):
 
 
 @Commands.command("endcase", "close")
-@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.permission(Drilled)
 @Require.channel()
 async def cmd_closeDelayedCase(ctx: Context, args: List[str]):
     """
@@ -116,7 +116,7 @@ async def cmd_closeDelayedCase(ctx: Context, args: List[str]):
 
 
 @Commands.command("updatestatus")
-@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.permission(Drilled)
 @Require.channel()
 async def cmd_updateDelayedStatus(ctx: Context, args: List[str]):
     """
@@ -148,7 +148,7 @@ async def cmd_updateDelayedStatus(ctx: Context, args: List[str]):
 
 
 @Commands.command("updatenotes")
-@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.permission(Drilled)
 @Require.channel()
 async def cmd_updateDelayedNotes(ctx: Context, args: List[str]):
     """
@@ -207,7 +207,7 @@ async def cmd_checkDelayedCases(ctx: Context, args: List[str]):
 
 
 @Commands.command("updatecase")
-@Require.permission(req_level="DRILLED", message=DeniedMessage.GENERIC)
+@Require.permission(Drilled)
 @Require.channel()
 async def cmd_updateDelayedCase(ctx: Context, args: List[str]):
     """

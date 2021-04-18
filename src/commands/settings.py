@@ -15,7 +15,7 @@ from typing import List
 import pydle
 import logging
 
-from ..packages.checks import Require, DeniedMessage
+from ..packages.checks import Require, Cyberseal, Moderator
 from ..packages.configmanager import config_write, config
 from ..packages.command import CommandGroup, Commands
 from ..packages.models import Context
@@ -24,7 +24,7 @@ Settings = CommandGroup()
 Settings.add_group("bot_management", "settings")
 
 @Settings.command("nick")
-@Require.permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Require.permission(Cyberseal)
 async def cmd_nick(ctx: Context, args: List[str]):
     """
     Change the nickname of the bot
@@ -39,7 +39,7 @@ async def cmd_nick(ctx: Context, args: List[str]):
 
 
 @Settings.command("prefix")
-@Require.permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Require.permission(Cyberseal)
 async def cmd_prefix(ctx: Context, args: List[str]):
     """
     Oh boy, I hope you know what you're doing...
@@ -55,7 +55,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
                                       f"{ctx.sender}! Rik079!")
 
 @Settings.command("offline")
-@Require.permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Require.permission(Cyberseal)
 @Require.channel()
 async def cmd_offline(ctx: Context, args: List[str]):
     """
@@ -84,7 +84,7 @@ async def cmd_offline(ctx: Context, args: List[str]):
 
 
 @Settings.command("warning_override")
-@Require.permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+@Require.permission(Moderator)
 async def cmd_override_omw(ctx: Context, args: List[str]):
     """
     Enable override for offline mode notifications
@@ -114,7 +114,7 @@ async def cmd_override_omw(ctx: Context, args: List[str]):
 
 
 @Commands.command("joinchannel")
-@Require.permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Require.permission(Cyberseal)
 async def cmd_joinchannel(ctx: Context, args: List[str]):
     """
     Make the bot join a channel. After restart, it will still be in the channel.
@@ -140,7 +140,7 @@ async def cmd_joinchannel(ctx: Context, args: List[str]):
 
 
 @Commands.command("partchannel")
-@Require.permission(req_level="CYBER", message=DeniedMessage.CYBER)
+@Require.permission(Cyberseal)
 async def cmd_part(ctx: Context, args: List[str]):
     """
     Make the bot leave the channel it's currently in

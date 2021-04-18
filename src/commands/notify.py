@@ -14,7 +14,7 @@ import time
 from typing import List
 
 from ..packages import notify
-from ..packages.checks import Require, DeniedMessage
+from ..packages.checks import Require, Moderator, Admin, Owner, Pup
 from ..packages.command import CommandGroup, Commands
 from ..packages.configmanager import config
 from ..packages.utils import get_time_seconds
@@ -28,7 +28,7 @@ timer = 0
 
 
 @NotifyInfo.command("groups")
-@Require.permission(req_level="MODERATOR", message=DeniedMessage.MODERATOR)
+@Require.permission(Moderator)
 @Require.AWS()
 async def cmd_listgroups(ctx: Context, args: List[str]):
     """
@@ -52,7 +52,7 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
 
 
 @NotifyInfo.command("details", "endpoints")
-@Require.permission(req_level="OWNER", message=DeniedMessage.OWNER)
+@Require.permission(Owner)
 @Require.DM()
 @Require.AWS()
 async def cmd_listnotify(ctx: Context, args: List[str]):
@@ -87,7 +87,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
 
 
 @Commands.command("subnotify", "alertme", "addsub", "subscribe")
-@Require.permission(req_level="ADMIN", message=DeniedMessage.ADMIN)
+@Require.permission(Admin)
 @Require.DM()
 @Require.AWS()
 async def cmd_subscribe(ctx: Context, args: List[str]):
@@ -121,7 +121,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
 
 
 @Commands.command("summonstaff", "callstaff", "opsignal")
-@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.permission(Pup)
 @Require.channel()
 @Require.AWS()
 async def cmd_notifystaff(ctx: Context, args: List[str]):
@@ -149,7 +149,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
 
 
 @Commands.command("summontech", "calltech", "shitsfucked", "cybersignal")
-@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.permission(Pup)
 @Require.channel()
 @Require.AWS()
 async def cmd_notifycybers(ctx: Context, args: List[str]):

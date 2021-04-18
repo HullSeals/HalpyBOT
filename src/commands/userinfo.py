@@ -12,15 +12,15 @@ See license.md
 
 from typing import List
 
-from src.packages.seals.userinfo import *
+from src.packages.seals import whois
 from ..packages.command import Commands
-from ..packages.checks import Require, DeniedMessage
+from ..packages.checks import Require, Pup
 from ..packages.models import Context
 
 
 @Commands.command("whois")
 @Require.DM()
-@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.permission(Pup)
 async def cmd_whois(ctx: Context, args: List[str]):
     """
     List user information of a given user
@@ -37,7 +37,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
 
 @Commands.command("whoami")
 @Require.DM()
-@Require.permission(req_level="PUP", message=DeniedMessage.PUP)
+@Require.permission(Pup)
 async def cmd_whoami(ctx: Context, args: List[str]):
     """
     List user information of a given user
