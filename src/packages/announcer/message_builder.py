@@ -14,10 +14,10 @@ This module is due for a rewrite, and not documented.
 
 from ..edsm import GalaxySystem, checklandmarks, NoResultsEDSM, EDSMLookupError
 from typing import List
-import main
+from ..configmanager import config
 
 def send_to(annmodule: str, type: str):
-    return [entry.strip() for entry in main.config.get(annmodule, type).split(',')]
+    return [entry.strip() for entry in config.get(annmodule, type).split(',')]
 
 async def codeblack(ctx, args: List[str]):
     message = f"xxxx CBCASE -- NEWCASE xxxx \n" \
