@@ -131,7 +131,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
         lang = args[0]
 
     # Input validation
-    if lang not in Facts.langcodes:
+    if lang not in langcodes:
         return await ctx.reply("Cannot comply: Please specify a valid language code.")
 
     factlist = Facts.list(lang)
@@ -141,3 +141,27 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
     else:
         return await ctx.reply(f"All {langcodes[lang.lower()]} facts:\n"
                                f"{', '.join(fact for fact in factlist)}")
+
+@Commands.command("editfact", "updatefact")
+@Require.permission(Admin)
+async def cmd_editfact(ctx: Context, args: List[str]):
+    """
+
+    Usage: !editfact [name-lang] [new text]
+    Aliases: updatefact
+    """
+    if not args or len(args) < 2:
+        return await ctx.reply("Usage: !editfact [name-lang] [new text]")
+
+    name = args[0].split('-')[0]
+    lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
+
+    fact = await Facts.get_fact_object(name, lang)
+    if fact is None:
+        return await ctx.reply("That fact does not exist.")
+    else:
+        try:
+            fact.text = ' '.join(args[1:])
+            return await ctx.reply("Fact successfully edited.")
+        except NoDatabaseConnection:
+            return await ctx.reply("Cannot comply: unable to edit fact in offline mode.")
