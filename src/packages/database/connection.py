@@ -11,14 +11,18 @@ See license.md
 """
 
 import mysql.connector
+from mysql.connector import MySQLConnection
 import logging
 import time
+
 from ..configmanager import config_write, config
 
 dbconfig = {"user": config['Database']['user'],
             "password": config['Database']['password'],
             "host": config['Database']['host'],
-            "database": config['Database']['database']}
+            "database": config['Database']['database'],
+            "connect_timeout": int(config['Database']['timeout']),
+            }
 
 # Assume not in offline mode
 offline_mode: bool = config.getboolean('Offline Mode', 'Enabled')
@@ -31,9 +35,9 @@ class NoDatabaseConnection(ConnectionError):
     """
     pass
 
-class DatabaseConnection:
+class DatabaseConnection(MySQLConnection):
 
-    def __init__(self):
+    def __init__(self, autocommit: bool = True):
         """Create a new database connection
 
         When we can't establish a connection, two more retries are attempted. If both fail,
@@ -49,11 +53,8 @@ class DatabaseConnection:
         for _ in range(3):
             # Attempt to connect to the DB
             try:
-                cnx = mysql.connector.connect(**dbconfig)
-                cursor = cnx.cursor()
-                cnx.autocommit = True
-                self.cnx = cnx
-                self.cursor = cursor
+                super().__init__(**dbconfig)
+                self.autocommit = autocommit
                 logging.info("Connection established.")
                 break
             except mysql.connector.Error as er:
@@ -66,9 +67,11 @@ class DatabaseConnection:
                     raise NoDatabaseConnection
                 continue
 
-    def close(self):
-        """Close a DB connection"""
-        self.cnx.close()
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 
 async def latency():
@@ -81,7 +84,7 @@ async def latency():
     get_query = "SELECT 'latency';"
     try:
         db = DatabaseConnection()
-        cursor = db.cursor
+        cursor = db.cursor()
         cursor.execute(get_query)
         db.close()
     except NoDatabaseConnection:

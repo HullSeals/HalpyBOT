@@ -20,7 +20,7 @@ import json
 from time import time
 from typing import Optional, Union
 
-from ..datamodels import SystemInfo, Coordinates, Location
+from ..models import SystemInfo, Coordinates, Location
 from ..utils import get_time_seconds
 from ..configmanager import config
 
@@ -140,6 +140,50 @@ class GalaxySystem:
             return False
         else:
             return True
+
+    @classmethod
+    async def get_nearby(cls, x, y, z):
+        """Get a nearby system based on coordinates from the EDSM API.
+
+        Args:
+            x (str): The subject x coordinate
+            y (str): The subject y coordinate
+            z (str): The subject z coordinate
+
+        Returns:
+            (tuple): a tuple with the following values:
+
+                - (str or None): An EDSM system object, None if unsuccessful.
+                - (str or None): Dist in LY from the coords to the EDSM system object, None if unsuccessful
+
+        Raises:
+            EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+
+        """
+        # Else, get the system from EDSM
+        try:
+            response = requests.get("https://www.edsm.net/api-v1/sphere-systems",
+                                    params={"x": x,
+                                            "y": y,
+                                            "z": z,
+                                            "radius": 100,
+                                            "minRadius": 1}, timeout=10)
+            responses = response.json()
+
+        except requests.exceptions.RequestException as er:
+            logging.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
+            raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
+
+        # Return None if system doesn't exist
+        if len(responses) == 0:
+            sysname = None
+            dist = None
+        else:
+            sysname = responses[0]["name"]
+            dist = responses[0]["distance"]
+
+        return sysname, dist
 
 
 @dataclass(frozen=True)
@@ -374,7 +418,7 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
 
         # Load JSON file if landmarks cache is empty, else we just get objects from the cache
         if not landmarks:
-            with open('src/packages/edsm/landmarks.json') as jsonfile:
+            with open('data/edsm/landmarks.json') as jsonfile:
                 landmarks = json.load(jsonfile)
 
         maxdist = config['EDSM']['Maximum landmark distance']
@@ -447,7 +491,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
 
         # Load JSON file if dssa cache is empty, else we just get objects from the cache
         if not dssas:
-            with open('src/packages/edsm/dssa.json') as jsonfile:
+            with open('data/edsm/dssa.json') as jsonfile:
                 dssas = json.load(jsonfile)
 
         for dssa in range(len(dssas)):
@@ -533,7 +577,7 @@ async def calc_direction(x1, x2, y1, y2):
         degrees_final = 360 + degrees_temp
     else:
         degrees_final = degrees_temp
-    #Round to nearest degree, treat Directions as an array and compass_lookup as the array item number.
+    # Round to nearest degree, treat Directions as an array and compass_lookup as the array item number.
     directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
     compass_lookup = round(degrees_final / 45)
     result = f'{directions[compass_lookup]}'

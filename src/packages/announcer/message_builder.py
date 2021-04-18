@@ -8,9 +8,11 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
+
+This module is due for a rewrite, and not documented.
 """
 
-from ..edsm import *
+from ..edsm import GalaxySystem, checklandmarks, NoResultsEDSM, EDSMLookupError
 from typing import List
 import main
 
