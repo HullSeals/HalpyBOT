@@ -29,9 +29,25 @@ class FactUpdateError(FactHandlerError):
     Unable to update a fact attribute to the database
     """
 
+class InvalidFactException(FactHandlerError):
+    """
+    Raised when an invalid fact is created
+    """
+
 class Fact:
 
     def __init__(self, ID: Optional[int], name: str, lang: str, text: str, author: str):
+        """Create a new fact
+
+        Args:
+            ID (int or None): Fact ID, if the fact only exists in local storage
+                use None
+            name (str): Name of the fact
+            lang (str): Fact language ISO-639-1 code
+            text (str): Fact text
+            author (str): Fact author
+
+        """
         self._offline = True if ID is None else False
         self._ID = ID
         self._name = name
@@ -43,30 +59,37 @@ class Fact:
 
     @property
     def ID(self):
+        """Fact ID as stored in DB"""
         return self._ID
 
     @property
     def name(self):
+        """Fact name"""
         return self._name
 
     @property
     def language(self):
+        """ISO-639-1 language code"""
         return self._lang.upper()
 
     @property
     def default_argument(self):
+        """Argument used when none are provided by user"""
         return self._default_argument
 
     @property
     def text(self):
+        """Parsed fact content"""
         return self._text
 
     @property
     def raw_text(self):
+        """Unparsed fact content, including default argument"""
         return self._raw_text
 
     @property
     def author(self):
+        """Fact author"""
         return self._author
 
     @name.setter
@@ -81,6 +104,17 @@ class Fact:
         self._write()
 
     def _parse_fact(self, text: str):
+        """Parse a fact
+
+        Converts b/i/u to control character and parses default argument.
+
+        Args:
+            text (str): Fact text to be parsed
+
+        Returns:
+            (str): Parsed fact text
+
+        """
         re_defarg = re.compile(r"({{(?P<defarg>.+)}})(?P<fact>.+)")
         groups = re_defarg.search(text)
         if re.match(re_defarg, text):
@@ -96,10 +130,19 @@ class Fact:
         return text
 
     def _write(self):
+        """Write changes to a fact to the database
+
+        Raises:
+            NoDatabaseConnection: When entering offline mode
+            FactUpdateError: Raised when attempting to update a
+                fact that the bot considers to only exist in local
+                storage.
+
+        """
         # Don't write to DB if we're editing an offline fact.
         # We shouldn't ever end up in this situation, anyway
         if self._offline:
-            raise NoDatabaseConnection
+            raise FactUpdateError
         try:
             with DatabaseConnection() as db:
                 cursor = db.cursor()
@@ -125,7 +168,7 @@ class FactHandler:
         """
         self._factCache = {}
 
-    async def get_fact_object(self, name: str, lang: str = "en") -> Optional[Fact]:
+    async def get(self, name: str, lang: str = "en") -> Optional[Fact]:
         """Get a fact object by name
 
         If no language is specified, we get the English fact by default
@@ -159,6 +202,7 @@ class FactHandler:
         except NoDatabaseConnection:
             if not preserve_current:
                 await self._from_local()
+            raise
 
     async def _from_database(self):
         """Get facts from database and update the cache"""
@@ -205,10 +249,18 @@ class FactHandler:
             text (str): Text of the fact, including formatting
             author (str): Author of the fact
 
+        Raises:
+            InvalidFactException: Fact does not have an English version, or fact
+                already exists
+            NoDatabaseConnection: No connection is available, and fact was not added to the DB
+            FactUpdateError: Fact was added, but cache could not be updated.
+
         """
         # Check if we have an English fact:
-        if not await self.get_fact_object(name, 'en') and lang.lower() != 'en':
-            raise ValueError("All registered facts must have an English version")
+        if not await self.get(name, 'en') and lang.lower() != 'en':
+            raise InvalidFactException("All registered facts must have an English version")
+        if (name, lang) in self._factCache:
+            raise
         try:
             with DatabaseConnection() as db:
                 cursor = db.cursor()
@@ -223,7 +275,18 @@ class FactHandler:
         except FactUpdateError:
             raise
 
-    async def get_fact_languages(self, name: str):
+    async def lang_by_fact(self, name: str):
+        """Get a list of languages a fact exists in
+
+        For a non-existent fact, this will return an empty list
+
+        Args:
+            name (str): Name of the fact to be searched for
+
+        Returns:
+            (list): List of all languages a fact exists in.
+
+        """
         langlist = []
         for fact in self._factCache.keys():
             if fact[0] == name:
@@ -231,6 +294,15 @@ class FactHandler:
         return langlist
 
     async def get_fact_names(self):
+        """Get a list of unique facts
+
+        The list is language-independent: if a fact exists in X
+        languages it will only be in the list once
+
+        Returns:
+            (list): a list of all unique facts
+
+        """
         namelist = []
         for fact in self._factCache.keys():
             if fact[0] in namelist:
@@ -249,10 +321,11 @@ class FactHandler:
             name (str): Name of the fact to be deleted
             lang (str): Fact language ISO-639-1 code. English by default
 
-        Returns:
+        Raises:
+            NoDatabaseConnection: Raised when entering offline mode
 
         """
-        if lang.lower() == 'en' and len(await self.get_fact_languages(name)) > 1:
+        if lang.lower() == 'en' and len(await self.lang_by_fact(name)) > 1:
             raise FactHandlerError("Cannot delete English fact if other languages "
                                    "are registered for that fact name.")
         try:
@@ -291,10 +364,14 @@ class FactHandler:
         If no arguments are supplied, we include the default one
 
         Args:
-            fact:
-            arguments:
+            fact (tuple): Fact, formatted as (name, lang)
+            arguments (list): List of arguments
 
         Returns:
+            (str): Formatted fact text
+
+        Raises:
+            FactHandlerError: Fact was not found
 
         """
         reqfact = self._factCache[fact]

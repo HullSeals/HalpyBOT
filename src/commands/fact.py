@@ -18,6 +18,7 @@ from ..packages.facts import Fact, FactUpdateError, FactHandlerError
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.utils import language_codes
+from ..packages.configmanager import config
 
 langcodes = language_codes()
 
@@ -35,11 +36,11 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
         return await ctx.reply("Usage: !factinfo [name-lang]")
     name = args[0].split('-')[0]
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
-    fact: Optional[Fact] = await Facts.get_fact_object(name, lang)
+    fact: Optional[Fact] = await Facts.get(name, lang)
     if fact is None:
         return await ctx.reply("Fact not found.")
     else:
-        langlist = await Facts.get_fact_languages(name)
+        langlist = await Facts.lang_by_fact(name)
         reply = f"Fact: {fact.name}\n" \
                 f"Language: {langcodes[lang.lower()] +  f' ({fact.language})'}\n" \
                 f"All langs: {', '.join(f'{langcodes[lan.lower()]} ({lan.upper()})' for lan in langlist)}\n" \
@@ -67,7 +68,6 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         return await ctx.reply("Cannot comply: Language code must be ISO-639-1 compliant.")
 
     # Check if not already a fact/command
-    # TODO move this to the fact package as soon as we can avoid the circular import
     if name in Facts.list(lang=lang) or name in Commands.get_commands():
         return await ctx.reply("Cannot comply: Fact already an existing fact/command!")
     try:
@@ -76,8 +76,8 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         return await ctx.reply("Fact has been added.")
 
     except NoDatabaseConnection:
-        return await ctx.reply("Unable to add fact: please confirm that the bot is not "
-                               "in offline mode.")
+        return await ctx.reply("Unable to add fact: No database connection available. Entering Offline Mode, "
+                               "contact a cyberseal.")
     except FactUpdateError:
         return await ctx.reply("Fact has been added, but cache could not be fully updated. "
                                "Please contact a cyberseal")
@@ -102,15 +102,15 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
     name = args[0].split('-')[0]
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
 
-    if await Facts.get_fact_object(name, lang) is None:
+    if await Facts.get(name, lang) is None:
         return await ctx.reply("That fact does not exist.")
 
     try:
         await Facts.delete_fact(name, lang)
         return await ctx.reply("Fact has been deleted.")
     except NoDatabaseConnection:
-        return await ctx.reply("Cannot comply: please confirm that the bot "
-                               "is not in offline mode.")
+        return await ctx.reply("Unable to add fact: No database connection available. Entering Offline Mode, "
+                               "contact a cyberseal.")
     except FactHandlerError:
         return await ctx.reply("Cannot comply: All facts must have an English "
                                "version, please delete the version in other languages "
@@ -157,7 +157,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
     name = args[0].split('-')[0]
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
 
-    fact = await Facts.get_fact_object(name, lang)
+    fact = await Facts.get(name, lang)
     if fact is None:
         return await ctx.reply("That fact does not exist.")
     else:
@@ -165,7 +165,12 @@ async def cmd_editfact(ctx: Context, args: List[str]):
             fact.text = ' '.join(args[1:])
             return await ctx.reply("Fact successfully edited.")
         except NoDatabaseConnection:
-            return await ctx.reply("Cannot comply: unable to edit fact in offline mode.")
+            return await ctx.reply("Unable to add fact: No database connection available. Entering Offline Mode, "
+                                   "contact a cyberseal.")
+        except FactUpdateError:
+            return await ctx.reply("Unable to update a fact that only "
+                                   "exists in local storage, please update "
+                                   "the fact cache and try again.")
 
 @Commands.command("ufi", "updatefactindex")
 @Require.permission(Cyberseal)
@@ -176,5 +181,14 @@ async def cmd_ufi(ctx: Context, args: List[str]):
     Usage: !ufi
     Aliases: updatefactindex
     """
-    await Facts.fetch_facts()
+    offline_start = config['Offline Mode']['enabled']
+    if offline_start == 'True':
+        return await ctx.reply("Cannot update cache while in offline mode.")
+    try:
+        await Facts.fetch_facts(preserve_current=True)
+    except NoDatabaseConnection:
+        return await ctx.reply("Cannot comply: No database connection. "
+                               "Preserving and locking current fact cache, "
+                               "update command ignored.")
+
     return await ctx.reply("Fact cache updated.")

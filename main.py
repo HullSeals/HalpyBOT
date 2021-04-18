@@ -38,7 +38,10 @@ class HalpyBOT(pydle.Client):
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         await super().on_connect()
-        await Facts.fetch_facts()
+        try:
+            await Facts.fetch_facts(preserve_current=False)
+        except NoDatabaseConnection:
+            logging.error("FACTS: Loading facts from offline file, entering offline mode.")
         print("Fact module loaded successfully")
         await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
         logging.info("Connected")

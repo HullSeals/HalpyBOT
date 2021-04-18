@@ -65,7 +65,7 @@ class CommandGroup:
         return None
 
     async def invoke_from_message(self, bot: pydle.Client, channel: str, sender: str, message: str):
-        """Invoke a command from a message
+        """Invoke a command or fact from a message
 
         For example, `message="!delaycase 1 test"` will result in cmd_DelayCase being called,
         with arguments [1, "test"]
@@ -90,13 +90,14 @@ class CommandGroup:
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
 
-            # We have to get the language on the fly here because the fact cache stores it as tuple
+            # Possible fact
 
             elif command.split('-')[0] in await self._factHandler.get_fact_names():
                 factname = command.split('-')[0]
-                if lang not in list(await self._factHandler.get_fact_languages(factname)):
+                if lang not in list(await self._factHandler.lang_by_fact(factname)):
                     lang = 'en'
-                return await self.invoke_fact(ctx, args, factname, lang)
+                return await ctx.reply(await self._factHandler.fact_formatted(fact=(command.split('-')[0], lang),
+                                                                              arguments=args))
 
     @property
     def commandList(self):
@@ -255,14 +256,6 @@ class CommandGroup:
                 if self._commandList[command][1] is True:
                     cmdlist.append(str(command))
             return cmdlist
-
-    async def invoke_fact(self, ctx: Context, args: List[str], fact: str, lang: str):
-        # Sanity check
-        if (fact, lang) not in self._factHandler.list():
-            raise CommandException("Cannot find fact, contact a cyberseal")
-        # Default to English if we don't have the specified language
-        return await ctx.reply(await self._factHandler.fact_formatted(fact=(fact, lang),
-                                                                      arguments=args))
 
 
 Commands = CommandGroup(is_root=True, factHandler=Facts)
