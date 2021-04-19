@@ -21,13 +21,15 @@ import functools
 
 from src.packages.ircclient.halpybot import HalpyBOT
 from src.packages.configmanager import config
+from src.packages.command import Commands
+from src.packages.facts import Facts
 
 logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
                     level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
 
 # Define the Client, mostly pulled from config.ini
 client = HalpyBOT(
-    config['IRC']['nickname'],
+    nickname=config['IRC']['nickname'],
     sasl_identity=config['SASL']['identity'],
     sasl_password=config['SASL']['password'],
     sasl_username=config['SASL']['username']
@@ -35,8 +37,18 @@ client = HalpyBOT(
 
 
 async def start():
+    from src import commands  # pylint disable=unused-import
+
+    # Set command- and fact handlers for client
+    client.commandhandler = Commands
+    client.commandhandler.facthandler = Facts
+    await client.commandhandler.facthandler.fetch_facts(preserve_current=False)
+
+    # Connect to server
     await client.connect(config['IRC']['server'], config['IRC']['port'],
                          tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
+    await client.offline_monitor()
+
 
 # Signal handler
 async def shutdown(signal, loop):
@@ -44,8 +56,7 @@ async def shutdown(signal, loop):
         print('caught {0}'.format(signal.name))
         logging.info('caught {0}'.format(signal.name))
     else:
-        print('Received shutdown command')
-        logging.info('Received shutdown command')
+        logging.critical('Received shutdown command')
 
     await client.quit(message="Will be with you shortly, please hold!")
 

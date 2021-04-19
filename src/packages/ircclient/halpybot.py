@@ -12,56 +12,100 @@ See license.md
 
 import asyncio
 import logging
+from typing import Optional
 
 import pydle
 
 from ..announcer import announcer
-from ..command import Facts, Commands
+from ..command import CommandGroup
 from ..configmanager import config
 from ..database import NoDatabaseConnection, DatabaseConnection
 
 class HalpyBOT(pydle.Client):
 
+    def __init__(self, *args, **kwargs):
+        """Initialize a new Pydle client"""
+        super().__init__(*args, **kwargs)
+        self._commandhandler: Optional[CommandGroup] = None
+
+    @property
+    def commandhandler(self):
+        """Command/fact handler object that messages are passed to"""
+        return self._commandhandler
+
+    @commandhandler.setter
+    def commandhandler(self, handler: CommandGroup):
+        self._commandhandler = handler
+
     # Join the Server and Channels and OperLine
     async def on_connect(self):
-        from src import commands
+        """Execute login script
+
+        Called by Pydle on bot startup. Lets the bot join channels
+        from config and login with operserv
+        """
         await super().on_connect()
-        try:
-            await Facts.fetch_facts(preserve_current=False)
-        except NoDatabaseConnection:
-            logging.error("FACTS: Loading facts from offline file, entering offline mode.")
-        print("Fact module loaded successfully")
-        await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
-        logging.info("Connected")
-        print("Connected!")
+        await self.operserv_login()
         for channel in config['Channels']['channellist'].split():
             await self.join(channel)
-            logging.info(f"Joining {channel}")
-        await self.offline_monitor()
 
     async def on_message(self, target, nick, message):
+        """Handle an IRC message
 
+        Invoked from Pydle on a new message. Message is passed to
+        command handler and announcer.
+
+        Args:
+            target (str): Channel message was sent to
+            nick (str): Nickname of user who sent the message
+            message (str):
+
+        """
         if nick == self.nickname:
             return  # Let's not react to ourselves shall we?
+
         await super().on_channel_message(target, nick, message)
 
+        # Special command for getting the bot prefix
         if message == f"{self.nickname} prefix":
             return await self.message(target, f"Prefix: {config['IRC']['commandPrefix']}")
 
-        await Commands.invoke_from_message(self, target, nick, message)
+        # Pass message to command handler
+        if self._commandhandler:
+            await self._commandhandler.invoke_from_message(self, target, nick, message)
 
+        # Pass to announcer, to be removed Soon(TM)
         nicks = config['Announcer']['nicks'].split()
         if target in config['Announcer']['channel'].split() and nick in nicks:
             await announcer.handle_announcement(self, target, nick, message)
 
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
+        """Reply to a message sent by a user
+
+        All arguments should be present in a Context object created by
+        a command handler
+
+        Args:
+            channel (str): Channel name the command was invoked in
+            sender (str): Command user
+            in_channel (bool): True if in a channel, else False
+            message (str): Message to be sent
+
+        """
         if in_channel:
             await self.message(channel, message)
         else:
             await self.message(sender, message)
 
-    # FIXME this works for now but take a look at this when time allows.
     async def offline_monitor(self):
+        """Monitor offline mode
+
+        Initializes a database connection every 5 minutes
+        and checks if the bot is online or not. If it concludes
+        that a DB connection is not currently available, OM mode
+        broadcasting is initiated.
+
+        """
         logging.debug("STARTING OFFLINECHECK")
         try:
             loop = asyncio.get_running_loop()
@@ -82,3 +126,10 @@ class HalpyBOT(pydle.Client):
                     await asyncio.sleep(300)
         except asyncio.exceptions.CancelledError:
             pass
+
+    async def operserv_login(self):
+        """Log in with OperServ
+
+        Note: a logout command is not currently available
+        """
+        return await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")

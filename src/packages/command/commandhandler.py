@@ -11,11 +11,10 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List, Coroutine, Optional
+from typing import List, Coroutine
 import pydle
 
 from src import __version__
-from ..facts import FactHandler
 from ..configmanager import config
 from ..models import Context
 
@@ -36,8 +35,6 @@ class CommandAlreadyExists(CommandHandlerError):
     """
 
 
-Facts = FactHandler()
-
 class CommandGroup:
     """Group of commands
 
@@ -47,6 +44,15 @@ class CommandGroup:
 
     _grouplist = []
     _root: CommandGroup = None
+
+    @property
+    def facthandler(self):
+        """Fact handler object"""
+        return self._factHandler
+
+    @facthandler.setter
+    def facthandler(self, handler):
+        self._factHandler = handler
 
     @classmethod
     def get_group(cls, name: str):
@@ -92,6 +98,10 @@ class CommandGroup:
 
             # Possible fact
 
+            # Ignore if we have no fact handler attached
+            if not self._factHandler:
+                return
+
             elif command.split('-')[0] in await self._factHandler.get_fact_names():
                 factname = command.split('-')[0]
                 if lang not in list(await self._factHandler.lang_by_fact(factname)):
@@ -109,7 +119,7 @@ class CommandGroup:
         """str: name of the command group"""
         return self._group_name
 
-    def __init__(self, is_root: bool = False, factHandler: Optional[FactHandler] = None):
+    def __init__(self, is_root: bool = False):
         """Create new command group
 
         Args:
@@ -122,7 +132,7 @@ class CommandGroup:
         self._is_root = is_root
         self._group_name = ""
         self._commandList = {}
-        self._factHandler = factHandler
+        self._factHandler = None
         if CommandGroup._root is not None and is_root is True:
             raise CommandHandlerError("Can only have one root group")
         if is_root is True:
@@ -258,7 +268,7 @@ class CommandGroup:
             return cmdlist
 
 
-Commands = CommandGroup(is_root=True, factHandler=Facts)
+Commands = CommandGroup(is_root=True)
 
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):

@@ -12,9 +12,9 @@ See license.md
 
 from typing import List, Optional
 
-from ..packages.command import Commands, Facts
+from ..packages.command import Commands
 from ..packages.models import Context
-from ..packages.facts import Fact, FactUpdateError, FactHandlerError
+from ..packages.facts import Fact, FactUpdateError, FactHandlerError, InvalidFactException, Facts
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.utils import language_codes
@@ -67,9 +67,6 @@ async def cmd_addfact(ctx: Context, args: List[str]):
     if lang not in langcodes:
         return await ctx.reply("Cannot comply: Language code must be ISO-639-1 compliant.")
 
-    # Check if not already a fact/command
-    if name in Facts.list(lang=lang) or name in Commands.get_commands():
-        return await ctx.reply("Cannot comply: Fact already an existing fact/command!")
     try:
 
         await Facts.add_fact(name, lang, ' '.join(args[1:]), ctx.sender)
@@ -82,10 +79,9 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         return await ctx.reply("Fact has been added, but cache could not be fully updated. "
                                "Please contact a cyberseal")
 
-    # Raised when we don't have an English fact for this factname
-    except ValueError:
-        return await ctx.reply("Cannot add a fact that does not have an English "
-                               "version registered")
+    # Raised when fact name is illegal for some reason
+    except InvalidFactException as ex:
+        return await ctx.reply(f"Cannot add fact: {str(ex)}")
 
 @Commands.command("deletefact")
 @Require.permission(Admin)
