@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from src.packages.seals import whois
+from ..packages.seals import whois
 from ..packages.command import Commands
 from ..packages.checks import Require, Pup
 from ..packages.models import Context

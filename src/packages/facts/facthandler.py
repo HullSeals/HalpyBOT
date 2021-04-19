@@ -18,6 +18,7 @@ import re
 
 from ..database import DatabaseConnection, NoDatabaseConnection
 from ..configmanager import config
+from ..command import Commands
 
 class FactHandlerError(Exception):
     """
@@ -256,11 +257,13 @@ class FactHandler:
             FactUpdateError: Fact was added, but cache could not be updated.
 
         """
+        if name in Commands.commandList.keys():
+            raise InvalidFactException("This fact is already an existing command")
         # Check if we have an English fact:
         if not await self.get(name, 'en') and lang.lower() != 'en':
             raise InvalidFactException("All registered facts must have an English version")
         if (name, lang) in self._factCache:
-            raise
+            raise InvalidFactException("This fact already exists.")
         try:
             with DatabaseConnection() as db:
                 cursor = db.cursor()
@@ -391,3 +394,5 @@ class FactHandler:
         # Else (no args, no default arg)
         else:
             return str(reqfact.text)
+
+Facts = FactHandler()
