@@ -19,7 +19,7 @@ import asyncio
 import signal
 import functools
 
-from src.packages.ircclient.halpybot import HalpyBOT
+from src.packages.ircclient import HalpyBOT
 from src.packages.configmanager import config
 from src.packages.command import Commands
 from src.packages.facts import Facts
