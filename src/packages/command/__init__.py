@@ -1,5 +1,4 @@
-from .commandhandler import Commands, CommandGroup, Facts
+from .commandhandler import Commands, CommandGroup
 
 __all__ = ["Commands",
-           "CommandGroup",
-           "Facts"]
+           "CommandGroup"]
