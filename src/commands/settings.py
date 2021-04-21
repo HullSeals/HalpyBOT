@@ -123,20 +123,13 @@ async def cmd_joinchannel(ctx: Context, args: List[str]):
     Usage: !joinchannel [channel]
     Aliases: n/a
     """
-    # Check if argument starts with a #
-    if args[0].startswith("#"):
-        try:
-            await ctx.bot.join(args[0])
-            await ctx.reply(f"Bot joined channel {str(args[0])}")
-            config['Channels']['ChannelList'] += f", {args[0]}"
-            with open('config/config.ini', 'w') as conf:
-                config.write(conf)
-            await ctx.reply("Config file updated.")
-            return
-        except pydle.client.AlreadyInChannel:
-            await ctx.reply("Bot is already in that channel!")
-    else:
-        await ctx.reply("That's not a channel!")
+    try:
+        await ctx.bot.join(args[0])
+        return await ctx.reply(f"Bot joined channel {args[0]}")
+    except pydle.client.AlreadyInChannel:
+        return await ctx.reply("Bot is already in that channel!")
+    except ValueError:
+        return await ctx.reply(f"Channel {args[0]} does not exist.")
 
 
 @Commands.command("partchannel")
@@ -148,9 +141,4 @@ async def cmd_part(ctx: Context, args: List[str]):
     Usage: !partchannel
     Aliases: n/a
     """
-    channels = [entry.strip() for entry in config.get('Channels', 'ChannelList').split(',')]
     await ctx.bot.part(message=f"PART by {ctx.sender}", channel=ctx.channel)
-    channels.remove(str(ctx.channel))
-    config['Channels']['ChannelList'] = ', '.join(ch for ch in channels)
-    with open('config/config.ini', 'w') as conf:
-        config.write(conf)
