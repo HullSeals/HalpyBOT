@@ -15,13 +15,14 @@ import logging
 from typing import Optional
 
 import pydle
+from ._listsupport import ListHandler
 
 from ..announcer import announcer
 from ..command import CommandGroup
 from ..configmanager import config
 from ..database import NoDatabaseConnection, DatabaseConnection
 
-class HalpyBOT(pydle.Client):
+class HalpyBOT(pydle.Client, ListHandler):
 
     def __init__(self, *args, **kwargs):
         """Initialize a new Pydle client"""
@@ -47,7 +48,7 @@ class HalpyBOT(pydle.Client):
         await super().on_connect()
         await self.operserv_login()
         for channel in config['Channels']['channellist'].split():
-            await self.join(channel)
+            await self.join(channel, force=True)
 
     async def on_message(self, target, nick, message):
         """Handle an IRC message
@@ -133,3 +134,40 @@ class HalpyBOT(pydle.Client):
         Note: a logout command is not currently available
         """
         return await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
+
+    async def join(self, channel, password=None, force: bool = False):
+        """Join a channel
+
+        We do not allow Halpy to join a non-existent channel,
+        as this would first create it and thus be a PITA.
+
+        Args:
+            channel (str): channel name
+            password (str or None): Channel password, optional
+            force (bool): join the channel regardless of its existence. Use with
+                care, do not include in user-facing functions.
+
+        """
+        if not force and channel not in await self.all_channels():
+            raise ValueError(f"No such channel: {channel}")
+        await super().join(channel, password)
+        if channel not in config['Channels']['channellist'].split():
+            config['Channels']['channellist'] += f' {channel}'
+            with open('config/config.ini', 'w') as conf:
+                config.write(conf)
+
+    async def part(self, channel, message=None):
+        """Part a channel
+
+        Args:
+            channel (str): Channel we want to leave
+            message (str): Part message
+
+        """
+        await super().part(channel, message)
+        chlist = config['Channels']['channellist'].split()
+        if channel in chlist:
+            chlist.remove(channel)
+            config['Channels']['channellist'] = ' '.join(chlist)
+            with open('config/config.ini', 'w') as conf:
+                config.write(conf)
