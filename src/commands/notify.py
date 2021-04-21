@@ -148,7 +148,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     return await ctx.reply(f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!")
 
 
-@Commands.command("summontech", "calltech", "shitsfucked", "cybersignal")
+@Commands.command("summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal")
 @Require.permission(Pup)
 @Require.channel()
 @Require.AWS()
