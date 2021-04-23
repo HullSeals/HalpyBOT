@@ -5,7 +5,7 @@
     {"ID": "PPWK",
     "Name": "Paperwork",
     "Description": "Used to inform users of completed paperwork",
-    "Channels": "#seal-bob #repair-requests",
+    "Channels": ["#bot-test"],
     "EDSM": null,
     "Content":  ["Paperwork for case {0} completed by {1}"]
     },
@@ -13,11 +13,11 @@
     {"ID": "CODEBLACK",
     "Name":  "Code Black",
     "Description": "Inform users of a new code black case",
-    "Channels": "#seal-bob #repair-requests #code-black",
+    "Channels": ["#bot-test"],
     "EDSM": 2,
-    "Content": ["xxxx CBCASE -- NEWCASE xxx",
-                "CMDR: {0} -- Platform: {1} -- System: {2} -- Hull: {3}",
-                "Can synth: {4} -- O2 timer: {5}",
+    "Content": ["xxxx CBCASE -- NEWCASE xxx\n",
+                "CMDR: {0} -- Platform: {1} -- System: {2} -- Hull: {3}\n",
+                "Can synth: {4} -- O2 timer: {5}\n",
                 "xxxxxxxx"]
     },
 
@@ -25,11 +25,11 @@
       "ID": "SEALCASE",
       "Name": "Seal Case",
       "Description": "Create a new seal case",
-      "Channels": "#seal-bob #repair-request",
+      "Channels": ["#bot-test"],
       "EDSM": 3,
-      "Content": ["xxxx {0}CASE -- NEWCASE xxxx",
-                  "CMDR: {1} -- Platform: {2}",
-                  "System: {3} -- Hull: {4}",
+      "Content": ["xxxx {0}CASE -- NEWCASE xxxx\n",
+                  "CMDR: {1} -- Platform: {2}\n",
+                  "System: {3} -- Hull: {4}\n",
                   "xxxxxxxx"]
     },
 
@@ -37,13 +37,13 @@
       "ID": "KFCASE",
       "Name": "Kingfisher case",
       "Description": "Create a new kingfisher case",
-      "Channels": "#seal-bob #repair-request",
+      "Channels": ["#bot-test"],
       "EDSM": 3,
-      "Content": ["xxxx {0}KFCASE -- NEWCASE xxxx",
-                  "CMDR: {1} -- Platform: {2}",
-                  "System: {3} -- Planet: {4}",
-                  "Coordinates: {5}",
-                  "Type: {6}",
+      "Content": ["xxxx {0}KFCASE -- NEWCASE xxxx\n",
+                  "CMDR: {1} -- Platform: {2}\n",
+                  "System: {3} -- Planet: {4}\n",
+                  "Coordinates: {5}\n",
+                  "Type: {6}\n",
                   "xxxxxxxx"]
     }
 

@@ -9,45 +9,102 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 
-This module is due for a rewrite, and not documented.
-
 """
 
+from __future__ import annotations
 import pydle
-import logging
+import json
+from typing import List, Optional
 
-from . import message_builder as mb
+from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
+
+class Announcer:
+
+    def __init__(self, bot: pydle.Client):
+        """Initialize announcer
+
+        The client is passed to this class by HalpyBOT even though
+        that class itself does nothing with it, in order for us to
+        call it easily
+
+        Args:
+            bot (pydle.Client): Bot client we make announcements with
+
+        """
+        self._client = bot
+        self._announcements = {}
+        # Load data
+        with open('data/announcer/announcer.json', 'r') as cf:
+            self._config = json.load(cf)
+        # Create announcement objects and store them in dict
+        for anntype in self._config['AnnouncerType']:
+            self._announcements[anntype['ID']] = Announcement(
+                ID=anntype['ID'],
+                name=anntype['Name'],
+                description=anntype['Description'],
+                channels=anntype['Channels'],
+                edsm=anntype['EDSM'],
+                content=anntype['Content']
+            )
+
+    def rehash(self):
+        pass
+
+    async def announce(self, announcement: str, args: List[str]):
+        ann = self._announcements[announcement]
+        for ch in ann.channels:
+            await self._client.message(ch, await ann.format(args))
 
 
-annList = {
-    # Cases
-    "CODEBLACK": mb.codeblack,
-    "PC": mb.case,
-    "XB": mb.case,
-    "PS4": mb.case,
-    "PLTERR": mb.plterr,
-    "XBFISH": mb.kingfisher,
-    "PCFISH": mb.kingfisher,
-    "PSFISH": mb.kingfisher,
-    "PLTERRFISH": mb.kingfisher_plterr,
-    # Other
-    "PPWK": mb.ppwk,
-}
+class Announcement:
 
-class AnnouncerContext:
-    def __init__(self, bot: pydle.Client, channel: str, sender: str):
-        self.bot = bot
-        self.channel = channel
-        self.sender = sender
+    def __init__(self, ID: str, name: str, description: str,
+                 channels: List[str], edsm: Optional[int], content: List[str]):
+        """Create a new announcement object
 
-async def handle_announcement(bot: pydle.Client, channel: str, sender: str, message: str):
-    # Seperate arguments
-    parts = message.split(" -~~- ")
-    anntype = parts[0]
-    args = parts[1:]
-    ctx = AnnouncerContext(bot, channel, sender)
-    if anntype in annList:
-        logging.info(f"NEW ANNOUNCER WEBHOOK PAYLOAD FROM {sender}: {message}")
-        return await annList[anntype](ctx, args)
-    else:
-        return
+        Args:
+            ID (str): Announcement reference code, used by API
+            name (str): Name, for reference only
+            description (str): Description of the announcement
+            channels (list of str): channels the announcement is to be sent to
+            edsm (int or Null): the announcement parameter we want to run
+                an EDSM system query on. none if Null.
+            content (list of str): lines to be sent in the announcement
+        """
+        self.ID = ID
+        self.name = name
+        self.description = description
+        self.channels = channels
+        self._edsm = edsm
+        self._content = ''.join(content)
+
+    async def format(self, args: List[str]) -> str:
+        """Format announcement in a ready-to-be-sent format
+
+        This includes the result of the EDSM query if specified in the config
+
+        Args:
+            *args: List of parameters to be formatted into the announcement
+
+        Returns:
+            (str): Fully formatted announcement
+
+        Raises:
+            IndexError: an invalid number of parameters was provided
+
+        """
+        # Come on pylint
+        edsmstr = ''
+        try:
+            announcement = self._content.format(*args)
+        except IndexError:
+            raise
+        if self._edsm:
+            try:
+                landmark, distance, direction = await checklandmarks(args[self._edsm])
+                edsmstr = f"\nSystem exists in EDSM. The closest landmark system is {landmark} at {distance} LY."
+            except NoResultsEDSM:
+                edsmstr = f"\nSystem {args[self._edsm]} not found in EDSM"
+            except EDSMLookupError:
+                edsmstr = f"\nUnable to query EDSM. Dispatch, please contact a cyberseal."
+        return announcement + edsmstr

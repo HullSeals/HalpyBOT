@@ -17,7 +17,6 @@ from typing import Optional
 import pydle
 from ._listsupport import ListHandler
 
-from ..announcer import announcer
 from ..command import CommandGroup
 from ..configmanager import config
 from ..database import NoDatabaseConnection, DatabaseConnection
@@ -74,11 +73,6 @@ class HalpyBOT(pydle.Client, ListHandler):
         # Pass message to command handler
         if self._commandhandler:
             await self._commandhandler.invoke_from_message(self, target, nick, message)
-
-        # Pass to announcer, to be removed Soon(TM)
-        nicks = config['Announcer']['nicks'].split()
-        if target in config['Announcer']['channel'].split() and nick in nicks:
-            await announcer.handle_announcement(self, target, nick, message)
 
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
         """Reply to a message sent by a user
