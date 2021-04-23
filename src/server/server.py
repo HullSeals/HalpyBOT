@@ -42,11 +42,13 @@ class BotClient:
 HalpyClient = BotClient()
 routes = web.RouteTableDef()
 
+halpybot = HalpyClient.client
+
 @routes.get('/')
 async def server_root(request):
     response = {"app": "Hull Seals HalpyBOT",
                 "version": __version__,
-                "bot_nick": HalpyClient.client.nickname}
+                "bot_nick": halpybot.nickname}
     return web.json_response(response)
 
 APIConnector = web.Application()
