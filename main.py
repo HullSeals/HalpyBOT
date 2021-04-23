@@ -40,29 +40,24 @@ client = HalpyBOT(
 )
 
 
-async def start():
+def _start_bot():
     from src import commands  # pylint disable=unused-import
 
-    # Set command- and fact handlers for client
+    bot_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(bot_loop)
+    loop = asyncio.get_event_loop()
+
     client.commandhandler = Commands
     client.commandhandler.facthandler = Facts
-    await client.commandhandler.facthandler.fetch_facts(preserve_current=False)
+    loop.run_until_complete(client.commandhandler.facthandler.fetch_facts(preserve_current=False))
 
-    # Connect to server
-    await client.connect(config['IRC']['server'], config['IRC']['port'],
-                         tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
-    await client.offline_monitor()
-
-
-LOOP = None
-
-if __name__ == "__main__":
     pool.connect(client, config['IRC']['server'], config['IRC']['port'],
                  tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
-    bthread = threading.Thread(target=pool.handle_forever)
+    pool.handle_forever()
+
+
+if __name__ == "__main__":
+    bthread = threading.Thread(target=_start_bot)
     bthread.start()
-    client.commandhandler = Commands
-    client.commandhandler.facthandler = Facts
     sthread = threading.Thread(target=web.run_app(APIConnector))
     sthread.start()
-    asyncio.run(client.commandhandler.facthandler.fetch_facts(preserve_current=False))

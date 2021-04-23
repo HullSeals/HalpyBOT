@@ -95,36 +95,6 @@ class HalpyBOT(pydle.Client, ListHandler):
         else:
             await self.message(sender, message)
 
-    async def offline_monitor(self):
-        """Monitor offline mode
-
-        Initializes a database connection every 5 minutes
-        and checks if the bot is online or not. If it concludes
-        that a DB connection is not currently available, OM mode
-        broadcasting is initiated.
-
-        """
-        logging.debug("STARTING OFFLINECHECK")
-        try:
-            loop = asyncio.get_running_loop()
-            while True:
-                if config['Offline Mode']['enabled'] == 'True' and \
-                   config['Offline Mode']['warning override'] == 'False':
-                    for ch in config['Offline Mode']['announce_channels'].split():
-                        await self.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
-                                               "Contact a CyberSeal.")
-                await asyncio.sleep(300)
-                if config['Offline Mode']['enabled'] == 'False':
-                    # We only need to start the connection, DatabaseConnection will trip the CB if neccesary
-                    try:
-                        with DatabaseConnection() as db:
-                            db.ping()
-                    except NoDatabaseConnection:
-                        continue
-                    await asyncio.sleep(300)
-        except asyncio.exceptions.CancelledError:
-            pass
-
     async def operserv_login(self):
         """Log in with OperServ
 
