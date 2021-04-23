@@ -12,33 +12,42 @@ See license.md
 """
 
 from aiohttp import web
-from typing import List
+import pydle
+from typing import Optional
 
 from src import __version__
 
-from ..packages.announcer import Announcer, AnnouncementError
+class BotClient:
 
+    def __init__(self, client: Optional[pydle.Client] = None):
+        """Ridiculously hacky way for us to get the IRC client
+
+        Circular imports can bite my tail.
+
+        Args:
+            client (pydle.Client or None): Pydle client
+
+        """
+        self._client = client
+
+    @property
+    def client(self):
+        return self._client
+
+    @client.setter
+    def client(self, client: Optional[pydle.Client] = None):
+        self._client = client
+
+
+HalpyClient = BotClient()
 routes = web.RouteTableDef()
 
-@routes.get('/version')
-async def server_get_version(request):
-    return web.Response(text=__version__)
+@routes.get('/')
+async def server_root(request):
+    response = {"app": "Hull Seals HalpyBOT",
+                "version": __version__,
+                "bot_nick": HalpyClient.client.nickname}
+    return web.json_response(response)
 
-@routes.post('/announce')
-async def test_announce(request):
-    if request.body_exists:
-        request = await request.json()
-    response = {"status": None}
-    # Parse arguments
-    announcement = request["type"]
-    args: List[str] = request["parameters"]
-    try:
-        await MainAnnouncer.announce(announcement=announcement, args=args)
-        response["status"] = 200
-    except AnnouncementError:
-        response["status"] = 500
-    return response
-
-MainAnnouncer = Announcer()
 APIConnector = web.Application()
 APIConnector.add_routes(routes)

@@ -17,8 +17,6 @@ import pydle
 import asyncio
 from aiohttp import web
 
-from src import commands
-
 from src.server import APIConnector
 
 from src.packages.ircclient import HalpyBOT
