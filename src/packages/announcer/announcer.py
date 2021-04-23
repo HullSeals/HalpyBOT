@@ -18,9 +18,14 @@ from typing import List, Optional
 
 from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
 
+class AnnouncementError(Exception):
+    """
+    Could not announce request
+    """
+
 class Announcer:
 
-    def __init__(self, bot: pydle.Client):
+    def __init__(self, bot: Optional[pydle.Client] = None):
         """Initialize announcer
 
         The client is passed to this class by HalpyBOT even though
@@ -47,14 +52,26 @@ class Announcer:
                 content=anntype['Content']
             )
 
+    @property
+    def client(self):
+        return self._client
+
+    @client.setter
+    def client(self, client: Optional[pydle.Client]):
+        self._client = client
+
     def rehash(self):
         pass
 
     async def announce(self, announcement: str, args: List[str]):
         ann = self._announcements[announcement]
-        for ch in ann.channels:
-            await self._client.message(ch, await ann.format(args))
-
+        # noinspection PyBroadException
+        # We want to catch everything
+        try:
+            for ch in ann.channels:
+                await self._client.message(ch, await ann.format(args))
+        except Exception as ex:
+            raise AnnouncementError(ex)
 
 class Announcement:
 

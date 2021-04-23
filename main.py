@@ -12,9 +12,14 @@ See license.md
 """
 
 import logging
+import threading
+import pydle
 import asyncio
-import signal
-import functools
+from aiohttp import web
+
+from src import commands
+
+from src.server import APIConnector
 
 from src.packages.ircclient import HalpyBOT
 from src.packages.configmanager import config
@@ -23,6 +28,8 @@ from src.packages.facts import Facts
 
 logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
                     level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
+
+pool = pydle.ClientPool()
 
 # Define the Client, mostly pulled from config.ini
 client = HalpyBOT(
@@ -47,29 +54,15 @@ async def start():
     await client.offline_monitor()
 
 
-# Signal handler
-async def shutdown(signal, loop):
-    if signal != signal.SIGUSR2:
-        print('caught {0}'.format(signal.name))
-        logging.info('caught {0}'.format(signal.name))
-    else:
-        logging.critical('Received shutdown command')
-
-    await client.quit(message="Will be with you shortly, please hold!")
-
-    tasks = [task for task in asyncio.all_tasks() if task is not
-             asyncio.current_task()]
-    list(map(lambda task: task.cancel(), tasks))
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    loop.stop()
-
 LOOP = None
 
 if __name__ == "__main__":
-    LOOP = asyncio.get_event_loop()
-    for signame in ('SIGINT', 'SIGTERM', 'SIGUSR2'):
-        LOOP.add_signal_handler(getattr(signal, signame),
-                                functools.partial(asyncio.ensure_future,
-                                                  shutdown(getattr(signal, signame), LOOP)))
-    LOOP.run_until_complete(start())
-    LOOP.run_forever()
+    pool.connect(client, config['IRC']['server'], config['IRC']['port'],
+                 tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
+    bthread = threading.Thread(target=pool.handle_forever)
+    bthread.start()
+    client.commandhandler = Commands
+    client.commandhandler.facthandler = Facts
+    sthread = threading.Thread(target=web.run_app(APIConnector))
+    sthread.start()
+    asyncio.run(client.commandhandler.facthandler.fetch_facts(preserve_current=False))

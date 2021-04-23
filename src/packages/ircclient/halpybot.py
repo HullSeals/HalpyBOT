@@ -17,6 +17,8 @@ from typing import Optional
 import pydle
 from ._listsupport import ListHandler
 
+from src.server import MainAnnouncer
+
 from ..command import CommandGroup
 from ..configmanager import config
 from ..database import NoDatabaseConnection, DatabaseConnection
@@ -27,6 +29,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         """Initialize a new Pydle client"""
         super().__init__(*args, **kwargs)
         self._commandhandler: Optional[CommandGroup] = None
+        MainAnnouncer.client = self
 
     @property
     def commandhandler(self):
