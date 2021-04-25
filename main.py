@@ -17,7 +17,7 @@ import pydle
 import asyncio
 from aiohttp import web
 
-from src.server import APIConnector
+from src.server import APIConnector, MainAnnouncer, HalpyClient
 
 from src.packages.ircclient import HalpyBOT
 from src.packages.configmanager import config
@@ -28,6 +28,7 @@ logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
 pool = pydle.ClientPool()
 
 def _start_bot():
+    """Starts HalpyBOT with the specified config values."""
     from src import commands  # pylint disable=unused-import
 
     bot_loop = asyncio.new_event_loop()
@@ -41,6 +42,9 @@ def _start_bot():
         sasl_username=config['SASL']['username'],
         eventloop=loop
     )
+
+    MainAnnouncer.client = client
+    HalpyClient.client = client
 
     pool.connect(client, config['IRC']['server'], config['IRC']['port'],
                  tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
