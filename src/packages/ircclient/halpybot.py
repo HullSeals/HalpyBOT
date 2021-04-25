@@ -10,8 +10,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import asyncio
-import logging
 from typing import Optional
 
 import pydle
@@ -19,16 +17,17 @@ from ._listsupport import ListHandler
 
 from src.server import MainAnnouncer, HalpyClient
 
-from ..command import CommandGroup
+from ..command import Commands, CommandGroup
 from ..configmanager import config
-from ..database import NoDatabaseConnection, DatabaseConnection
+from ..facts import Facts
 
 class HalpyBOT(pydle.Client, ListHandler):
 
     def __init__(self, *args, **kwargs):
         """Initialize a new Pydle client"""
         super().__init__(*args, **kwargs)
-        self._commandhandler: Optional[CommandGroup] = None
+        self._commandhandler: Optional[CommandGroup] = Commands
+        self._commandhandler.facthandler = Facts
         # Pass client to several modules
         MainAnnouncer.client = self
         HalpyClient.client = self
@@ -51,6 +50,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         """
         await super().on_connect()
         await self.operserv_login()
+        await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
         for channel in config['Channels']['channellist'].split():
             await self.join(channel, force=True)
 
