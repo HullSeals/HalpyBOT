@@ -19,6 +19,8 @@ from ..command import Commands, CommandGroup
 from ..configmanager import config
 from ..facts import Facts
 
+pool = pydle.ClientPool()
+
 class HalpyBOT(pydle.Client, ListHandler):
 
     def __init__(self, *args, **kwargs):

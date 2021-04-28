@@ -49,7 +49,7 @@ async def server_root(request):
     response = {"app": "Hull Seals HalpyBOT",
                 "version": __version__,
                 "bot_nick": HalpyClient.client.nickname,
-                "online": "True" if HalpyClient.client.connected else "False"}
+                "irc_connected": "True" if HalpyClient.client.connected else "False"}
     return web.json_response(response)
 
 APIConnector = web.Application()

@@ -13,19 +13,16 @@ See license.md
 
 import logging
 import threading
-import pydle
 import asyncio
 from aiohttp import web
 
 from src.server import APIConnector, MainAnnouncer, HalpyClient
 
-from src.packages.ircclient import HalpyBOT
+from src.packages.ircclient import HalpyBOT, pool
 from src.packages.configmanager import config
 
 logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
                     level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
-
-pool = pydle.ClientPool()
 
 def _start_bot():
     """Starts HalpyBOT with the specified config values."""
@@ -59,7 +56,7 @@ def _start_server():
 
 
 if __name__ == "__main__":
-    bthread = threading.Thread(target=_start_bot, name="BotThread")
+    bthread = threading.Thread(target=_start_bot, name="BotThread", daemon=True)
     bthread.start()
-    sthread = threading.Thread(target=_start_server(), name="ServerThread")
+    sthread = threading.Thread(target=_start_server(), name="ServerThread", daemon=True)
     sthread.start()
