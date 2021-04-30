@@ -11,6 +11,7 @@ See license.md
 """
 
 from typing import Optional
+import logging
 
 import pydle
 from ._listsupport import ListHandler
@@ -18,6 +19,7 @@ from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..configmanager import config
 from ..facts import Facts
+from ..database import NoDatabaseConnection
 
 pool = pydle.ClientPool()
 
@@ -47,7 +49,10 @@ class HalpyBOT(pydle.Client, ListHandler):
         """
         await super().on_connect()
         await self.operserv_login()
-        await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
+        try:
+            await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
+        except NoDatabaseConnection:
+            logging.error("Could not fetch facts from DB, backup file loaded and entering OM")
         for channel in config['Channels']['channellist'].split():
             await self.join(channel, force=True)
 

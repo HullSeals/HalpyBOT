@@ -24,9 +24,6 @@ dbconfig = {"user": config['Database']['user'],
             "connect_timeout": int(config['Database']['timeout']),
             }
 
-# Assume not in offline mode
-offline_mode: bool = config.getboolean('Offline Mode', 'Enabled')
-
 om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
 
 class NoDatabaseConnection(ConnectionError):
@@ -47,8 +44,7 @@ class DatabaseConnection(MySQLConnection):
             NoDatabaseConnection: Raised when 3 consecutive connection attempts are unsuccessful
 
         """
-        global offline_mode
-        if offline_mode is True:
+        if config.getboolean('Offline Mode', 'Enabled'):
             raise NoDatabaseConnection
         for _ in range(3):
             # Attempt to connect to the DB

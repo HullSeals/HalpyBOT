@@ -231,7 +231,7 @@ class FactHandler:
             else:
                 factname = fact
                 lang = "en"
-            self._factCache[factname, lang] = Fact(None, factname, lang, backupfile[factname], "HalpyBOT OM")
+            self._factCache[factname, lang] = Fact(None, factname, lang, backupfile[f"{factname}-{lang}"], "OFFLINE")
 
     def _flush_cache(self):
         """Flush the fact cache. Use with care"""
