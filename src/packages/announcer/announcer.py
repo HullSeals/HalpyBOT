@@ -14,7 +14,7 @@ See license.md
 from __future__ import annotations
 import pydle
 import json
-from typing import List, Optional
+from typing import List, Dict, Optional
 
 from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
 
@@ -63,7 +63,7 @@ class Announcer:
     def rehash(self):
         pass
 
-    async def announce(self, announcement: str, args: List[str]):
+    async def announce(self, announcement: str, args: Dict):
         ann = self._announcements[announcement]
         # noinspection PyBroadException
         # We want to catch everything
@@ -95,7 +95,7 @@ class Announcement:
         self._edsm = edsm
         self._content = ''.join(content)
 
-    async def format(self, args: List[str]) -> str:
+    async def format(self, args) -> str:
         """Format announcement in a ready-to-be-sent format
 
         This includes the result of the EDSM query if specified in the config
@@ -113,15 +113,17 @@ class Announcement:
         # Come on pylint
         edsmstr = ''
         try:
-            announcement = self._content.format(*args)
+            announcement = self._content.format(**args)
         except IndexError:
             raise
-        if self._edsm:
+        if self._edsm and args["System"]:
             try:
-                landmark, distance, direction = await checklandmarks(args[self._edsm])
+                landmark, distance, direction = await checklandmarks(args["System"])
                 edsmstr = f"\nSystem exists in EDSM. The closest landmark system is {landmark} at {distance} LY."
             except NoResultsEDSM:
-                edsmstr = f"\nSystem {args[self._edsm]} not found in EDSM"
+                edsmstr = f"\nSystem {args['System']} not found in EDSM"
             except EDSMLookupError:
                 edsmstr = f"\nUnable to query EDSM. Dispatch, please contact a cyberseal."
+        elif self._edsm:
+            ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
         return announcement + edsmstr

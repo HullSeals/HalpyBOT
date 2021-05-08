@@ -11,7 +11,7 @@ See license.md
 
 """
 
-from typing import List
+from typing import Dict
 from aiohttp import web
 
 from ..packages.announcer import Announcer, AnnouncementError
@@ -25,7 +25,7 @@ async def announce(request):
         request = await request.json()
     # Parse arguments
     announcement = request["type"]
-    args: List[str] = request["parameters"]
+    args: Dict = request["parameters"]
     try:
         await MainAnnouncer.announce(announcement=announcement, args=args)
         raise web.HTTPOk

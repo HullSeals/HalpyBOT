@@ -180,6 +180,8 @@ class CommandGroup:
         def decorator(function):
             for name in names:
                 self._register(name, function, True if name == names[0] else False)
+            # Set command attribute so we can check if a function is an IRC-facing command or not
+            setattr(function, "is_command", True)
             return function
         return decorator
 
