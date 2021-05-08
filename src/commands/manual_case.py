@@ -72,8 +72,53 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     }
 
     try:
-        req = requests.post(config['Discord Notifications']['url'], json=cn_message)
-        print(req.status_code)
+        requests.post(config['Discord Notifications']['url'], json=cn_message)
+    except requests.exceptions.HTTPError as err:
+        await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
+        logging.error(f"Unable to notify Discord: {err}")
+
+
+@Commands.command("tsping", "wssping")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_tsping(ctx: Context, args: List[str]):
+    """
+    Ping the Trained Seals role on Discord. Annoying as duck and not to be used lightly
+
+    Usage: !tsping [info]
+    Aliases: wssping
+    """
+    info = ctx.message
+
+    cn_message = {
+        "content": f"Attention, {config['Discord Notifications']['trainedrole']}! Seals are needed for this case:",
+        "username": f"{ctx.sender}",
+        "avatar_url": "https://hullseals.space/images/emblem_mid.png",
+        "tts": False,
+        "embeds": [
+            {
+                "title": "Dispatcher Needs Seals",
+                "type": "rich",
+                "timestamp": f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
+                "color": 16093727,
+                "footer": {
+                    "text": f"Sent by {ctx.sender} from {ctx.channel}",
+                    "icon_url": "https://hullseals.space/images/emblem_mid.png",
+                },
+                "fields": [
+                    {
+                        "name": "Additional information",
+                        "value": info,
+                        "inline": False
+                    }
+                ]
+            }
+        ]
+    }
+
+    try:
+        requests.post(config['Discord Notifications']['url'], json=cn_message)
+        return await ctx.reply("Trained Seals ping sent out successfully.")
     except requests.exceptions.HTTPError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
         logging.error(f"Unable to notify Discord: {err}")
