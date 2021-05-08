@@ -24,7 +24,7 @@ Outputs:
 {
   "app": "Hull Seals HalpyBOT",
   "version": "1.4-dev",
-  "bot_nick": "HalpyBOT[Dev|Rik",
+  "bot_nick": "HalpyBOT[Dev|Rik]",
   "irc_connected": "True"
 }
 ```
