@@ -15,7 +15,7 @@
     "Description": "Inform users of a new code black case",
     "Channels": ["#seal-bob", "#Repair-Requests", "#Code-Black"],
     "EDSM": true,
-    "Content": ["xxxx CBCASE -- NEWCASE xxx\n",
+    "Content": ["xxxx CBCASE -- NEWCASE -- {Platform}CASE xxx\n",
                 "CMDR: {CMDR} -- Platform: {Platform} -- System: {System} -- Hull: {Hull}\n",
                 "Can synth: {CanSynth} -- O2 timer: {Oxygen}\n",
                 "xxxxxxxx"]

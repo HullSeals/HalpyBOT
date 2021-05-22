@@ -119,7 +119,12 @@ class Announcement:
         if self._edsm and args["System"]:
             try:
                 landmark, distance, direction = await checklandmarks(args["System"])
-                edsmstr = f"\nSystem exists in EDSM. The closest landmark system is {landmark} at {distance} LY."
+                # What we have is good, however, to make things look nice we need to flip the direction Aussie Style
+                dirA = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
+                olddir = dirA.index(direction)
+                dirB = ["South", "SW", "West", "NW", "North", "NE", "East", "SE", "South"]
+                direction = f'{dirB[olddir]}'
+                edsmstr = f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
             except NoResultsEDSM:
                 edsmstr = f"\nSystem {args['System']} not found in EDSM"
             except EDSMLookupError:
