@@ -12,6 +12,9 @@ See license.md
 
 import time
 from typing import List
+import requests
+import json
+import logging
 
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
@@ -67,3 +70,24 @@ async def cmd_edsmping(ctx: Context, args: List[str]):
     finish = time.time()
     final = round(finish - start, 2)
     await ctx.reply("EDSM Latency: " + str(final) + " seconds")
+
+@Commands.command("serverstatus")
+async def cmd_serverstat(ctx: Context, args: List[str]):
+    """
+    Reply with the current Elite server status according to EDSM.
+
+    Usage: !serverstatus
+    Aliases: n/a
+    """
+    try:
+        response = requests.get("https://hosting.zaonce.net/launcher-status/status.json")
+        responses = response.json()
+    except requests.exceptions.RequestException as er:
+        logging.error(f"EDSM: Error in Elite Server Status lookup: {er}", exc_info=True)
+        raise EDSMConnectionError("Unable to verify Elite Status, having issues connecting to the Elite API.")
+    if len(responses) == 0:
+        await ctx.reply("ERROR! Elite returned an empty reply.")
+    else:
+        message = responses["text"]
+        code = responses["status"]
+        await ctx.reply(f"The Elite servers are {message} (Status Code {code}) according to Frontier.")
