@@ -52,7 +52,7 @@ def _start_server():
     asyncio.set_event_loop(server_loop)
     loop = asyncio.get_event_loop()
 
-    web.run_app(APIConnector)
+    web.run_app(app=APIConnector, port=int(config['API Connector']['port']))
 
 
 if __name__ == "__main__":
