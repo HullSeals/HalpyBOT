@@ -15,11 +15,13 @@ from typing import Dict
 from aiohttp import web
 
 from .server import APIConnector, HalpyClient
+from .auth import Authenticate
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
 
 routes = web.RouteTableDef()
 
 @routes.post('/tail')
+@Authenticate()
 async def tail(request):
     if request.body_exists:
         request = await request.json()
