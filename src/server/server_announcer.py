@@ -16,10 +16,12 @@ from aiohttp import web
 
 from ..packages.announcer import Announcer, AnnouncementError
 from .server import APIConnector
+from .auth import Authenticate
 
 routes = web.RouteTableDef()
 
 @routes.post('/announce')
+@Authenticate()
 async def announce(request):
     if request.body_exists:
         request = await request.json()
