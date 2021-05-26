@@ -44,9 +44,8 @@ async def whois(subject):
     except NoDatabaseConnection:
         return "Error searching user."
 
-    if uID == "None":
+    if uID == None:
         return "No registered user found by that name!"
     else:
-        return f"CMDR {subject} has a Seal ID of {uID}, registered on {uRegdate} {uDW2} {uName}" \
+        return f"CMDR {subject} has a Seal ID of {uID}, registered on {uRegdate}{uDW2} {uName}" \
                f", and has been involved with {uCases} rescues."
-
