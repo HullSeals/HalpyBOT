@@ -190,7 +190,7 @@ async def cmd_checkDelayedCases(ctx: Context, args: List[str]):
     """
     Check the Delayed Board for cases
 
-    Usage: !delaystatys
+    Usage: !delaystatus
     Aliases: checkstatus
     """
 

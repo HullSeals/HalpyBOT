@@ -389,7 +389,7 @@ class FactHandler:
 
         # If we have arguments add them
         elif arguments:
-            return str(' '.join(arguments) + ': ' + reqfact.text)
+            return str(' '.join(arguments).strip() + ': ' + reqfact.text)
 
         # Else (no args, no default arg)
         else:
