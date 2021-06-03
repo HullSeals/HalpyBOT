@@ -10,24 +10,26 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import asyncio
-import logging
 from typing import Optional
+import logging
 
 import pydle
 from ._listsupport import ListHandler
 
-from ..announcer import announcer
-from ..command import CommandGroup
+from ..command import Commands, CommandGroup
 from ..configmanager import config
-from ..database import NoDatabaseConnection, DatabaseConnection
+from ..facts import Facts
+from ..database import NoDatabaseConnection
+
+pool = pydle.ClientPool()
 
 class HalpyBOT(pydle.Client, ListHandler):
 
     def __init__(self, *args, **kwargs):
         """Initialize a new Pydle client"""
         super().__init__(*args, **kwargs)
-        self._commandhandler: Optional[CommandGroup] = None
+        self._commandhandler: Optional[CommandGroup] = Commands
+        self._commandhandler.facthandler = Facts
 
     @property
     def commandhandler(self):
@@ -47,6 +49,10 @@ class HalpyBOT(pydle.Client, ListHandler):
         """
         await super().on_connect()
         await self.operserv_login()
+        try:
+            await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
+        except NoDatabaseConnection:
+            logging.error("Could not fetch facts from DB, backup file loaded and entering OM")
         for channel in config['Channels']['channellist'].split():
             await self.join(channel, force=True)
 
@@ -75,11 +81,6 @@ class HalpyBOT(pydle.Client, ListHandler):
         if self._commandhandler:
             await self._commandhandler.invoke_from_message(self, target, nick, message)
 
-        # Pass to announcer, to be removed Soon(TM)
-        nicks = config['Announcer']['nicks'].split()
-        if target in config['Announcer']['channel'].split() and nick in nicks:
-            await announcer.handle_announcement(self, target, nick, message)
-
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
         """Reply to a message sent by a user
 
@@ -97,36 +98,6 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.message(channel, message)
         else:
             await self.message(sender, message)
-
-    async def offline_monitor(self):
-        """Monitor offline mode
-
-        Initializes a database connection every 5 minutes
-        and checks if the bot is online or not. If it concludes
-        that a DB connection is not currently available, OM mode
-        broadcasting is initiated.
-
-        """
-        logging.debug("STARTING OFFLINECHECK")
-        try:
-            loop = asyncio.get_running_loop()
-            while True:
-                if config['Offline Mode']['enabled'] == 'True' and \
-                   config['Offline Mode']['warning override'] == 'False':
-                    for ch in config['Offline Mode']['announce_channels'].split():
-                        await self.message(ch, "HalpyBOT in OFFLINE mode! Database connection unavailable. "
-                                               "Contact a CyberSeal.")
-                await asyncio.sleep(300)
-                if config['Offline Mode']['enabled'] == 'False':
-                    # We only need to start the connection, DatabaseConnection will trip the CB if neccesary
-                    try:
-                        with DatabaseConnection() as db:
-                            db.ping()
-                    except NoDatabaseConnection:
-                        continue
-                    await asyncio.sleep(300)
-        except asyncio.exceptions.CancelledError:
-            pass
 
     async def operserv_login(self):
         """Log in with OperServ

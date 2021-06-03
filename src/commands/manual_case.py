@@ -12,88 +12,113 @@ See license.md
 
 from typing import List
 import logging
+# We'll temporarily use Requests
 import requests
+import datetime
 
-from ..packages.checks import Require, Drilled
 from ..packages.command import Commands
-from ..packages.configmanager import config
+from ..packages.checks import Require, Drilled
 from ..packages.models import Context
+from ..packages.configmanager import config
 
-@Commands.command("manualcase", "mancase")
-@Require.channel()
+@Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
-async def cmd_manual_case(ctx: Context, args: List[str]):
-    """
-    Create a manual case
-
-    Usage: !manualcase [case info]
-    Aliases: mancase
-    """
-    message = f"xxxx MANCASE -- NEWCASE xxxx\n" \
-              f"{' '.join(args)}\n" \
-              f"xxxxxxxx"
-    for ch in config['Announcer.cases']['channels'].split(", "):
-        await ctx.bot.message(ch, message)
-        logging.info(f"Manual case by {ctx.sender} in {ctx.channel}: {args}")
-    cn_message = {
-        "content": f"New Manual Case -- " + config['Discord Notifications']['CaseNotify'] + "\n"
-                   f"{' '.join(args)}",
-        "username": "HalpyBOT"
-    }
-    url = config['Discord Notifications']['URL']
-    try:
-        requests.post(url, json=cn_message)
-    except requests.exceptions.HTTPError as err:
-        logging.error(err)
-
-@Commands.command("manualfish", "manfish")
 @Require.channel()
-@Require.permission(Drilled)
-async def cmd_manual_kingfisher(ctx: Context, args: List[str]):
+async def cmd_manualCase(ctx: Context, args: List[str]):
     """
-    Create a manual kingfisher case
+    Manually create a new case
 
-    Usage: !manualfish [case info]
-    Aliases: manfish
+    Usage: !manualcase [IRC name] [case info]
+    Aliases: mancase, manualfish, manfish
     """
-    message = f"xxxx MANKFCASE -- NEWCASE xxxx\n" \
-              f"{' '.join(args)}\n" \
-              f"xxxxxxxx"
-    for ch in config['Announcer.cases']['channels'].split(", "):
-        await ctx.bot.message(ch, message)
-        logging.info(f"Manual kingfisher case by {ctx.sender} in {ctx.channel}: {args}")
+    info = ctx.message
+    logging.info(f"Manual case by {ctx.sender} in {ctx.channel}")
+    for channel in config["Manual Case"]["send_to"].split():
+        await ctx.bot.message(channel, f"xxxx MANCASE -- NEWCASE xxxx\n"
+                                       f"{info}\n"
+                                       f"xxxxxxxx")
+
+    # Send to Discord
     cn_message = {
-        "content": f"New Manual Kingfisher Case -- " + config['Discord Notifications']['CaseNotify'] + "\n"
-                   f"{' '.join(args)}",
-        "username": "HalpyBOT"
+        "content": f"New Incoming Case - {config['Discord Notifications']['CaseNotify']}",
+        "username": "HalpyBOT",
+        "avatar_url": "https://hullseals.space/images/emblem_mid.png",
+        "tts": False,
+        "embeds": [
+            {
+                "title": "New Manual Case!",
+                "type": "rich",
+                "timestamp": f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
+                "color": 16093727,
+                "footer": {
+                    "text": f"{ctx.sender}",
+                    "icon_url": "https://hullseals.space/images/emblem_mid.png",
+                },
+                "fields": [
+                    {
+                        "name": "IRC Name:",
+                        "value": str(args[0]),
+                        "inline": False
+                    },
+
+                    {
+                        "name": "Case Info:",
+                        "value": ' '.join(args[1:]),
+                        "inline": False
+                    }
+                ]
+            }
+        ]
     }
-    url = config['Discord Notifications']['URL']
+
     try:
-        requests.post(url, json=cn_message)
+        requests.post(config['Discord Notifications']['url'], json=cn_message)
     except requests.exceptions.HTTPError as err:
-        logging.error(err)
+        await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
+        logging.error(f"Unable to notify Discord: {err}")
 
 
-@Commands.command("tsping")
+@Commands.command("tsping", "wssping")
+@Require.permission(Drilled)
 @Require.channel()
-@Require.permission(Drilled)
-async def cmd_trained_ping(ctx: Context, args: List[str]):
+async def cmd_tsping(ctx: Context, args: List[str]):
     """
-    Alert the "Trained Seals" role in Discord that CMDRs are needed for this case.
-    Annoying AF and not to be used lightly.
+    Ping the Trained Seals role on Discord. Annoying as duck and not to be used lightly
 
-    Usage: !tsping
-    Aliases: none
+    Usage: !tsping [info]
+    Aliases: wssping
     """
-    logging.info(f"Manual kingfisher case by {ctx.sender} in {ctx.channel}: {args}")
+    info = ctx.message
+
     cn_message = {
-        "content": f"Attention to the Above Case, Seals! -- " + config['Discord Notifications']['TrainedRole'] + "\n"
-                   f"Message triggered by {ctx.sender}",
-        "username": "HalpyBOT"
+        "content": f"Attention, {config['Discord Notifications']['trainedrole']}! Seals are needed for this case:",
+        "username": f"{ctx.sender}",
+        "avatar_url": "https://hullseals.space/images/emblem_mid.png",
+        "tts": False,
+        "embeds": [
+            {
+                "title": "Dispatcher Needs Seals",
+                "type": "rich",
+                "timestamp": f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
+                "color": 16093727,
+                "footer": {
+                    "text": f"Sent by {ctx.sender} from {ctx.channel}",
+                    "icon_url": "https://hullseals.space/images/emblem_mid.png",
+                },
+                "fields": [
+                    {
+                        "name": "Additional information",
+                        "value": info,
+                        "inline": False
+                    }
+                ]
+            }
+        ]
     }
-    url = config['Discord Notifications']['URL']
+
     try:
-        requests.post(url, json=cn_message)
+        requests.post(config['Discord Notifications']['url'], json=cn_message)
+        return await ctx.reply("Trained Seals ping sent out successfully.")
     except requests.exceptions.HTTPError as err:
-        logging.error(err)
-    await ctx.reply("Notification Sent!")
+        await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
+        logging.error(f"Unable to notify Discord: {err}")

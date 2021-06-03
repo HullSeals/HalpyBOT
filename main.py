@@ -12,64 +12,51 @@ See license.md
 """
 
 import logging
+import threading
 import asyncio
-import signal
-import functools
+from aiohttp import web
 
-from src.packages.ircclient import HalpyBOT
+from src.server import APIConnector, MainAnnouncer, HalpyClient
+
+from src.packages.ircclient import HalpyBOT, pool
 from src.packages.configmanager import config
-from src.packages.command import Commands
-from src.packages.facts import Facts
 
 logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
                     level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
 
-# Define the Client, mostly pulled from config.ini
-client = HalpyBOT(
-    nickname=config['IRC']['nickname'],
-    sasl_identity=config['SASL']['identity'],
-    sasl_password=config['SASL']['password'],
-    sasl_username=config['SASL']['username']
-)
-
-
-async def start():
+def _start_bot():
+    """Starts HalpyBOT with the specified config values."""
     from src import commands  # pylint disable=unused-import
 
-    # Set command- and fact handlers for client
-    client.commandhandler = Commands
-    client.commandhandler.facthandler = Facts
-    await client.commandhandler.facthandler.fetch_facts(preserve_current=False)
+    bot_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(bot_loop)
+    loop = asyncio.get_event_loop()
 
-    # Connect to server
-    await client.connect(config['IRC']['server'], config['IRC']['port'],
-                         tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
-    await client.offline_monitor()
+    client = HalpyBOT(
+        nickname=config['IRC']['nickname'],
+        sasl_identity=config['SASL']['identity'],
+        sasl_password=config['SASL']['password'],
+        sasl_username=config['SASL']['username'],
+        eventloop=loop
+    )
 
+    MainAnnouncer.client = client
+    HalpyClient.client = client
 
-# Signal handler
-async def shutdown(signal, loop):
-    if signal != signal.SIGUSR2:
-        print('caught {0}'.format(signal.name))
-        logging.info('caught {0}'.format(signal.name))
-    else:
-        logging.critical('Received shutdown command')
+    pool.connect(client, config['IRC']['server'], config['IRC']['port'],
+                 tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
+    pool.handle_forever()
 
-    await client.quit(message="Will be with you shortly, please hold!")
+def _start_server():
+    server_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(server_loop)
+    loop = asyncio.get_event_loop()
 
-    tasks = [task for task in asyncio.all_tasks() if task is not
-             asyncio.current_task()]
-    list(map(lambda task: task.cancel(), tasks))
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    loop.stop()
+    web.run_app(app=APIConnector, port=int(config['API Connector']['port']))
 
-LOOP = None
 
 if __name__ == "__main__":
-    LOOP = asyncio.get_event_loop()
-    for signame in ('SIGINT', 'SIGTERM', 'SIGUSR2'):
-        LOOP.add_signal_handler(getattr(signal, signame),
-                                functools.partial(asyncio.ensure_future,
-                                                  shutdown(getattr(signal, signame), LOOP)))
-    LOOP.run_until_complete(start())
-    LOOP.run_forever()
+    bthread = threading.Thread(target=_start_bot, name="BotThread", daemon=True)
+    bthread.start()
+    sthread = threading.Thread(target=_start_server(), name="ServerThread", daemon=True)
+    sthread.start()

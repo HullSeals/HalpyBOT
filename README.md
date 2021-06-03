@@ -18,6 +18,7 @@ This bot is in ACTIVE DEVELOPMENT, with many core features not yet implemented.
 - Requests Python Library
 - Pytest Python Library  
 - Boto3 Python Library
+- Aiohttp Python Library
 
 ## Usage
 To install, download the latest [release](https://gitlab.com/hull-seals-cyberseals/irc/halpybot/-/tags) from our repository. Upload and extract the files to the directory or subdirectory you wish to install from, and create your own config.py to fit your server, following the example config file provided.
