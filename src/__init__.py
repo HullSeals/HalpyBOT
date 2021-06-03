@@ -1,2 +1,1 @@
-from .commands import *
-from .packages import *
+__version__ = "1.4-dev"

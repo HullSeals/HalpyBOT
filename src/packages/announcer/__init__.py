@@ -1,6 +1,4 @@
-"""
-This module is due for a rewrite, and not documented.
-"""
+from .announcer import Announcer, AnnouncementError
 
-from .announcer import *
-from .message_builder import *
+__all__ = ["Announcer",
+           "AnnouncementError"]
