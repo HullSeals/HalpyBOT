@@ -86,7 +86,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
 
 
-@Commands.command("subnotify", "alertme", "addsub", "subscribe")
+@Commands.command("subnotify", "alertme", "addsub", "subscribe", "subscribenotify")
 @Require.permission(Admin)
 @Require.DM()
 @Require.AWS()

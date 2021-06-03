@@ -23,12 +23,11 @@ class ListHandler(RFC1459Support):
         super().__init__(nickname, fallback, username, realname, eventloop, **kwargs)
         self._pending_query = asyncio.Queue()
         self._channellist = set()
-        self.LOOP = asyncio.get_event_loop()
 
     async def all_channels(self) -> List[str]:
         await self.rawmsg("LIST")
         # Create future
-        future = self.LOOP.create_future()
+        future = asyncio.get_event_loop().create_future()
         await self._pending_query.put(future)
         try:
             channels = await future

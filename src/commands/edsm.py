@@ -37,7 +37,7 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    system = ctx.message.strip()
+    system = ' '.join(args[0:]).strip()
 
     try:
         if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
@@ -67,7 +67,7 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
         CacheOverride = True
         del args[0]
 
-    cmdr = ctx.message.strip()
+    cmdr = ' '.join(args[0:]).strip()
 
     try:
         location = await Commander.location(name=cmdr, CacheOverride=CacheOverride)

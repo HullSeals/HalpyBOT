@@ -384,7 +384,12 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
         CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
-        (str): Distance between point and landmark, in the format xx,yyy.zz
+
+        (tuple): A tuple with the following values:
+
+            - (str): The nearest landmark within the predefined range
+            - (str): Distance between point and landmark, in the format xx,yyy.zz
+            - (str): The cardinal direction from the landmark to the reference system
 
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
