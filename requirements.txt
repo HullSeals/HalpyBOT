@@ -7,3 +7,5 @@ mysql~=0.0.2
 numpy~=1.20.1
 requests~=2.25.1
 pytest~=6.2.2
+boto3~=1.17.44
+aiohttp~=3.6.3

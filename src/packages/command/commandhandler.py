@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.3.1
+HalpyBOT v1.4
 
 commandhandler.py - Handle bot commands and facts
 
@@ -11,12 +11,13 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List
+from typing import List, Coroutine
 import pydle
 
-from ..database.facts import fact_index, recite_fact
+from src import __version__
 from ..configmanager import config
-from typing import Coroutine
+from ..models import Context
+
 
 class CommandException(Exception):
     """
@@ -33,37 +34,6 @@ class CommandAlreadyExists(CommandHandlerError):
     Raised when a command is registered twice
     """
 
-class Context:
-    """Message context object"""
-
-    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str):
-        """Create message context object
-
-        Args:
-            bot (`pydle.Client`): botclient/pseudoclient
-            channel (str): channel message was sent in
-            sender (str): user who sent the message
-            in_channel (bool): True if in a channel, False if in DM
-            message (str): message content
-
-        """
-        self.bot = bot
-        self.channel = channel
-        self.sender = sender
-        self.in_channel = in_channel
-        self.message = message
-
-    async def reply(self, message: str):
-        """Send a message to the channel a message was sent in
-
-        If the command was invoked in a DM, the user will be replied to in DM.
-
-        Args:
-            message (str): The message to be sent
-
-        """
-        await self.bot.reply(self.channel, self.sender, self.in_channel, message)
-
 
 class CommandGroup:
     """Group of commands
@@ -74,6 +44,15 @@ class CommandGroup:
 
     _grouplist = []
     _root: CommandGroup = None
+
+    @property
+    def facthandler(self):
+        """Fact handler object"""
+        return self._factHandler
+
+    @facthandler.setter
+    def facthandler(self, handler):
+        self._factHandler = handler
 
     @classmethod
     def get_group(cls, name: str):
@@ -91,9 +70,8 @@ class CommandGroup:
                 return group
         return None
 
-    @classmethod
-    async def invoke_from_message(cls, bot: pydle.Client, channel: str, sender: str, message: str):
-        """Invoke a command from a message
+    async def invoke_from_message(self, bot: pydle.Client, channel: str, sender: str, message: str):
+        """Invoke a command or fact from a message
 
         For example, `message="!delaycase 1 test"` will result in cmd_DelayCase being called,
         with arguments [1, "test"]
@@ -111,15 +89,25 @@ class CommandGroup:
             args = parts[1:]
             in_channel = (True if bot.is_channel(channel) else False)
             ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]))
+            lang = command.split('-')[1] if '-' in command else 'en'
             if command in Commands._commandList:
                 try:
-                    return await cls._root(Command=command, Context=ctx, Arguments=args)
+                    return await self.invoke(Command=command, Context=ctx, Arguments=args)
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
-            elif command in fact_index:
-                return await recite_fact(ctx, args, fact=str(command))
-            else:
+
+            # Possible fact
+
+            # Ignore if we have no fact handler attached
+            if not self._factHandler:
                 return
+
+            elif command.split('-')[0] in await self._factHandler.get_fact_names():
+                factname = command.split('-')[0]
+                if lang not in list(await self._factHandler.lang_by_fact(factname)):
+                    lang = 'en'
+                return await ctx.reply(await self._factHandler.fact_formatted(fact=(command.split('-')[0], lang),
+                                                                              arguments=args))
 
     @property
     def commandList(self):
@@ -144,6 +132,7 @@ class CommandGroup:
         self._is_root = is_root
         self._group_name = ""
         self._commandList = {}
+        self._factHandler = None
         if CommandGroup._root is not None and is_root is True:
             raise CommandHandlerError("Can only have one root group")
         if is_root is True:
@@ -191,6 +180,8 @@ class CommandGroup:
         def decorator(function):
             for name in names:
                 self._register(name, function, True if name == names[0] else False)
+            # Set command attribute so we can check if a function is an IRC-facing command or not
+            setattr(function, "is_command", True)
             return function
         return decorator
 
@@ -243,7 +234,7 @@ class CommandGroup:
             if len(Arguments) < 1:
                 return await Context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
                                            f"{Cmd._group_name}: "
-                                           f"{', '.join(sub for sub in await subgroup.get_commands(True))}")
+                                           f"{', '.join(sub for sub in subgroup.get_commands(True))}")
             await Cmd(Command=Arguments[0],
                       Context=Context, Arguments=Arguments[1:])
         else:
@@ -259,7 +250,7 @@ class CommandGroup:
         """
         await self.__call__(Command, Context, Arguments)
 
-    async def get_commands(self, mains: bool = False):
+    def get_commands(self, mains: bool = False):
         """Get a list of registered commands in a group
 
         Args:
@@ -280,3 +271,13 @@ class CommandGroup:
 
 
 Commands = CommandGroup(is_root=True)
+
+@Commands.command("about")
+async def cmd_about(ctx: Context, args: List[str]):
+    return await ctx.reply(f"HalpyBOT v{str(__version__)}\n"
+                           f"Developed by the Hull Seals, using Pydle\n"
+                           f"HalpyBOT repository: https://gitlab.com/hull-seals/code/irc/halpybot\n"
+                           f"Developed by: Rik079, Rixxan, Feliksas\n"
+                           f"Pydle: https://github.com/Shizmob/pydle/\n"
+                           f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
+                           f"in the development of HalpyBOT.")
