@@ -31,8 +31,8 @@ async def tail(request):
     result = None
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
-            await HalpyClient.client.rawmsg("hs", "SETALL", subject, vhost)
-            raise web.HTTPOk
+        await HalpyClient.client.rawmsg("hs", "SETALL", subject, vhost)
+        raise web.HTTPOk
     except NoDatabaseConnection:
         raise
 
