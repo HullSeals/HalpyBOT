@@ -31,8 +31,13 @@ async def tail(request):
     result = None
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
-        await HalpyClient.client.rawmsg("hs", "SETALL", subject, vhost)
-        raise web.HTTPOk
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(f"SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,))
+            result = cursor.fetchall()
+            for i in result:
+                await HalpyClient.client.rawmsg("hs", "SETALL", i[0], vhost)
+            raise web.HTTPOk
     except NoDatabaseConnection:
         raise
 
