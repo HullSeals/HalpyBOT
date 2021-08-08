@@ -159,7 +159,10 @@ class Announcement:
                     api.verify_credentials()
                 except tweepy.error.TweepError as err:
                     logging.error(f"ERROR in Twitter Authentication: {err}")
-                api.update_status(twitmsg)
+                try:
+                    api.update_status(twitmsg)
+                except tweepy.error.TweepError as err:
+                    logging.error(f"ERROR in Twitter Update: {err}")
             except NameError:
                 pass
         del globals()['twita']
