@@ -88,10 +88,12 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     Usage: !tsping [info]
     Aliases: wssping
     """
-    info = ctx.message
+    info = "No additional info provided. Check with the Dispatcher!"
+    if ctx.message != "":
+        info = ctx.message
 
     cn_message = {
-        "content": f"Attention, {config['Discord Notifications']['trainedrole']}! Seals are needed for this case:",
+        "content": f"Attention, {config['Discord Notifications']['trainedrole']}! Seals are needed for this case.",
         "username": f"{ctx.sender}",
         "avatar_url": "https://hullseals.space/images/emblem_mid.png",
         "tts": False,
@@ -117,8 +119,9 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     }
 
     try:
-        requests.post(config['Discord Notifications']['url'], json=cn_message)
-        return await ctx.reply("Trained Seals ping sent out successfully.")
+        result = requests.post(config['Discord Notifications']['url'], json=cn_message)
     except requests.exceptions.HTTPError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
         logging.error(f"Unable to notify Discord: {err}")
+    else:
+        return await ctx.reply("Trained Seals ping sent out successfully.")
