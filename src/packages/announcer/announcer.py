@@ -15,6 +15,10 @@ from __future__ import annotations
 import pydle
 import json
 from typing import List, Dict, Optional
+import logging
+import tweepy
+
+from ..configmanager import config
 
 from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
 
@@ -67,6 +71,10 @@ class Announcer:
         ann = self._announcements[announcement]
         # noinspection PyBroadException
         # We want to catch everything
+        global twita
+        twita = "empty"
+        if "Platform" in args:
+            twita = f"A new {args['Platform']} case has come in."
         try:
             for ch in ann.channels:
                 await self._client.message(ch, await ann.format(args))
@@ -125,10 +133,37 @@ class Announcement:
                 dirB = ["South", "SW", "West", "NW", "North", "NE", "East", "SE", "South"]
                 direction = f'{dirB[olddir]}'
                 edsmstr = f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+                classtype = 1
             except NoResultsEDSM:
-                edsmstr = f"\nSystem {args['System']} not found in EDSM"
+                edsmstr = f"\nSystem {args['System']} not found in EDSM."
+                classtype = 2
             except EDSMLookupError:
                 edsmstr = f"\nUnable to query EDSM. Dispatch, please contact a cyberseal."
+                classtype = 3
         elif self._edsm:
             ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
+        if twita != "empty":
+            try:
+                if classtype == 1:
+                    twitstr = edsmstr.strip()
+                else:
+                    twitstr = "System Not Found in EDSM."
+                twitmsg = f"{twita} {twitstr} Call your jumps, Seals!"
+                auth = tweepy.OAuthHandler(config['Twitter']['api_key'],
+                                           config['Twitter']['api_secret'])
+                auth.set_access_token(config['Twitter']['access_token'],
+                                      config['Twitter']['access_secret'])
+                api = tweepy.API(auth, wait_on_rate_limit=True,
+                                 wait_on_rate_limit_notify=True)
+                try:
+                    api.verify_credentials()
+                except tweepy.error.TweepError as err:
+                    logging.error(f"ERROR in Twitter Authentication: {err}")
+                try:
+                    api.update_status(twitmsg)
+                except tweepy.error.TweepError as err:
+                    logging.error(f"ERROR in Twitter Update: {err}")
+            except NameError:
+                pass
+        del globals()['twita']
         return announcement + edsmstr
