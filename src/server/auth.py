@@ -1,3 +1,15 @@
+"""
+HalpyBOT v1.4.2
+
+auth.py - Bare bones HAPIC authentication system
+
+Copyright (c) 2021 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 import functools
 import hmac
 from aiohttp import web

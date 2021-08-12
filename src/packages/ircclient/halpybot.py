@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4
+HalpyBOT v1.4.2
 
 halpybot.py - Pydle client module for HalpyBOT
 
@@ -142,3 +142,8 @@ class HalpyBOT(pydle.Client, ListHandler):
             config['Channels']['channellist'] = ' '.join(chlist)
             with open('config/config.ini', 'w') as conf:
                 config.write(conf)
+
+    async def on_notice(self, target, by, message):
+        print("Target:" + target)
+        print("By:" + by)
+        print("Message:" + message)

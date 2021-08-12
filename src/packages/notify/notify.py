@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4
+HalpyBOT v1.4.2
 
 notify.py - Amazon Web Services Simple Notification Service interface
 

@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4
+HalpyBOT v1.4.2
 
 server_announcer.py - Handler for announcements requested by the API
 
