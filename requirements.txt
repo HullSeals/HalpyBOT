@@ -8,5 +8,5 @@ numpy~=1.21.1
 requests~=2.26.0
 pytest~=6.2.4
 boto3~=1.18.19
-aiohttp~=3.6.3
+aiohttp~=3.7.4.post0 
 tweepy~=3.10.0
