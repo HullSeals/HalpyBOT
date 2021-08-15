@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 announcer.py - Client announcement handler
 
@@ -15,12 +15,12 @@ from __future__ import annotations
 import pydle
 import json
 from typing import List, Dict, Optional
-import logging
-import tweepy
-
-from ..configmanager import config
 
 from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
+from .twitter import TwitterCasesAcc, TwitterConnectionError
+
+cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
+                 "South": "North", "SW": "NE", "West": "East", "NW": "SE"}
 
 class AnnouncementError(Exception):
     """
@@ -68,33 +68,30 @@ class Announcer:
         pass
 
     async def announce(self, announcement: str, args: Dict):
+        """Announce a new case
+
+        Args:
+            announcement: The type of announcement to make
+            args: Arguments for the case announcement
+
+        Returns:
+            Nothing
+
+        Raises:
+            AnnouncementError: Case could not be announced for any reason
+
+        """
         ann = self._announcements[announcement]
         # noinspection PyBroadException
         # We want to catch everything
         try:
             for ch in ann.channels:
                 await self._client.message(ch, await ann.format(args))
-            if "Platform" in args:
-                twita = f"A new {args['Platform']} case has come in."
+            if "Platform" in args.keys():
                 try:
-                    twitstr = await ann.twitformat(args)
-                    twitmsg = f"{twita} {twitstr} Call your jumps, Seals!"
-                    auth = tweepy.OAuthHandler(config['Twitter']['api_key'],
-                                               config['Twitter']['api_secret'])
-                    auth.set_access_token(config['Twitter']['access_token'],
-                                          config['Twitter']['access_secret'])
-                    api = tweepy.API(auth, wait_on_rate_limit=True,
-                                     wait_on_rate_limit_notify=True)
-                    try:
-                        api.verify_credentials()
-                    except tweepy.error.TweepError as err:
-                        logging.error(f"ERROR in Twitter Authentication: {err}")
-                    try:
-                        api.update_status(twitmsg)
-                    except tweepy.error.TweepError as err:
-                        logging.error(f"ERROR in Twitter Update: {err}")
-                except NameError as err:
-                    logging.error(f"ERROR! {err}")
+                    await TwitterCasesAcc.tweet_case(announcement, args)
+                except TwitterConnectionError:
+                    return
         except Exception as ex:
             raise AnnouncementError(ex)
 
@@ -102,7 +99,7 @@ class Announcement:
 
     def __init__(self, ID: str, name: str, description: str,
                  channels: List[str], edsm: Optional[int], content: List[str]):
-        """Create a new announcement object
+        """Create a new announceable object
 
         Args:
             ID (str): Announcement reference code, used by API
@@ -136,63 +133,43 @@ class Announcement:
 
         """
         # Come on pylint
-        edsmstr = ''
         try:
             announcement = self._content.format(**args)
         except IndexError:
             raise
-        if self._edsm and args["System"]:
-            try:
-                landmark, distance, direction = await checklandmarks(args["System"])
-                # What we have is good, however, to make things look nice we need to flip the direction Aussie Style
-                dirA = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
-                olddir = dirA.index(direction)
-                dirB = ["South", "SW", "West", "NW", "North", "NE", "East", "SE", "South"]
-                direction = f'{dirB[olddir]}'
-                edsmstr = f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-            except NoResultsEDSM:
-                edsmstr = f"\nSystem {args['System']} not found in EDSM."
-            except EDSMLookupError:
-                edsmstr = f"\nUnable to query EDSM. Dispatch, please contact a cyberseal."
-        elif self._edsm:
-            ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
-        return announcement + edsmstr
+        try:
+            announcement += await self.get_edsm_data(args)
+        except ValueError:
+            announcement += 'Attention Dispatch, please confirm clients system before proceeding.'
+        return announcement
 
-
-    async def twitformat(self, args) -> str:
-        """Format twitter line in a ready-to-be-sent format
-
-        This includes the result of the EDSM query if specified in the config
+    async def get_edsm_data(self, args: Dict, twitter: bool = False) -> Optional[str]:
+        """Calculates and formats a ready-to-go string with EDSM info about a system
 
         Args:
-            *args: List of parameters to be formatted into the announcement
+            args: Arguments for the case announcement
+            twitter: True if the information is meant to be sent over Twitter, else False.
 
         Returns:
-            (str): Fully formatted announcement
+            (str) string with information about the existence of a system, plus
+                distance and cardinal direction from the nearest landmark
 
         Raises:
-            IndexError: an invalid number of parameters was provided
+            ValueError: Raised if System parameter is not present in `args` dict
 
         """
-        # Come on pylint
-        edsmstr = ''
-        try:
-            announcement = self._content.format(**args)
-        except IndexError:
-            raise
         if self._edsm and args["System"]:
             try:
                 landmark, distance, direction = await checklandmarks(args["System"])
-                # What we have is good, however, to make things look nice we need to flip the direction Aussie Style
-                dirA = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
-                olddir = dirA.index(direction)
-                dirB = ["South", "SW", "West", "NW", "North", "NE", "East", "SE", "South"]
-                direction = f'{dirB[olddir]}'
-                edsmstr = f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+                # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
+                direction = cardinal_flip[direction]
+                if twitter:
+                    return f"{distance} LY {direction} of {landmark}"
+                else:
+                    return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
             except NoResultsEDSM:
-                edsmstr = "System Not Found in EDSM."
+                return "\nDistance to landmark unknown." if twitter else "\nSystem Not Found in EDSM."
             except EDSMLookupError:
-                edsmstr = f"\nUnable to query EDSM."
-        elif self._edsm:
-            ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
-        return edsmstr
+                return '' if twitter else "\nUnable to query EDSM."
+        else:
+            raise ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
