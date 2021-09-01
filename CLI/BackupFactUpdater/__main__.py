@@ -3,8 +3,6 @@ HalpyBOT v1.5
 
 Simple tool for automatically updating the backup fact file
 
-WARNING: Run this tool from the halpybot/ folder, not halpybot/CLI
-
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.
 
@@ -13,10 +11,29 @@ See license.md
 """
 
 import json
+import mysql.connector
+import configparser
 
-from src.packages.database import DatabaseConnection
+"""
+As a word of caution, this script must be run from `halpybot/`, NOT `halpybot/CLI`.
+No one knows why, or how, but for some reason it will not parse the .ini properly
+when executed from CLI/. If you still encounter issues with running it from the main folder,
+make sure everything is added to path and pythonpath.
+"""
+
+hours_wasted_trying_to_understand_why = 4
 
 jsonpath = "data/facts/backup_facts.json"
+
+config = configparser.ConfigParser()
+config.read('config/config.ini')
+
+dbconfig = {"user": config.get('Database', 'user'),
+            "password": config.get('Database', 'password'),
+            "host": config.get('Database', 'host'),
+            "database": config.get('Database', 'database'),
+            "connect_timeout": int(config.get('Database', 'timeout'))
+            }
 
 # noinspection PyBroadException
 def run():
@@ -38,14 +55,15 @@ def run():
         with open(jsonpath, "r") as jsonfile:
             print("20% Opening backup file...")
             resdict = json.load(jsonfile)
-        with DatabaseConnection() as db:
-            print("40% Connection started...")
-            cursor = db.cursor()
-            cursor.execute(f"SELECT factName, factLang, factText "
-                           f"FROM {table}")
-            print("60% Got data, parsing...")
-            for (Name, Lang, Text) in cursor:
-                resdict[f"{Name}-{Lang}"] = Text
+        DatabaseConnection = mysql.connector.connect(**dbconfig)
+        print("40% Connection started...")
+        cursor = DatabaseConnection.cursor()
+        cursor.execute(f"SELECT factName, factLang, factText "
+                       f"FROM {table}")
+        print("60% Got data, parsing...")
+        for (Name, Lang, Text) in cursor:
+            resdict[f"{Name}-{Lang}"] = Text
+        DatabaseConnection.close()
         print("80% Writing to file...")
         with open(jsonpath, "w+") as jsonfile:
             json.dump(resdict, jsonfile, indent=4)

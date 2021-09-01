@@ -5,6 +5,7 @@
 # Config files
 /config/config.ini
 /data/announcer/announcer.json
+/CLI/BackupFactUpdater/config/config.ini
 
 # Logging
 /halpybot.log
