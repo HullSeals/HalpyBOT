@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4
+HalpyBOT v1.5
 
 halpybot.py - Pydle client module for HalpyBOT
 
@@ -20,6 +20,7 @@ from ..command import Commands, CommandGroup
 from ..configmanager import config
 from ..facts import Facts
 from ..database import NoDatabaseConnection
+from ..notice import on_notice as handle_notice
 
 pool = pydle.ClientPool()
 
@@ -142,3 +143,18 @@ class HalpyBOT(pydle.Client, ListHandler):
             config['Channels']['channellist'] = ' '.join(chlist)
             with open('config/config.ini', 'w') as conf:
                 config.write(conf)
+
+    async def on_notice(self, target, by, message):
+        """Handle an incoming notice
+
+        For security reasons, notices will only be processed when originating
+        from whitelisted sources, this should generally be UnrealIRCd, Anope, and
+        botadmins for debugging reasons.
+
+        Args:
+            target (str): target for the notice
+            by (str): client, service, or server sending out the notice
+            message (str): Content of the notice
+
+        """
+        await handle_notice(self, by, target, message)

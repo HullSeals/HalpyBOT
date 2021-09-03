@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4
+HalpyBOT v1.5
 
 commandhandler.py - Handle bot commands and facts
 

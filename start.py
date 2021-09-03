@@ -1,8 +1,10 @@
 """
-HalpyBOT v1.4
+HalpyBOT v1.5
 
 > For the Hull Seals, with a boot to the head
 Rixxan
+
+start.py - HalpyBOT startup script
 
 Copyright (c) 2021 The Hull Seals,
 All rights reserved.
