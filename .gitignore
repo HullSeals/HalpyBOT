@@ -6,6 +6,7 @@
 /config/config.ini
 /data/announcer/announcer.json
 /CLI/BackupFactUpdater/config/config.ini
+CLI/DSSAUpdater/config/config.ini
 
 # Logging
 /halpybot.log

@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT CLI
 
 Simple tool for automatically updating the backup fact file
 
