@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4
+HalpyBOT v1.5
 
 edsm_classes.py - (data)classes for the EDSM module
 

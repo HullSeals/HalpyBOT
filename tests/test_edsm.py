@@ -8,7 +8,6 @@ async def test_get_system():
     system = await GalaxySystem.get_info(name="Sol")
     assert system.name == "Sol"
     assert system.coords == {"x": 0, "y": 0, "z": 0}
-    assert isinstance(GalaxySystem._lookupCache["SOL"], EDSMQuery)
 
 @pytest.mark.asyncio
 async def test_nonexistent_sys():
