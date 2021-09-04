@@ -23,25 +23,27 @@ when executed from CLI/. If you still encounter issues with running it from the 
 make sure everything is added to path and pythonpath.
 
 UPDATE: Fixed! huzzah!
+UPDATE: Nope -_-
 """
 
-hours_wasted_trying_to_understand_why = 4
+hours_wasted_trying_to_understand_why = 10
 
 jsonpath = "data/facts/backup_facts.json"
 
 config = configparser.ConfigParser()
-os.chdir("..")
-config.read('config/config.ini')
+config.read('BackupFactUpdater/config.ini')
 
-dbconfig = {"user": config.get('Database', 'user'),
-            "password": config.get('Database', 'password'),
-            "host": config.get('Database', 'host'),
-            "database": config.get('Database', 'database'),
-            "connect_timeout": int(config.get('Database', 'timeout'))
-            }
 
 # noinspection PyBroadException
 def run():
+
+    dbconfig = {"user": config.get('Database', 'user'),
+                "password": config.get('Database', 'password'),
+                "host": config.get('Database', 'host'),
+                "database": config.get('Database', 'database'),
+                "connect_timeout": int(config.get('Database', 'timeout'))
+                }
+
     print("=============\n"
           "HalpyBOT fact file updater\n"
           "=============")
@@ -79,4 +81,8 @@ def run():
 
 
 if __name__ == '__main__':
+    print(os.getcwd())
+    if not os.getcwd().endswith("/CLI"):
+        print("Please run this tool from the /CLI folder, with `python3 BackupFactUpdater`")
+        exit()
     run()
