@@ -11,6 +11,8 @@ See license.md
 """
 
 import json
+import os
+
 import mysql.connector
 import configparser
 
@@ -19,6 +21,8 @@ As a word of caution, this script must be run from `halpybot/`, NOT `halpybot/CL
 No one knows why, or how, but for some reason it will not parse the .ini properly
 when executed from CLI/. If you still encounter issues with running it from the main folder,
 make sure everything is added to path and pythonpath.
+
+UPDATE: Fixed! huzzah!
 """
 
 hours_wasted_trying_to_understand_why = 4
@@ -26,6 +30,7 @@ hours_wasted_trying_to_understand_why = 4
 jsonpath = "data/facts/backup_facts.json"
 
 config = configparser.ConfigParser()
+os.chdir("..")
 config.read('config/config.ini')
 
 dbconfig = {"user": config.get('Database', 'user'),
