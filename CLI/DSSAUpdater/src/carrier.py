@@ -47,7 +47,6 @@ class DSSACarrier:
         except EDSMLookupError:
             raise
         if not self._coords:
-
             self._marked_manual, self._has_system = True, False
         self._name = name
         self._call = call
@@ -121,6 +120,16 @@ class DSSACarrier:
 
         """
         return self._has_system
+
+    @property
+    def location(self) -> Optional[str]:
+        """Returns location
+
+        Returns:
+            (str): Carriers location
+
+        """
+        return self._location
 
     def _get_coords(self, system: str) -> Optional[Dict]:
         """Get coordinates from EDSM
