@@ -47,6 +47,7 @@ class DSSACarrier:
         except EDSMLookupError:
             raise
         if not self._coords:
+            self._coords = {"x": None, "y": None, "z": None}
             self._marked_manual, self._has_system = True, False
         self._name = name
         self._call = call

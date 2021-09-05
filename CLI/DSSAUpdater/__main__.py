@@ -88,7 +88,7 @@ def run():
         for carrier in needs_manual:
             print(f"* {carrier}")
         copydo = input("\nDo you wish to copy these names to your clipboard? (Y/n) ")
-        if copydo == 'Y':
+        if copydo.upper() == 'Y':
             pyperclip.copy(', '.join(needs_manual))
             print("Copied.")
     print("\nUpdate completed, have a nice day.")
