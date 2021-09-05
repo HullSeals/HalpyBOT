@@ -43,13 +43,16 @@ def run():
     # Get data from the scraper
     try:
         carrierdata, issues = scrape_spreadsheet(path=config['Standalone']['path'], sheetlink=link, timestamp=timestamp)
+    except FileNotFoundError:
+        print("Error: This isn't a directory I can access, are you running a relative dir?")
+        exit()
     except Exception as er:
         print(f"Oops, that was an error: {er}. Contact Rik if the issue persists")
         exit()
 
     # Make sure we are committed to throwing 90+ queries at EDSM
     go = input("\nEDSM querying is about to start, do you wish to proceed? (Y/n) ")
-    if go != "Y":
+    if go.upper() != "Y":
         print("Aborted. Carrrier info- and CSV files have already been created, don't forget to delete them!")
         print("---")
         exit()

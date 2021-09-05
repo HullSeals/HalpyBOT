@@ -8,6 +8,10 @@ CLI for reading, parsing, and converting the official FleetComm DSSA spreadsheet
 ## Requirements
 - Python 3.8+
 - BeautifulSoup4 Python Library
+- Requests Python Library
+- TQDM Python Library
+- Pyperclip Python Library
+- LXML Python Library
 
 ## Troubleshooting
 - This tool relies on the spreadsheet layout being the same as it was in early September 2021 in order to work correctly.
