@@ -98,7 +98,7 @@ def run():
 
 if __name__ == '__main__':
     # Tool may not be ran from any other folder than CLI/ see CLI/BackupFactUpdater/__main__.py
-    if not os.getcwd().endswith("/CLI"):
+    if not os.getcwd().endswith("CLI"):
         print("Please run this tool from the /CLI folder, with `python3 DSSAUpdater`")
         exit()
     try:

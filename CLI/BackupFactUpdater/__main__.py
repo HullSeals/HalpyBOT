@@ -82,7 +82,7 @@ def run():
 
 if __name__ == '__main__':
     print(os.getcwd())
-    if not os.getcwd().endswith("/CLI"):
+    if not os.getcwd().endswith("CLI"):
         print("Please run this tool from the /CLI folder, with `python3 BackupFactUpdater`")
         exit()
     run()
