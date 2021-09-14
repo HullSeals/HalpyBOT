@@ -14,3 +14,6 @@
 
 #ideas and venv
 /.idea
+
+#IDE
+/.vscode
