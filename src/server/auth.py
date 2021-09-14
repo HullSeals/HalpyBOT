@@ -14,6 +14,7 @@ import functools
 import hmac
 from aiohttp import web
 import hashlib
+import json
 
 from ..packages.configmanager import config
 
@@ -25,8 +26,8 @@ def Authenticate():
         async def guarded(request):
             data = await request.json()
             clientmac = request.headers.get('hmac')
-            mac = hmac.new(bytes(client_secret, 'utf8'), msg='123'.encode('utf8'), digestmod=hashlib.sha256)
-
+            msg = json.dumps(data, indent=4)
+            mac = hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
             if not hmac.compare_digest(clientmac, mac.hexdigest()):
                 raise web.HTTPUnauthorized()
             else:
