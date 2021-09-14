@@ -5,6 +5,12 @@
 # Config files
 /config/config.ini
 /data/announcer/announcer.json
+/CLI/BackupFactUpdater/config.ini
+CLI/DSSAUpdater/config.ini
+
+# Output files
+CLI/DSSAUpdater/files/*.json
+CLI/DSSAUpdater/files/*.csv
 
 # Logging
 /halpybot.log
