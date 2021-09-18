@@ -27,6 +27,11 @@ def Authenticate():
             data = await request.json()
             clientmac = request.headers.get('hmac')
             msg = json.dumps(data, indent=4)
+
+            # Add missing carriage return (\r) characters. They got stripped out *somewhere* and needed to go back in
+            # Not sure why /r and /n exist in the JSON being sent by postman but this fixes it
+            msg = msg.replace("\n", "\r\n")
+
             mac = hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
             if not hmac.compare_digest(clientmac, mac.hexdigest()):
                 raise web.HTTPUnauthorized()
