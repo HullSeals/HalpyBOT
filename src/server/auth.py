@@ -19,6 +19,7 @@ import json
 from ..packages.configmanager import config
 
 client_secret = config['API Connector']['key']
+checkConstant = config['API Connector']['key_check_constant']
 
 def Authenticate():
     def decorator(function):
@@ -28,13 +29,19 @@ def Authenticate():
             clientmac = request.headers.get('hmac')
             msg = json.dumps(data, indent=4)
 
-            # Add missing carriage return (\r) characters. They got stripped out *somewhere* and needed to go back in
-            # Not sure why /r and /n exist in the JSON being sent by postman but this fixes it
+            # Need CRLF (\r\n) instead of just LF
+            # Not sure who's to blame for switching them. Leading candidate is maybe Ubuntu but Python is also a suspect
             msg = msg.replace("\n", "\r\n")
 
             mac = hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
-            if not hmac.compare_digest(clientmac, mac.hexdigest()):
+
+            keyCheck = request.headers.get('keyCheck')
+            check = hmac.new(bytes(client_secret, 'utf8'), msg = checkConstant.encode('utf8'), digestmod=hashlib.sha256)
+
+            if not hmac.compare_digest(keyCheck, check.hexdigest()):
                 raise web.HTTPUnauthorized()
+            elif not hmac.compare_digest(clientmac, mac.hexdigest()):
+                raise web.HTTPBadRequest()
             else:
                 return await function(request)
         return guarded
