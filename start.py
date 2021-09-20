@@ -18,6 +18,7 @@ import logging.handlers
 import threading
 import asyncio
 import datetime
+from os import path, mkdir
 from aiohttp import web
 
 from src.server import APIConnector, MainAnnouncer, HalpyClient
@@ -28,6 +29,10 @@ from src.packages.configmanager import config
 logFile = config['Logging']['log_file']
 CLI_level = config['Logging']['cli_level']
 file_level = config['Logging']['file_level']
+
+logFolder = path.dirname(logFile)
+if not path.exists(logFolder):
+    mkdir(logFolder)
 
 formatter = logging.Formatter('%(levelname)s\t%(name)s\t%(message)s')
 
