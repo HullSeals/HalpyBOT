@@ -13,7 +13,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import logging
 import logging.handlers
 import threading
 import asyncio
@@ -26,7 +25,7 @@ from src.server import APIConnector, MainAnnouncer, HalpyClient
 from src.packages.ircclient import HalpyBOT, pool
 from src.packages.configmanager import config
 
-logFile = config['Logging']['log_file']
+logFile: str = config['Logging']['log_file']
 CLI_level = config['Logging']['cli_level']
 file_level = config['Logging']['file_level']
 
@@ -39,8 +38,10 @@ formatter = logging.Formatter('%(levelname)s\t%(name)s\t%(message)s')
 CLI_handler = logging.StreamHandler()
 CLI_handler.setLevel(CLI_level)
 
-# Will rotate log files every monday at midnight and keep at most 12 files, deleting the oldest, meaning logs are retained for 12 weeks (3 months)
-file_handler = logging.handlers.TimedRotatingFileHandler(filename = logFile, when = "w0", interval = 14, backupCount = 12, utc = True, atTime = datetime.time())
+# Will rotate log files every monday at midnight and keep at most 12 files,
+# deleting the oldest, meaning logs are retained for 12 weeks (3 months)
+file_handler = logging.handlers.TimedRotatingFileHandler(filename=logFile, when="w0", interval=14,
+                                                         backupCount=12, utc=True, atTime=datetime.time())
 file_handler.setLevel(file_level)
 
 CLI_handler.setFormatter(formatter)
