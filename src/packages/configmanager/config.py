@@ -13,6 +13,8 @@ See license.md
 import logging
 import configparser
 
+logger = logging.getLogger(__name__)
+
 config = configparser.ConfigParser()
 config.read('config/config.ini')
 
@@ -34,7 +36,7 @@ def config_write(module: str, key: str, value):
         value (str): New value
 
     """
-    logging.info(f"{module}, {key} set to {value}")
+    logger.info(f"{module}, {key} set to {value}")
     config[module][key] = value
     try:
         with open('config/config.ini', 'w') as conf:

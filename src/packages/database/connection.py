@@ -17,6 +17,8 @@ import time
 
 from ..configmanager import config_write, config
 
+logger = logging.getLogger(__name__)
+
 dbconfig = {"user": config['Database']['user'],
             "password": config['Database']['password'],
             "host": config['Database']['host'],
@@ -51,13 +53,13 @@ class DatabaseConnection(MySQLConnection):
             try:
                 super().__init__(**dbconfig)
                 self.autocommit = autocommit
-                logging.info("Connection established.")
+                logger.info("Connection established.")
                 break
             except mysql.connector.Error as er:
-                logging.error(f"Unable to connect to DB, attempting a reconnect: {er}")
+                logger.error(f"Unable to connect to DB, attempting a reconnect: {er}")
                 # And we do the same for when the connection fails
                 if _ == 2:
-                    logging.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
+                    logger.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
                     # Set offline mode, can only be removed by restart
                     config_write('Offline Mode', 'enabled', 'True')
                     raise NoDatabaseConnection

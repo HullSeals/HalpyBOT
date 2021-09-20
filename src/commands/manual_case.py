@@ -21,6 +21,8 @@ from ..packages.checks import Require, Drilled
 from ..packages.models import Context
 from ..packages.configmanager import config
 
+logger = logging.getLogger(__name__)
+
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
 @Require.channel()
@@ -32,7 +34,7 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     Aliases: mancase, manualfish, manfish
     """
     info = ctx.message
-    logging.info(f"Manual case by {ctx.sender} in {ctx.channel}")
+    logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
     for channel in config["Manual Case"]["send_to"].split():
         await ctx.bot.message(channel, f"xxxx MANCASE -- NEWCASE xxxx\n"
                                        f"{info}\n"
@@ -75,7 +77,7 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
         requests.post(config['Discord Notifications']['url'], json=cn_message)
     except requests.exceptions.HTTPError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
-        logging.error(f"Unable to notify Discord: {err}")
+        logger.error(f"Unable to notify Discord: {err}")
 
 
 @Commands.command("tsping", "wssping")
@@ -122,6 +124,6 @@ async def cmd_tsping(ctx: Context, args: List[str]):
         result = requests.post(config['Discord Notifications']['url'], json=cn_message)
     except requests.exceptions.HTTPError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
-        logging.error(f"Unable to notify Discord: {err}")
+        logger.error(f"Unable to notify Discord: {err}")
     else:
         return await ctx.reply("Trained Seals ping sent out successfully.")

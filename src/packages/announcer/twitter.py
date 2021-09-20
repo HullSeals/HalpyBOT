@@ -16,6 +16,8 @@ from ..configmanager import config
 import tweepy
 import logging
 
+logger = logging.getLogger(__name__)
+
 class TweetError(Exception):
     """
     Twitter module exception base class
@@ -71,7 +73,7 @@ class Twitter(tweepy.API):
                 twitmsg = f"{mainline_tw} {edsm_info} Call your jumps, Seals!"
                 self.update_status(twitmsg)
             except (NameError, tweepy.error.TweepError) as err:
-                logging.error(f"ERROR in Twitter Update: {err}")
+                logger.error(f"ERROR in Twitter Update: {err}")
                 raise TwitterConnectionError(err)
         else:
             return
