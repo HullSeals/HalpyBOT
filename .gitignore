@@ -20,3 +20,6 @@ CLI/DSSAUpdater/files/*.csv
 
 #ideas and venv
 /.idea
+
+#IDE
+/.vscode
