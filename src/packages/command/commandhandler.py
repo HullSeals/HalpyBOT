@@ -45,6 +45,27 @@ class CommandGroup:
     _grouplist = []
     _root: CommandGroup = None
 
+    def __init__(self, is_root: bool = False):
+        """Create new command group
+
+        Args:
+            is_root (bool): `True` if root group. This may only be initialized once
+
+        Raises:
+            CommandHandlerError: When two or more root groups are registered
+
+        """
+        self._is_root = is_root
+        self._group_name = ""
+        self._commandList = {}
+        self._factHandler = None
+        if CommandGroup._root is not None and is_root is True:
+            raise CommandHandlerError("Can only have one root group")
+        if is_root is True:
+            CommandGroup._root = self
+            self._group_name = "<ROOT>"
+        CommandGroup._grouplist.append(self)
+
     @property
     def facthandler(self):
         """Fact handler object"""
@@ -70,6 +91,16 @@ class CommandGroup:
                 return group
         return None
 
+    @property
+    def commandList(self):
+        """dict: list of commands in this group"""
+        return self._commandList
+
+    @property
+    def name(self):
+        """str: name of the command group"""
+        return self._group_name
+
     async def invoke_from_message(self, bot: pydle.Client, channel: str, sender: str, message: str):
         """Invoke a command or fact from a message
 
@@ -92,7 +123,7 @@ class CommandGroup:
             lang = command.split('-')[1] if '-' in command else 'en'
             if command in Commands._commandList:
                 try:
-                    return await self.invoke(Command=command, Context=ctx, Arguments=args)
+                    return await self.invoke_command(Command=command, Context=ctx, Arguments=args)
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
 
@@ -108,37 +139,6 @@ class CommandGroup:
                     lang = 'en'
                 return await ctx.reply(await self._factHandler.fact_formatted(fact=(command.split('-')[0], lang),
                                                                               arguments=args))
-
-    @property
-    def commandList(self):
-        """dict: list of commands in this group"""
-        return self._commandList
-
-    @property
-    def name(self):
-        """str: name of the command group"""
-        return self._group_name
-
-    def __init__(self, is_root: bool = False):
-        """Create new command group
-
-        Args:
-            is_root (bool): `True` if root group. This may only be initialized once
-
-        Raises:
-            CommandHandlerError: When two or more root groups are registered
-
-        """
-        self._is_root = is_root
-        self._group_name = ""
-        self._commandList = {}
-        self._factHandler = None
-        if CommandGroup._root is not None and is_root is True:
-            raise CommandHandlerError("Can only have one root group")
-        if is_root is True:
-            CommandGroup._root = self
-            self._group_name = "<ROOT>"
-        CommandGroup._grouplist.append(self)
 
     def add_group(self, *names):
         """Attach group to root
@@ -206,7 +206,7 @@ class CommandGroup:
             raise CommandAlreadyExists
         self._commandList[name] = (function, main)
 
-    async def __call__(self, Command: str, Context: Context, Arguments: List[str]):
+    async def invoke_command(self, Command: str, Context: Context, Arguments: List[str]):
         """Call a command
 
         If the command is part of a group attached to root, `Command` is the group, and
@@ -235,20 +235,13 @@ class CommandGroup:
                 return await Context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
                                            f"{Cmd._group_name}: "
                                            f"{', '.join(sub for sub in subgroup.get_commands(True))}")
-            await Cmd(Command=Arguments[0],
-                      Context=Context, Arguments=Arguments[1:])
+            await Cmd.invoke_command(Command=Arguments[0],
+                                     Context=Context, Arguments=Arguments[1:])
         else:
             try:
                 await Cmd(Context, Arguments)
             except Exception as er:
                 raise CommandException(er)
-
-    async def invoke(self, Command, Context: Context, Arguments: List[str]):
-        """Call a command
-
-        This is an alias for `group.__call__`
-        """
-        await self.__call__(Command, Context, Arguments)
 
     def get_commands(self, mains: bool = False):
         """Get a list of registered commands in a group
