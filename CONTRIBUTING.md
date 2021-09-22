@@ -6,7 +6,7 @@ Before contributing to the project, please read the general Cyberseals code of c
 
 1. Contact Rixxan or Rik079 on HSBC
 2. Fork the project
-3. Create a new branch from `master`
+3. Create a new branch from `develop`
 4. Write code!
 5. Make sure your feature branch is up to date with the upstream master branch
 6. Submit pull request
