@@ -40,6 +40,7 @@ CLI_handler.setLevel(CLI_level)
 
 # Will rotate log files every monday at midnight and keep at most 12 files,
 # deleting the oldest, meaning logs are retained for 12 weeks (3 months)
+# noinspection PyTypeChecker
 file_handler = logging.handlers.TimedRotatingFileHandler(filename=logFile, when="w0", interval=14,
                                                          backupCount=12, utc=True, atTime=datetime.time())
 file_handler.setLevel(file_level)
