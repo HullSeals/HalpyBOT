@@ -20,6 +20,8 @@ from ..packages.configmanager import config_write, config
 from ..packages.command import CommandGroup, Commands
 from ..packages.models import Context
 
+logger = logging.getLogger(__name__)
+
 Settings = CommandGroup()
 Settings.add_group("bot_management", "settings")
 
@@ -32,7 +34,7 @@ async def cmd_nick(ctx: Context, args: List[str]):
     Usage: !bot_management nick [newnick]
     Aliases: settings nick
     """
-    logging.info(f"NICK CHANGE from {config['IRC']['nickname']} to {args[0]} by {ctx.sender}")
+    logger.info(f"NICK CHANGE from {config['IRC']['nickname']} to {args[0]} by {ctx.sender}")
     await ctx.bot.set_nickname(args[0])
     # Write changes to config file
     config_write('IRC', 'nickname', args[0])
@@ -48,7 +50,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     Usage: !bot_management prefix [newprefix]
     Aliases: settings prefix
     """
-    logging.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")
+    logger.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")
     config_write('IRC', 'commandPrefix', args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
     await ctx.bot.message(f"#cybers", f"Warning, prefix changed to {args[0]} by "
@@ -77,7 +79,7 @@ async def cmd_offline(ctx: Context, args: List[str]):
     else:
         return await ctx.reply("Error! Invalid parameters given or already in mode. Status not changed.")
 
-    logging.info(f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to {set_to.upper()} by {ctx.sender}")
+    logger.info(f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to {set_to.upper()} by {ctx.sender}")
     # Write changes to config file
     config_write("Offline Mode", "enabled", "{0}".format(set_to))
     await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")

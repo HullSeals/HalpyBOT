@@ -16,6 +16,8 @@ import signal
 import logging
 from typing import List
 
+logger = logging.getLogger(__name__)
+
 from ..packages.checks import Require, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
@@ -30,5 +32,5 @@ async def cmd_shutdown(ctx: Context, args: List[str]):
     Usage: !shutdown
     Aliases: n/a
     """
-    logging.critical(f"Shutdown has been ordered by {ctx.sender}")
+    logger.critical(f"Shutdown has been ordered by {ctx.sender}")
     os.kill(os.getpid(), signal.SIGUSR2)

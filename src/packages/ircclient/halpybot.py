@@ -22,6 +22,8 @@ from ..facts import Facts
 from ..database import NoDatabaseConnection
 from ..notice import on_notice as handle_notice
 
+logger = logging.getLogger(__name__)
+
 pool = pydle.ClientPool()
 
 class HalpyBOT(pydle.Client, ListHandler):
@@ -53,7 +55,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         try:
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
         except NoDatabaseConnection:
-            logging.error("Could not fetch facts from DB, backup file loaded and entering OM")
+            logger.error("Could not fetch facts from DB, backup file loaded and entering OM")
         for channel in config['Channels']['channellist'].split():
             await self.join(channel, force=True)
 

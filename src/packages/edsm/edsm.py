@@ -24,6 +24,8 @@ from ..models import SystemInfo, Coordinates, Location
 from ..utils import get_time_seconds
 from ..configmanager import config
 
+logger = logging.getLogger(__name__)
+
 class EDSMLookupError(Exception):
     """
     Base class for lookup errors
@@ -101,7 +103,7 @@ class GalaxySystem:
             responses = response.json()
 
         except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
+            logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
         # Return None if system doesn't exist
@@ -172,7 +174,7 @@ class GalaxySystem:
             responses = response.json()
 
         except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
+            logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
         # Return None if system doesn't exist
@@ -242,7 +244,7 @@ class Commander:
             responses = response.json()
 
         except (requests.exceptions.RequestException, KeyError) as er:
-            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
+            logger.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
 
         # Return None if cmdr doesn't exist
