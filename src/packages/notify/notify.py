@@ -17,6 +17,8 @@ import boto3.exceptions
 
 from ..configmanager import config
 
+logger = logging.getLogger(__name__)
+
 class SNSError(Exception):
     """
     Base class for Halpy-SNS exceptions
@@ -104,7 +106,7 @@ async def subscribe(topic, endpoint):
     try:
         sns.subscribe(TopicArn=topic, Protocol=protocol, Endpoint=endpoint)
     except boto3.exceptions.Boto3Error as ex:
-        logging.info(f"NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.")
+        logger.info(f"NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.")
         raise SubscriptionError(ex)
 
 
