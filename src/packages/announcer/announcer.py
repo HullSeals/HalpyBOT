@@ -14,9 +14,10 @@ See license.md
 from __future__ import annotations
 import pydle
 import json
+import re
 from typing import List, Dict, Optional
 
-from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
+from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError
 from .twitter import TwitterCasesAcc, TwitterConnectionError
 
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
@@ -168,7 +169,13 @@ class Announcement:
                 else:
                     return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
             except NoResultsEDSM:
-                return "\nDistance to landmark unknown." if twitter else "\nSystem Not Found in EDSM."
+                sys_name = args["System"]
+                # Checks for correct formatting of "unnamed" system
+                if sysName:=re.search(r"^[\w\s]+[A-Z]{2}-[A-Z]\s[a-z]\d+-\d+", sys_name):
+                    closeSys = await get_nearby_system(sysName)
+                    return f"{sys_name} could not be found in EDSM. System closest in name found in EDSM was {closeSys}"
+                else:
+                    return "\nDistance to landmark unknown." if twitter else "\nSystem Not Found in EDSM."
             except EDSMLookupError:
                 return '' if twitter else "\nUnable to query EDSM."
         else:

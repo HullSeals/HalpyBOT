@@ -172,7 +172,7 @@ class GalaxySystem:
             responses = response.json()
 
         except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
+            logging.error(f"EDSM: Error in `system get_nearby()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
         # Return None if system doesn't exist
@@ -587,3 +587,16 @@ async def calc_direction(x1, x2, y1, y2):
     compass_lookup = round(degrees_final / 45)
     result = f'{directions[compass_lookup]}'
     return result
+
+async def get_nearby_system(SysName: str, CacheOverride:bool = False):
+    while True:
+        nameToCheck = SysName[:-1]
+        try:
+            responce = requests.get("https://www.edsm.net/api-v1/systems",
+                                    params={"systemName":nameToCheck}, timeout=10)
+            responces = responce.json()
+            if responces:
+                sys = responces[0]["name"]
+                return sys
+        except requests.exceptions.RequestException as er:
+            logging.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
