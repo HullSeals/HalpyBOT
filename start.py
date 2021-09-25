@@ -33,7 +33,7 @@ logFolder = path.dirname(logFile)
 if not path.exists(logFolder):
     mkdir(logFolder)
 
-formatter = logging.Formatter('%(levelname)s\t%(name)s\t%(message)s')
+formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s')
 
 CLI_handler = logging.StreamHandler()
 CLI_handler.setLevel(CLI_level)
