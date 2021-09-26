@@ -39,9 +39,10 @@ def Authenticate():
 
             keyCheck = request.headers.get('keyCheck')
             check = hmac.new(bytes(client_secret, 'utf8'), msg = checkConstant.encode('utf8'), digestmod=hashlib.sha256)
-
+            # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
             if not hmac.compare_digest(keyCheck, check.hexdigest()):
                 raise web.HTTPUnauthorized()
+            # Check to see if the recieved request body is the same as sent request body. If not, return 400 bad request
             # Allows request body to use either CRLF or LF for new line. Should prevent this problem in the future
             elif not (hmac.compare_digest(clientmac, LF_mac.hexdigest()) or hmac.compare_digest(clientmac, CRLF_mac.hexdigest())):
                 raise web.HTTPBadRequest()
