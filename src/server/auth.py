@@ -15,8 +15,11 @@ import hmac
 from aiohttp import web
 import hashlib
 import json
+import logging
 
 from ..packages.configmanager import config
+
+logger=logging.getLogger(__name__)
 
 client_secret = config['API Connector']['key']
 checkConstant = config['API Connector']['key_check_constant']
@@ -41,12 +44,15 @@ def Authenticate():
             check = hmac.new(bytes(client_secret, 'utf8'), msg = checkConstant.encode('utf8'), digestmod=hashlib.sha256)
             # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
             if not hmac.compare_digest(keyCheck, check.hexdigest()):
+                logger.warning("Failed authentication. Incorrect key or key verification message")
                 raise web.HTTPUnauthorized()
             # Check to see if the recieved request body is the same as sent request body. If not, return 400 bad request
             # Allows request body to use either CRLF or LF for new line. Should prevent this problem in the future
             elif not (hmac.compare_digest(clientmac, LF_mac.hexdigest()) or hmac.compare_digest(clientmac, CRLF_mac.hexdigest())):
+                logger.warning("Failed authentication. Could not validate request body integrity")
                 raise web.HTTPBadRequest()
             else:
+                logger.info("Successfully authenticated API request")
                 return await function(request)
         return guarded
     return decorator
