@@ -11,7 +11,7 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List, Coroutine
+from typing import List
 import pydle
 
 from src import __version__
