@@ -12,44 +12,19 @@ See license.md
 """
 
 from aiohttp import web
-import pydle
-from typing import Optional
 
 from src import __version__
+from ..packages.ircclient import client as botclient
 
-class BotClient:
-
-    def __init__(self, client: Optional[pydle.Client] = None):
-        """Ridiculously hacky way for us to get the IRC client
-
-        Circular imports can bite my tail.
-
-        Args:
-            client (pydle.Client or None): Pydle client
-
-        """
-        self._client = client
-
-    @property
-    def client(self):
-        return self._client
-
-    @client.setter
-    def client(self, client: Optional[pydle.Client] = None):
-        self._client = client
-
-
-HalpyClient = BotClient()
 routes = web.RouteTableDef()
 
-halpybot = HalpyClient.client
 
 @routes.get('/')
 async def server_root(request):
     response = {"app": "Hull Seals HalpyBOT",
                 "version": __version__,
-                "bot_nick": HalpyClient.client.nickname,
-                "irc_connected": "True" if HalpyClient.client.connected else "False"}
+                "bot_nick": botclient.nickname,
+                "irc_connected": "True" if botclient.connected else "False"}
     return web.json_response(response)
 
 APIConnector = web.Application()
