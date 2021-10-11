@@ -2,17 +2,17 @@
     "edsm":{
         "lookup":{
             "aliases":["syslookup"],
-            "arguments":"<--new> [System Name]",
+            "arguments":"[System Name]",
             "use":"Check if a system exists in EDSM"
 		},
         "locate":{
             "aliases":["cmdrlookup", "locatecmdr"],
-            "arguments":"<--new> [CMDR Name]",
+            "arguments":"[CMDR Name]",
             "use":"Check if a CMDR exists and shares their location in EDSM"
 		},
         "distance":{
             "aliases":["dist"],
-            "arguments":"<--new> [point 1] : [point 2]",
+            "arguments":"[point 1] : [point 2]",
             "use":"Check the distance between two points in EDSM"
 		},
         "landmark":{
@@ -40,7 +40,7 @@
         "tsping":{
             "aliases":[],
             "arguments":"",
-            "use":"Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only,  and run in a channel."
+            "use":"Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
 		}
     },
     "utility":{
@@ -73,162 +73,6 @@
             "aliases":[],
             "arguments":"[user] [channel name]",
             "use":"Force a user to join an allowed channel in IRC. Drilled Seals Only, must be run in a channel."
-		}
-    },
-    "misc":{
-        "about":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Provide information about HalpyBOT"
-		},
-        "bacon":{
-            "aliases":[],
-            "arguments":"",
-            "use":"A fun little link - who doesn't love Bacon!"
-		},
-        "beacon":{
-            "aliases":["bc"],
-            "arguments":"",
-            "use":"How to turn on a Wing Beacon"
-		},
-        "cbinfo":{
-            "aliases":[],
-            "arguments":"",
-            "use":"To gather Code Black information from a manual case."
-		},
-        "cbmining":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Information about how mining works for clients in Code Black cases."
-		},
-        "chatter":{
-            "aliases":[],
-            "arguments":"",
-            "use":"If Repair Requests has too much side conversation happening, to redirect Seals to better places."
-		},
-        "clientinbob":{
-            "aliases":[],
-            "arguments":"",
-            "use":"For use when a Case is in the Seal Bob, and the channel must shift to a rescue focus."
-		},
-        "clientinfo":{
-            "aliases":[],
-            "use":"To gather case information from a manual case."
-		},
-        "cmdlist":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Page in the knowledge base listing commands"
-		},
-        "drillpw":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Paperwork link for Drill cases."
-		},
-        "escapeneutron":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Information and guides on how to escape a Neutron Cone"
-		},
-        "fuel":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Redirect a Client to the Fuel Rats"
-		},
-        "go":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Assign Seals to a case"
-		},
-        "help":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Links to resouces should a CMDR need help"
-		},
-        "highg":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Prepare a Client to take off from a High G planet."
-		},
-        "join":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Provide a user information on how to join the Hull Seals"
-		},
-        "kfbeacon":{
-            "aliases":["srvbeacon"],
-            "arguments":"",
-            "use":"Request a Client turn on their Wing Beacon from their SRV"
-		},
-        "nickserv":{
-            "aliases":[],
-            "arguments":"",
-            "use":"How to authenticate with NickServ"
-		},
-        "paperwork":{
-            "aliases":["pw", "clear", "ppwk"],
-            "arguments":"",
-            "use":"Send a Seal their paperwork link."
-		},
-        "pcfr":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Request a Client add their Seals to their Friends List."
-		},
-        "prep":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Get a Client ready for their Seal's arrival."
-		},
-        "psfr":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Request a Client add their Seals to their Friends List."
-		},
-        "rebootrepair":{
-            "aliases":["rr"],
-            "arguments":"",
-            "use":"Provide instructions on what a reboot and repair cycle is, and what it does"
-		},
-        "securechannel":{
-            "aliases":[],
-            "arguments":"",
-            "use":"For when important Case info is being discussed in the Seal Bob, and other topics should wait until the case is over."
-		},
-        "stuck":{
-            "aliases":[],
-            "arguments":"",
-            "use":"To gather Kingfisher information from a manual case."
-		},
-        "synth":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Instructions on how to synth a new life support refill"
-		},
-        "tos":{
-            "aliases":[],
-            "arguments":"",
-            "use":"A quicklink to our TOS. If this is used, a hammer is likely to follow."
-		},
-        "verify":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Request a suspect Client provide an image or other information to help validate their repair request. If used, immediately inform a staff member."
-		},
-        "welcome":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Welcome a Client and get them ready for a Dispatcher's arrival"
-		},
-        "wing":{
-            "aliases":["wr"],
-            "arguments":"",
-            "use":"Request a Client add their Seals to their wing."
-		},
-        "xbfr":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Request a Client add their Seals to their Friends List."
 		}
     },
     "delay":{
