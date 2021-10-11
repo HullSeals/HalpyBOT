@@ -16,6 +16,9 @@ import json
 from ..packages.command import Commands
 from ..packages.models import Context
 
+with open("data/help/commands.json", "r") as jsonfile:
+    json_dict = json.load(jsonfile)
+
 @Commands.command("help")
 async def help(ctx: Context, args: List[str]):
     """
@@ -24,29 +27,27 @@ async def help(ctx: Context, args: List[str]):
     Usage: !help [command]
     Aliases: n/a
     """
-    with open("data/help/commands.json", "r") as jsonfile:
-        jsonDict = json.load(jsonfile)
 
     if not args:
         # Return low detail list of commands
-        helpString = ""
-        for catagory, commandDict in jsonDict.items():
-            helpString += catagory
-            for command in commandDict:
-                helpString += "\t"+command
-            helpString += "\n"
-        await ctx.reply(helpString)
+        help_string = ""
+        for catagory, command_dict in json_dict.items():
+            help_string += catagory.upper()+"\n"
+            help_string += ", ".join(command_dict) + "\n"
+        # Remove final line break
+        help_string = help_string[:-1]
+        await ctx.reply(help_string)
     else:
         # A specific command has been queried
-        for commandDict in jsonDict.values():
-            for command, details in commandDict.items():
+        command_found = False
+        for command_dict in json_dict.values():
+            for command, details in command_dict.items():
                 if command.lower() == args[0].lower():
                     arguments = details["arguments"]
                     aliases = details["aliases"]
                     usage = details["use"]
-                    commandHelp = f"{command} {arguments}\nAliases: {aliases}\n{usage}"
-                    await ctx.reply(commandHelp)
-                    break
-        else:
-            # No command with the given name was found
-            await ctx.reply("The command {args[0]} could not be found in the list. Try running help without an argument to get the list of commands")
+                    command_help = f"Use: {command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
+                    await ctx.reply(command_help)
+                    command_found = True
+        if not command_found:
+            await ctx.reply(f"The command {args[0]} could not be found in the list. Try running help without an argument to get the list of commands")
