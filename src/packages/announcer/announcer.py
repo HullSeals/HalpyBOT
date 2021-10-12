@@ -137,10 +137,11 @@ class Announcement:
             announcement = self._content.format(**args)
         except IndexError:
             raise
-        try:
-            announcement += await self.get_edsm_data(args)
-        except ValueError:
-            announcement += 'Attention Dispatch, please confirm clients system before proceeding.'
+        if self._edsm:
+            try:
+                announcement += await self.get_edsm_data(args)
+            except ValueError:
+                announcement += 'Attention Dispatch, please confirm clients system before proceeding.'
         return announcement
 
     async def get_edsm_data(self, args: Dict, twitter: bool = False) -> Optional[str]:
