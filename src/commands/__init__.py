@@ -10,6 +10,7 @@ from . import settings
 from . import shutdown
 from . import time
 from . import userinfo
+from . import help
 
 __all__ = ["delayedboard",
            "edsm",
@@ -22,4 +23,5 @@ __all__ = ["delayedboard",
            "settings",
            "shutdown",
            "time",
-           "userinfo"]
+           "userinfo",
+           "help"]

@@ -29,9 +29,13 @@ logFile: str = config['Logging']['log_file']
 CLI_level = config['Logging']['cli_level']
 file_level = config['Logging']['file_level']
 
-logFolder = path.dirname(logFile)
-if not path.exists(logFolder):
-    mkdir(logFolder)
+try:
+    logFolder = path.dirname(logFile)
+    if not path.exists(logFolder):
+        mkdir(logFolder)
+except PermissionError:
+    print("Unable to create log folder. Does this user have appropriate permissions?")
+    exit()
 
 formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s')
 

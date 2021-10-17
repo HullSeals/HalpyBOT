@@ -15,8 +15,11 @@ import hmac
 from aiohttp import web
 import hashlib
 import json
+import logging
 
 from ..packages.configmanager import config
+
+logger=logging.getLogger(__name__)
 
 client_secret = config['API Connector']['key']
 checkConstant = config['API Connector']['key_check_constant']
@@ -33,12 +36,14 @@ def Authenticate():
             mac = hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
             keyCheck = request.headers.get('keyCheck')
             check = hmac.new(bytes(client_secret, 'utf8'), msg = checkConstant.encode('utf8'), digestmod=hashlib.sha256)
-
+            # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
             if not hmac.compare_digest(keyCheck, check.hexdigest()):
+                logger.warning("Failed authentication. Incorrect key or key verification message")
                 raise web.HTTPUnauthorized()
             elif not hmac.compare_digest(clientmac, mac.hexdigest()):
                 raise web.HTTPBadRequest()
             else:
+                logger.info("Successfully authenticated API request")
                 return await function(request)
         return guarded
     return decorator

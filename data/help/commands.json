@@ -1,0 +1,115 @@
+{
+    "edsm":{
+        "lookup":{
+            "aliases":["syslookup"],
+            "arguments":"[System Name]",
+            "use":"Check if a system exists in EDSM"
+		},
+        "locate":{
+            "aliases":["cmdrlookup", "locatecmdr"],
+            "arguments":"[CMDR Name]",
+            "use":"Check if a CMDR exists and shares their location in EDSM"
+		},
+        "distance":{
+            "aliases":["dist"],
+            "arguments":"[point 1] : [point 2]",
+            "use":"Check the distance between two points in EDSM"
+		},
+        "landmark":{
+            "aliases":[],
+            "arguments":"[EDSM Valid Location]",
+            "use":"Check if a given point is nearby a given Landmark System"
+		},
+        "dssa":{
+            "aliases":[],
+            "arguments":"[EDSM Valid Location]",
+            "use":"Check for the closest DSSA carrier to a given location."
+		}
+    },
+    "dispatch":{
+        "mancase":{
+            "aliases":["manualcase"],
+            "arguments":"",
+            "use":"Used to start a new Manual Seal Case by Dispatchers. Drillled Seals Only, and run in a channel."
+		},
+        "manfish":{
+            "aliases":["manualfish"],
+            "arguments":"",
+            "use":"Used to start a new Manual Kingfisher Case by Dispatchers. Drillled Seals Only, and run in a channel."
+		},
+        "tsping":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
+		}
+    },
+    "utility":{
+        "ping":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Check to see if the bot is responding to commands."
+		},
+        "utc":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Check for the current In Game Time and Date"
+		},
+        "year":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Check for the current In Game Year"
+		},
+        "whois":{
+            "aliases":[],
+            "arguments":"[name]",
+            "use":"Check the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT."
+		},
+        "whoami":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Check the user information on yourself. Must be a registered user, and run in DMs with HalpyBOT."
+		},
+        "forcejoin":{
+            "aliases":[],
+            "arguments":"[user] [channel name]",
+            "use":"Force a user to join an allowed channel in IRC. Drilled Seals Only, must be run in a channel."
+		}
+    },
+    "delay":{
+        "delaystatus":{
+            "aliases":["checkstatus"],
+            "arguments":"",
+            "use":"Checks the system for Delayed Cases"
+		},
+        "delaycase":{
+            "aliases":[],
+            "arguments":"[case status] [notes]",
+            "use":"Adds a new case to the Delayed system, and responds with a unique Case ID."
+		},
+        "updatestatus":{
+            "aliases":[],
+            "arguments":"[case ID] [case status]",
+            "use":"Updates the Status Code of a case - see the table of different status codes below!"
+		},
+        "updatenotes":{
+            "aliases":[],
+            "arguments":"[case ID] [new notes]",
+            "use":"Updates the Notes attached to a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
+        },
+        "updatecase" :{
+            "aliases":[],
+            "arguments":"[case ID] (case status) (case notes)",
+            "use":"Updates both the Status Code and Notes of a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
+        },
+        "close":{
+            "aliases":["endcase"],
+            "arguments":"[case ID]",
+            "use":"Closes a case and removes it from the Delayed Case system. It's encouraged to update the notes before you close a case!"
+        },
+        "reopen":{
+            "aliases":[],
+            "arguments":"[case ID] [case status]",
+            "use":"Reopens a previously-closed case, if a case is improperly closed. Moderator only"
+        }
+    }
+}
