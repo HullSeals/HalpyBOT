@@ -30,11 +30,14 @@ def Authenticate():
         async def guarded(request):
             data = await request.json()
             clientmac = request.headers.get('hmac')
-            msg = json.dumps(data, indent=4)
+            keyCheck = request.headers.get('keyCheck')
+            if clientmac == None or keyCheck == None:
+                logger.error("HMAC or keycheck header missing from API request")
+                raise web.HTTPBadRequest()
+            msg = json.dumps(data)
             msg = ''.join(msg.split())
 
             mac = hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
-            keyCheck = request.headers.get('keyCheck')
             check = hmac.new(bytes(client_secret, 'utf8'), msg = checkConstant.encode('utf8'), digestmod=hashlib.sha256)
             # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
             if not hmac.compare_digest(keyCheck, check.hexdigest()):
