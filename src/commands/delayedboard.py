@@ -28,8 +28,10 @@ async def cmd_createDelayedCase(ctx: Context, args: List[str]):
     Usage: !delaycase [case status] [notes]
     Aliases: n/a
     """
+    if len(args) == 0:
+        return await ctx.reply("!delaycase [case status] [notes]: Create a new case on the Delayed Case Board.")
     # input validation
-    if len(args) == 0 or args[0] not in ['1', '2']:
+    if args[0] not in ['1', '2']:
         return await ctx.reply("Cannot create case: no valid case mode was given.")
     if len(args[1:]) == 0:
         return await ctx.reply("Cannot create case: no notes provided by user.")
@@ -66,6 +68,8 @@ async def cmd_ReopenDelayedCase(ctx: Context, args: List[str]):
     Usage: !reopen [case ID] [case status]
     Aliases: n/a
     """
+    if len(args) == 0:
+        return await ctx.reply("!reopen [case ID] [case status]: Reopen a case on the Delayed Case Board.")
     # input validation
     if len(args) < 2 or args[1] not in ['1', '2']:
         return await ctx.reply("Cannot reopen case: no valid case number/case status was provided.")
@@ -97,6 +101,8 @@ async def cmd_closeDelayedCase(ctx: Context, args: List[str]):
     Usage: !endcase [case ID]
     Aliases: close
     """
+    if len(args) == 0:
+        return await ctx.reply("!endcase [case id]: Close a case on the Delayed Case Board.")
     # Input validation
     if len(args) < 1 or not args[0].isnumeric():
         return await ctx.reply("Cannot comply: no valid case number was provided.")
@@ -125,6 +131,9 @@ async def cmd_updateDelayedStatus(ctx: Context, args: List[str]):
     Usage: !updatestatus [case ID] [case status]
     Aliases: n/a
     """
+    if len(args) == 0:
+        return await ctx.reply("!updatestatus [case ID] [case status]: Update the status of a case on the Delayed "
+                               "Case Board.")
     # Input validation
     if len(args) < 1 or not args[0].isnumeric():
         return await ctx.reply("Cannot comply: no valid case number was provided.")
@@ -157,8 +166,11 @@ async def cmd_updateDelayedNotes(ctx: Context, args: List[str]):
     Usage: !updatenotes [case ID] [new notes]
     Aliases n/a
     """
-    message = ' '.join(args[1:])
+    if len(args) == 0:
+        return await ctx.reply("!updatenotes [case ID] [new notes]: = Update the notes of a case on the Delayed Case "
+                               "Board.")
 
+    message = ' '.join(args[1:])
     # Input validation
     if len(args) < 1 or not args[0].isnumeric():
         return await ctx.reply("Cannot comply: no valid case number was provided.")
@@ -216,6 +228,9 @@ async def cmd_updateDelayedCase(ctx: Context, args: List[str]):
     Usage: !updatecase [case ID] (case status) (case notes)
     Aliases: n/a
     """
+    if len(args) == 0:
+        return await ctx.reply("!updatecase [case ID] (case status) (notes): Update the details of a case on the "
+                               "Delayed Case Board.")
     # Input validation
     if len(args) < 1 or not args[0].isnumeric():
         return await ctx.reply("Cannot comply: no valid case number was provided.")
