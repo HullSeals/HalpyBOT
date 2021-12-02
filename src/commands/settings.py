@@ -34,6 +34,8 @@ async def cmd_nick(ctx: Context, args: List[str]):
     Usage: !bot_management nick [newnick]
     Aliases: settings nick
     """
+    if len(args) == 0:
+        return await ctx.reply("!bot_management nick [newnick]: Sets a new name for the bot.")
     logger.info(f"NICK CHANGE from {config['IRC']['nickname']} to {args[0]} by {ctx.sender}")
     await ctx.bot.set_nickname(args[0])
     # Write changes to config file
@@ -50,6 +52,8 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     Usage: !bot_management prefix [newprefix]
     Aliases: settings prefix
     """
+    if len(args) == 0:
+        return await ctx.reply("!bot_management prefix [newprefix]: Sets a new prefix for bot commands.")
     logger.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")
     config_write('IRC', 'commandPrefix', args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
@@ -125,6 +129,8 @@ async def cmd_joinchannel(ctx: Context, args: List[str]):
     Usage: !joinchannel [channel]
     Aliases: n/a
     """
+    if len(args) == 0:
+        return await ctx.reply("!joinchannel [#channel]: Adds the bot to the given channel.")
     try:
         await ctx.bot.join(args[0])
         return await ctx.reply(f"Bot joined channel {args[0]}")
@@ -143,4 +149,6 @@ async def cmd_part(ctx: Context, args: List[str]):
     Usage: !partchannel
     Aliases: n/a
     """
+    if len(args) == 0:
+        return await ctx.reply("!partchannel [#channel]: Removes the bot from the given channel.")
     await ctx.bot.part(message=f"PART by {ctx.sender}", channel=ctx.channel)

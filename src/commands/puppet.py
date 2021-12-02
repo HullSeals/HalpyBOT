@@ -27,4 +27,6 @@ async def cmd_say(ctx: Context, args: List[str]):
     Usage: !say [channel] [text]
     Aliases: n/a
     """
+    if len(args) == 0:
+        return await ctx.reply("!say [channel] [text]: Make the bot say something.")
     await ctx.bot.message(str(args[0]), ' '.join(args[1:]))
