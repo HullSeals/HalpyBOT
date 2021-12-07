@@ -31,22 +31,21 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply("!lookup <--new> [system]: Check EDSM for the existence of a system. Optional NEW flag "
                                "to ignore the bot cache.")
-    else:
-        CacheOverride = False
-        if args[0] == "--new":
-            CacheOverride = True
-            del args[0]
+    CacheOverride = False
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
 
-        system = ' '.join(args[0:]).strip()
+    system = ' '.join(args[0:]).strip()
 
-        try:
-            if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
-                return await ctx.reply(f"System {system} exists in EDSM")
-            else:
-                return await ctx.reply(f"System {system} not found in EDSM")
+    try:
+        if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
+            return await ctx.reply(f"System {system} exists in EDSM")
+        else:
+            return await ctx.reply(f"System {system} not found in EDSM")
 
-        except EDSMLookupError as er:
-            return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
@@ -61,23 +60,22 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply("!locatecmdr <--new> [cmdr name]: Check EDSM for the existence and location of a CMDR. "
                                "Optional NEW flag to ignore the bot cache.")
+    CacheOverride = False
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
+
+    cmdr = ' '.join(args[0:]).strip()
+
+    try:
+        location = await Commander.location(name=cmdr, CacheOverride=CacheOverride)
+    except EDSMConnectionError as er:
+        return await ctx.reply(str(er))
+
+    if location is None:
+        return await ctx.reply("CMDR not found or not sharing location on EDSM")
     else:
-        CacheOverride = False
-        if args[0] == "--new":
-            CacheOverride = True
-            del args[0]
-
-        cmdr = ' '.join(args[0:]).strip()
-
-        try:
-            location = await Commander.location(name=cmdr, CacheOverride=CacheOverride)
-        except EDSMConnectionError as er:
-            return await ctx.reply(str(er))
-
-        if location is None:
-            return await ctx.reply("CMDR not found or not sharing location on EDSM")
-        else:
-            return await ctx.reply(f"CMDR {cmdr} was last seen in {location.system} on {location.time}")
+        return await ctx.reply(f"CMDR {cmdr} was last seen in {location.system} on {location.time}")
 
 
 @Commands.command("distance", "dist")
@@ -91,31 +89,30 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
         return await ctx.reply("!dist <--new> [system/cmdr name] : [system/cmdr name]: Check EDSM for the distance "
                                "between two known points. Optional NEW flag to ignore the bot cache.")
+    CacheOverride = False
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
+
+    try:
+        # Parse systems/CMDRs from string
+        listToStr = ' '.join([str(elem) for elem in args])
+        points = listToStr.split(":", 1)
+        pointa, pointb = ''.join(points[0]).strip(), ''.join(points[1]).strip()
+
+    except IndexError:
+        return await ctx.reply("Please provide two points to look up, separated by a :")
+
+    if not pointb:
+        return await ctx.reply("Please provide two points to look up, separated by a :")
+
     else:
-        CacheOverride = False
-        if args[0] == "--new":
-            CacheOverride = True
-            del args[0]
 
         try:
-            # Parse systems/CMDRs from string
-            listToStr = ' '.join([str(elem) for elem in args])
-            points = listToStr.split(":", 1)
-            pointa, pointb = ''.join(points[0]).strip(), ''.join(points[1]).strip()
-
-        except IndexError:
-            return await ctx.reply("Please provide two points to look up, separated by a :")
-
-        if not pointb:
-            return await ctx.reply("Please provide two points to look up, separated by a :")
-
-        else:
-
-            try:
-                distance, direction = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
-            except EDSMLookupError as er:
-                return await ctx.reply(str(er))
-            return await ctx.reply(f"{pointa} is {distance} LY {direction} of {pointb}.")
+            distance, direction = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
+        except EDSMLookupError as er:
+            return await ctx.reply(str(er))
+        return await ctx.reply(f"{pointa} is {distance} LY {direction} of {pointb}.")
 
 
 @Commands.command("landmark")
@@ -132,18 +129,17 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply("!landmark <--new> [system/cmdr name]: Calculate the closest configured landmark to a "
                                "known EDSM system. Optional NEW flag to ignore the bot cache.")
-    else:
-        if args[0] == "--new":
-            CacheOverride = True
-            del args[0]
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
 
-        system = ctx.message.strip()
+    system = ctx.message.strip()
 
-        try:
-            landmark, distance, direction = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
-            return await ctx.reply(f"The closest landmark system is {landmark}, {distance} LY {direction} of {system}.")
-        except EDSMLookupError as er:
-            return await ctx.reply(str(er))
+    try:
+        landmark, distance, direction = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
+        return await ctx.reply(f"The closest landmark system is {landmark}, {distance} LY {direction} of {system}.")
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))
 
 
 @Commands.command("dssa")
@@ -161,18 +157,17 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply("!dssa <--new> [system/cmdr name]: Calculate the closest carrier in the DSSA to a "
                                "known EDSM system. Optional NEW flag to ignore the bot cache.")
-    else:
-        if args[0] == "--new":
-            CacheOverride = True
-            del args[0]
+    if args[0] == "--new":
+        CacheOverride = True
+        del args[0]
 
-        system = ctx.message.strip()
+    system = ctx.message.strip()
 
-        try:
-            dssa, distance, direction = await checkdssa(SysName=system, CacheOverride=CacheOverride)
-            return await ctx.reply(f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {system}.")
-        except EDSMLookupError as er:
-            return await ctx.reply(str(er))
+    try:
+        dssa, distance, direction = await checkdssa(SysName=system, CacheOverride=CacheOverride)
+        return await ctx.reply(f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {system}.")
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))
 
 
 @Commands.command("coordcheck", "coords")
@@ -186,16 +181,15 @@ async def cmd_coordslookup(ctx, args: List[str]):
 
     if len(args) == 0 or len(args) == 1 or len(args) == 2:  # Minimum Number of Args is 3.
         return await ctx.reply("!coords [x] [y] [z]: Check EDSM for a nearby system to a set of coordinates.")
-    else:
-        xcoord = args[0].strip()
-        ycoord = args[1].strip()
-        zcoord = args[2].strip()
+    xcoord = args[0].strip()
+    ycoord = args[1].strip()
+    zcoord = args[2].strip()
 
-        try:
-            system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
-        except EDSMLookupError as er:
-            return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
-        if system is None:
-            return await ctx.reply(f"No systems known to EDSM within 100ly of {xcoord}, {ycoord}, {zcoord}.")
-        else:
-            return await ctx.reply(f"{system} is {dist} LY from {xcoord}, {ycoord}, {zcoord}.")
+    try:
+        system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
+    except EDSMLookupError as er:
+        return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
+    if system is None:
+        return await ctx.reply(f"No systems known to EDSM within 100ly of {xcoord}, {ycoord}, {zcoord}.")
+    else:
+        return await ctx.reply(f"{system} is {dist} LY from {xcoord}, {ycoord}, {zcoord}.")

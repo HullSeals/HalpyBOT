@@ -18,6 +18,7 @@ from ..packages.checks import Require, Drilled, Moderator
 from ..packages.command import Commands
 from ..packages.models import Context
 
+
 @Commands.command("delaycase")
 @Require.permission(Drilled)
 @Require.channel()
@@ -196,6 +197,7 @@ async def cmd_updateDelayedNotes(ctx: Context, args: List[str]):
         return await ctx.reply(f"Notes for case #{results[0]} have been updated.")
     else:
         return await ctx.reply(str(results[2]))
+
 
 @Commands.command("delaystatus", "checkstatus")
 async def cmd_checkDelayedCases(ctx: Context, args: List[str]):

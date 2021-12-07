@@ -29,5 +29,4 @@ async def cmd_say(ctx: Context, args: List[str]):
     """
     if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
         return await ctx.reply("!say [channel] [text]: Make the bot say something.")
-    else:
-        await ctx.bot.message(str(args[0]), ' '.join(args[1:]))
+    await ctx.bot.message(str(args[0]), ' '.join(args[1:]))

@@ -23,6 +23,7 @@ from ..packages.configmanager import config
 
 logger = logging.getLogger(__name__)
 
+
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
 @Require.channel()
@@ -33,6 +34,8 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     Usage: !manualcase [IRC name] [case info]
     Aliases: mancase, manualfish, manfish
     """
+    if len(args) == 0 or len(args) == 1:
+        return await ctx.reply("!mancase [CMDR] [case info]: Shouts a new case ping using manually inputted details.")
     info = ctx.message
     logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
     for channel in config["Manual Case"]["send_to"].split():
@@ -90,9 +93,9 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     Usage: !tsping [info]
     Aliases: wssping
     """
-    info = "No additional info provided. Check with the Dispatcher!"
-    if ctx.message != "":
-        info = ctx.message
+    if len(args) == 0:
+        return await ctx.reply("!tsping [info]: Ping the Trained Seals role on Discord with details about a case.")
+    info = ctx.message
 
     cn_message = {
         "content": f"Attention, {config['Discord Notifications']['trainedrole']}! Seals are needed for this case.",
@@ -121,7 +124,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     }
 
     try:
-        result = requests.post(config['Discord Notifications']['url'], json=cn_message)
+        requests.post(config['Discord Notifications']['url'], json=cn_message)
     except requests.exceptions.HTTPError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
         logger.error(f"Unable to notify Discord: {err}")

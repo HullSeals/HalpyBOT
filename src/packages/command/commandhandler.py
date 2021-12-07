@@ -14,7 +14,6 @@ from __future__ import annotations
 from typing import List
 import pydle
 
-from src import __version__
 from ..configmanager import config
 from ..models import Context
 
@@ -24,10 +23,12 @@ class CommandException(Exception):
     Base exception for all commands
     """
 
+
 class CommandHandlerError(CommandException):
     """
     Base exception for command errors
     """
+
 
 class CommandAlreadyExists(CommandHandlerError):
     """
@@ -175,7 +176,7 @@ class CommandGroup:
         """An IRC command
 
         Can be invoked from IRC by using the command prefix and command name.
-        Make sure to import any file this is used in so it gets registered properly
+        Make sure to import any file this is used in, so it gets registered properly
 
         Args:
             *names: Command names
@@ -187,13 +188,15 @@ class CommandGroup:
             being chased by Rik with a cleaver
 
         """
+
         def decorator(function):
             # Register every provided name
             for name in names:
                 self._register(name, function, True if name == names[0] else False)
-            # Set command attribute so we can check if a function is an IRC-facing command or not
+            # Set command attribute, so we can check if a function is an IRC-facing command or not
             setattr(function, "is_command", True)
             return function
+
         return decorator
 
     def _register(self, name, function, main: bool):
@@ -273,13 +276,3 @@ class CommandGroup:
 
 
 Commands = CommandGroup(is_root=True)
-
-@Commands.command("about")
-async def cmd_about(ctx: Context, args: List[str]):
-    return await ctx.reply(f"HalpyBOT v{str(__version__)}\n"
-                           f"Developed by the Hull Seals, using Pydle\n"
-                           f"HalpyBOT repository: https://gitlab.com/hull-seals/code/irc/halpybot\n"
-                           f"Developed by: Rik079, Rixxan, Feliksas\n"
-                           f"Pydle: https://github.com/Shizmob/pydle/\n"
-                           f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
-                           f"in the development of HalpyBOT.")

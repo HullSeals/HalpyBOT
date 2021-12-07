@@ -16,11 +16,12 @@ import signal
 import logging
 from typing import List
 
-logger = logging.getLogger(__name__)
-
 from ..packages.checks import Require, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
+
+logger = logging.getLogger(__name__)
+
 
 @Commands.command("shutdown", "reboot")
 @Require.DM()

@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 Settings = CommandGroup()
 Settings.add_group("bot_management", "settings")
 
+
 @Settings.command("nick")
 @Require.permission(Cyberseal)
 async def cmd_nick(ctx: Context, args: List[str]):
@@ -58,7 +59,8 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     config_write('IRC', 'commandPrefix', args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
     await ctx.bot.message(f"#cybers", f"Warning, prefix changed to {args[0]} by "
-                                      f"{ctx.sender}! Rik079!")
+                                      f"{ctx.sender}!")
+
 
 @Settings.command("offline")
 @Require.permission(Cyberseal)
@@ -70,11 +72,9 @@ async def cmd_offline(ctx: Context, args: List[str]):
     Usage: !bot_management offline [Status]
     Aliases: settings offline
     """
-    if not len(args) == 1:
-        if len(args) == 0:
-            return await ctx.reply(f"Current offline setting: {config['Offline Mode']['enabled']}")
-        return await ctx.reply("Usage: !bot_management offline [Status]")
-
+    if len(args) == 0:
+        return await ctx.reply(f"!bot_management offline [Status]: Changes the current offline mode status.\nCurrent "
+                               f"offline setting: {config['Offline Mode']['enabled']}")
     if args[0].lower() == "true" and config['Offline Mode']['enabled'] != 'True':
         set_to = "True"
     elif args[0].lower() == "false" and config['Offline Mode']['enabled'] != 'False':
@@ -99,11 +99,9 @@ async def cmd_override_omw(ctx: Context, args: List[str]):
     Aliases: n/a
     """
 
-    if len(args) not in (0, 1):
-        return await ctx.reply("Cannot comply: invalid parameters given.")
-    if len(args) == 0:
-        return await ctx.reply(f"Warning Override setting: {config['Offline Mode']['warning override']}")
-
+    if len(args) == 0 or len(args) == 1:
+        return await ctx.reply(f"!settings warning_override [True/False]: Changes the current Offline Warning mode.\n"
+                               f"Current warning override setting: {config['Offline Mode']['warning override']}")
     request = args[0].lower()
 
     if request in ('enable', 'true'):
@@ -113,10 +111,10 @@ async def cmd_override_omw(ctx: Context, args: List[str]):
         config_write('Offline Mode', 'warning override', 'False')
         request = False
     else:
-        return await ctx.reply("Usage: !settings warning_override [enable | disable]")
-
-    return await ctx.reply(f"Override has been {'enabled.' if request is True else 'disabled.'} You MUST "
-                           f"inform an on-duty cyberseal of this action immediately.")
+        return await ctx.reply("!settings warning_override [True/False]: Changes the current Offline Warning mode.")
+    if request is True or request is False:
+        return await ctx.reply(f"Override has been {'enabled.' if request is True else 'disabled.'} You MUST "
+                               f"inform an on-duty cyberseal of this action immediately.")
 
 
 @Commands.command("joinchannel")
