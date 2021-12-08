@@ -30,7 +30,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
     """
     if len(args) == 0:
         return await ctx.reply("!whois [user]: Returns information about a given user.")
-    cmdr = ' '.join(args[0:])  # TODO replace by ctx method
+    cmdr = args[0]
     if cmdr.lower() == "halpybot":
         return await ctx.reply("That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, "
                                "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
