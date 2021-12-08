@@ -15,6 +15,7 @@ from aiohttp import web
 import pydle
 from typing import Optional
 from datetime import datetime
+from ..packages.configmanager import config
 
 from src import __version__
 
@@ -53,7 +54,9 @@ async def server_root(request):
                 "version": __version__,
                 "bot_nick": HalpyClient.client.nickname,
                 "irc_connected": "True" if HalpyClient.client.connected else "False",
-                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat()}
+                "offline_mode": config['Offline Mode']['enabled'],
+                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat()
+                }
     return web.json_response(response)
 
 
