@@ -20,6 +20,7 @@ from .auth import Authenticate
 
 routes = web.RouteTableDef()
 
+
 @routes.post('/announce')
 @Authenticate()
 async def announce(request):
@@ -33,6 +34,7 @@ async def announce(request):
         raise web.HTTPOk
     except AnnouncementError:
         raise web.HTTPInternalServerError
+
 
 MainAnnouncer = Announcer()
 

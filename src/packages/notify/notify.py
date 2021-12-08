@@ -19,15 +19,18 @@ from ..configmanager import config
 
 logger = logging.getLogger(__name__)
 
+
 class SNSError(Exception):
     """
     Base class for Halpy-SNS exceptions
     """
 
+
 class NotificationFailure(SNSError):
     """
     Raised when unable to send notification
     """
+
 
 class SubscriptionError(SNSError):
     """
@@ -42,6 +45,7 @@ if config['Notify']['secret'] and config['Notify']['access']:
                        aws_secret_access_key=config['Notify']['secret'])  # AWS IAM Secret
 else:
     sns = None
+
 
 async def listTopics():
     """Subscribe
@@ -83,7 +87,7 @@ async def subscribe(topic, endpoint):
          (str or None): Protocol if successful
 
      Raises:
-         ValueError: Value is neither a phone number or email adress
+         ValueError: Value is neither a phone number nor email adress
          SubscriptionError: Parameters are valid but subscription could not be registered
 
      """
@@ -119,7 +123,7 @@ async def listSubByTopic(topic_arn):
          topic_arn (str): The group the message is being sent to.
 
      Returns:
-         (list): All numbers, emails, etc subscribed to the topic.
+         (list): All numbers, emails, etc. subscribed to the topic.
 
      Raises:
          SNSError: Raised when query to AWS was unsuccessful

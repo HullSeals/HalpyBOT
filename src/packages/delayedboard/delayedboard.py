@@ -13,6 +13,7 @@ See license.md
 from ..database import DatabaseConnection, NoDatabaseConnection
 from ..utils import strip_non_ascii
 
+
 class DelayedCase:
 
     @staticmethod

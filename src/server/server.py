@@ -17,6 +17,7 @@ from typing import Optional
 
 from src import __version__
 
+
 class BotClient:
 
     def __init__(self, client: Optional[pydle.Client] = None):
@@ -44,6 +45,7 @@ routes = web.RouteTableDef()
 
 halpybot = HalpyClient.client
 
+
 @routes.get('/')
 async def server_root(request):
     response = {"app": "Hull Seals HalpyBOT",
@@ -51,6 +53,7 @@ async def server_root(request):
                 "bot_nick": HalpyClient.client.nickname,
                 "irc_connected": "True" if HalpyClient.client.connected else "False"}
     return web.json_response(response)
+
 
 APIConnector = web.Application()
 APIConnector.add_routes(routes)

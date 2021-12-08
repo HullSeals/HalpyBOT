@@ -92,7 +92,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         a command handler
 
         Args:
-            channel (str): Channel name the command was invoked in
+            channel (str): Channel the command was invoked in
             sender (str): Command user
             in_channel (bool): True if in a channel, else False
             message (str): Message to be sent
