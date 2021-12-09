@@ -18,20 +18,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class TweetError(Exception):
     """
     Twitter module exception base class
     """
+
 
 class TwitterNotEnabled(TweetError):
     """
     Could not announce over twitter because functionality has been disabled
     """
 
+
 class TwitterConnectionError(TweetError):
     """
     Unable to execute twitter-related action because of a connection error
     """
+
 
 class Twitter(tweepy.API):
 
@@ -43,7 +47,7 @@ class Twitter(tweepy.API):
         super().__init__(*args, **kwargs)
         try:
             self.verify_credentials()
-        except tweepy.TweepError:
+        except tweepy.TweepyException:
             raise TwitterConnectionError("Incorrect auth details have been provided.")
 
     def __bool__(self):
@@ -72,7 +76,7 @@ class Twitter(tweepy.API):
                 edsm_info = await announcement.get_edsm_data(args, twitter=True)
                 twitmsg = f"{mainline_tw} {edsm_info} Call your jumps, Seals!"
                 self.update_status(twitmsg)
-            except (NameError, tweepy.error.TweepError) as err:
+            except (NameError, tweepy.errors.TweepyException) as err:
                 logger.error(f"ERROR in Twitter Update: {err}")
                 raise TwitterConnectionError(err)
         else:
@@ -85,4 +89,3 @@ auth.set_access_token(config['Twitter']['access_token'],
                       config['Twitter']['access_secret'])
 TwitterCasesAcc = Twitter(auth, wait_on_rate_limit=True,
                           wait_on_rate_limit_notify=True)
-

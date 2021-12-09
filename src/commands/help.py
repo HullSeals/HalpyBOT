@@ -15,9 +15,11 @@ import json
 
 from ..packages.command import Commands
 from ..packages.models import Context
+from src import __version__
 
 with open("data/help/commands.json", "r") as jsonfile:
     json_dict = json.load(jsonfile)
+
 
 @Commands.command("help")
 async def help(ctx: Context, args: List[str]):
@@ -32,7 +34,7 @@ async def help(ctx: Context, args: List[str]):
         # Return low detail list of commands
         help_string = ""
         for catagory, command_dict in json_dict.items():
-            help_string += catagory.upper()+"\n"
+            help_string += catagory.upper() + "\n"
             help_string += ", ".join(command_dict) + "\n"
         # Remove final line break
         help_string = help_string[:-1]
@@ -50,4 +52,17 @@ async def help(ctx: Context, args: List[str]):
                     await ctx.reply(command_help)
                     command_found = True
         if not command_found:
-            await ctx.reply(f"The command {args[0]} could not be found in the list. Try running help without an argument to get the list of commands")
+            await ctx.reply(
+                f"The command {args[0]} could not be found in the list. Try running help without an argument to get "
+                f"the list of commands")
+
+
+@Commands.command("about")
+async def cmd_about(ctx: Context, args: List[str]):
+    return await ctx.reply(f"HalpyBOT v{str(__version__)}\n"
+                           f"Developed by the Hull Seals, using Pydle\n"
+                           f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
+                           f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"
+                           f"Pydle: https://github.com/Shizmob/pydle/\n"
+                           f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
+                           f"in the development of HalpyBOT.")

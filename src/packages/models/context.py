@@ -12,6 +12,7 @@ See license.md
 
 import pydle
 
+
 class Context:
     """Message context object"""
 

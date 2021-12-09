@@ -28,10 +28,9 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     Aliases: syslookup
     """
 
-    # Input validation
-    if not args:
-        return await ctx.reply("No system given! Please provide a system name.")
-
+    if len(args) == 0:
+        return await ctx.reply("!lookup <--new> [system]: Check EDSM for the existence of a system. Optional NEW flag "
+                               "to ignore the bot cache.")
     CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
@@ -58,10 +57,9 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
     Aliases: cmdrlookup, locate
     """
 
-    # Input validation
-    if not args:
-        return await ctx.reply("No arguments given! Please provide a CMDR name.")
-
+    if len(args) == 0:
+        return await ctx.reply("!locatecmdr <--new> [cmdr name]: Check EDSM for the existence and location of a CMDR. "
+                               "Optional NEW flag to ignore the bot cache.")
     CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
@@ -88,11 +86,9 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     Usage: !distance <--new> [system/cmdr 1] : [system/cmdr 2]
     Aliases: dist
     """
-
-    # Input validation
-    if not args:
-        return await ctx.reply("Please provide two points to look up, separated by a :")
-
+    if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
+        return await ctx.reply("!dist <--new> [system/cmdr name] : [system/cmdr name]: Check EDSM for the distance "
+                               "between two known points. Optional NEW flag to ignore the bot cache.")
     CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
@@ -124,16 +120,15 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
     """
     Calculate the closest landmark system to a known EDSM system.
 
-    Usage: !landmark [system/cmdr]
+    Usage: !landmark <--new> [system/cmdr]
     Aliases: n/a
     """
 
     CacheOverride = False
 
-    # Input validation
-    if not args[0]:
-        return await ctx.reply("No arguments given! Please provide a System or CMDR name.")
-
+    if len(args) == 0:
+        return await ctx.reply("!landmark <--new> [system/cmdr name]: Calculate the closest configured landmark to a "
+                               "known EDSM system. Optional NEW flag to ignore the bot cache.")
     if args[0] == "--new":
         CacheOverride = True
         del args[0]
@@ -152,17 +147,16 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
     """
     Calculate the closest DSSA Carrier to a known EDSM system.
 
-    Usage: !dssa [system/cmdr]
+    Usage: !dssa <--new> [system/cmdr]
     Aliases: n/a
     File Last Updated: 2021-03-22 w/ 93 Carrier
     """
 
     CacheOverride = False
 
-    # Input validation
-    if not args[0]:
-        return await ctx.reply("No arguments given! Please provide a System or CMDR name.")
-
+    if len(args) == 0:
+        return await ctx.reply("!dssa <--new> [system/cmdr name]: Calculate the closest carrier in the DSSA to a "
+                               "known EDSM system. Optional NEW flag to ignore the bot cache.")
     if args[0] == "--new":
         CacheOverride = True
         del args[0]
@@ -185,10 +179,8 @@ async def cmd_coordslookup(ctx, args: List[str]):
     Aliases: coords
     """
 
-    # Input validation
-    if not args:
-        return await ctx.reply("No system given! Please provide a system name.")
-
+    if len(args) == 0 or len(args) == 1 or len(args) == 2:  # Minimum Number of Args is 3.
+        return await ctx.reply("!coords [x] [y] [z]: Check EDSM for a nearby system to a set of coordinates.")
     xcoord = args[0].strip()
     ycoord = args[1].strip()
     zcoord = args[2].strip()

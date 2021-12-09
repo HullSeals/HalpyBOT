@@ -13,6 +13,7 @@ See license.md
 import pydle
 import re
 
+
 class NoticeRegistrationCollision(Exception):
     """
     Duplicate notice handler was created
@@ -31,6 +32,7 @@ whitelist = ["OperServ",
              "Rixxan",
              "Feliksas"]
 
+
 def listener(regex: str):
     """Add a notice handler by regex
 
@@ -42,11 +44,13 @@ def listener(regex: str):
         when matched by notice
 
     """
+
     def decorator(func):
         if regex in notices.keys():
             raise
         notices[re.compile(regex)] = func
         return func
+
     return decorator
 
 

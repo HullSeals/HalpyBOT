@@ -58,6 +58,7 @@ root.setLevel(logging.DEBUG)
 root.addHandler(CLI_handler)
 root.addHandler(file_handler)
 
+
 def _start_bot():
     """Starts HalpyBOT with the specified config values."""
     from src import commands  # pylint disable=unused-import
@@ -81,10 +82,11 @@ def _start_bot():
                  tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
     pool.handle_forever()
 
+
 def _start_server():
     server_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(server_loop)
-    loop = asyncio.get_event_loop()
+    asyncio.get_event_loop()
 
     web.run_app(app=APIConnector, port=int(config['API Connector']['port']))
 
