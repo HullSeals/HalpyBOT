@@ -18,6 +18,7 @@ from ..packages.models import User
 from ..packages.configmanager import config
 from ..packages.models import Context
 
+
 @Commands.command("forcejoin")
 @Require.channel()
 @Require.permission(Drilled)
@@ -28,6 +29,9 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     Usage: !forcejoin [user] [channel]
     Aliases: n/a
     """
+    if len(args) == 0 or len(args) == 1:
+        return await ctx.reply("!forcejoin [user] [channel]: Force a user to join a permitted channel.")
+
     # Convert channel name to lower case to avoid issues with the already-in-channel check
     args[1] = args[1].lower()
 
@@ -51,7 +55,43 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     # Now we manually confirm that the SAJOIN was successful
     channels = await User.get_channels(ctx.bot, args[0])
 
-    if args[1] in channels:
+    if args[1].lower() in channels:
         return await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
+    else:
+        return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")
+
+
+@Commands.command("rrjoin")
+@Require.channel()
+@Require.permission(Drilled)
+async def cmd_sajoin(ctx: Context, args: List[str]):
+    """
+    Make the bot force a user to join the repair channel.
+
+    Usage: !rrjoin [user]
+    Aliases: n/a
+    """
+    if len(args) == 0:
+        return await ctx.reply("!rrjoin [user]: Force a user to join the Repair Requests channel.")
+
+    botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
+
+    channels = await User.get_channels(ctx.bot, args[0])
+
+    if '#repair-requests' in channels:
+        return await ctx.reply("User is already on that channel!")
+
+    # Check if bot is oper. Let's do this properly later
+    if not botuser.oper:
+        return await ctx.reply("Cannot comply: I'm not an IRC operator! Contact a cyberseal")
+
+    # Then, let user join the channel
+    await ctx.bot.rawmsg('SAJOIN', args[0], '#repair-requests')
+
+    # Now we manually confirm that the SAJOIN was successful
+    channels = await User.get_channels(ctx.bot, args[0])
+
+    if '#repair-requests' in channels:
+        return await ctx.reply(f"{str(args[0])} forced to join #Repair-Requests")
     else:
         return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")

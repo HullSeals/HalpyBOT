@@ -65,7 +65,7 @@ class User:
         # fetch the user object from pydle
         data = await bot.whois(nickname)
 
-        # if we got a object back
+        # if we got an object back
         if data:
             return cls(**data, nickname=nickname)
         else:

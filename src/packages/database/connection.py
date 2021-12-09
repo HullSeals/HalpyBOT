@@ -28,11 +28,13 @@ dbconfig = {"user": config['Database']['user'],
 
 om_channels = [entry.strip() for entry in config.get('Offline Mode', 'announce_channels').split(',')]
 
+
 class NoDatabaseConnection(ConnectionError):
     """
     Raised when 3 consecutive attempts at reconnection are unsuccessful
     """
     pass
+
 
 class DatabaseConnection(MySQLConnection):
 

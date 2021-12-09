@@ -15,11 +15,13 @@ import csv
 import requests
 import json
 
+
 class SpreadsheetLayoutError(Exception):
     """
     Some anomaly was encountered while reading the spreadsheet that prevents the
     system from functioning normally. Please confirm the correct spreadsheet is being used
     """
+
 
 def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
     """Scrape the DSSA spreadsheet for info
@@ -39,7 +41,7 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
 
     anomalies = []
 
-    # First, we request the spreadsheet from the link and let BS do it's thing
+    # First, we request the spreadsheet from the link and let BS do its thing
     html = requests.get(sheetlink).text
     tables = BeautifulSoup(html, "lxml").find_all("table")
 
@@ -59,14 +61,14 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
     usable = []
     rows = rows[3:]  # 0, 1 and 2 are always useless, empty, or both
     for index, row in enumerate(rows):
-        if row == ['']*20:  # This would be an empty row, ignore it
+        if row == [''] * 20:  # This would be an empty row, ignore it
             continue
         if row[2].lower() != 'carrier operational':  # 2 - Carrier status
             continue
         elif row[9] == '':  # 9 - Carrier name
-            anomalies.append(f"{index+1} - Name field has no value")
+            anomalies.append(f"{index + 1} - Name field has no value")
         elif row[12] == '':  # 12 - Location
-            anomalies.append(f"{index+1} - Location field has no value")
+            anomalies.append(f"{index + 1} - Location field has no value")
         else:
             usable.append(row[1:])
 
@@ -74,23 +76,23 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
     carriers = []
     for row in usable:
         carriers.append({
-                "ID": row[0],
-                "Status": row[1],
-                "Operation Name": row[2],
-                "Launch Date": row[3],
-                "Link": row[4],
-                "Platform": row[5],
-                "Distance": row[6],  # Row 7 is skipped because it never holds any value
-                "Name": row[8],
-                "Callsign": row[9],
-                "Location": row[10],
-                "Destination": row[11],
-                "Region": row[12],
-                "Owner": row[13],
-                "Group": row[14],  # Same with 15
-                "Services": row[16].split(', '),  # Services are listed
-                "Donation": row[17],
-                "EOL": row[18],
+            "ID": row[0],
+            "Status": row[1],
+            "Operation Name": row[2],
+            "Launch Date": row[3],
+            "Link": row[4],
+            "Platform": row[5],
+            "Distance": row[6],  # Row 7 is skipped because it never holds any value
+            "Name": row[8],
+            "Callsign": row[9],
+            "Location": row[10],
+            "Destination": row[11],
+            "Region": row[12],
+            "Owner": row[13],
+            "Group": row[14],  # Same with 15
+            "Services": row[16].split(', '),  # Services are listed
+            "Donation": row[17],
+            "EOL": row[18],
         })
 
     # And finally, create a file with all carrier info + any problems that may have arisen

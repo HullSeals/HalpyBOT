@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 pool = pydle.ClientPool()
 
+
 class HalpyBOT(pydle.Client, ListHandler):
 
     def __init__(self, *args, **kwargs):
@@ -91,7 +92,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         a command handler
 
         Args:
-            channel (str): Channel name the command was invoked in
+            channel (str): Channel the command was invoked in
             sender (str): Command user
             in_channel (bool): True if in a channel, else False
             message (str): Message to be sent
@@ -101,6 +102,9 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.message(channel, message)
         else:
             await self.message(sender, message)
+
+    async def on_unknown(self, message):
+        return
 
     async def operserv_login(self):
         """Log in with OperServ

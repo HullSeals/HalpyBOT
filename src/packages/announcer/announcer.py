@@ -22,10 +22,12 @@ from .twitter import TwitterCasesAcc, TwitterConnectionError
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
                  "South": "North", "SW": "NE", "West": "East", "NW": "SE"}
 
+
 class AnnouncementError(Exception):
     """
     Could not announce request
     """
+
 
 class Announcer:
 
@@ -94,6 +96,7 @@ class Announcer:
                     return
         except Exception as ex:
             raise AnnouncementError(ex)
+
 
 class Announcement:
 

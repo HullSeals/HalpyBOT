@@ -14,8 +14,11 @@ See license.md
 from aiohttp import web
 import pydle
 from typing import Optional
+from datetime import datetime
+from ..packages.configmanager import config
 
 from src import __version__
+
 
 class BotClient:
 
@@ -44,13 +47,18 @@ routes = web.RouteTableDef()
 
 halpybot = HalpyClient.client
 
+
 @routes.get('/')
 async def server_root(request):
     response = {"app": "Hull Seals HalpyBOT",
                 "version": __version__,
                 "bot_nick": HalpyClient.client.nickname,
-                "irc_connected": "True" if HalpyClient.client.connected else "False"}
+                "irc_connected": "True" if HalpyClient.client.connected else "False",
+                "offline_mode": config['Offline Mode']['enabled'],
+                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat()
+                }
     return web.json_response(response)
+
 
 APIConnector = web.Application()
 APIConnector.add_routes(routes)
