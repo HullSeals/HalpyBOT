@@ -13,14 +13,16 @@ See license.md
 import time
 from typing import List
 import requests
-import json
 import logging
 
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import latency, NoDatabaseConnection
-from ..packages.edsm import GalaxySystem, EDSMLookupError
+from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
+
+logger = logging.getLogger(__name__)
+
 
 @Commands.command("ping")
 async def cmd_ping(ctx: Context, args: List[str]):
@@ -32,6 +34,7 @@ async def cmd_ping(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     await ctx.reply("Pong!")
+
 
 @Commands.command("dbping")
 @Require.permission(Cyberseal)
@@ -53,6 +56,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     else:
         await ctx.reply(latencycheck)
 
+
 @Commands.command("edsmping")
 @Require.permission(Cyberseal)
 async def cmd_edsmping(ctx: Context, args: List[str]):
@@ -71,6 +75,7 @@ async def cmd_edsmping(ctx: Context, args: List[str]):
     final = round(finish - start, 2)
     await ctx.reply("EDSM Latency: " + str(final) + " seconds")
 
+
 @Commands.command("serverstatus")
 async def cmd_serverstat(ctx: Context, args: List[str]):
     """
@@ -83,7 +88,7 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
         response = requests.get("https://hosting.zaonce.net/launcher-status/status.json")
         responses = response.json()
     except requests.exceptions.RequestException as er:
-        logging.error(f"EDSM: Error in Elite Server Status lookup: {er}", exc_info=True)
+        logger.error(f"EDSM: Error in Elite Server Status lookup: {er}", exc_info=True)
         raise EDSMConnectionError("Unable to verify Elite Status, having issues connecting to the Elite API.")
     if len(responses) == 0:
         await ctx.reply("ERROR! Elite returned an empty reply.")

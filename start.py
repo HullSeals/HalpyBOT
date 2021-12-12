@@ -13,9 +13,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import logging
+import logging.handlers
 import threading
 import asyncio
+import datetime
+from os import path, mkdir
 from aiohttp import web
 
 from src.server import APIConnector, MainAnnouncer, HalpyClient
@@ -23,8 +25,39 @@ from src.server import APIConnector, MainAnnouncer, HalpyClient
 from src.packages.ircclient import HalpyBOT, pool
 from src.packages.configmanager import config
 
-logging.basicConfig(format='%(levelname)s\t%(name)s\t%(message)s',
-                    level=logging._nameToLevel.get(config.get('Logging', 'level', fallback='DEBUG'), logging.DEBUG))
+logFile: str = config['Logging']['log_file']
+CLI_level = config['Logging']['cli_level']
+file_level = config['Logging']['file_level']
+
+try:
+    logFolder = path.dirname(logFile)
+    if not path.exists(logFolder):
+        mkdir(logFolder)
+except PermissionError:
+    print("Unable to create log folder. Does this user have appropriate permissions?")
+    exit()
+
+formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s')
+
+CLI_handler = logging.StreamHandler()
+CLI_handler.setLevel(CLI_level)
+
+# Will rotate log files every monday at midnight and keep at most 12 files,
+# deleting the oldest, meaning logs are retained for 12 weeks (3 months)
+# noinspection PyTypeChecker
+file_handler = logging.handlers.TimedRotatingFileHandler(filename=logFile, when="w0", interval=14,
+                                                         backupCount=12, utc=True, atTime=datetime.time())
+file_handler.setLevel(file_level)
+
+CLI_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+root.addHandler(CLI_handler)
+root.addHandler(file_handler)
+
 
 def _start_bot():
     """Starts HalpyBOT with the specified config values."""
@@ -49,10 +82,11 @@ def _start_bot():
                  tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
     pool.handle_forever()
 
+
 def _start_server():
     server_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(server_loop)
-    loop = asyncio.get_event_loop()
+    asyncio.get_event_loop()
 
     web.run_app(app=APIConnector, port=int(config['API Connector']['port']))
 

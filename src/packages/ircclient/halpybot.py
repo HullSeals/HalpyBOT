@@ -22,7 +22,10 @@ from ..facts import Facts
 from ..database import NoDatabaseConnection
 from ..notice import on_notice as handle_notice
 
+logger = logging.getLogger(__name__)
+
 pool = pydle.ClientPool()
+
 
 class HalpyBOT(pydle.Client, ListHandler):
 
@@ -53,7 +56,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         try:
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
         except NoDatabaseConnection:
-            logging.error("Could not fetch facts from DB, backup file loaded and entering OM")
+            logger.error("Could not fetch facts from DB, backup file loaded and entering OM")
         for channel in config['Channels']['channellist'].split():
             await self.join(channel, force=True)
 
@@ -89,7 +92,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         a command handler
 
         Args:
-            channel (str): Channel name the command was invoked in
+            channel (str): Channel the command was invoked in
             sender (str): Command user
             in_channel (bool): True if in a channel, else False
             message (str): Message to be sent
@@ -99,6 +102,9 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.message(channel, message)
         else:
             await self.message(sender, message)
+
+    async def on_unknown(self, message):
+        return
 
     async def operserv_login(self):
         """Log in with OperServ

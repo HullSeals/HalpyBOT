@@ -11,7 +11,6 @@ See license.md
 
 """
 
-from typing import Dict
 from aiohttp import web
 
 from .server import APIConnector, HalpyClient
@@ -19,6 +18,7 @@ from .auth import Authenticate
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
 
 routes = web.RouteTableDef()
+
 
 @routes.post('/tail')
 @Authenticate()
@@ -40,5 +40,6 @@ async def tail(request):
             raise web.HTTPOk
     except NoDatabaseConnection:
         raise
+
 
 APIConnector.add_routes(routes)

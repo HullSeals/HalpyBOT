@@ -22,6 +22,7 @@ from ..packages.configmanager import config
 
 langcodes = language_codes()
 
+
 @Commands.command("factinfo")
 @Require.permission(Moderator)
 @Require.DM()
@@ -42,12 +43,13 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     else:
         langlist = await Facts.lang_by_fact(name)
         reply = f"Fact: {fact.name}\n" \
-                f"Language: {langcodes[lang.lower()] +  f' ({fact.language})'}\n" \
+                f"Language: {langcodes[lang.lower()] + f' ({fact.language})'}\n" \
                 f"All langs: {', '.join(f'{langcodes[lan.lower()]} ({lan.upper()})' for lan in langlist)}\n" \
                 f"ID: {fact.ID}\n" \
                 f"Author: {fact.author}\n" \
                 f"Text: {fact.raw_text}"
         return await ctx.reply(reply)
+
 
 @Commands.command("addfact")
 @Require.permission(Admin)
@@ -83,6 +85,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
     except InvalidFactException as ex:
         return await ctx.reply(f"Cannot add fact: {str(ex)}")
 
+
 @Commands.command("deletefact")
 @Require.permission(Admin)
 async def cmd_deletefact(ctx: Context, args: List[str]):
@@ -112,6 +115,7 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
                                "version, please delete the version in other languages "
                                "first.")
 
+
 @Commands.command("allfacts", "factlist", "listfacts")
 @Require.DM()
 async def cmd_listfacts(ctx: Context, args: List[str]):
@@ -137,6 +141,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
     else:
         return await ctx.reply(f"All {langcodes[lang.lower()]} facts:\n"
                                f"{', '.join(fact for fact in factlist)}")
+
 
 @Commands.command("editfact", "updatefact")
 @Require.permission(Admin)
@@ -167,6 +172,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
             return await ctx.reply("Unable to update a fact that only "
                                    "exists in local storage, please update "
                                    "the fact cache and try again.")
+
 
 @Commands.command("ufi", "updatefactindex")
 @Require.permission(Cyberseal)

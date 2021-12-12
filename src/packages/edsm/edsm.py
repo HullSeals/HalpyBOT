@@ -24,15 +24,20 @@ from ..models import SystemInfo, Coordinates, Location
 from ..utils import get_time_seconds
 from ..configmanager import config
 
+logger = logging.getLogger(__name__)
+
+
 class EDSMLookupError(Exception):
     """
     Base class for lookup errors
     """
 
+
 class NoResultsEDSM(EDSMLookupError):
     """
     No results for the given query were found with the EDSM API
     """
+
 
 class EDSMConnectionError(EDSMLookupError):
     """
@@ -43,6 +48,7 @@ class EDSMConnectionError(EDSMLookupError):
 
 landmarks = []
 dssas = []
+
 
 @dataclass()
 class EDSMQuery:
@@ -101,7 +107,7 @@ class GalaxySystem:
             responses = response.json()
 
         except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
+            logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
         # Return None if system doesn't exist
@@ -172,7 +178,7 @@ class GalaxySystem:
             responses = response.json()
 
         except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in `system get_nearby()` lookup: {er}", exc_info=True)
+            logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
         # Return None if system doesn't exist
@@ -242,7 +248,7 @@ class Commander:
             responses = response.json()
 
         except (requests.exceptions.RequestException, KeyError) as er:
-            logging.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
+            logger.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
 
         # Return None if cmdr doesn't exist
@@ -419,7 +425,7 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
 
     if system is not None:
 
-        currclosest = None
+        currclosest, currLandmarkx, currLandmarkz = None, None, None
 
         # Load JSON file if landmarks cache is empty, else we just get objects from the cache
         if not landmarks:
@@ -492,7 +498,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
 
     if Coords:
 
-        currclosest = None
+        currclosest, currDSSAx, currDSSAz = None, None, None
 
         # Load JSON file if dssa cache is empty, else we just get objects from the cache
         if not dssas:
@@ -574,15 +580,15 @@ async def calc_direction(x1, x2, y1, y2):
 
     """
     # Treat the coordinates like a right triangle - this is Trig that I swore off of after high school.
-    xdeterminer = (x2-x1)
-    ydeterminer = (y2-y1)
-    degrees_temp = math.atan2(xdeterminer, ydeterminer)/math.pi*180
+    xdeterminer = (x2 - x1)
+    ydeterminer = (y2 - y1)
+    degrees_temp = math.atan2(xdeterminer, ydeterminer) / math.pi * 180
     # All Coordinates must be Positive.
     if degrees_temp < 0:
         degrees_final = 360 + degrees_temp
     else:
         degrees_final = degrees_temp
-    # Round to nearest degree, treat Directions as an array and compass_lookup as the array item number.
+    # Round to the nearest degree, treat Directions as an array and compass_lookup as the array item number.
     directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
     compass_lookup = round(degrees_final / 45)
     result = f'{directions[compass_lookup]}'

@@ -20,7 +20,10 @@ from ..packages.checks import Require, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
 
-@Commands.command("shutdown")
+logger = logging.getLogger(__name__)
+
+
+@Commands.command("shutdown", "reboot")
 @Require.DM()
 @Require.permission(Admin)
 async def cmd_shutdown(ctx: Context, args: List[str]):
@@ -28,7 +31,8 @@ async def cmd_shutdown(ctx: Context, args: List[str]):
     Shut down the bot (restart if running as daemon)
 
     Usage: !shutdown
-    Aliases: n/a
+    Aliases: !reboot
     """
-    logging.critical(f"Shutdown has been ordered by {ctx.sender}")
-    os.kill(os.getpid(), signal.SIGUSR2)
+    await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
+    logger.critical(f"Shutdown has been ordered by {ctx.sender}")
+    os.kill(os.getpid(), signal.SIGTERM)
