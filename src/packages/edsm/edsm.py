@@ -589,8 +589,8 @@ async def calc_direction(x1, x2, y1, y2):
     return result
 
 async def get_nearby_system(SysName: str, CacheOverride:bool = False):
+    nameToCheck = SysName
     while True:
-        nameToCheck = SysName[:-1]
         try:
             responce = requests.get("https://www.edsm.net/api-v1/systems",
                                     params={"systemName":nameToCheck}, timeout=10)
@@ -598,5 +598,6 @@ async def get_nearby_system(SysName: str, CacheOverride:bool = False):
             if responces:
                 sys = responces[0]["name"]
                 return sys
+            nameToCheck = nameToCheck[:-1]
         except requests.exceptions.RequestException as er:
             logging.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
