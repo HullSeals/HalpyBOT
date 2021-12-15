@@ -286,7 +286,7 @@ def get_help_text(search_command: str):
                 arguments = details["arguments"]
                 aliases = details["aliases"]
                 usage = details["use"]
-                return f"Use: {command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
+                return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
     return None
 
 Commands = CommandGroup(is_root=True)

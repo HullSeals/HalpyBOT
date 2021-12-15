@@ -165,7 +165,7 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply("!cybersig [message]: Sends a notification to the Cyberseals with a given message.")
+        return await ctx.reply(get_help_text("cybersignal"))
     global timer
     # Check if last staff call was < 5 min ago
     if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
