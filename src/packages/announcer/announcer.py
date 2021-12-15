@@ -175,13 +175,19 @@ class Announcement:
             except NoResultsEDSM:
                 sys_name = args["System"]
                 sys_regex = re.search(r"^[\w\s]+[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
+
                 # Checks for correct formatting of "unnamed" system
                 if sys_regex:
-                    close_sys = await get_nearby_system(sys_regex.group(0))
+                    found_sys, close_sys = await get_nearby_system(sys_regex.group(0))
+                else:
+                    found_sys, close_sys = await get_nearby_system(sys_name)
+                
+                if found_sys:
                     landmark, distance, direction = await checklandmarks(close_sys)
                     return f"\n{sys_name} could not be found in EDSM. System closest in name found in EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}."
                 else:
-                    return "\nDistance to landmark unknown. Could not match to sys name format." if twitter else "\nSystem Not Found in EDSM."
+                    return "\nDistance to landmark unknown." if twitter else "\nSystem Not Found in EDSM. Could not match to sys name format or sys name lookup failed.\nPlease check system name with client"
+                
             except EDSMLookupError:
                 return '' if twitter else "\nUnable to query EDSM."
         else:

@@ -596,14 +596,20 @@ async def calc_direction(x1, x2, y1, y2):
 
 async def get_nearby_system(SysName: str, CacheOverride:bool = False):
     nameToCheck = SysName
-    while True:
+    for _ in range(5):
         try:
             responce = requests.get("https://www.edsm.net/api-v1/systems",
                                     params={"systemName":nameToCheck}, timeout=10)
             responces = responce.json()
             if responces:
                 sys = responces[0]["name"]
-                return sys
-            nameToCheck = nameToCheck[:-1]
+                return True, sys
+            
+            # Cheeky bottom test to not include spaces in the repeat queries and not include it in the 5 request cap
+            while True:
+                nameToCheck = nameToCheck[:-1]
+                if nameToCheck[-1] != " ":
+                    break
         except requests.exceptions.RequestException as er:
-            logging.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
+            logger.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
+    return False, None
