@@ -38,13 +38,13 @@ async def help(ctx: Context, args: List[str]):
             help_string += "        " + ", ".join(command_dict) + "\n"
         # Remove final line break
         help_string = help_string[:-1]
-        await ctx.reply(help_string)
+        await ctx.redirect(help_string)
     else:
         # A specific command has been queried
         help_text = get_help_text(args[0])
 
         if help_text == None:
-            await ctx.reply(
+            await ctx.redirect(
                 f"The command {args[0]} could not be found in the list. Try running help without an argument to get "
                 f"the list of commands")
         else:
@@ -53,7 +53,7 @@ async def help(ctx: Context, args: List[str]):
 
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):
-    return await ctx.reply(f"HalpyBOT v{str(__version__)}\n"
+    return await ctx.redirect(f"HalpyBOT v{str(__version__)}\n"
                            f"Developed by the Hull Seals, using Pydle\n"
                            f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
                            f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"

@@ -25,7 +25,6 @@ langcodes = language_codes()
 
 @Commands.command("factinfo")
 @Require.permission(Moderator)
-@Require.DM()
 async def cmd_getfactdata(ctx: Context, args: List[str]):
     """
     Get information about a fact
@@ -34,12 +33,12 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if not args or len(args) != 1:
-        return await ctx.reply("Usage: !factinfo [name-lang]")
+        return await ctx.redirect("Usage: !factinfo [name-lang]")
     name = args[0].split('-')[0]
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
     fact: Optional[Fact] = await Facts.get(name, lang)
     if fact is None:
-        return await ctx.reply("Fact not found.")
+        return await ctx.redirect("Fact not found.")
     else:
         langlist = await Facts.lang_by_fact(name)
         reply = f"Fact: {fact.name}\n" \
@@ -48,7 +47,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
                 f"ID: {fact.ID}\n" \
                 f"Author: {fact.author}\n" \
                 f"Text: {fact.raw_text}"
-        return await ctx.reply(reply)
+        return await ctx.redirect(reply)
 
 
 @Commands.command("addfact")
@@ -117,7 +116,6 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
 
 
 @Commands.command("allfacts", "factlist", "listfacts")
-@Require.DM()
 async def cmd_listfacts(ctx: Context, args: List[str]):
     """
     Get a list off all facts in a language (English by default)
@@ -132,14 +130,14 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
 
     # Input validation
     if lang not in langcodes:
-        return await ctx.reply("Cannot comply: Please specify a valid language code.")
+        return await ctx.redirect("Cannot comply: Please specify a valid language code.")
 
     factlist = Facts.list(lang)
 
     if len(factlist) == 0:
-        return await ctx.reply(f"No {langcodes[lang.lower()]} facts found.")
+        return await ctx.redirect(f"No {langcodes[lang.lower()]} facts found.")
     else:
-        return await ctx.reply(f"All {langcodes[lang.lower()]} facts:\n"
+        return await ctx.redirect(f"All {langcodes[lang.lower()]} facts:\n"
                                f"{', '.join(fact for fact in factlist)}")
 
 

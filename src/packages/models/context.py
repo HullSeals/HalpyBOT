@@ -43,3 +43,15 @@ class Context:
 
         """
         await self.bot.reply(self.channel, self.sender, self.in_channel, message)
+
+
+    async def redirect(self, message: str):
+        """Send a message to the person a DM-only command was run by
+
+        Oh my Limpets this is stupid.
+
+        Args:
+            message (str): The message to be sent
+
+        """
+        await self.bot.reply(self.channel, self.sender, False, message)
