@@ -15,7 +15,7 @@ from typing import List
 from ..packages.edsm import (GalaxySystem, Commander, EDSMLookupError,
                              EDSMConnectionError, checkdistance, checklandmarks,
                              checkdssa)
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 
 
@@ -29,8 +29,7 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply("!lookup <--new> [system]: Check EDSM for the existence of a system. Optional NEW flag "
-                               "to ignore the bot cache.")
+        return await ctx.reply(get_help_text("lookup"))
     CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
@@ -58,8 +57,7 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply("!locatecmdr <--new> [cmdr name]: Check EDSM for the existence and location of a CMDR. "
-                               "Optional NEW flag to ignore the bot cache.")
+        return await ctx.reply(get_help_text("locatecmdr"))
     CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
@@ -87,8 +85,7 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     Aliases: dist
     """
     if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
-        return await ctx.reply("!dist <--new> [system/cmdr name] : [system/cmdr name]: Check EDSM for the distance "
-                               "between two known points. Optional NEW flag to ignore the bot cache.")
+        return await ctx.reply(get_help_text("dist"))
     CacheOverride = False
     if args[0] == "--new":
         CacheOverride = True
@@ -127,8 +124,7 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
     CacheOverride = False
 
     if len(args) == 0:
-        return await ctx.reply("!landmark <--new> [system/cmdr name]: Calculate the closest configured landmark to a "
-                               "known EDSM system. Optional NEW flag to ignore the bot cache.")
+        return await ctx.reply(get_help_text("landmark"))
     if args[0] == "--new":
         CacheOverride = True
         del args[0]
@@ -155,8 +151,7 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
     CacheOverride = False
 
     if len(args) == 0:
-        return await ctx.reply("!dssa <--new> [system/cmdr name]: Calculate the closest carrier in the DSSA to a "
-                               "known EDSM system. Optional NEW flag to ignore the bot cache.")
+        return await ctx.reply(get_help_text("dssa"))
     if args[0] == "--new":
         CacheOverride = True
         del args[0]
@@ -180,7 +175,7 @@ async def cmd_coordslookup(ctx, args: List[str]):
     """
 
     if len(args) == 0 or len(args) == 1 or len(args) == 2:  # Minimum Number of Args is 3.
-        return await ctx.reply("!coords [x] [y] [z]: Check EDSM for a nearby system to a set of coordinates.")
+        return await ctx.reply(get_help_text("coords"))
     xcoord = args[0].strip()
     ycoord = args[1].strip()
     zcoord = args[2].strip()

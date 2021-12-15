@@ -13,7 +13,7 @@ See license.md
 from typing import List
 
 from ..packages.checks import Require, Drilled
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.models import User
 from ..packages.configmanager import config
 from ..packages.models import Context
@@ -30,7 +30,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0 or len(args) == 1:
-        return await ctx.reply("!forcejoin [user] [channel]: Force a user to join a permitted channel.")
+        return await ctx.reply(get_help_text("forcejoin"))
 
     # Convert channel name to lower case to avoid issues with the already-in-channel check
     args[1] = args[1].lower()
@@ -76,7 +76,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.reply("!rrjoin [user]: Force a user to join the Repair Requests channel.")
+        return await ctx.reply(get_help_text("rrjoin"))
 
     botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
 

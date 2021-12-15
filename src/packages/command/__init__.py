@@ -1,4 +1,5 @@
-from .commandhandler import Commands, CommandGroup
+from .commandhandler import Commands, CommandGroup, get_help_text
 
 __all__ = ["Commands",
-           "CommandGroup"]
+           "CommandGroup",
+           "get_help_text"]

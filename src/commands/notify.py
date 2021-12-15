@@ -15,7 +15,7 @@ from typing import List
 
 from ..packages import notify
 from ..packages.checks import Require, Moderator, Admin, Owner, Pup
-from ..packages.command import CommandGroup, Commands
+from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.configmanager import config
 from ..packages.utils import get_time_seconds
 from ..packages.models import Context
@@ -121,7 +121,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
         return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
 
-@Commands.command("summonstaff", "callstaff", "opsignal")
+@Commands.command("summonstaff", "callstaff", "opsignal", "opsig")
 @Require.permission(Pup)
 @Require.channel()
 @Require.AWS()
@@ -134,7 +134,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply("!opsignal [message]: Sends a notification to the Admins and Mods with a given message.")
+        return await ctx.reply(get_help_text("opsignal"))
     global timer
     # Check if last staff call was < 5 min ago
     if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
@@ -165,7 +165,7 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply("!cybersig [message]: Sends a notification to the Cyberseals with a given message.")
+        return await ctx.reply(get_help_text("cybersignal"))
     global timer
     # Check if last staff call was < 5 min ago
     if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):

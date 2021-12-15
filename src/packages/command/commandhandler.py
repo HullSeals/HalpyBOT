@@ -13,10 +13,13 @@ See license.md
 from __future__ import annotations
 from typing import List
 import pydle
+import json
 
 from ..configmanager import config
 from ..models import Context
 
+with open("data/help/commands.json", "r") as jsonfile:
+    json_dict = json.load(jsonfile)
 
 class CommandException(Exception):
     """
@@ -274,5 +277,16 @@ class CommandGroup:
         else:
             return [str(cmd) for cmd in self._commandList if self._commandList[cmd][1] is True]
 
+def get_help_text(search_command: str):
+    search_command = search_command.lower()
+    for command_dict in json_dict.values():
+        for command, details in command_dict.items():
+            command = command.lower()
+            if command == search_command or search_command in details["aliases"]:
+                arguments = details["arguments"]
+                aliases = details["aliases"]
+                usage = details["use"]
+                return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
+    return None
 
 Commands = CommandGroup(is_root=True)
