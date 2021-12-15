@@ -37,10 +37,10 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
 
     botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
 
-    #Quick Kludge, try loop. TODO: There's got to be a better way to test if a user exists.
+    # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
     try:
         channels = await User.get_channels(ctx.bot, args[0])
-    except AttributeError as atr:
+    except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 
     if args[1] not in config['Force join command']['joinable'].lower():
@@ -80,10 +80,10 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
 
     botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
 
-    # Quick Kludge, try loop. TODO: There's got to be a better way to test if a user exists.
+    # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
     try:
         channels = await User.get_channels(ctx.bot, args[0])
-    except AttributeError as atr:
+    except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 
     if '#repair-requests' in channels:
