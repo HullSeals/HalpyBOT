@@ -16,7 +16,7 @@ import logging
 import requests
 import datetime
 
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context
 from ..packages.configmanager import config
@@ -35,7 +35,7 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     Aliases: mancase, manualfish, manfish
     """
     if len(args) == 0 or len(args) == 1:
-        return await ctx.reply("!mancase [CMDR] [case info]: Shouts a new case ping using manually inputted details.")
+        return await ctx.reply(get_help_text("mancase"))
     info = ctx.message
     logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
     for channel in config["Manual Case"]["send_to"].split():
@@ -94,7 +94,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     Aliases: wssping
     """
     if len(args) == 0:
-        return await ctx.reply("!tsping [info]: Ping the Trained Seals role on Discord with details about a case.")
+        return await ctx.reply(get_help_text("tsping"))
     info = ctx.message
 
     cn_message = {
