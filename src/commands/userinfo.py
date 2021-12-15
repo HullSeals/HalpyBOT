@@ -12,6 +12,8 @@ See license.md
 
 from typing import List
 
+from src.packages.command.commandhandler import get_help_text
+
 from ..packages.seals import whois
 from ..packages.command import Commands
 from ..packages.checks import Require, Pup
@@ -29,7 +31,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.reply("!whois [user]: Returns information about a given user.")
+        return await ctx.reply(get_help_text("whois"))
     cmdr = args[0]
     if cmdr.lower() == "halpybot":
         return await ctx.reply("That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, "

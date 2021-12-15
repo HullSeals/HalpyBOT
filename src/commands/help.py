@@ -13,7 +13,7 @@ See license.md
 from typing import List
 import json
 
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 from src import __version__
 
@@ -34,27 +34,21 @@ async def help(ctx: Context, args: List[str]):
         # Return low detail list of commands
         help_string = ""
         for catagory, command_dict in json_dict.items():
-            help_string += catagory.upper() + "\n"
-            help_string += ", ".join(command_dict) + "\n"
+            help_string += catagory + "\n"
+            help_string += "        " + ", ".join(command_dict) + "\n"
         # Remove final line break
         help_string = help_string[:-1]
         await ctx.reply(help_string)
     else:
         # A specific command has been queried
-        command_found = False
-        for command_dict in json_dict.values():
-            for command, details in command_dict.items():
-                if command.lower() == args[0].lower():
-                    arguments = details["arguments"]
-                    aliases = details["aliases"]
-                    usage = details["use"]
-                    command_help = f"Use: {command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
-                    await ctx.reply(command_help)
-                    command_found = True
-        if not command_found:
+        help_text = get_help_text(args[0])
+
+        if help_text == None:
             await ctx.reply(
                 f"The command {args[0]} could not be found in the list. Try running help without an argument to get "
                 f"the list of commands")
+        else:
+            await ctx.reply(help_text)
 
 
 @Commands.command("about")
