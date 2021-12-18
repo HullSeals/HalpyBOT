@@ -175,7 +175,7 @@ class Announcement:
             except NoResultsEDSM as er:
                 if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
                     dssa, distance, direction = await checkdssa(args['System'])
-                    return f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
+                    return f"\n{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
                            f"{args['System']}."
                 else:
                     sys_name = args["System"]
@@ -194,7 +194,7 @@ class Announcement:
                                    f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                         except NoResultsEDSM as er:
                             if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
-                                dssa, distance, direction = await checkdssa(args['System'])
+                                dssa, distance, direction = await checkdssa(close_sys)
                                 return f"\n{sys_name} could not be found in EDSM. System closest in name found in " \
                                        f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in " \
                                        f"{dssa}, {distance} LY {direction} of {close_sys}. "
