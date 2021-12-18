@@ -11,6 +11,7 @@ from . import shutdown
 from . import time
 from . import userinfo
 from . import help
+from . import caseutils
 
 __all__ = ["delayedboard",
            "edsm",
