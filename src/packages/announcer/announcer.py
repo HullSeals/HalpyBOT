@@ -17,7 +17,7 @@ import json
 import re
 from typing import List, Dict, Optional
 
-from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError
+from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa
 from .twitter import TwitterCasesAcc, TwitterConnectionError
 
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
@@ -172,25 +172,38 @@ class Announcement:
                     return f"{distance} LY {direction} of {landmark}"
                 else:
                     return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-            except NoResultsEDSM:
-                sys_name = args["System"]
-                sys_regex = re.search(r"^[\w\s]+[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
-
-                # Checks for correct formatting of "unnamed" system
-                if sys_regex:
-                    found_sys, close_sys = await get_nearby_system(sys_regex.group(0))
+            except NoResultsEDSM as er:
+                if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
+                    dssa, distance, direction = await checkdssa(args['System'])
+                    return f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
+                           f"{args['System']}."
                 else:
-                    found_sys, close_sys = await get_nearby_system(sys_name)
+                    sys_name = args["System"]
+                    sys_regex = re.search(r"^[\w\s]+[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
 
-                if found_sys:
-                    landmark, distance, direction = await checklandmarks(close_sys)
-                    return f"\n{sys_name} could not be found in EDSM. System closest in name found in EDSM was " \
-                           "{close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
-                else:
-                    return "\nDistance to landmark unknown." if twitter else "\nSystem Not Found in EDSM. Could not " \
-                                                                             "match to sys name format or sys name " \
-                                                                             "lookup failed.\nPlease check system " \
-                                                                             "name with client "
+                    # Checks for correct formatting of "unnamed" system
+                    if sys_regex:
+                        found_sys, close_sys = await get_nearby_system(sys_regex.group(0))
+                    else:
+                        found_sys, close_sys = await get_nearby_system(sys_name)
+
+                    if found_sys:
+                        try:
+                            landmark, distance, direction = await checklandmarks(close_sys)
+                            return f"\n{sys_name} could not be found in EDSM. System closest in name found in EDSM was"\
+                                   f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
+                        except NoResultsEDSM as er:
+                            if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
+                                dssa, distance, direction = await checkdssa(args['System'])
+                                return f"\n{sys_name} could not be found in EDSM. System closest in name found in " \
+                                       f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in " \
+                                       f"{dssa}, {distance} LY {direction} of {close_sys}. "
+                    else:
+                        return "\nDistance to landmark or DSSA unknown." if twitter else "\nSystem Not Found in EDSM." \
+                                                                                         " match to sys name format " \
+                                                                                         "or sys name lookup " \
+                                                                                         "failed.\nPlease check " \
+                                                                                         "system name with client "
 
             except EDSMLookupError:
                 return '' if twitter else "\nUnable to query EDSM."
