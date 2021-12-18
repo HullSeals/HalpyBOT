@@ -16,13 +16,13 @@ import signal
 import logging
 from typing import List
 
-logger = logging.getLogger(__name__)
-
 from ..packages.checks import Require, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
 
-@Commands.command("shutdown")
+logger = logging.getLogger(__name__)
+
+@Commands.command("shutdown", "sealpukku")
 @Require.DM()
 @Require.permission(Admin)
 async def cmd_shutdown(ctx: Context, args: List[str]):

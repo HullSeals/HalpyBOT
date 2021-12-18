@@ -12,6 +12,7 @@ See license.md
 
 from typing import Optional
 import logging
+import asyncio
 
 import pydle
 from ._listsupport import ListHandler
@@ -160,3 +161,12 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         """
         await handle_notice(self, by, target, message)
+
+
+client = HalpyBOT(
+    nickname=config['IRC']['nickname'],
+    sasl_identity=config['SASL']['identity'],
+    sasl_password=config['SASL']['password'],
+    sasl_username=config['SASL']['username'],
+    eventloop=asyncio.get_event_loop()
+)
