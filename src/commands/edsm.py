@@ -135,6 +135,10 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
         landmark, distance, direction = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
         return await ctx.reply(f"The closest landmark system is {landmark}, {distance} LY {direction} of {system}.")
     except EDSMLookupError as er:
+        if str(er) == f"No major landmark systems within 10,000 ly of {system}.":
+            dssa, distance, direction = await checkdssa(SysName=system, CacheOverride=CacheOverride)
+            return await ctx.reply(f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY " 
+                                   f"{direction} of {system}.")
         return await ctx.reply(str(er))
 
 
