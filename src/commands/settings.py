@@ -50,6 +50,8 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     Usage: !bot_management prefix [newprefix]
     Aliases: settings prefix
     """
+    if not args:
+        return await ctx.reply(f"Prefix: {config['IRC']['commandPrefix']}")
     logger.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")
     config_write('IRC', 'commandPrefix', args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
@@ -143,4 +145,4 @@ async def cmd_part(ctx: Context, args: List[str]):
     Usage: !partchannel
     Aliases: n/a
     """
-    await ctx.bot.part(message=f"PART by {ctx.sender}", channel=ctx.channel)
+    await ctx.bot.part(message=f"Parted by {ctx.sender}", channel=ctx.channel)

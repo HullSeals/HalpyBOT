@@ -14,9 +14,11 @@ See license.md
 from typing import Dict
 from aiohttp import web
 
-from .server import APIConnector, HalpyClient
+from .server import APIConnector
 from .auth import Authenticate
+
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
+from ..packages.ircclient import client as botclient
 
 routes = web.RouteTableDef()
 
@@ -36,7 +38,7 @@ async def tail(request):
             cursor.execute(f"SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,))
             result = cursor.fetchall()
             for i in result:
-                await HalpyClient.client.rawmsg("hs", "SETALL", i[0], vhost)
+                await botclient.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:
         raise
