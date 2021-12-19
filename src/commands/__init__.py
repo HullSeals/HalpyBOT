@@ -25,4 +25,5 @@ __all__ = ["delayedboard",
            "shutdown",
            "time",
            "userinfo",
-           "help"]
+           "help",
+           "caseutils"]
