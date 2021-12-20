@@ -138,7 +138,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
         return await ctx.redirect(f"No {langcodes[lang.lower()]} facts found.")
     else:
         return await ctx.redirect(f"All {langcodes[lang.lower()]} facts:\n"
-                               f"{', '.join(fact for fact in factlist)}")
+                                  f"{', '.join(fact for fact in factlist)}")
 
 
 @Commands.command("editfact", "updatefact")

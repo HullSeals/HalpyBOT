@@ -34,8 +34,8 @@ async def cmd_whois(ctx: Context, args: List[str]):
     cmdr = args[0]
     if cmdr.lower() == "halpybot":
         return await ctx.redirect("That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, "
-                               "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
-                               "and has been involved with countless rescues.")
+                                  "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
+                                  "and has been involved with countless rescues.")
     else:
         return await ctx.redirect(await whois(cmdr))
 

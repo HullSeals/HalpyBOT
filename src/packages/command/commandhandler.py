@@ -21,6 +21,7 @@ from ..models import Context
 with open("data/help/commands.json", "r") as jsonfile:
     json_dict = json.load(jsonfile)
 
+
 class CommandException(Exception):
     """
     Base exception for all commands
@@ -277,6 +278,7 @@ class CommandGroup:
         else:
             return [str(cmd) for cmd in self._commandList if self._commandList[cmd][1] is True]
 
+
 def get_help_text(search_command: str):
     search_command = search_command.lower()
     for command_dict in json_dict.values():
@@ -288,5 +290,6 @@ def get_help_text(search_command: str):
                 usage = details["use"]
                 return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
     return None
+
 
 Commands = CommandGroup(is_root=True)

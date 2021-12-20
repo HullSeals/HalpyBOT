@@ -54,9 +54,9 @@ async def help(ctx: Context, args: List[str]):
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):
     return await ctx.redirect(f"HalpyBOT v{str(__version__)}\n"
-                           f"Developed by the Hull Seals, using Pydle\n"
-                           f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
-                           f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"
-                           f"Pydle: https://github.com/Shizmob/pydle/\n"
-                           f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
-                           f"in the development of HalpyBOT.")
+                              f"Developed by the Hull Seals, using Pydle\n"
+                              f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
+                              f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"
+                              f"Pydle: https://github.com/Shizmob/pydle/\n"
+                              f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
+                              f"in the development of HalpyBOT.")
