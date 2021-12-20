@@ -41,9 +41,10 @@ def Authenticate():
             if not hmac.compare_digest(key_check, check.hexdigest()):
                 logger.warning("Failed authentication. Incorrect key or key verification message")
                 raise web.HTTPUnauthorized()
+            # If the key is correct but HMAC is different, the body has been altered in transit and should be rejected
             elif not hmac.compare_digest(clientmac, mac.hexdigest()):
                 logger.warning("Failed authentication. Bad request body")
-                raise web.HTTPBadRequest()
+                raise web.HTTPUnprocessableEntity()
             else:
                 logger.info("Successfully authenticated API request")
                 return await function(request)
