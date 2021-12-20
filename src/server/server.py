@@ -10,13 +10,14 @@ Licensed under the GNU General Public License
 See license.md
 
 """
+from typing import Union
 import aiohttp.web
 from aiohttp import web
 from aiohttp.web import Request, StreamResponse
 import asyncio
 import logging
 
-from aiohttp.web_exceptions import HTTPBadRequest
+from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNotAllowed, HTTPNotFound
 
 from src import __version__
 from ..packages.ircclient import client as botclient
@@ -25,6 +26,7 @@ from ..packages.database import DatabaseConnection, NoDatabaseConnection
 logger = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
+routes_path = {route.method:[r.path for r in routes if r.method == route.method] for route in routes}
 
 class HalpyServer(web.Application):
 
@@ -48,22 +50,35 @@ class HalpyServer(web.Application):
             # TODO: stash call and run later when reconnected
             pass
 
-    async def __filter_request(self, request: Request) -> bool:
+    async def __filter_request(self, request: Request) -> Union[None, HTTPClientError]:
         """A method to filter out spam requests that would otherwise result
         in a large error message and log them neatly"""
-        if request.method == "POST":
-            if request.headers.get("hmac") is None or request.headers.get("keyCheck") is None:
-                return False
+        # If they don't provide authentication, we log it and return 400
+        request_method = request.method
+        request_path = request.path
 
-        return True
+        if request_method == "POST":
+            if request.headers.get("hmac") is None or request.headers.get("keyCheck") is None:
+                logger.info("Request submitted with incomplete auth headers")
+                return HTTPBadRequest
+
+        for method, paths in routes_path.items():
+            if method == request_method:
+                if request_path in paths:
+                    return None
+                else:
+                    logger.info(f"{request_method} request recieved for non-existant path {request_path}")
+                    return HTTPNotFound
+        logger.info(f"{request_method} request recieved with no {request_method} route registered in the server")
+        return HTTPMethodNotAllowed(request_method, routes_path.keys())
 
     async def _handle(self, request: Request) -> StreamResponse:
         successful = True
         try:
-            request_well_formed = await self.__filter_request(request)
-            if not request_well_formed:
-                logger.info(f"Malformed request submitted by {request.host} not processed")
-                raise HTTPBadRequest
+            request_error = await self.__filter_request(request)
+            if request_error is not None:
+                logger.info(f"Invalid request submitted by {request.host} not processed")
+                raise request_error
             else:
                 response = await super()._handle(request)
                 successful = True
