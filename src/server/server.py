@@ -14,10 +14,15 @@ import aiohttp.web
 from aiohttp import web
 from aiohttp.web import Request, StreamResponse
 import asyncio
+import logging
+
+from aiohttp.web_exceptions import HTTPBadRequest
 
 from src import __version__
 from ..packages.ircclient import client as botclient
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
+
+logger = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
 
@@ -43,12 +48,26 @@ class HalpyServer(web.Application):
             # TODO: stash call and run later when reconnected
             pass
 
+    async def __filter_request(self, request: Request) -> bool:
+        """A method to filter out spam requests that would otherwise result
+        in a large error message and log them neatly"""
+        if request.method == "POST":
+            if request.headers.get("hmac") is None or request.headers.get("keyCheck") is None:
+                return False
+
+        return True
+
     async def _handle(self, request: Request) -> StreamResponse:
         successful = True
         try:
-            response = await super()._handle(request)
-            successful = True
-            return response
+            request_well_formed = await self.__filter_request(request)
+            if not request_well_formed:
+                logger.info(f"Malformed request submitted by {request.host} not processed")
+                raise HTTPBadRequest
+            else:
+                response = await super()._handle(request)
+                successful = True
+                return response
         except aiohttp.web.HTTPError as ex:
             successful = False
             return ex
