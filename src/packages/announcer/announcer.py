@@ -165,21 +165,32 @@ class Announcement:
         """
         if self._edsm and args["System"]:
             try:
-                landmark, distance, direction = await checklandmarks(args["System"])
+                sys_name = args["System"]
+                sys_regex = re.search(r"^[\w\s]+[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
+                if sys_regex:
+                    # Search EDSM for the regex extracted proc-gen system name, if one was found
+                    # This is an attempt to reduce the EDSM requests if a proc-gen system with body info is submitted by a client
+                    landmark, distance, direction = await checklandmarks(sys_regex.group(0))
+                    exact_sys = sys_regex == sys_name
+                else:
+                    landmark, distance, direction = await checklandmarks(sys_name)
+                    exact_sys = True
                 # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
                 direction = cardinal_flip[direction]
                 if twitter:
                     return f"{distance} LY {direction} of {landmark}"
                 else:
-                    return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+                    if exact_sys:
+                        return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+                    else:
+                        return f"\n{sys_name} could not be found in EDSM. System closest in name found in EDSM was"\
+                               f" {sys_regex.group(0)}\n{sys_regex.group(0)} is {distance} LY {direction} of {landmark}. "
             except NoResultsEDSM as er:
                 if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
                     dssa, distance, direction = await checkdssa(args['System'])
                     return f"\n{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
                            f"{args['System']}."
                 else:
-                    sys_name = args["System"]
-                    sys_regex = re.search(r"^[\w\s]+[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
 
                     # Checks for correct formatting of "unnamed" system
                     if sys_regex:
