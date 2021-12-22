@@ -26,7 +26,6 @@ from ..packages.database import DatabaseConnection, NoDatabaseConnection
 logger = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
-routes_path = {route.method:[r.path for r in routes if r.method == route.method] for route in routes}
 
 class HalpyServer(web.Application):
 
@@ -62,15 +61,20 @@ class HalpyServer(web.Application):
                 logger.info("Request submitted with incomplete auth headers")
                 return HTTPBadRequest
 
-        for method, paths in routes_path.items():
-            if method == request_method:
-                if request_path in paths:
+        no_method = True
+        registered_routes = self.router.routes()
+        for route in registered_routes:
+            if route.method == request_method:
+                no_method = False
+                # The amount of time I spent looking through the documentation for where they keep the list of routes
+                # The route.resource.canonical SHOULD (tm) be the path for the route
+                if route.resource.canonical == request_path:
                     return None
-                else:
-                    logger.info(f"{request_method} request recieved for non-existant path {request_path}")
-                    return HTTPNotFound
-        logger.info(f"{request_method} request recieved with no {request_method} route registered in the server")
-        return HTTPMethodNotAllowed(request_method, routes_path.keys())
+        if no_method:
+            logger.info("API request made for not used method")
+            return HTTPMethodNotAllowed(request_method, list({route.method for route in routes}))
+        logger.info("API request made with unused path")
+        return HTTPNotFound()
 
     async def _handle(self, request: Request) -> StreamResponse:
         successful = True
