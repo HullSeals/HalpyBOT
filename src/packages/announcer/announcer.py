@@ -171,7 +171,7 @@ class Announcement:
                     # Search EDSM for the regex extracted proc-gen system name, if one was found
                     # This is an attempt to reduce the EDSM requests if a proc-gen system with body info is submitted by a client
                     landmark, distance, direction = await checklandmarks(sys_regex.group(0))
-                    exact_sys = sys_regex == sys_name
+                    exact_sys = sys_regex.group(0) == sys_name
                 else:
                     landmark, distance, direction = await checklandmarks(sys_name)
                     exact_sys = True
