@@ -39,7 +39,7 @@ async def tail(request):
                 await HalpyClient.client.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:
-        raise
+        raise web.HTTPServiceUnavailable
 
 
 APIConnector.add_routes(routes)
