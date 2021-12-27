@@ -177,6 +177,14 @@ class Announcement:
 
                 # Is meant to be but isn't procgen
                 if "-" in sys_name and sys_regex is None:
+                    sys_name_list = sys_name.split()
+                    sys_name = ""
+                    for index, block in enumerate(sys_name_list):
+                        sys_name += block+" "
+                        if "-" in block:
+                            sys_name += sys_name_list[index+1]
+                            break
+
                     sys_name = mistaken_char_subs(sys_name)
                     logger.debug(f"System name was char subbed from {args['System']} to {sys_name}")
 
