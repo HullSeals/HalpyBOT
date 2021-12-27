@@ -170,11 +170,9 @@ class Announcement:
                 if sys_regex:
                     # Search EDSM for the regex extracted proc-gen system name, if one was found
                     # This is an attempt to reduce the EDSM requests if a proc-gen system with body info is submitted by a client
-                    landmark, distance, direction = await checklandmarks(sys_regex.group(0))
-                    exact_sys = sys_regex.group(0) == sys_name
-                else:
-                    landmark, distance, direction = await checklandmarks(sys_name)
-                    exact_sys = True
+                    sys_name = sys_regex.group(0)
+                landmark, distance, direction = await checklandmarks(sys_name)
+                exact_sys = sys_name == args["System"]
                 # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
                 direction = cardinal_flip[direction]
                 if twitter:
@@ -183,25 +181,20 @@ class Announcement:
                     if exact_sys:
                         return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
                     else:
-                        return f"\n{sys_name} could not be found in EDSM. System closest in name found in EDSM was"\
-                               f" {sys_regex.group(0)}\n{sys_regex.group(0)} is {distance} LY {direction} of {landmark}. "
+                        return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM was"\
+                               f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
             except NoResultsEDSM as er:
                 if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
                     dssa, distance, direction = await checkdssa(args['System'])
                     return f"\n{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
                            f"{args['System']}."
                 else:
-
-                    # Checks for correct formatting of "unnamed" system
-                    if sys_regex:
-                        found_sys, close_sys = await get_nearby_system(sys_regex.group(0))
-                    else:
-                        found_sys, close_sys = await get_nearby_system(sys_name)
+                    found_sys, close_sys = await get_nearby_system(sys_name)
 
                     if found_sys:
                         try:
                             landmark, distance, direction = await checklandmarks(close_sys)
-                            return f"\n{sys_name} could not be found in EDSM. System closest in name found in EDSM was"\
+                            return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM was"\
                                    f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                         except NoResultsEDSM as er:
                             if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
