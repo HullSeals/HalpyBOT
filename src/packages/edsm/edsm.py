@@ -614,3 +614,30 @@ async def get_nearby_system(SysName: str, CacheOverride: bool = False):
         except requests.exceptions.RequestException as er:
             logger.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
     return False, None
+
+def mistaken_char_subs(sys_name:str):
+    sys_name = sys_name.upper()
+    swaps = {"0":"O", "1":"I", "5":"S", "8":"B"}
+    unswaps = {value:key for key, value in swaps.items()}
+    sys_name_parts = sys_name.split()
+
+    # Final part is either LN or LN-N, so [1:] is N or N-N
+    letter = sys_name_parts[-1][0]
+    tmp = swaps[letter] if letter in swaps else letter
+    for char in sys_name_parts[-1][1:]:
+        if char in unswaps:
+            tmp += unswaps[char]
+        else:
+            tmp += char
+    sys_name_parts[-1] = tmp
+
+    # This part it LL-L
+    tmp = ""
+    for char in sys_name_parts[-2]:
+        if char in swaps:
+            tmp += swaps[char]
+        else:
+            tmp += char
+    sys_name_parts[-2] = tmp
+
+    return " ".join(sys_name_parts)

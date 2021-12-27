@@ -15,10 +15,13 @@ from __future__ import annotations
 import pydle
 import json
 import re
+import logging
 from typing import List, Dict, Optional
 
-from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa
+from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa, mistaken_char_subs
 from .twitter import TwitterCasesAcc, TwitterConnectionError
+
+logger = logging.getLogger(__name__)
 
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
                  "South": "North", "SW": "NE", "West": "East", "NW": "SE"}
@@ -166,13 +169,20 @@ class Announcement:
         if self._edsm and args["System"]:
             try:
                 sys_name = args["System"]
-                sys_regex = re.search(r"^[\w\s]+[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
+                sys_regex = re.search(r"^[\w\s]+\s[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
                 if sys_regex:
                     # Search EDSM for the regex extracted proc-gen system name, if one was found
                     # This is an attempt to reduce the EDSM requests if a proc-gen system with body info is submitted by a client
                     sys_name = sys_regex.group(0)
+
+                # Is meant to be but isn't procgen
+                if "-" in sys_name and sys_regex is None:
+                    sys_name = mistaken_char_subs(sys_name)
+                    logger.debug(f"System name was char subbed from {args['System']} to {sys_name}")
+
                 landmark, distance, direction = await checklandmarks(sys_name)
                 exact_sys = sys_name == args["System"]
+
                 # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
                 direction = cardinal_flip[direction]
                 if twitter:
