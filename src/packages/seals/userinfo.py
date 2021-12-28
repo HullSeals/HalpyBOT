@@ -8,9 +8,6 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
-
-This module is due for a rewrite, and not documented.
-
 """
 
 from ..database import DatabaseConnection, NoDatabaseConnection
@@ -24,6 +21,7 @@ async def whois(subject):
         with DatabaseConnection() as db:
             cursor = db.cursor()
             args = (subject, 0, 0, 0, 0, 0, 0)
+            # Instead of inline code, we call a stored procedure to put some of this work on the database.
             cursor.callproc('spWhoIs', args)
             for res in cursor.stored_results():
                 result = res.fetchall()
