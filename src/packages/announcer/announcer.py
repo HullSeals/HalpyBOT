@@ -171,11 +171,13 @@ class Announcement:
         if self._edsm and args["System"]:
             try:
                 sys_name = args["System"]
-                sys_regex = re.search(r"^[\w\s]+\s[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?", sys_name)
+                sys_regex = re.search(r"^[\w\s]+\s[A-z]{2}-[A-z]\s[A-z]\d+(-\d+)?(\s|$)", sys_name)
                 if sys_regex:
                     # Search EDSM for the regex extracted proc-gen system name, if one was found
                     # This is an attempt to reduce the EDSM requests if a proc-gen system with body info is submitted by a client
                     sys_name = sys_regex.group(0)
+                    if sys_name[-1] == " ":
+                        sys_name = sys_name[:-1]
 
                 # Is meant to be but isn't procgen
                 if "-" in sys_name and sys_regex is None:
