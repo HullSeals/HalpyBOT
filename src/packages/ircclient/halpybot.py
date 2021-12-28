@@ -10,12 +10,15 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from typing import Optional
 import logging
-
+import os
+import signal
 import pydle
-from ._listsupport import ListHandler
 
+from typing import Optional
+from .. import notify
+from ..configmanager import config_write, config
+from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..configmanager import config
 from ..facts import Facts
@@ -44,6 +47,32 @@ class HalpyBOT(pydle.Client, ListHandler):
     def commandhandler(self, handler: CommandGroup):
         self._commandhandler = handler
 
+    # Pydle has a problem where ConnectionResetErrors zombify the bot, and it won't attempt to recover.
+    # If this happens, the bot should promptly text a Cyber and then shutdown. Systemctl will attempt to
+    # restart the bot from the top.
+    # Issue Ref: https://github.com/Shizmob/pydle/issues/155
+    # TODO: For the love of Halpy Pydle please fix this.
+    async def handle_forever(self):
+        try:
+            await super().handle_forever()
+        except ConnectionResetError as CRE:
+            await crash_notif("Connection Reset Error", CRE)
+
+    # Sometimes, the bot will fail in its attempts to reconnect with a CAE
+    async def _disconnect(self, expected):
+        try:
+            await super()._disconnect(False)
+        except ConnectionAbortedError as CAE:
+            await crash_notif("Connection Aborted Error", CAE)
+
+    # Handle the clean disconnect but fail to reconnect of the bot
+    async def on_disconnect(self, expected):
+        await super().on_disconnect(False)
+        if self._reconnect_attempts >= self.RECONNECT_MAX_ATTEMPTS:
+            await crash_notif("exceeding reconnection attempt maximum", "on_disconnect max attempts reached")
+
+    # End Crash Detection
+
     # Join the Server and Channels and OperLine
     async def on_connect(self):
         """Execute login script
@@ -53,6 +82,8 @@ class HalpyBOT(pydle.Client, ListHandler):
         """
         await super().on_connect()
         await self.operserv_login()
+        if config.getboolean('System Monitoring', 'failure_button'):
+            config_write('System Monitoring', 'failure_button', 'False')
         try:
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
         except NoDatabaseConnection:
@@ -164,3 +195,19 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         """
         await handle_notice(self, by, target, message)
+
+
+async def crash_notif(crashtype, condition):
+    if config.getboolean('System Monitoring', 'failure_button'):
+        logging.critical("HalpyBOT has failed, but this incident has already been reported.")
+    else:
+        subject = "HalpyBOT has died!"
+        topic = config['Notify']['cybers']
+        message = f"HalpyBOT has shut down due to {crashtype}. Investigate immediately. Error Text: {condition}"
+        try:
+            await notify.sendNotification(topic, message, subject)
+        except notify.NotificationFailure:
+            logging.critical("Unable to send the notification!")
+        config_write('System Monitoring', 'failure_button', 'True')
+    logging.critical(f"{crashtype} detected. Shutting down for my own protection! {condition}")
+    os.kill(os.getpid(), signal.SIGTERM)
