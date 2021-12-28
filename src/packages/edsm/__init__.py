@@ -1,6 +1,6 @@
 from .edsm import (GalaxySystem, Commander, EDSMLookupError,
                    EDSMConnectionError, checkdistance, checkdssa,
-                   checklandmarks, get_nearby_system, NoResultsEDSM)
+                   checklandmarks, get_nearby_system, NoResultsEDSM, calc_distance, calc_direction)
 
 __all__ = ["GalaxySystem",
            "Commander",
@@ -10,4 +10,6 @@ __all__ = ["GalaxySystem",
            "checkdssa",
            "checkdistance",
            "get_nearby_system",
-           "NoResultsEDSM"]
+           "NoResultsEDSM",
+           "calc_distance",
+           "calc_direction"]
