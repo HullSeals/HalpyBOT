@@ -90,6 +90,7 @@ class GalaxySystem:
                 by default.
 
         """
+        name = ' '.join(name.split())
         # Check if cached
         if name.strip().upper() in cls._lookupCache.keys() and CacheOverride is False:
             # If less than five minutes ago return stored object

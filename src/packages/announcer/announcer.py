@@ -139,6 +139,8 @@ class Announcement:
             IndexError: an invalid number of parameters was provided
 
         """
+        if args["System"]:
+            args["System"] = " ".join(args["System"].split())
         # Come on pylint
         try:
             announcement = self._content.format(**args)
