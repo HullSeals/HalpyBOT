@@ -14,7 +14,7 @@ from typing import List
 
 from ..packages.edsm import (GalaxySystem, Commander, EDSMLookupError,
                              EDSMConnectionError, checkdistance, checklandmarks,
-                             checkdssa)
+                             checkdssa, sys_cleaner)
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 
@@ -35,13 +35,15 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
         CacheOverride = True
         del args[0]
 
+    # For whoever find's this note, you're not crazy. arg[0:] == arg. You get a gold star
+    # Gitblame means no gold star for Rik
     system = ' '.join(args[0:]).strip()
 
     try:
         if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
-            return await ctx.reply(f"System {system} exists in EDSM")
+            return await ctx.reply(f"System {await sys_cleaner(system)} exists in EDSM")
         else:
-            return await ctx.reply(f"System {system} not found in EDSM")
+            return await ctx.reply(f"System {await sys_cleaner(system)} not found in EDSM")
 
     except EDSMLookupError as er:
         return await ctx.reply(str(er))  # Return error if one is raised down the call stack.
@@ -63,6 +65,7 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
         CacheOverride = True
         del args[0]
 
+    # No. Only 1 gold star per stupid thing
     cmdr = ' '.join(args[0:]).strip()
 
     try:
