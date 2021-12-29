@@ -618,6 +618,7 @@ async def get_nearby_system(sys_name: str, CacheOverride: bool = False):
     return False, None
 
 async def sys_cleaner(sys_name:str):
+    orig_sys = sys_name
     sys_name = " ".join(sys_name.split())
     sys_name = sys_name.upper()
 
@@ -657,7 +658,7 @@ async def sys_cleaner(sys_name:str):
             sys_name = " ".join(sys_name_parts)
     except IndexError:
         logger.info(f"System cleaner thought {sys_name} was proc-gen and could not correct formatting")
-        return sys_name
+        return sys_name.strip()
 
-    logger.debug(f"System cleaner produced {sys_name}")
-    return sys_name
+    logger.debug(f"System cleaner produced {sys_name} from {orig_sys}")
+    return sys_name.strip()

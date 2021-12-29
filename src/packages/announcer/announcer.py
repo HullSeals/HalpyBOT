@@ -139,7 +139,7 @@ class Announcement:
 
         """
         if args["System"]:
-            args["System"] = " ".join(args["System"].split())
+            args["System"] = await sys_cleaner(args["System"])
         # Come on pylint
         try:
             announcement = self._content.format(**args)
@@ -170,7 +170,6 @@ class Announcement:
         if self._edsm and args["System"]:
             try:
                 sys_name = args["System"]
-                sys_name = await sys_cleaner(sys_name)
 
                 exact_sys = sys_name == args["System"]
 
