@@ -4,30 +4,34 @@ Before contributing to the project, please read the general Cyberseals code of c
 
 ## Helping with the project
 
-1. Contact Rixxan or Rik079 on HSBC
+1. Contact Rixxan or Rik079 on [The Hull Seals IRC network](https://client.hullseals.space:8443/)
 2. Fork the project
 3. Create a new branch from `develop`
 4. Write code!
 5. Make sure your feature branch is up to date with the upstream master branch
-6. Submit pull request
+6. Ensure you have run the unit tests for the whole project.
+7. If needed, write new unit tests for your module.
+8. Submit pull request
 
 ## Merge requests
 
 - ALL merge requests MUST be peer reviewed by at least 1 Cyberseal team member
 - Requests can only be submitted if the branch is in a FULLY working state
 
-Make sure that the branch you're working on is up to date with master.
+Make sure that the branch you're working on is up to date with develop.
 
 In the requests description, please mention the issue as `resolves #issueID` to automatically link the MR and the issue.
 
 ## Naming standards
 
 ### Commit messages
-Prefix all commit messages with the issue number if applicable. If addressing multiple tickets, create a commit for each change and do not combine them. 
+All commit messages must be descriptive and complete of the changes and code within.
+If addressing multiple tickets, create a commit for each change and do not combine them.
 
+It is recommended, but not absolutely required, to prefix all commit messages with the issue number if applicable.
 `[HALPY-7] Create awesome function`
 
-If the commit isn't directly linkes to a ticket, please use the following tags:
+For commits directly to 'develop' without an associated issue, please use the following tags:
 
 `[Minor] For a really minor addition`
 `[Fix] For a minor bugfix`
@@ -36,7 +40,7 @@ If the commit isn't directly linkes to a ticket, please use the following tags:
 `[Typo] Fix typos that don't affect functioning of the bot`
 
 ### Branches
-Make a feature branch off of master using git checkout -b feature/IssueID. For other types of pull requests please use one of the following:
+Make a feature branch off of develop using git checkout -b feature/halpy-IssueID. For other types of pull requests please use one of the following:
 
 - doc - Documentation, or Documentation Update
 - feature - New Features/Functionality
@@ -45,7 +49,7 @@ Make a feature branch off of master using git checkout -b feature/IssueID. For o
 
 An example of a correctly branch names is `feature/halpy-6`
 
-Implementations of minor functions _may_ be included in the branch of a more major function, if creating a seperate branch for it would be too cumbersome. Keep the guidelines for commit messages in mind.
+Implementations of minor functions _may_ be included in the branch of a more major function, if creating a separate branch would be exceptionally cumbersome. Keep the guidelines for commit messages in mind.
 
 ### Merge requests names
 
@@ -99,4 +103,4 @@ See license.md
 ```
 
 if the file makes use of licensed material, you must comply with all copyright
-and license notice requirements listed in the license of said material. 
+and license notice requirements listed in the license of said material.
