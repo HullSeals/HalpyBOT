@@ -15,7 +15,7 @@ import pytest
 from src.packages.delayedboard import *
 from src.packages.configmanager import config
 
-devIP = "18.221.145.196"
+devIP = ""
 configIP = config['Database']['Host']
 goodIP = False
 testID = ""
