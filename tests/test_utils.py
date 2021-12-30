@@ -14,6 +14,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 import pytest
 import os.path
 from src.packages.utils import *
+from src.packages.command import get_help_text
 
 
 # Test Time
@@ -27,8 +28,7 @@ async def test_seconds():
 # 1: If the file exists, we will assume it is correct.
 @pytest.mark.asyncio
 def test_lang():
-    langs = os.path.exists("data/languages/iso639-1.json")
-    assert langs is True
+    assert os.path.exists("data/languages/iso639-1.json") is True
 
 
 # 2: Check if the file returns a dict
@@ -51,3 +51,46 @@ def test_strip():
 def test_non_strip():
     string = strip_non_ascii("This has Non-Ascii to Strip")
     assert string == ("This has Non-Ascii to Strip", False)
+
+
+# Test Help Commands
+# 1: If the file exists, we will assume it is correct.
+@pytest.mark.asyncio
+async def test_commands():
+    assert os.path.exists("data/help/commands.json") is True
+
+
+# 2: Check a help command response. If it returns a not none value, we will assume it is true.
+@pytest.mark.asyncio
+async def test_commands_content():
+    assert get_help_text("ping") is not None
+
+
+# Test backup_facts Commands
+# If the file exists, we will assume it is correct.
+@pytest.mark.asyncio
+async def test_backup_facts_file():
+    assert os.path.exists("data/facts/backup_facts.json") is True
+
+
+# TODO: Test Backup Fact with Fact test module
+
+
+# Test EDSM files
+# 1: If the file exists, we will assume it is correct.
+@pytest.mark.asyncio
+async def test_dssa_file():
+    assert os.path.exists("data/edsm/dssa.json") is True
+
+
+# 1: If the file exists, we will assume it is correct.
+@pytest.mark.asyncio
+async def test_landmark_file():
+    assert os.path.exists("data/edsm/landmarks.json") is True
+
+
+# Test announcer file
+# 1: If the file exists, we will assume it is correct.
+@pytest.mark.asyncio
+async def test_announcer_file():
+    assert os.path.exists("data/announcer/announcer.json") is True
