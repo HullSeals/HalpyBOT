@@ -53,3 +53,9 @@ async def test_permission_level():
 async def test_permission_level_rix():
     vhost = User.process_vhost("rixxan.admin.hullseals.space")
     assert vhost == "rixxan.admin.hullseals.space"
+
+
+@pytest.mark.asyncio
+async def test_permission_level_comparisons():
+    assert Pup.level < Drilled.level < Moderator.level < Admin.level < Cyberseal.level < Cybermgr.level < Owner.level
+
