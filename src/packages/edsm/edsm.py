@@ -90,13 +90,14 @@ class GalaxySystem:
                 by default.
 
         """
+        name = await sys_cleaner(name)
         # Check if cached
-        if name.strip().upper() in cls._lookupCache.keys() and CacheOverride is False:
+        if name in cls._lookupCache.keys() and CacheOverride is False:
             # If less than five minutes ago return stored object
-            lookuptime = cls._lookupCache[name.strip().upper()].time
+            lookuptime = cls._lookupCache[name].time
             cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
             if time() < lookuptime + cachetime:
-                return cls._lookupCache[name.strip().upper()].object
+                return cls._lookupCache[name].object
 
         # Else, get the system from EDSM
         try:
@@ -117,7 +118,7 @@ class GalaxySystem:
             sysobj = cls(**responses)
 
         # Store in cache and return
-        cls._lookupCache[name.strip().upper()] = EDSMQuery(sysobj, time())
+        cls._lookupCache[name] = EDSMQuery(sysobj, time())
         return sysobj
 
     @classmethod
@@ -373,11 +374,12 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
         direction = await calc_direction(coordsB['x'], coordsA['x'], coordsB['z'], coordsA['z'])
         return distance, direction
 
+    # Actually ok that we might be giving cmdr names to sys_cleaner. It won't do anything to names without - in
     if not coordsA:
-        raise NoResultsEDSM(f"No system and/or commander named '{sysa}' was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysa)}' was found in the EDSM database.")
 
     if not coordsB:
-        raise NoResultsEDSM(f"No system and/or commander named '{sysb}' was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysb)}' was found in the EDSM database.")
 
 
 async def checklandmarks(SysName, CacheOverride: bool = False):
@@ -451,10 +453,10 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
             direction = await calc_direction(Coords['x'], currLandmarkx, Coords['z'], currLandmarkz)
             return currclosest, f'{maxdist:,}', direction
         else:
-            raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {SysName}.")
+            raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {system.name}.")
 
     if not Coords:
-        raise NoResultsEDSM(f"No system and/or commander named {SysName} was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(SysName)} was found in the EDSM database.")
 
 
 async def checkdssa(SysName, CacheOverride: bool = False):
@@ -525,7 +527,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             raise NoResultsEDSM(f"No DSSA Carriers Found.")
 
     if not Coords:
-        raise NoResultsEDSM(f"No system and/or commander named {SysName} was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(SysName)} was found in the EDSM database.")
 
 
 async def calc_distance(x1, x2, y1, y2, z1, z2):
@@ -595,8 +597,8 @@ async def calc_direction(x1, x2, y1, y2):
     return result
 
 
-async def get_nearby_system(SysName: str, CacheOverride: bool = False):
-    nameToCheck = SysName
+async def get_nearby_system(sys_name: str, CacheOverride: bool = False):
+    nameToCheck = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
             responce = requests.get("https://www.edsm.net/api-v1/systems",
@@ -614,3 +616,49 @@ async def get_nearby_system(SysName: str, CacheOverride: bool = False):
         except requests.exceptions.RequestException as er:
             logger.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
     return False, None
+
+async def sys_cleaner(sys_name:str):
+    orig_sys = sys_name
+    sys_name = " ".join(sys_name.split())
+    sys_name = sys_name.upper()
+
+    try:
+        if "-" in sys_name:
+            sys_name_list = sys_name.split()
+            sys_name = ""
+            for index, block in enumerate(sys_name_list):
+                sys_name += block+" "
+                if "-" in block:
+                    sys_name += sys_name_list[index+1]
+                    break
+
+            swaps = {"0":"O", "1":"I", "5":"S", "8":"B"}
+            unswaps = {value:key for key, value in swaps.items()}
+            sys_name_parts = sys_name.split()
+
+            # Final part is either LN or LN-N, so [1:] is N or N-N
+            letter = sys_name_parts[-1][0]
+            tmp = swaps[letter] if letter in swaps else letter
+            for char in sys_name_parts[-1][1:]:
+                if char in unswaps:
+                    tmp += unswaps[char]
+                else:
+                    tmp += char
+            sys_name_parts[-1] = tmp
+
+            # This part it LL-L
+            tmp = ""
+            for char in sys_name_parts[-2]:
+                if char in swaps:
+                    tmp += swaps[char]
+                else:
+                    tmp += char
+            sys_name_parts[-2] = tmp
+
+            sys_name = " ".join(sys_name_parts)
+    except IndexError:
+        logger.info(f"System cleaner thought {sys_name} was proc-gen and could not correct formatting")
+        return sys_name.strip()
+
+    logger.debug(f"System cleaner produced {sys_name} from {orig_sys}")
+    return sys_name.strip()
