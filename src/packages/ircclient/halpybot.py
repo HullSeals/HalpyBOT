@@ -20,7 +20,6 @@ from .. import notify
 from ..configmanager import config_write, config
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
-from ..configmanager import config
 from ..facts import Facts
 from ..database import NoDatabaseConnection
 from ..notice import on_notice as handle_notice
