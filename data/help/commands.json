@@ -141,5 +141,22 @@
             "arguments":"[case ID] [case status]",
             "use":"Reopens a previously-closed case, if a case is improperly closed. Moderator only"
         }
+    },
+    "Drill":{
+        "drillcase":{
+            "aliases":[],
+            "arguments":"[cmdr], [platform], [system], [hull]",
+            "use":"Starts a new Drill Case, separated by Commas"
+		},
+        "drillkfcase":{
+            "aliases":[],
+            "arguments":"[cmdr], [platform], [system], [planet], [coords], [type]",
+            "use":"Starts a new Drill Kingfisher Case, separated by Commas"
+		},
+        "drillcbcase":{
+            "aliases":[],
+            "arguments":"[cmdr], [platform], [system], [hull], [cansynth], [o2]",
+            "use":"Starts a new Drill CB Case, separated by Commas"
+		}
     }
 }
