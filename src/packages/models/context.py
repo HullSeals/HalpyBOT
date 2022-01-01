@@ -47,8 +47,6 @@ class Context:
     async def redirect(self, message: str):
         """Send a message to the person a DM-only command was run by
 
-        Oh my Limpets this is stupid.
-
         Args:
             message (str): The message to be sent
 

@@ -125,6 +125,7 @@ class CommandGroup:
             parts = message[1:].split(" ")
             command = parts[0].lower()
             args = parts[1:]
+            args = [x for x in args if x]
             in_channel = bot.is_channel(channel)
             ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]))
             # Determines the language of an eventual fact
