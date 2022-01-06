@@ -206,8 +206,9 @@ async def crash_notif(crashtype, condition):
         message = f"HalpyBOT has shut down due to {crashtype}. Investigate immediately. Error Text: {condition}"
         try:
             await notify.sendNotification(topic, message, subject)
+            # Only trip the fuse if a notification is passed
+            config_write('System Monitoring', 'failure_button', 'True')
         except notify.NotificationFailure:
             logging.critical("Unable to send the notification!")
-        config_write('System Monitoring', 'failure_button', 'True')
     logging.critical(f"{crashtype} detected. Shutting down for my own protection! {condition}")
     os.kill(os.getpid(), signal.SIGTERM)
