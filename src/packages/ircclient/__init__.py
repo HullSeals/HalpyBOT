@@ -1,4 +1,5 @@
-from .halpybot import HalpyBOT, pool
+from .halpybot import HalpyBOT, pool, client
 
 __all__ = ["HalpyBOT",
-           "pool"]
+           "pool",
+           "client"]

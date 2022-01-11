@@ -20,9 +20,9 @@ import datetime
 from os import path, mkdir
 from aiohttp import web
 
-from src.server import APIConnector, MainAnnouncer, HalpyClient
+from src.server import APIConnector
 
-from src.packages.ircclient import HalpyBOT, pool
+from src.packages.ircclient import pool, client
 from src.packages.configmanager import config
 
 logFile: str = config['Logging']['log_file']
@@ -65,18 +65,6 @@ def _start_bot():
 
     bot_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(bot_loop)
-    loop = asyncio.get_event_loop()
-
-    client = HalpyBOT(
-        nickname=config['IRC']['nickname'],
-        sasl_identity=config['SASL']['identity'],
-        sasl_password=config['SASL']['password'],
-        sasl_username=config['SASL']['username'],
-        eventloop=loop
-    )
-
-    MainAnnouncer.client = client
-    HalpyClient.client = client
 
     pool.connect(client, config['IRC']['server'], config['IRC']['port'],
                  tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)

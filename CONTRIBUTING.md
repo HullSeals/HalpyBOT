@@ -8,7 +8,7 @@ Before contributing to the project, please read the general Cyberseals code of c
 2. Fork the project
 3. Create a new branch from `develop`
 4. Write code!
-5. Make sure your feature branch is up to date with the upstream master branch
+5. Make sure your feature branch is up-to-date with the upstream master branch
 6. Ensure you have run the unit tests for the whole project.
 7. If needed, write new unit tests for your module.
 8. Submit pull request
@@ -18,7 +18,7 @@ Before contributing to the project, please read the general Cyberseals code of c
 - ALL merge requests MUST be peer reviewed by at least 1 Cyberseal team member
 - Requests can only be submitted if the branch is in a FULLY working state
 
-Make sure that the branch you're working on is up to date with develop.
+Make sure that the branch you're working on is up-to-date with develop.
 
 In the requests description, please mention the issue as `resolves #issueID` to automatically link the MR and the issue.
 
@@ -34,9 +34,13 @@ It is recommended, but not absolutely required, to prefix all commit messages wi
 For commits directly to 'develop' without an associated issue, please use the following tags:
 
 `[Minor] For a really minor addition`
+
 `[Fix] For a minor bugfix`
+
 `[Cleanup] after you've used the code-broom`
+
 `[Doc] for a minor documentation change`
+
 `[Typo] Fix typos that don't affect functioning of the bot`
 
 ### Branches

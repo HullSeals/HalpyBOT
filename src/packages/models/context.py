@@ -16,7 +16,8 @@ import pydle
 class Context:
     """Message context object"""
 
-    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str):
+    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str,
+                 command: str):
         """Create message context object
 
         Args:
@@ -32,6 +33,7 @@ class Context:
         self.sender = sender
         self.in_channel = in_channel
         self.message = message
+        self.command = command
 
     async def reply(self, message: str):
         """Send a message to the channel a message was sent in
@@ -46,8 +48,6 @@ class Context:
 
     async def redirect(self, message: str):
         """Send a message to the person a DM-only command was run by
-
-        Oh my Limpets this is stupid.
 
         Args:
             message (str): The message to be sent

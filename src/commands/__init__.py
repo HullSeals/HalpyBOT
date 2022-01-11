@@ -12,6 +12,7 @@ from . import time
 from . import userinfo
 from . import help
 from . import caseutils
+from . import drill
 
 __all__ = ["delayedboard",
            "edsm",
@@ -26,4 +27,5 @@ __all__ = ["delayedboard",
            "time",
            "userinfo",
            "help",
-           "caseutils"]
+           "caseutils",
+           "drill"]
