@@ -131,7 +131,7 @@ class Announcement:
             IndexError: an invalid number of parameters was provided
 
         """
-        if args["System"]:
+        if "System" in args.keys():
             args["System"] = await sys_cleaner(args["System"])
         # Come on pylint
         try:
