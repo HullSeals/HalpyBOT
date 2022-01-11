@@ -18,6 +18,8 @@ import logging
 from typing import List, Dict, Optional
 
 from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa, sys_cleaner
+from ..ircclient import client
+
 from .twitter import TwitterCasesAcc, TwitterConnectionError
 
 logger = logging.getLogger(__name__)
@@ -45,7 +47,6 @@ class Announcer:
             bot (pydle.Client): Bot client we make announcements with
 
         """
-        self._client = bot
         self._announcements = {}
         # Load data
         with open('data/announcer/announcer.json', 'r') as cf:
@@ -60,14 +61,6 @@ class Announcer:
                 edsm=anntype['EDSM'],
                 content=anntype['Content']
             )
-
-    @property
-    def client(self):
-        return self._client
-
-    @client.setter
-    def client(self, client: Optional[pydle.Client]):
-        self._client = client
 
     def rehash(self):
         pass
@@ -91,7 +84,7 @@ class Announcer:
         # We want to catch everything
         try:
             for ch in ann.channels:
-                await self._client.message(ch, await ann.format(args))
+                await client.message(ch, await ann.format(args))
             if "Platform" in args.keys():
                 try:
                     await TwitterCasesAcc.tweet_case(announcement, args)
