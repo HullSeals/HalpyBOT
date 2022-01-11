@@ -16,6 +16,8 @@ from aiohttp import web
 from aiohttp.web import Request, StreamResponse
 import asyncio
 import logging
+from datetime import datetime
+from ..packages.configmanager import config
 
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNotAllowed, HTTPNotFound
 
@@ -26,6 +28,7 @@ from ..packages.database import DatabaseConnection, NoDatabaseConnection
 logger = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
+
 
 class HalpyServer(web.Application):
 
@@ -99,8 +102,12 @@ async def server_root(request):
     response = {"app": "Hull Seals HalpyBOT",
                 "version": __version__,
                 "bot_nick": botclient.nickname,
-                "irc_connected": "True" if botclient.connected else "False"}
+                "irc_connected": "True" if botclient.connected else "False",
+                "offline_mode": config['Offline Mode']['enabled'],
+                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat()
+                }
     return web.json_response(response)
+
 
 APIConnector = HalpyServer()
 APIConnector.add_routes(routes)
