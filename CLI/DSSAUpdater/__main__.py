@@ -30,6 +30,8 @@ link = "https://docs.google.com/spreadsheets/d/e/2PACX-" \
 timestamp = datetime.now().strftime('%m%d%Y-%H%M%S')
 
 # noinspection PyBroadException
+
+
 def run():
 
     print("="*20+'\nCopyright (c) 2021 The Hull Seals\nDSSA file updater for HalpyBOT\n'+"="*20+'\n')
@@ -97,7 +99,7 @@ def run():
 
 
 if __name__ == '__main__':
-    # Tool may not be ran from any other folder than CLI/ see CLI/BackupFactUpdater/__main__.py
+    # Tool may not be run from any other folder than CLI/ see CLI/BackupFactUpdater/__main__.py
     if not os.getcwd().endswith("CLI"):
         print("Please run this tool from the /CLI folder, with `python3 DSSAUpdater`")
         exit()

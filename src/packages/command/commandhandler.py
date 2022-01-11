@@ -13,10 +13,13 @@ See license.md
 from __future__ import annotations
 from typing import List
 import pydle
+import json
 
-from src import __version__
 from ..configmanager import config
 from ..models import Context
+
+with open("data/help/commands.json", "r") as jsonfile:
+    json_dict = json.load(jsonfile)
 
 
 class CommandException(Exception):
@@ -24,10 +27,12 @@ class CommandException(Exception):
     Base exception for all commands
     """
 
+
 class CommandHandlerError(CommandException):
     """
     Base exception for command errors
     """
+
 
 class CommandAlreadyExists(CommandHandlerError):
     """
@@ -120,6 +125,7 @@ class CommandGroup:
             parts = message[1:].split(" ")
             command = parts[0].lower()
             args = parts[1:]
+            args = [x for x in args if x]
             in_channel = bot.is_channel(channel)
             ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]), command)
             # Determines the language of an eventual fact
@@ -175,7 +181,7 @@ class CommandGroup:
         """An IRC command
 
         Can be invoked from IRC by using the command prefix and command name.
-        Make sure to import any file this is used in so it gets registered properly
+        Make sure to import any file this is used in, so it gets registered properly
 
         Args:
             *names: Command names
@@ -187,13 +193,15 @@ class CommandGroup:
             being chased by Rik with a cleaver
 
         """
+
         def decorator(function):
             # Register every provided name
             for name in names:
                 self._register(name, function, True if name == names[0] else False)
-            # Set command attribute so we can check if a function is an IRC-facing command or not
+            # Set command attribute, so we can check if a function is an IRC-facing command or not
             setattr(function, "is_command", True)
             return function
+
         return decorator
 
     def _register(self, name, function, main: bool):
@@ -272,14 +280,17 @@ class CommandGroup:
             return [str(cmd) for cmd in self._commandList if self._commandList[cmd][1] is True]
 
 
-Commands = CommandGroup(is_root=True)
+def get_help_text(search_command: str):
+    search_command = search_command.lower()
+    for command_dict in json_dict.values():
+        for command, details in command_dict.items():
+            command = command.lower()
+            if command == search_command or search_command in details["aliases"]:
+                arguments = details["arguments"]
+                aliases = details["aliases"]
+                usage = details["use"]
+                return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
+    return None
 
-@Commands.command("about")
-async def cmd_about(ctx: Context, args: List[str]):
-    return await ctx.reply(f"HalpyBOT v{str(__version__)}\n"
-                           f"Developed by the Hull Seals, using Pydle\n"
-                           f"HalpyBOT repository: https://gitlab.com/hull-seals/code/irc/halpybot\n"
-                           f"Developed by: Rik079, Rixxan, Feliksas\n"
-                           f"Pydle: https://github.com/Shizmob/pydle/\n"
-                           f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
-                           f"in the development of HalpyBOT.")
+
+Commands = CommandGroup(is_root=True)

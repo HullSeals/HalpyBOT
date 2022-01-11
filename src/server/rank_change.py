@@ -11,7 +11,6 @@ See license.md
 
 """
 
-from typing import Dict
 from aiohttp import web
 
 from .server import APIConnector
@@ -21,6 +20,7 @@ from ..packages.database import DatabaseConnection, NoDatabaseConnection
 from ..packages.ircclient import client as botclient
 
 routes = web.RouteTableDef()
+
 
 @routes.post('/tail')
 @Authenticate()
@@ -41,6 +41,7 @@ async def tail(request):
                 await botclient.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:
-        raise
+        raise web.HTTPServiceUnavailable
+
 
 APIConnector.add_routes(routes)

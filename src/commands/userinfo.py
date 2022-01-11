@@ -12,6 +12,8 @@ See license.md
 
 from typing import List
 
+from src.packages.command.commandhandler import get_help_text
+
 from ..packages.seals import whois
 from ..packages.command import Commands
 from ..packages.checks import Require, Pup
@@ -19,7 +21,6 @@ from ..packages.models import Context
 
 
 @Commands.command("whois")
-@Require.DM()
 @Require.permission(Pup)
 async def cmd_whois(ctx: Context, args: List[str]):
     """
@@ -28,20 +29,18 @@ async def cmd_whois(ctx: Context, args: List[str]):
     Usage: !whois [user]
     Aliases: n/a
     """
-    cmdr = ' '.join(args[0:])  # TODO replace by ctx method
-    # Input validation
-    if not cmdr:
-        return await ctx.reply("No arguments given! Please provide a CMDR name.")
-    if cmdr.lower() in ("halpybot", "halpy"):
-        return await ctx.reply("That's me! CMDR HalpyBOT has a Seal ID of 0, "
-                               "registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal "
-                               "with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.")
-
-    return await ctx.reply(await whois(cmdr))
+    if len(args) == 0:
+        return await ctx.redirect(get_help_text("whois"))
+    cmdr = args[0]
+    if cmdr.lower() == "halpybot":
+        return await ctx.redirect("That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, "
+                                  "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
+                                  "and has been involved with countless rescues.")
+    else:
+        return await ctx.redirect(await whois(cmdr))
 
 
 @Commands.command("whoami")
-@Require.DM()
 @Require.permission(Pup)
 async def cmd_whoami(ctx: Context, args: List[str]):
     """
@@ -51,4 +50,4 @@ async def cmd_whoami(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     cmdr = ctx.sender
-    return await ctx.reply(await whois(cmdr))
+    return await ctx.redirect(await whois(cmdr))

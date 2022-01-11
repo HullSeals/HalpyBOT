@@ -146,11 +146,13 @@ class Require:
                     return await function(ctx, args)
 
             return guarded
+
         return decorator
 
     @staticmethod
     def DM():
         """Require command to be executed in a Direct Message with the bot"""
+
         def decorator(function):
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):

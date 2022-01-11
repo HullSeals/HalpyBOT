@@ -1,5 +1,5 @@
 {
-    "edsm":{
+    "EDSM":{
         "lookup":{
             "aliases":["syslookup"],
             "arguments":"[System Name]",
@@ -24,9 +24,14 @@
             "aliases":[],
             "arguments":"[EDSM Valid Location]",
             "use":"Check for the closest DSSA carrier to a given location."
-		}
+		},
+        "coords":{
+            "aliases":["coordcheck"],
+            "arguments":"[x] [y] [z]",
+            "use":"Check EDSM for a nearby system to a set of coordinates"
+        }
     },
-    "dispatch":{
+    "Dispatch":{
         "mancase":{
             "aliases":["manualcase"],
             "arguments":"",
@@ -38,17 +43,22 @@
             "use":"Used to start a new Manual Kingfisher Case by Dispatchers. Drillled Seals Only, and run in a channel."
 		},
         "tsping":{
-            "aliases":[],
+            "aliases":["wssping"],
             "arguments":"",
             "use":"Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
 		}
     },
-    "utility":{
+    "Utility":{
         "ping":{
             "aliases":[],
             "arguments":"",
             "use":"Check to see if the bot is responding to commands."
 		},
+        "serverstatus":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Reply with the current Elite server status according to EDSM."
+        },
         "utc":{
             "aliases":[],
             "arguments":"",
@@ -73,9 +83,29 @@
             "aliases":[],
             "arguments":"[user] [channel name]",
             "use":"Force a user to join an allowed channel in IRC. Drilled Seals Only, must be run in a channel."
-		}
+		},
+        "rrjoin":{
+            "aliases":[],
+            "arguments":"[user]",
+            "usage":"Force a user to join #Repair-Requests channel in IRC. Drilled Seals Only, must be run in a channel."
+        },
+        "opsignal":{
+            "aliases":["summonstaff", "callstaff", "opsig"],
+            "arguments":"[info]",
+            "use":"Sends a notification to the Admins and Mods with a given message."
+        },
+        "cybersignal":{
+            "aliases":["summontech", "calltech", "cybersig"],
+            "arguments":"[info]",
+            "use":"Sends a notification to the Cyberseals with a given message."
+        },
+        "about":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Reply with information about HalpyBOT"
+        }
     },
-    "delay":{
+    "Delay":{
         "delaystatus":{
             "aliases":["checkstatus"],
             "arguments":"",
@@ -111,5 +141,22 @@
             "arguments":"[case ID] [case status]",
             "use":"Reopens a previously-closed case, if a case is improperly closed. Moderator only"
         }
+    },
+    "Drill":{
+        "drillcase":{
+            "aliases":[],
+            "arguments":"[cmdr], [platform], [system], [hull]",
+            "use":"Starts a new Drill Case, separated by Commas"
+		},
+        "drillkfcase":{
+            "aliases":[],
+            "arguments":"[cmdr], [platform], [system], [planet], [coords], [type]",
+            "use":"Starts a new Drill Kingfisher Case, separated by Commas"
+		},
+        "drillcbcase":{
+            "aliases":[],
+            "arguments":"[cmdr], [platform], [system], [hull], [cansynth], [o2]",
+            "use":"Starts a new Drill CB Case, separated by Commas"
+		}
     }
 }

@@ -19,10 +19,11 @@ import logging
 
 from ..packages.configmanager import config
 
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 client_secret = config['API Connector']['key']
 checkConstant = config['API Connector']['key_check_constant']
+
 
 def Authenticate():
     def decorator(function):
@@ -48,5 +49,7 @@ def Authenticate():
             else:
                 logger.info("Successfully authenticated API request")
                 return await function(request)
+
         return guarded
+
     return decorator

@@ -13,11 +13,13 @@ See license.md
 from typing import List
 import json
 
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
+from src import __version__
 
 with open("data/help/commands.json", "r") as jsonfile:
     json_dict = json.load(jsonfile)
+
 
 @Commands.command("help")
 async def help(ctx: Context, args: List[str]):
@@ -32,22 +34,29 @@ async def help(ctx: Context, args: List[str]):
         # Return low detail list of commands
         help_string = ""
         for catagory, command_dict in json_dict.items():
-            help_string += catagory.upper()+"\n"
-            help_string += ", ".join(command_dict) + "\n"
+            help_string += catagory + "\n"
+            help_string += "        " + ", ".join(command_dict) + "\n"
         # Remove final line break
         help_string = help_string[:-1]
-        await ctx.reply(help_string)
+        await ctx.redirect(help_string)
     else:
         # A specific command has been queried
-        command_found = False
-        for command_dict in json_dict.values():
-            for command, details in command_dict.items():
-                if command.lower() == args[0].lower():
-                    arguments = details["arguments"]
-                    aliases = details["aliases"]
-                    usage = details["use"]
-                    command_help = f"Use: {command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
-                    await ctx.reply(command_help)
-                    command_found = True
-        if not command_found:
-            await ctx.reply(f"The command {args[0]} could not be found in the list. Try running help without an argument to get the list of commands")
+        help_text = get_help_text(args[0])
+
+        if help_text == None:
+            await ctx.redirect(
+                f"The command {args[0]} could not be found in the list. Try running help without an argument to get "
+                f"the list of commands")
+        else:
+            await ctx.reply(help_text)
+
+
+@Commands.command("about")
+async def cmd_about(ctx: Context, args: List[str]):
+    return await ctx.redirect(f"HalpyBOT v{str(__version__)}\n"
+                              f"Developed by the Hull Seals, using Pydle\n"
+                              f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
+                              f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"
+                              f"Pydle: https://github.com/Shizmob/pydle/\n"
+                              f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
+                              f"in the development of HalpyBOT.")

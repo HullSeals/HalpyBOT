@@ -13,8 +13,10 @@ See license.md
 from typing import Optional, Dict
 import requests
 
+
 class EDSMLookupError(Exception):
     pass
+
 
 class DSSACarrier:
     """

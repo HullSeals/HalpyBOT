@@ -97,6 +97,7 @@ class HalpyServer(web.Application):
             asyncio.ensure_future(self._log_request(request, successful))
 
 
+
 @routes.get('/')
 async def server_root(request):
     response = {"app": "Hull Seals HalpyBOT",

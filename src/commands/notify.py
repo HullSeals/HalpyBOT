@@ -15,7 +15,7 @@ from typing import List
 
 from ..packages import notify
 from ..packages.checks import Require, Moderator, Admin, Owner, Pup
-from ..packages.command import CommandGroup, Commands
+from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.configmanager import config
 from ..packages.utils import get_time_seconds
 from ..packages.models import Context
@@ -62,8 +62,8 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
     Usage: !notifyinfo details [group]
     Aliases: notifyinfo endpoints
     """
-    if not args:
-        return await ctx.reply("No Group Given!")
+    if len(args) == 0:
+        return await ctx.reply("!notifyinfo details [group]: List contact details of particular groups.")
 
     group = args[0].lower().strip()
 
@@ -97,8 +97,9 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
     Usage: !subscribenotify [group] [info]
     Aliases: !alertme, !addsub
     """
-    if not args:
-        return await ctx.reply("No Group Given!")
+
+    if len(args) == 0 or len(args) == 1:
+        return await ctx.reply("!addsub [group] [info]: Sends a notification to the Cyberseals with a given message.")
 
     group = args[0].lower().strip()
 
@@ -120,7 +121,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
         return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
 
-@Commands.command("summonstaff", "callstaff", "opsignal")
+@Commands.command("summonstaff", "callstaff", "opsignal", "opsig")
 @Require.permission(Pup)
 @Require.channel()
 @Require.AWS()
@@ -131,6 +132,9 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     Usage: !summonstaff [info]
     Aliases: !callstaff, !opsig
     """
+
+    if len(args) == 0:
+        return await ctx.reply(get_help_text("opsignal"))
     global timer
     # Check if last staff call was < 5 min ago
     if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
@@ -148,7 +152,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     return await ctx.reply(f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!")
 
 
-@Commands.command("summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal")
+@Commands.command("summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig")
 @Require.permission(Pup)
 @Require.channel()
 @Require.AWS()
@@ -159,6 +163,9 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     Usage: !summontech [info]
     Aliases:!calltech, !cybersig
     """
+
+    if len(args) == 0:
+        return await ctx.reply(get_help_text("cybersignal"))
     global timer
     # Check if last staff call was < 5 min ago
     if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):

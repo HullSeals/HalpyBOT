@@ -14,6 +14,7 @@ See license.md
 from __future__ import annotations
 import pydle
 import json
+import logging
 from typing import List, Dict, Optional
 
 from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa, sys_cleaner
@@ -21,13 +22,17 @@ from ..ircclient import client
 
 from .twitter import TwitterCasesAcc, TwitterConnectionError
 
+logger = logging.getLogger(__name__)
+
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
                  "South": "North", "SW": "NE", "West": "East", "NW": "SE"}
+
 
 class AnnouncementError(Exception):
     """
     Could not announce request
     """
+
 
 class Announcer:
 
@@ -88,6 +93,7 @@ class Announcer:
         except Exception as ex:
             raise AnnouncementError(ex)
 
+
 class Announcement:
 
     def __init__(self, ID: str, name: str, description: str,
@@ -125,6 +131,8 @@ class Announcement:
             IndexError: an invalid number of parameters was provided
 
         """
+        if args["System"]:
+            args["System"] = await sys_cleaner(args["System"])
         # Come on pylint
         try:
             announcement = self._content.format(**args)
@@ -154,15 +162,48 @@ class Announcement:
         """
         if self._edsm and args["System"]:
             try:
-                landmark, distance, direction = await checklandmarks(args["System"])
+                sys_name = args["System"]
+
+                exact_sys = sys_name == args["System"]
+
+                landmark, distance, direction = await checklandmarks(sys_name)
+
                 # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
                 direction = cardinal_flip[direction]
                 if twitter:
                     return f"{distance} LY {direction} of {landmark}"
                 else:
-                    return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-            except NoResultsEDSM:
-                return "\nDistance to landmark unknown." if twitter else "\nSystem Not Found in EDSM."
+                    if exact_sys:
+                        return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+                    else:
+                        return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM was"\
+                               f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
+            except NoResultsEDSM as er:
+                if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
+                    dssa, distance, direction = await checkdssa(args['System'])
+                    return f"\n{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
+                           f"{args['System']}."
+                else:
+                    found_sys, close_sys = await get_nearby_system(sys_name)
+
+                    if found_sys:
+                        try:
+                            landmark, distance, direction = await checklandmarks(close_sys)
+                            return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM was"\
+                                   f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
+                        except NoResultsEDSM as er:
+                            if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
+                                dssa, distance, direction = await checkdssa(close_sys)
+                                return f"\n{sys_name} could not be found in EDSM. System closest in name found in " \
+                                       f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in " \
+                                       f"{dssa}, {distance} LY {direction} of {close_sys}. "
+                    else:
+                        return "\nDistance to landmark or DSSA unknown." if twitter else "\nSystem Not Found in EDSM." \
+                                                                                         " match to sys name format " \
+                                                                                         "or sys name lookup " \
+                                                                                         "failed.\nPlease check " \
+                                                                                         "system name with client "
+
             except EDSMLookupError:
                 return '' if twitter else "\nUnable to query EDSM."
         else:
