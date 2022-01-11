@@ -22,7 +22,7 @@ from ..packages.models import Context
 
 logger = logging.getLogger(__name__)
 
-@Commands.command("shutdown", "sealpukku")
+@Commands.command("shutdown", "restart", "sealpukku")
 @Require.DM()
 @Require.permission(Admin)
 async def cmd_shutdown(ctx: Context, args: List[str]):

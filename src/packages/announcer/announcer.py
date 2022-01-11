@@ -16,7 +16,7 @@ import pydle
 import json
 from typing import List, Dict, Optional
 
-from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
+from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa, sys_cleaner
 from ..ircclient import client
 
 from .twitter import TwitterCasesAcc, TwitterConnectionError

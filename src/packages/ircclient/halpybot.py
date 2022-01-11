@@ -13,6 +13,8 @@ See license.md
 from typing import Optional
 import logging
 import asyncio
+import os
+import signal
 
 import pydle
 from ._listsupport import ListHandler
@@ -170,3 +172,19 @@ client = HalpyBOT(
     sasl_username=config['SASL']['username'],
     eventloop=asyncio.get_event_loop()
 )
+
+async def crash_notif(crashtype, condition):
+    if config.getboolean('System Monitoring', 'failure_button'):
+        logging.critical("HalpyBOT has failed, but this incident has already been reported.")
+    else:
+        subject = "HalpyBOT has died!"
+        topic = config['Notify']['cybers']
+        message = f"HalpyBOT has shut down due to {crashtype}. Investigate immediately. Error Text: {condition}"
+        try:
+            await notify.sendNotification(topic, message, subject)
+            # Only trip the fuse if a notification is passed
+            config_write('System Monitoring', 'failure_button', 'True')
+        except notify.NotificationFailure:
+            logging.critical("Unable to send the notification!")
+    logging.critical(f"{crashtype} detected. Shutting down for my own protection! {condition}")
+    os.kill(os.getpid(), signal.SIGTERM)
