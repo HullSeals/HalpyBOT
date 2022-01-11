@@ -11,8 +11,10 @@ See license.md
 """
 
 import logging
+import asyncio
 import os
 import signal
+
 import pydle
 
 from typing import Optional
@@ -196,6 +198,14 @@ class HalpyBOT(pydle.Client, ListHandler):
         """
         await handle_notice(self, by, target, message)
 
+
+client = HalpyBOT(
+    nickname=config['IRC']['nickname'],
+    sasl_identity=config['SASL']['identity'],
+    sasl_password=config['SASL']['password'],
+    sasl_username=config['SASL']['username'],
+    eventloop=asyncio.get_event_loop()
+)
 
 async def crash_notif(crashtype, condition):
     if config.getboolean('System Monitoring', 'failure_button'):

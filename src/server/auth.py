@@ -31,18 +31,21 @@ def Authenticate():
         async def guarded(request):
             data = await request.json()
             clientmac = request.headers.get('hmac')
-            msg = json.dumps(data, indent=4)
-            msg = ''.join(msg.split())
+            key_check = request.headers.get('keyCheck')
+            
+            msg = json.dumps(data)
+            msg = ''.join(msg.split()) # Remove all whitespace for the purpose of ensuring identical inputs to HMAC
 
             mac = hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
-            keyCheck = request.headers.get('keyCheck')
-            check = hmac.new(bytes(client_secret, 'utf8'), msg=checkConstant.encode('utf8'), digestmod=hashlib.sha256)
+            check = hmac.new(bytes(client_secret, 'utf8'), msg = checkConstant.encode('utf8'), digestmod=hashlib.sha256)
             # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
-            if not hmac.compare_digest(keyCheck, check.hexdigest()):
+            if not hmac.compare_digest(key_check, check.hexdigest()):
                 logger.warning("Failed authentication. Incorrect key or key verification message")
                 raise web.HTTPUnauthorized()
+            # If the key is correct but HMAC is different, the body has been altered in transit and should be rejected
             elif not hmac.compare_digest(clientmac, mac.hexdigest()):
-                raise web.HTTPBadRequest()
+                logger.warning("Failed authentication. Bad request body")
+                raise web.HTTPUnprocessableEntity()
             else:
                 logger.info("Successfully authenticated API request")
                 return await function(request)
