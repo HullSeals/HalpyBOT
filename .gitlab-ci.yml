@@ -1,10 +1,15 @@
 run tests:
   stage: test
-  tags: rixtest
+  tags:
+    - rixtest
   script:
+    - echo "Starting Test"
     - pip install pytest pytest-cov pytest-asyncio
+    - echo "Bacon and Eggs"
     - pip install -r requirements.txt
+    - echo "Spam Spam Spam eggs and Spam"
     - coverage run -m pytest
+    - echo "REE"
     - coverage report
     - coverage xml
   artifacts:
