@@ -9,9 +9,9 @@ run tests:
     - source halpyvenv/bin/activate
     - pip install pytest pytest-cov pytest-asyncio
     - pip install -r requirements.txt
-    - coverage run -m pytest
+    - coverage run -m pytest -W ignore::DeprecationWarning
     - coverage report
     - coverage xml
   artifacts:
     reports:
-      cobertura: coverage.xml
+      cobertura: ./coverage.xml
