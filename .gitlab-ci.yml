@@ -4,6 +4,7 @@ run tests:
     - rixtest
   script:
     - echo "Starting Test"
+    - python3 -m venv halpyvenv
     - source halpyvenv/bin/activate
     - pip install pytest pytest-cov pytest-asyncio
     - pip install -r requirements.txt
