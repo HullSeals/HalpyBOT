@@ -3,6 +3,7 @@ run tests:
   tags:
     - rixtest
   script:
+    - echo "Starting Test"
     - source halpyvenv/bin/activate
     - pip install pytest pytest-cov pytest-asyncio
     - pip install -r requirements.txt
