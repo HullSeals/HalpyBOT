@@ -1,0 +1,13 @@
+run tests:
+  stage: test
+  tags:
+    - rixtest
+  script:
+    - pip install pytest pytest-cov pytest-asyncio
+    - pip install -r requirements.txt
+    - coverage run -m pytest
+    - coverage report
+    - coverage xml
+  artifacts:
+    reports:
+      cobertura: coverage.xml
