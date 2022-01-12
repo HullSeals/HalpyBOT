@@ -1,7 +1,6 @@
 run tests:
   stage: test
-  tags:
-    - rixtest
+  tags: rixtest
   script:
     - pip install pytest pytest-cov pytest-asyncio
     - pip install -r requirements.txt
