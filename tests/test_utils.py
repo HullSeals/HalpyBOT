@@ -24,6 +24,13 @@ async def test_seconds():
     assert time == "45296"
 
 
+# Test Bad Time
+@pytest.mark.asyncio
+async def test_seconds_bad():
+    with pytest.raises(ValueError):
+        await get_time_seconds("BACON")
+
+
 # Test Lang Codes
 # 1: If the file exists, we will assume it is correct.
 @pytest.mark.asyncio
