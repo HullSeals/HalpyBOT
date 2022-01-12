@@ -113,3 +113,9 @@ async def test_direction():
 async def test_nearby():
     nearby = await get_nearby_system("Sagittarius A*", CacheOverride=True)
     assert nearby == (True, 'Sagittarius A*')
+
+# Calculate Direction
+@pytest.mark.asyncio
+async def test_distance():
+    dist = await checkdistance("Sagittarius A*", "Delkar")
+    assert dist == ('25,864.81', 'North')
