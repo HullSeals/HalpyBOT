@@ -4,6 +4,7 @@ run tests:
     - rixtest
   script:
     - echo "Starting Test"
+    - cp /opt/halpybot/halpybot/config/config.ini ./config/config.ini
     - python3 -m venv halpyvenv
     - source halpyvenv/bin/activate
     - pip install pytest pytest-cov pytest-asyncio
