@@ -5,7 +5,7 @@ run tests:
   script:
     - echo "Starting Test"
     - cp /opt/halpybot/halpybot/config/config.ini ./config/config.ini
-    - cp /opt/halpybot/halpybot/announcer/announcer.json ./announcer/announcer.json
+    - cp /opt/halpybot/halpybot/data/announcer/announcer.json ./data/announcer/announcer.json
     - mkdir logs
     - python3 -m venv halpyvenv
     - source halpyvenv/bin/activate
