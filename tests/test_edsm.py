@@ -12,7 +12,10 @@ See license.md
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
 import pytest
+import requests
+
 from src.packages.edsm import *
+from unittest.mock import patch
 
 
 # Test System
@@ -28,6 +31,14 @@ async def test_sys():
 async def test_non_sys():
     sys = await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", CacheOverride=True)
     assert sys is None
+
+
+# 3: GetInfo error
+@pytest.mark.asyncio
+async def test_request_error():
+    with patch('src.packages.edsm.GalaxySystem.get_info', side_effect=requests.exceptions.RequestException("Err")):
+        with pytest.raises(requests.exceptions.RequestException):
+            await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", CacheOverride=True)
 
 
 # Test Sys Exists
@@ -60,6 +71,14 @@ async def test_sys_not_nearby():
     assert nearby_sys == (None, None)
 
 
+# 3: GetNearby error
+@pytest.mark.asyncio
+async def test_request_nearby_error():
+    with patch('src.packages.edsm.GalaxySystem.get_nearby', side_effect=requests.exceptions.RequestException("Err")):
+        with pytest.raises(requests.exceptions.RequestException):
+            await GalaxySystem.get_nearby('1', '2', '3')
+
+
 # Test CMDR
 # 1: Existing CMDR
 @pytest.mark.asyncio
@@ -75,10 +94,24 @@ async def test_noncmdr():
     assert cmdr is None
 
 
-# CMDR Location
-# This Module Cannot be pre-programmed. Be sure to test it yourself!
-# CMDR Distance
-# This Module Cannot be pre-programmed. Be sure to test it yourself!
+# 2: Cached CMDR
+@pytest.mark.asyncio
+async def test_noncmdr():
+    cmdr = await Commander.get_cmdr("Rixxan", CacheOverride=False)
+    assert cmdr.name == "Rixxan"
+    cmdr = await Commander.get_cmdr("Rixxan", CacheOverride=False)
+    assert cmdr.name == "Rixxan"
+
+
+# CMDR Location - As this can be dynamic, we will simply assume any response is valid.
+@pytest.mark.asyncio
+async def test_location():
+    location = await Commander.location("Rixxan")
+    assert location is not None
+    assert type(location.system) is str
+    assert type(location.coordinates) is dict
+    assert type(location.time) is str
+
 
 # Landmarks
 @pytest.mark.asyncio
@@ -114,8 +147,27 @@ async def test_nearby():
     nearby = await get_nearby_system("Sagittarius A*", CacheOverride=True)
     assert nearby == (True, 'Sagittarius A*')
 
+
+@pytest.mark.asyncio
+async def test_nearby_extra():
+    nearby = await get_nearby_system("Delkar 3 a", CacheOverride=True)
+    assert nearby == (True, 'Delkar')
+
+
 # Calculate Direction
 @pytest.mark.asyncio
 async def test_distance():
     dist = await checkdistance("Sagittarius A*", "Delkar")
     assert dist == ('25,864.81', 'North')
+
+
+@pytest.mark.asyncio
+async def test_distance_noA():
+    with pytest.raises(EDSMConnectionError):
+        await checkdistance("", "Delkar")
+
+
+@pytest.mark.asyncio
+async def test_distance_badSys():
+    with pytest.raises(NoResultsEDSM):
+        await checkdistance("Sagittarius A*", "ThisCMDRDoesntExist")

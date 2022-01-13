@@ -13,6 +13,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 """
 import pytest
 from src.packages.seals import *
+from src.packages.configmanager import config, config_write
 
 
 # Test Time
@@ -28,3 +29,12 @@ async def test_good_whois():
 async def test_bad_whois():
     user = await whois("ThisCMDRDoesntExist")
     assert user == "No registered user found by that name!"
+
+
+@pytest.mark.asyncio
+async def test_noDB():
+    prev_value = config['Offline Mode']['enabled']
+    config_write('Offline Mode', 'enabled', 'True')
+    noDatabase = await whois("ThisCMDRDoesntExist")
+    assert noDatabase == "Error searching user."
+    config_write('Offline Mode', 'enabled', prev_value)
