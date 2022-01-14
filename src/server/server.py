@@ -109,6 +109,5 @@ async def server_root(request):
                 }
     return web.json_response(response)
 
-
 APIConnector = HalpyServer()
 APIConnector.add_routes(routes)
