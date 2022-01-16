@@ -16,7 +16,9 @@ from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context
 from ..packages.edsm import checklandmarks, EDSMLookupError, checkdssa, sys_cleaner, NoResultsEDSM, get_nearby_system
+from ..packages.database import Grafana
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 CacheOverride = False
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",

@@ -19,8 +19,10 @@ from ..packages.checks import Require, Cyberseal, Moderator
 from ..packages.configmanager import config_write, config
 from ..packages.command import CommandGroup, Commands
 from ..packages.models import Context
+from ..packages.database import Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 Settings = CommandGroup()
 Settings.add_group("bot_management", "settings")

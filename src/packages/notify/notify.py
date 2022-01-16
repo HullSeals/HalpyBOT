@@ -16,8 +16,10 @@ import boto3
 import boto3.exceptions
 
 from ..configmanager import config
+from ..database import Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 
 class SNSError(Exception):

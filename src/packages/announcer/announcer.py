@@ -19,10 +19,11 @@ from typing import List, Dict, Optional
 
 from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa, sys_cleaner
 from ..ircclient import client
-
+from ..database import Grafana
 from .twitter import TwitterCasesAcc, TwitterConnectionError
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
                  "South": "North", "SW": "NE", "West": "East", "NW": "SE"}

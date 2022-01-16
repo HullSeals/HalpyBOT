@@ -23,9 +23,10 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNo
 
 from src import __version__
 from ..packages.ircclient import client as botclient
-from ..packages.database import DatabaseConnection, NoDatabaseConnection
+from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 routes = web.RouteTableDef()
 

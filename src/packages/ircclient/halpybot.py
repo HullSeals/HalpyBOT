@@ -24,9 +24,10 @@ from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..configmanager import config
 from ..facts import Facts
-from ..database import NoDatabaseConnection
+from ..database import NoDatabaseConnection, Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 pool = pydle.ClientPool()
 

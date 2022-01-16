@@ -20,9 +20,10 @@ from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context
 from ..packages.configmanager import config
+from ..packages.database import Grafana
 
 logger = logging.getLogger(__name__)
-
+logger.addHandler(Grafana)
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
