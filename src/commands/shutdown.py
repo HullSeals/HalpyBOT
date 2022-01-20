@@ -19,8 +19,10 @@ from typing import List
 from ..packages.checks import Require, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
+from ..packages.database import Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 @Commands.command("shutdown", "restart", "sealpukku")
 @Require.DM()
@@ -32,6 +34,6 @@ async def cmd_shutdown(ctx: Context, args: List[str]):
     Usage: !shutdown
     Aliases: !reboot
     """
-    await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
     logger.critical(f"Shutdown has been ordered by {ctx.sender}")
+    await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
     os.kill(os.getpid(), signal.SIGTERM)

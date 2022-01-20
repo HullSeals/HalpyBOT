@@ -16,9 +16,10 @@ import logging
 
 from ..models import User
 from ..configmanager import config
-from ..database import DatabaseConnection, NoDatabaseConnection
+from ..database import DatabaseConnection, NoDatabaseConnection, Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 class Permission:
 

@@ -23,9 +23,10 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNo
 
 from src import __version__
 from ..packages.ircclient import client as botclient
-from ..packages.database import DatabaseConnection, NoDatabaseConnection
+from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 routes = web.RouteTableDef()
 
@@ -108,7 +109,6 @@ async def server_root(request):
                 "timestamp": datetime.utcnow().replace(microsecond=0).isoformat()
                 }
     return web.json_response(response)
-
 
 APIConnector = HalpyServer()
 APIConnector.add_routes(routes)

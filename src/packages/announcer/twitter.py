@@ -12,11 +12,13 @@ See license.md
 """
 
 from ..configmanager import config
+from ..database import Grafana
 
 import tweepy
 import logging
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 
 class TweetError(Exception):
