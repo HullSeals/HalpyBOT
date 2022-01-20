@@ -17,11 +17,12 @@ import logging
 
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
-from ..packages.database import latency, NoDatabaseConnection
+from ..packages.database import latency, NoDatabaseConnection, Grafana
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 
 @Commands.command("ping")
