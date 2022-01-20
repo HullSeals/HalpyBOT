@@ -158,7 +158,7 @@ class Require:
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
                 if ctx.in_channel:
-                    return
+                    return await ctx.redirect("You have to run that command in DMs with me!")
                 else:
                     return await function(ctx, args)
 
@@ -174,7 +174,7 @@ class Require:
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
                 if ctx.in_channel is False:
-                    return
+                    return await ctx.reply("You have to run this command in a channel! Aborted.")
                 else:
                     return await function(ctx, args)
 

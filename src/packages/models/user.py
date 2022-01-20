@@ -90,8 +90,8 @@ class User:
         if vhost is None:
             return None
         # RixxanCheck(TM)
-        if vhost == "Rixxan.admin.hullseals.space":
-            return vhost
+        if vhost.lower().endswith("rixxan.admin.hullseals.space"):
+            return "rixxan.admin.hullseals.space"
         # sanity / security check
         if not vhost.endswith(".hullseals.space"):
             return None
