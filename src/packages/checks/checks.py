@@ -21,6 +21,7 @@ from ..database import DatabaseConnection, NoDatabaseConnection, Grafana
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
+
 class Permission:
 
     def __init__(self, vhost: str, level: int, msg: str):
@@ -67,6 +68,7 @@ _levels = {
     Owner.vhost: 7,
 }
 
+
 def log_unauthorized(user: str, channel: str, command: str, args: List[str], required: int, provided: int):
     """Emit an authorization incident to the dashboard log table
 
@@ -86,6 +88,7 @@ def log_unauthorized(user: str, channel: str, command: str, args: List[str], req
     except NoDatabaseConnection:
         # TODO stash DB call and execute once we get back to online mode
         pass
+
 
 class Require:
 

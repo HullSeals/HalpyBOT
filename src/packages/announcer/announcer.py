@@ -162,13 +162,10 @@ class Announcement:
 
         """
         if self._edsm and args["System"]:
+            sys_name = args["System"]
             try:
-                sys_name = args["System"]
-
                 exact_sys = sys_name == args["System"]
-
                 landmark, distance, direction = await checklandmarks(sys_name)
-
                 # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
                 direction = cardinal_flip[direction]
                 if twitter:
@@ -177,8 +174,8 @@ class Announcement:
                     if exact_sys:
                         return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
                     else:
-                        return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM was"\
-                               f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
+                        return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM "\
+                               f"was {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
             except NoResultsEDSM as er:
                 if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
                     dssa, distance, direction = await checkdssa(args['System'])
@@ -190,8 +187,8 @@ class Announcement:
                     if found_sys:
                         try:
                             landmark, distance, direction = await checklandmarks(close_sys)
-                            return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM was"\
-                                   f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
+                            return f"\n{args['System']} could not be found in EDSM. System closest in name found in "\
+                                   f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                         except NoResultsEDSM as er:
                             if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
                                 dssa, distance, direction = await checkdssa(close_sys)

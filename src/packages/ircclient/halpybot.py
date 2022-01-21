@@ -100,7 +100,7 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         Args:
             target (str): Channel message was sent to
-            nick (str): Nickname of user who sent the message
+            nick (str): Nickname of user who sent the message.
             message (str):
 
         """
@@ -190,6 +190,7 @@ client = HalpyBOT(
     sasl_username=config['SASL']['username'],
     eventloop=asyncio.get_event_loop()
 )
+
 
 async def crash_notif(crashtype, condition):
     if config.getboolean('System Monitoring', 'failure_button'):

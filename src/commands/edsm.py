@@ -30,9 +30,9 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("lookup"))
-    CacheOverride = False
+    cache_override = False
     if args[0] == "--new":
-        CacheOverride = True
+        cache_override = True
         del args[0]
 
     # For whoever find's this note, you're not crazy. arg[0:] == arg. You get a gold star
@@ -40,7 +40,7 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     system = ' '.join(args[0:]).strip()
 
     try:
-        if await GalaxySystem.exists(name=system, CacheOverride=CacheOverride):
+        if await GalaxySystem.exists(name=system, cache_override=cache_override):
             return await ctx.reply(f"System {await sys_cleaner(system)} exists in EDSM")
         else:
             return await ctx.reply(f"System {await sys_cleaner(system)} not found in EDSM")
@@ -60,16 +60,16 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("locatecmdr"))
-    CacheOverride = False
+    cache_override = False
     if args[0] == "--new":
-        CacheOverride = True
+        cache_override = True
         del args[0]
 
     # No. Only 1 gold star per stupid thing
     cmdr = ' '.join(args[0:]).strip()
 
     try:
-        location = await Commander.location(name=cmdr, CacheOverride=CacheOverride)
+        location = await Commander.location(name=cmdr, cache_override=cache_override)
     except EDSMConnectionError as er:
         return await ctx.reply(str(er))
 
@@ -89,9 +89,9 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     """
     if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
         return await ctx.reply(get_help_text("dist"))
-    CacheOverride = False
+    cache_override = False
     if args[0] == "--new":
-        CacheOverride = True
+        cache_override = True
         del args[0]
 
     try:
@@ -109,10 +109,11 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     else:
 
         try:
-            distance, direction = await checkdistance(pointa, pointb, CacheOverride=CacheOverride)
+            distance, direction = await checkdistance(pointa, pointb, cache_override=cache_override)
         except EDSMLookupError as er:
             return await ctx.reply(str(er))
-        return await ctx.reply(f"{await sys_cleaner(pointa)} is {distance} LY {direction} of {await sys_cleaner(pointb)}.")
+        return await ctx.reply(f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
+                               f"{await sys_cleaner(pointb)}.")
 
 
 @Commands.command("landmark")
@@ -124,23 +125,23 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
     Aliases: n/a
     """
 
-    CacheOverride = False
+    cache_override = False
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("landmark"))
     if args[0] == "--new":
-        CacheOverride = True
+        cache_override = True
         del args[0]
 
     system = ctx.message.strip()
 
     try:
-        landmark, distance, direction = await checklandmarks(SysName=system, CacheOverride=CacheOverride)
-        return await ctx.reply(f"The closest landmark system is {landmark}, {distance} LY {direction} of " \
+        landmark, distance, direction = await checklandmarks(edsm_sys_name=system, cache_override=cache_override)
+        return await ctx.reply(f"The closest landmark system is {landmark}, {distance} LY {direction} of "
                                f"{await sys_cleaner(system)}.")
     except EDSMLookupError as er:
         if str(er) == f"No major landmark systems within 10,000 ly of {system}.":
-            dssa, distance, direction = await checkdssa(SysName=system, CacheOverride=CacheOverride)
+            dssa, distance, direction = await checkdssa(edsm_sys_name=system, cache_override=cache_override)
             return await ctx.reply(f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY " 
                                    f"{direction} of {await sys_cleaner(system)}.")
         return await ctx.reply(str(er))
@@ -156,19 +157,20 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
     File Last Updated: 2021-03-22 w/ 93 Carrier
     """
 
-    CacheOverride = False
+    cache_override = False
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("dssa"))
     if args[0] == "--new":
-        CacheOverride = True
+        cache_override = True
         del args[0]
 
     system = ctx.message.strip()
 
     try:
-        dssa, distance, direction = await checkdssa(SysName=system, CacheOverride=CacheOverride)
-        return await ctx.reply(f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {await sys_cleaner(system)}.")
+        dssa, distance, direction = await checkdssa(edsm_sys_name=system, cache_override=cache_override)
+        return await ctx.reply(f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
+                               f"{await sys_cleaner(system)}.")
     except EDSMLookupError as er:
         return await ctx.reply(str(er))
 

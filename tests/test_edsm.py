@@ -22,14 +22,14 @@ from unittest.mock import patch
 # 1: Existing sys
 @pytest.mark.asyncio
 async def test_sys():
-    sys = await GalaxySystem.get_info("Sol", CacheOverride=True)
+    sys = await GalaxySystem.get_info("Sol", cache_override=True)
     assert sys.name == "Sol"
 
 
 # 2: Non-Existent Sys
 @pytest.mark.asyncio
 async def test_non_sys():
-    sys = await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", CacheOverride=True)
+    sys = await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", cache_override=True)
     assert sys is None
 
 
@@ -38,21 +38,21 @@ async def test_non_sys():
 async def test_request_error():
     with patch('src.packages.edsm.GalaxySystem.get_info', side_effect=requests.exceptions.RequestException("Err")):
         with pytest.raises(requests.exceptions.RequestException):
-            await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", CacheOverride=True)
+            await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", cache_override=True)
 
 
 # Test Sys Exists
 # 1: Existing sys
 @pytest.mark.asyncio
 async def test_sys_exists():
-    sysexists = await GalaxySystem.exists("Sol", CacheOverride=True)
+    sysexists = await GalaxySystem.exists("Sol", cache_override=True)
     assert sysexists is True
 
 
 # 2: Non-Existent Sys
 @pytest.mark.asyncio
 async def test_non_sys_exists():
-    sysexists = await GalaxySystem.exists("Praisehalpydamnwhyisthisnotasysnam", CacheOverride=True)
+    sysexists = await GalaxySystem.exists("Praisehalpydamnwhyisthisnotasysnam", cache_override=True)
     assert sysexists is False
 
 
@@ -83,23 +83,23 @@ async def test_request_nearby_error():
 # 1: Existing CMDR
 @pytest.mark.asyncio
 async def test_cmdr():
-    cmdr = await Commander.get_cmdr("Rixxan", CacheOverride=True)
+    cmdr = await Commander.get_cmdr("Rixxan", cache_override=True)
     assert cmdr.name == "Rixxan"
 
 
 # 2: Non-Existent CMDR
 @pytest.mark.asyncio
 async def test_noncmdr():
-    cmdr = await Commander.get_cmdr("Praisehalpydamnwhyisthisnotacmdrnam", CacheOverride=True)
+    cmdr = await Commander.get_cmdr("Praisehalpydamnwhyisthisnotacmdrnam", cache_override=True)
     assert cmdr is None
 
 
 # 2: Cached CMDR
 @pytest.mark.asyncio
 async def test_noncmdr():
-    cmdr = await Commander.get_cmdr("Rixxan", CacheOverride=False)
+    cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
     assert cmdr.name == "Rixxan"
-    cmdr = await Commander.get_cmdr("Rixxan", CacheOverride=False)
+    cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
     assert cmdr.name == "Rixxan"
 
 
@@ -116,14 +116,14 @@ async def test_location():
 # Landmarks
 @pytest.mark.asyncio
 async def test_landmark():
-    landmark = await checklandmarks("Delkar", CacheOverride=True)
+    landmark = await checklandmarks("Delkar", cache_override=True)
     assert landmark == ('Sol', '83.11', 'SW')
 
 
 # DSSA
 @pytest.mark.asyncio
 async def test_dssa():
-    dssa = await checkdssa("Col 285 Sector AA-A a30-2", CacheOverride=True)
+    dssa = await checkdssa("Col 285 Sector AA-A a30-2", cache_override=True)
     assert dssa == ('Synuefuae CM-J d10-42 (DSSA Artemis Rest)', '6,129.55', 'East')
 
 
@@ -144,13 +144,13 @@ async def test_direction():
 # Calculate Direction
 @pytest.mark.asyncio
 async def test_nearby():
-    nearby = await get_nearby_system("Sagittarius A*", CacheOverride=True)
+    nearby = await get_nearby_system("Sagittarius A*", cache_override=True)
     assert nearby == (True, 'Sagittarius A*')
 
 
 @pytest.mark.asyncio
 async def test_nearby_extra():
-    nearby = await get_nearby_system("Delkar 3 a", CacheOverride=True)
+    nearby = await get_nearby_system("Delkar 3 a", cache_override=True)
     assert nearby == (True, 'Delkar')
 
 

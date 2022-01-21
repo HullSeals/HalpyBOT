@@ -73,7 +73,7 @@ class GalaxySystem:
     _lookupCache = {}
 
     @classmethod
-    async def get_info(cls, name, CacheOverride: bool = False) -> Optional[GalaxySystem]:
+    async def get_info(cls, name, cache_override: bool = False) -> Optional[GalaxySystem]:
         """Get a system object from the EDSM API.
 
         If the same object was requested less than
@@ -82,7 +82,7 @@ class GalaxySystem:
 
         Args:
             name (str): The system's name
-            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+            cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
         Returns:
             (`GalaxySystem` or None): An EDSM system object, None if unsuccessful.
@@ -94,7 +94,7 @@ class GalaxySystem:
         """
         name = await sys_cleaner(name)
         # Check if cached
-        if name in cls._lookupCache.keys() and CacheOverride is False:
+        if name in cls._lookupCache.keys() and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name].time
             cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
@@ -124,14 +124,14 @@ class GalaxySystem:
         return sysobj
 
     @classmethod
-    async def exists(cls, name, CacheOverride: bool = False) -> bool:
+    async def exists(cls, name, cache_override: bool = False) -> bool:
         """Check if a system exists in EDSM
 
         This uses the same caching mechanics as get_info
 
         Args:
             name (str): The system's name
-            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+            cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
         Returns:
             (bool): True if system exists in EDSM, else false
@@ -142,7 +142,7 @@ class GalaxySystem:
 
         """
         try:
-            obj = await cls.get_info(name, CacheOverride)
+            obj = await cls.get_info(name, cache_override)
         except EDSMConnectionError:
             raise
         if obj is None:
@@ -216,7 +216,7 @@ class Commander:
     _lookupCache = {}
 
     @classmethod
-    async def get_cmdr(cls, name, CacheOverride: bool = False) -> Optional[Commander]:
+    async def get_cmdr(cls, name, cache_override: bool = False) -> Optional[Commander]:
         """Get info about a CMDR from EDSM
 
         If the same object was requested less than
@@ -225,7 +225,7 @@ class Commander:
 
         Args:
             name (str): CMDR name
-            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+            cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
         Returns:
             (`Commander` or None): Commander object if CMDR exists in EDSM, else None
@@ -237,7 +237,7 @@ class Commander:
         """
 
         # Check if cached
-        if name.strip().upper() in cls._lookupCache.keys() and CacheOverride is False:
+        if name.strip().upper() in cls._lookupCache.keys() and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name.strip().upper()].time
             cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
@@ -273,14 +273,14 @@ class Commander:
         return cmdrobj
 
     @classmethod
-    async def location(cls, name, CacheOverride: bool = False) -> Optional[Location]:
+    async def location(cls, name, cache_override: bool = False) -> Optional[Location]:
         """Get a CMDRs location
 
         Get a Location object for an EDSM commander.
 
         Args:
             name (str): CMDR name
-            CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+            cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
         Returns:
             (`Location` or None): CMDRs location if found, else None.
@@ -300,7 +300,7 @@ class Commander:
 
         """
         try:
-            location = await Commander.get_cmdr(name=name, CacheOverride=CacheOverride)
+            location = await Commander.get_cmdr(name=name, cache_override=cache_override)
         except EDSMConnectionError:
             raise
 
@@ -308,15 +308,15 @@ class Commander:
             return None
         else:
             if location.date is None:
-                time = "an unknown date and time."
+                location_time = "an unknown date and time."
             else:
-                time = location.date
+                location_time = location.date
             return Location(system=location.system,
                             coordinates=location.coordinates,
-                            time=time)
+                            time=location_time)
 
 
-async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
+async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
     """Check distance between two EDSM points
 
     Both data points must be known to EDSM.
@@ -324,7 +324,7 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
     Args:
         sysa (str): Either a CMDR or system name
         sysb (str): Either a CMDR or system name
-        CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+        cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
         (tuple): A tuple with the following values:
@@ -342,8 +342,8 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
     coordsA, coordsB = None, None
 
     try:
-        system1 = await GalaxySystem.get_info(name=sysa, CacheOverride=CacheOverride)
-        system2 = await GalaxySystem.get_info(name=sysb, CacheOverride=CacheOverride)
+        system1 = await GalaxySystem.get_info(name=sysa, cache_override=cache_override)
+        system2 = await GalaxySystem.get_info(name=sysb, cache_override=cache_override)
 
         if system1 is not None:
             coordsA = system1.coords
@@ -355,7 +355,7 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     if not coordsA:
         try:
-            cmdr1 = await Commander.location(name=sysa, CacheOverride=CacheOverride)
+            cmdr1 = await Commander.location(name=sysa, cache_override=cache_override)
             if cmdr1 is not None:
                 coordsA = cmdr1.coordinates
         except EDSMLookupError:
@@ -363,7 +363,7 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     if not coordsB:
         try:
-            cmdr2 = await Commander.location(name=sysb, CacheOverride=CacheOverride)
+            cmdr2 = await Commander.location(name=sysb, cache_override=cache_override)
             if cmdr2 is not None:
                 coordsB = cmdr2.coordinates
         except EDSMLookupError:
@@ -378,20 +378,22 @@ async def checkdistance(sysa: str, sysb: str, CacheOverride: bool = False):
 
     # Actually ok that we might be giving cmdr names to sys_cleaner. It won't do anything to names without - in
     if not coordsA:
-        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysa)}' was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysa)}' was found in the EDSM "
+                            f"database.")
 
     if not coordsB:
-        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysb)}' was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysb)}' was found in the EDSM "
+                            f"database.")
 
 
-async def checklandmarks(SysName, CacheOverride: bool = False):
+async def checklandmarks(edsm_sys_name, cache_override: bool = False):
     """Retrieve distance between EDSM point and landmark
 
     The landmarks used in this function are specified in landmarks.json
 
     Args:
-        SysName (str): Name of the EDSM object
-        CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+        edsm_sys_name (str): Name of the EDSM object
+        cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
 
@@ -404,7 +406,7 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
                 by default.
-        NoResultsEDSM: No point was found for `SysName`
+        NoResultsEDSM: No point was found for `edsm_sys_name`
 
     """
     global landmarks
@@ -412,7 +414,7 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
     Coords, LMCoords, = None, None
 
     try:
-        system = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
+        system = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
         if system is not None:
             Coords = system.coords
     except EDSMLookupError:
@@ -421,7 +423,7 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
     if system is None:
 
         try:
-            system = await Commander.location(name=SysName, CacheOverride=CacheOverride)
+            system = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
             if system is not None:
                 Coords = system.coordinates
         except EDSMLookupError:
@@ -458,17 +460,18 @@ async def checklandmarks(SysName, CacheOverride: bool = False):
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {system.name}.")
 
     if not Coords:
-        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(SysName)} was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+                            f" database.")
 
 
-async def checkdssa(SysName, CacheOverride: bool = False):
+async def checkdssa(edsm_sys_name, cache_override: bool = False):
     """Check distance to nearest DSSA carrier
 
     Last updated 2021-03-22 w/ 93 Carrier
 
     Args:
-        SysName (str): System name
-        CacheOverride (bool): Disregard caching rules and get directly from EDSM, if true.
+        edsm_sys_name (str): System name
+        cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
         (str): Distance between point and DSSA carrier, in the format xx,yyy.zz
@@ -476,7 +479,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
                 by default.
-        NoResultsEDSM: No point was found for `SysName`.
+        NoResultsEDSM: No point was found for `edsm_sys_name`.
 
 
     """
@@ -485,7 +488,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
     Coords, LMCoords, maxdist = None, None, None
 
     try:
-        sys = await GalaxySystem.get_info(name=SysName, CacheOverride=CacheOverride)
+        sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
         if sys:
             Coords = sys.coords
     except EDSMLookupError:
@@ -494,7 +497,7 @@ async def checkdssa(SysName, CacheOverride: bool = False):
     if not sys:
 
         try:
-            cmdr = await Commander.location(name=SysName, CacheOverride=CacheOverride)
+            cmdr = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
             if cmdr:
                 Coords = cmdr.coordinates
         except EDSMLookupError:
@@ -529,7 +532,8 @@ async def checkdssa(SysName, CacheOverride: bool = False):
             raise NoResultsEDSM(f"No DSSA Carriers Found.")
 
     if not Coords:
-        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(SysName)} was found in the EDSM database.")
+        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+                            f" database.")
 
 
 async def calc_distance(x1, x2, y1, y2, z1, z2):
@@ -599,7 +603,7 @@ async def calc_direction(x1, x2, y1, y2):
     return result
 
 
-async def get_nearby_system(sys_name: str, CacheOverride: bool = False):
+async def get_nearby_system(sys_name: str, cache_override: bool = False):
     nameToCheck = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
@@ -619,7 +623,8 @@ async def get_nearby_system(sys_name: str, CacheOverride: bool = False):
             logger.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
     return False, None
 
-async def sys_cleaner(sys_name:str):
+
+async def sys_cleaner(sys_name: str):
     orig_sys = sys_name
     sys_name = " ".join(sys_name.split())
     sys_name = sys_name.upper()
@@ -634,8 +639,8 @@ async def sys_cleaner(sys_name:str):
                     sys_name += sys_name_list[index+1]
                     break
 
-            swaps = {"0":"O", "1":"I", "5":"S", "8":"B"}
-            unswaps = {value:key for key, value in swaps.items()}
+            swaps = {"0": "O", "1": "I", "5": "S", "8": "B"}
+            unswaps = {value: key for key, value in swaps.items()}
             sys_name_parts = sys_name.split()
 
             # Final part is either LN or LN-N, so [1:] is N or N-N

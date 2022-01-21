@@ -24,6 +24,7 @@ from ..packages.database import Grafana
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
+
 @Commands.command("shutdown", "restart", "sealpukku")
 @Require.DM()
 @Require.permission(Admin)

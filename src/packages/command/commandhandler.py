@@ -134,7 +134,7 @@ class CommandGroup:
             # See if it's a command, and execute
             if command in Commands._commandList:
                 try:
-                    return await self.invoke_command(Command=command, Context=ctx, Arguments=args)
+                    return await self.invoke_command(Command=command, command_context=ctx, Arguments=args)
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
 
@@ -225,7 +225,7 @@ class CommandGroup:
             raise CommandAlreadyExists
         self._commandList[name] = (function, main)
 
-    async def invoke_command(self, Command: str, Context: Context, Arguments: List[str]):
+    async def invoke_command(self, Command: str, command_context: Context, Arguments: List[str]):
         """Call a command
 
         If the command is part of a group attached to root, `Command` is the group, and
@@ -233,7 +233,7 @@ class CommandGroup:
 
         Args:
             Command (str): name of the command or command group
-            Context (Context): Message context object
+            command_context (Context): Message context object
             Arguments (list of str): list of command arguments
 
         Raises:
@@ -252,15 +252,15 @@ class CommandGroup:
             subgroup = CommandGroup.get_group(name=Cmd._group_name)
             # If no subcommand is provided, send a provisional help response
             if len(Arguments) < 1:
-                return await Context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
-                                           f"{Cmd._group_name}: "
-                                           f"{', '.join(sub for sub in subgroup.get_commands(True))}")
+                return await command_context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
+                                                   f"{Cmd._group_name}: "
+                                                   f"{', '.join(sub for sub in subgroup.get_commands(True))}")
             # Recursion, yay!
             await Cmd.invoke_command(Command=Arguments[0],
-                                     Context=Context, Arguments=Arguments[1:])
+                                     command_context=command_context, Arguments=Arguments[1:])
         else:
             try:
-                await Cmd(Context, Arguments)
+                await Cmd(command_context, Arguments)
             except Exception as er:
                 raise CommandException(er)
 
@@ -289,7 +289,8 @@ def get_help_text(search_command: str):
                 arguments = details["arguments"]
                 aliases = details["aliases"]
                 usage = details["use"]
-                return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n{usage}"
+                return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n" \
+                       f"{usage}"
     return None
 
 

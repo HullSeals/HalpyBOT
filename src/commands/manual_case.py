@@ -25,6 +25,7 @@ from ..packages.database import Grafana
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
+
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
 @Require.channel()
@@ -89,7 +90,7 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
 @Require.channel()
 async def cmd_tsping(ctx: Context, args: List[str]):
     """
-    Ping the Trained Seals role on Discord. Annoying as duck and not to be used lightly
+    Ping the 'Trained Seals' role on Discord. Annoying as duck and not to be used lightly
 
     Usage: !tsping [info]
     Aliases: wssping

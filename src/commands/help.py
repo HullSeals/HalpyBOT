@@ -22,7 +22,7 @@ with open("data/help/commands.json", "r") as jsonfile:
 
 
 @Commands.command("help")
-async def help(ctx: Context, args: List[str]):
+async def hbot_help(ctx: Context, args: List[str]):
     """
     Reply with a list of commands or with details on a given command
 
@@ -43,7 +43,7 @@ async def help(ctx: Context, args: List[str]):
         # A specific command has been queried
         help_text = get_help_text(args[0])
 
-        if help_text == None:
+        if help_text is None:
             await ctx.redirect(
                 f"The command {args[0]} could not be found in the list. Try running help without an argument to get "
                 f"the list of commands")
