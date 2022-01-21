@@ -110,7 +110,6 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
     else:
         return await ctx.reply("Please specify a valid group, for example: "
                                "'moderators', 'cyberseals'")
-
     try:
         await notify.subscribe(config['Notify'][group], args[1])
         return await ctx.reply(f"Subscription {args[1]} added to group {group}")
@@ -132,24 +131,10 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     Usage: !summonstaff [info]
     Aliases: !callstaff, !opsig
     """
-
     if len(args) == 0:
         return await ctx.reply(get_help_text("opsignal"))
-    global timer
-    # Check if last staff call was < 5 min ago
-    if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
-        return await ctx.reply("Someone already called less than 5 minutes ago. "
-                               "hang on, staff is responding.")
-    timer = time.time()
-    subject = "HALPYBOT: OpSignal Used"
-    topic = config['Notify']['staff']
-    message = ' '.join(args)
-    message = f"OPSIG used by {ctx.sender}: {message}"
-    try:
-        await notify.sendNotification(topic, message, subject)
-    except notify.NotificationFailure:
-        return await ctx.reply("Unable to send the notification!")
-    return await ctx.reply(f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!")
+    response = await format_notification("OpSignal", ctx.sender, args)
+    return await ctx.reply(response)
 
 
 @Commands.command("summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig")
@@ -166,18 +151,22 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("cybersignal"))
+    response = await format_notification("CyberSignal", ctx.sender, args)
+    return await ctx.reply(response)
+
+
+async def format_notification(notify_type, sender, message):
     global timer
     # Check if last staff call was < 5 min ago
     if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
-        return await ctx.reply("Someone already called less than 5 minutes ago. "
-                               "hang on, staff is responding.")
+        return "Someone already called less than 5 minutes ago. hang on, staff is responding."
     timer = time.time()
-    subject = "HALPYBOT: CyberSignal Used"
+    subject = f"HALPYBOT: {notify_type} Used"
     topic = config['Notify']['cybers']
-    message = ' '.join(args)
-    message = f"CYBERSIG used by {ctx.sender}: {message}"
+    message = ' '.join(message)
+    message = f"{notify_type} used by {sender}: {message}"
     try:
         await notify.sendNotification(topic, message, subject)
     except notify.NotificationFailure:
-        return await ctx.reply("Unable to send the notification!")
-    return await ctx.reply(f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!")
+        return "Unable to send the notification!"
+    return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"

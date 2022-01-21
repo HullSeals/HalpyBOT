@@ -53,7 +53,7 @@ Cybermgr = Permission(vhost="cybersealmgr.hullseals.space",
                       level=6,
                       msg="You need to be a cyberseal manager for this.")
 
-Owner = Permission(vhost="Rixxan.admin.hullseals.space",
+Owner = Permission(vhost="rixxan.admin.hullseals.space",
                    level=7,
                    msg="You need to be a Rixxan to use this")
 
