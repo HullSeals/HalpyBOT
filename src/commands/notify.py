@@ -133,7 +133,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
     if len(args) == 0:
         return await ctx.reply(get_help_text("opsignal"))
-    response = await format_notification("OpSignal", ctx.sender, args)
+    response = await format_notification("OpSignal", "staff", ctx.sender, args)
     return await ctx.reply(response)
 
 
@@ -151,18 +151,18 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("cybersignal"))
-    response = await format_notification("CyberSignal", ctx.sender, args)
+    response = await format_notification("CyberSignal", "cybers", ctx.sender, args)
     return await ctx.reply(response)
 
 
-async def format_notification(notify_type, sender, message):
+async def format_notification(notify_type, group, sender, message):
     global timer
     # Check if last staff call was < 5 min ago
     if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
         return "Someone already called less than 5 minutes ago. hang on, staff is responding."
     timer = time.time()
     subject = f"HALPYBOT: {notify_type} Used"
-    topic = config['Notify']['cybers']
+    topic = config['Notify'][f'{group}']
     message = ' '.join(message)
     message = f"{notify_type} used by {sender}: {message}"
     try:
