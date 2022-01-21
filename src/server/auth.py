@@ -24,8 +24,12 @@ logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
 client_secret = config['API Connector']['key']
-checkConstant = config['API Connector']['key_check_constant']
+check_constant = config['API Connector']['key_check_constant']
 
+def get_hmac(msg):
+    return hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
+
+const_key_check = hmac.new(bytes(client_secret, 'utf8'), msg=check_constant.encode('utf8'), digestmod=hashlib.sha256)
 
 def Authenticate():
     def decorator(function):
@@ -34,12 +38,12 @@ def Authenticate():
             data = await request.json()
             clientmac = request.headers.get('hmac')
             key_check = request.headers.get('keyCheck')
-            
+
             msg = json.dumps(data)
             msg = ''.join(msg.split())  # Remove all whitespace for the purpose of ensuring identical inputs to HMAC
 
-            mac = hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
-            check = hmac.new(bytes(client_secret, 'utf8'), msg=checkConstant.encode('utf8'), digestmod=hashlib.sha256)
+            mac = get_hmac(msg)
+            check = const_key_check
             # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
             if not hmac.compare_digest(key_check, check.hexdigest()):
                 logger.warning("Failed authentication. Incorrect key or key verification message")
