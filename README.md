@@ -9,7 +9,7 @@ This bot is in ACTIVE DEVELOPMENT.
 # Installation
 
 ## Requirements
-* Python 3.8+
+* Python 3.8-3.9
 * Pydle Python Library
 * Asyncio Python Library
 * Pure-SASL Python Library
