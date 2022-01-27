@@ -43,7 +43,7 @@ class User:
     hostname: str
     realname: str
     identified: bool
-    channels: set
+    channels: Optional[set]
     server: str
     server_info: str
     secure: bool
@@ -64,7 +64,8 @@ class User:
         """
         # fetch the user object from pydle
         data = await bot.whois(nickname)
-
+        if 'channels' not in data.keys():
+            data['channels'] = None
         # if we got an object back
         if data:
             return cls(**data, nickname=nickname)
