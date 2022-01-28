@@ -26,10 +26,13 @@ logger.addHandler(Grafana)
 client_secret = config['API Connector']['key']
 check_constant = config['API Connector']['key_check_constant']
 
+
 def get_hmac(msg):
     return hmac.new(bytes(client_secret, 'utf8'), msg=msg.encode('utf8'), digestmod=hashlib.sha256)
 
+
 const_key_check = hmac.new(bytes(client_secret, 'utf8'), msg=check_constant.encode('utf8'), digestmod=hashlib.sha256)
+
 
 def Authenticate():
     def decorator(function):

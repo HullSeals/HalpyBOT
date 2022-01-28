@@ -12,9 +12,8 @@ See license.md
 
 import time
 from typing import List
-import requests
+import aiohttp
 import logging
-
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import latency, NoDatabaseConnection, Grafana
@@ -86,10 +85,11 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     try:
-        response = requests.get("https://hosting.zaonce.net/launcher-status/status.json")
-        responses = response.json()
-    except requests.exceptions.RequestException as er:
-        logger.error(f"EDSM: Error in Elite Server Status lookup: {er}", exc_info=True)
+        async with aiohttp.ClientSession() as session:
+            async with await session.get("https://hosting.zaonce.net/launcher-status/status.json") as response:
+                responses = await response.json()
+    except aiohttp.ClientError as er:
+        logger.error(f"Error in Elite Server Status lookup: {er}", exc_info=True)
         raise EDSMConnectionError("Unable to verify Elite Status, having issues connecting to the Elite API.")
     if len(responses) == 0:
         await ctx.reply("ERROR! Elite returned an empty reply.")

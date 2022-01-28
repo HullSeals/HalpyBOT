@@ -5,8 +5,9 @@ setuptools~=60.5.0
 mysql-connector~=2.2.9
 mysql~=0.0.3
 numpy~=1.22.1
-requests==2.27.1
+aiodns==3.0.0
 pytest~=6.2.5
-boto3~=1.20.25
+boto3~=1.20.46
 aiohttp~=3.8.1
-tweepy~=4.4.0
+tweepy~=4.5.0
+Brotli~=1.0.9
