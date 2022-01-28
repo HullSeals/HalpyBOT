@@ -12,8 +12,7 @@ See license.md
 
 from typing import List
 import logging
-# We'll temporarily use Requests
-import requests
+import aiohttp
 import datetime
 
 from ..packages.command import Commands, get_help_text
@@ -79,8 +78,9 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     }
 
     try:
-        requests.post(config['Discord Notifications']['url'], json=cn_message)
-    except requests.exceptions.HTTPError as err:
+        async with aiohttp.ClientSession() as session:
+            await session.post(config['Discord Notifications']['url'], json=cn_message)
+    except aiohttp.ClientError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
         logger.error(f"Unable to notify Discord: {err}")
 
@@ -126,8 +126,9 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     }
 
     try:
-        requests.post(config['Discord Notifications']['url'], json=cn_message)
-    except requests.exceptions.HTTPError as err:
+        async with aiohttp.ClientSession() as session:
+            await session.post(config['Discord Notifications']['url'], json=cn_message)
+    except aiohttp.ClientError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
         logger.error(f"Unable to notify Discord: {err}")
     else:

@@ -11,7 +11,7 @@ See license.md
 """
 
 from __future__ import annotations
-import requests
+import aiohttp
 import numpy as np
 import logging
 import math
@@ -103,13 +103,14 @@ class GalaxySystem:
 
         # Else, get the system from EDSM
         try:
-            response = requests.get("https://www.edsm.net/api-v1/system",
-                                    params={"systemName": name,
-                                            "showCoordinates": 1,
-                                            "showInformation": 1}, timeout=10)
-            responses = response.json()
+            async with aiohttp.ClientSession() as session:
+                async with await session.get("https://www.edsm.net/api-v1/system", params={"systemName": name,
+                                                                                           "showCoordinates": 1,
+                                                                                           "showInformation": 1},
+                                             timeout=10) as response:
+                    responses = await response.json()
 
-        except requests.exceptions.RequestException as er:
+        except aiohttp.ClientError as er:
             logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
@@ -172,15 +173,16 @@ class GalaxySystem:
         """
         # Else, get the system from EDSM
         try:
-            response = requests.get("https://www.edsm.net/api-v1/sphere-systems",
-                                    params={"x": x,
-                                            "y": y,
-                                            "z": z,
-                                            "radius": 100,
-                                            "minRadius": 1}, timeout=10)
-            responses = response.json()
+            async with aiohttp.ClientSession() as session:
+                async with await session.get("https://www.edsm.net/api-v1/sphere-systems",
+                                             params={"x": x,
+                                                     "y": y,
+                                                     "z": z,
+                                                     "radius": 100,
+                                                     "minRadius": 1}, timeout=10) as response:
+                    responses = await response.json()
 
-        except requests.exceptions.RequestException as er:
+        except aiohttp.ClientError as er:
             logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
 
@@ -245,12 +247,13 @@ class Commander:
                 return cls._lookupCache[name.strip().upper()].object
 
         try:
-            response = requests.get("https://www.edsm.net/api-logs-v1/get-position",
-                                    params={"commanderName": name,
-                                            "showCoordinates": 1}, timeout=10)
-            responses = response.json()
+            async with aiohttp.ClientSession() as session:
+                async with await session.get("https://www.edsm.net/api-logs-v1/get-position",
+                                             params={"commanderName": name,
+                                                     "showCoordinates": 1}, timeout=10) as response:
+                    responses = await response.json()
 
-        except (requests.exceptions.RequestException, KeyError) as er:
+        except (aiohttp.ClientError, KeyError) as er:
             logger.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
 
@@ -607,9 +610,10 @@ async def get_nearby_system(sys_name: str, cache_override: bool = False):
     nameToCheck = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
-            responce = requests.get("https://www.edsm.net/api-v1/systems",
-                                    params={"systemName": nameToCheck}, timeout=10)
-            responces = responce.json()
+            async with aiohttp.ClientSession() as session:
+                async with await session.get("https://www.edsm.net/api-v1/systems",
+                                             params={"systemName": nameToCheck}, timeout=10) as response:
+                    responces = await response.json()
             if responces:
                 sys = responces[0]["name"]
                 return True, sys
@@ -619,7 +623,7 @@ async def get_nearby_system(sys_name: str, cache_override: bool = False):
                 nameToCheck = nameToCheck[:-1]
                 if nameToCheck[-1] != " ":
                     break
-        except requests.exceptions.RequestException as er:
+        except aiohttp.ClientError as er:
             logger.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
     return False, None
 
@@ -634,9 +638,9 @@ async def sys_cleaner(sys_name: str):
             sys_name_list = sys_name.split()
             sys_name = ""
             for index, block in enumerate(sys_name_list):
-                sys_name += block+" "
+                sys_name += block + " "
                 if "-" in block:
-                    sys_name += sys_name_list[index+1]
+                    sys_name += sys_name_list[index + 1]
                     break
 
             swaps = {"0": "O", "1": "I", "5": "S", "8": "B"}

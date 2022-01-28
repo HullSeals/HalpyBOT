@@ -61,7 +61,7 @@ root.addHandler(file_handler)
 
 def _start_bot():
     """Starts HalpyBOT with the specified config values."""
-    from src import commands  # pylint disable=unused-import
+    from src import commands
 
     bot_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(bot_loop)
