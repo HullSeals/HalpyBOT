@@ -12,10 +12,19 @@ See license.md
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
 import pytest
-import requests
-
+import aiohttp
+import asyncio
 from src.packages.edsm import *
 from unittest.mock import patch
+
+
+@pytest.fixture
+def event_loop():
+    yield asyncio.get_event_loop()
+
+
+def pytest_sessionfinish(session, exitstatus):
+    asyncio.get_event_loop().close()
 
 
 # Test System
@@ -36,8 +45,8 @@ async def test_non_sys():
 # 3: GetInfo error
 @pytest.mark.asyncio
 async def test_request_error():
-    with patch('src.packages.edsm.GalaxySystem.get_info', side_effect=requests.exceptions.RequestException("Err")):
-        with pytest.raises(requests.exceptions.RequestException):
+    with patch('src.packages.edsm.GalaxySystem.get_info', side_effect=aiohttp.ClientError("Err")):
+        with pytest.raises(aiohttp.ClientError):
             await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", cache_override=True)
 
 
@@ -74,8 +83,8 @@ async def test_sys_not_nearby():
 # 3: GetNearby error
 @pytest.mark.asyncio
 async def test_request_nearby_error():
-    with patch('src.packages.edsm.GalaxySystem.get_nearby', side_effect=requests.exceptions.RequestException("Err")):
-        with pytest.raises(requests.exceptions.RequestException):
+    with patch('src.packages.edsm.GalaxySystem.get_nearby', side_effect=aiohttp.ClientError("Err")):
+        with pytest.raises(aiohttp.ClientError):
             await GalaxySystem.get_nearby('1', '2', '3')
 
 
@@ -96,7 +105,7 @@ async def test_noncmdr():
 
 # 2: Cached CMDR
 @pytest.mark.asyncio
-async def test_noncmdr():
+async def test_noncmdr2():
     cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
     assert cmdr.name == "Rixxan"
     cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
