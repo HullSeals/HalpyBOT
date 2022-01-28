@@ -14,7 +14,6 @@ import logging
 import asyncio
 import os
 import signal
-
 import pydle
 
 from typing import Optional
@@ -62,13 +61,13 @@ class HalpyBOT(pydle.Client, ListHandler):
     # Sometimes, the bot will fail in its attempts to reconnect with a CAE
     async def _disconnect(self, expected):
         try:
-            await super()._disconnect(False)
+            await super()._disconnect(expected)
         except ConnectionAbortedError as CAE:
             await crash_notif("Connection Aborted Error", CAE)
 
     # Handle the clean disconnect but fail to reconnect of the bot
     async def on_disconnect(self, expected):
-        await super().on_disconnect(False)
+        await super().on_disconnect(expected)
         if self._reconnect_attempts >= self.RECONNECT_MAX_ATTEMPTS:
             await crash_notif("exceeding reconnection attempt maximum", "on_disconnect max attempts reached")
 
