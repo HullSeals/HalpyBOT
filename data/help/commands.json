@@ -34,17 +34,17 @@
     "Dispatch":{
         "mancase":{
             "aliases":["manualcase"],
-            "arguments":"",
+            "arguments":"[IRC name] [case info]",
             "use":"Used to start a new Manual Seal Case by Dispatchers. Drillled Seals Only, and run in a channel."
 		},
         "manfish":{
             "aliases":["manualfish"],
-            "arguments":"",
+            "arguments":"[IRC name] [case info]",
             "use":"Used to start a new Manual Kingfisher Case by Dispatchers. Drillled Seals Only, and run in a channel."
 		},
         "tsping":{
             "aliases":["wssping"],
-            "arguments":"",
+            "arguments":"[case info]",
             "use":"Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
 		}
     },
