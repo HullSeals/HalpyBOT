@@ -41,14 +41,15 @@ async def hbot_help(ctx: Context, args: List[str]):
         await ctx.redirect(help_string)
     else:
         # A specific command has been queried
-        help_text = get_help_text(args[0])
+        for arg in args:
+            help_text = get_help_text(arg)
 
-        if help_text is None:
-            await ctx.redirect(
-                f"The command {args[0]} could not be found in the list. Try running help without an argument to get "
-                f"the list of commands")
-        else:
-            await ctx.reply(help_text)
+            if help_text is None:
+                await ctx.reply(
+                    f"The command {arg} could not be found in the list. Try running help without an argument to get "
+                    f"the list of commands")
+            else:
+                await ctx.reply(help_text)
 
 
 @Commands.command("about")
