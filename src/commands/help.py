@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 import json
-
+import git
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 from src import __version__
@@ -53,7 +53,14 @@ async def hbot_help(ctx: Context, args: List[str]):
 
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):
-    return await ctx.redirect(f"HalpyBOT v{str(__version__)}\n"
+    try:
+        repo = git.Repo(search_parent_directories=True)
+        sha = repo.head.object.hexsha
+        sha = sha[0:7]
+        sha = f", build {sha}"
+    except git.exc.InvalidGitRepositoryError:
+        sha = ""
+    return await ctx.redirect(f"HalpyBOT v{str(__version__)}{sha}\n"
                               f"Developed by the Hull Seals, using Pydle\n"
                               f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
                               f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"

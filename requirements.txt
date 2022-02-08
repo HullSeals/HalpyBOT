@@ -11,3 +11,4 @@ boto3~=1.20.46
 aiohttp~=3.8.1
 tweepy~=4.5.0
 Brotli~=1.0.9
+GitPython~=3.1.26
