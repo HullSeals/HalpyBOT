@@ -428,6 +428,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         try:
             system = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
             if system is not None:
+                system.name = edsm_sys_name
                 Coords = system.coordinates
         except EDSMLookupError:
             raise
