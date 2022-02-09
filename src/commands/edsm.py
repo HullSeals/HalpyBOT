@@ -189,7 +189,8 @@ async def cmd_coordslookup(ctx, args: List[str]):
     xcoord = args[0].strip()
     ycoord = args[1].strip()
     zcoord = args[2].strip()
-
+    if xcoord.isnumeric() is False or ycoord.isnumeric() is False or zcoord.isnumeric() is False:
+        return await ctx.reply("All coordinates must be numeric.")
     try:
         system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
     except EDSMLookupError as er:
