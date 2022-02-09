@@ -17,7 +17,7 @@ import datetime
 
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
-from ..packages.models import Context
+from ..packages.models import Context, User
 from ..packages.configmanager import config
 from ..packages.database import Grafana
 
@@ -37,6 +37,15 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     """
     if len(args) == 0 or len(args) == 1:
         return await ctx.reply(get_help_text("mancase"))
+
+    # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
+    try:
+        await User.get_channels(ctx.bot, args[0])
+    except AttributeError:
+        return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
+    except KeyError:
+        return await ctx.reply(get_help_text("mancase"))
+
     info = ctx.message
     logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
     for channel in config["Manual Case"]["send_to"].split():
