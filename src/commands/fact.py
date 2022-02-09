@@ -126,7 +126,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
     if not args:
         lang = 'en'
     else:
-        lang = args[0]
+        lang = args[0].lower()
 
     # Input validation
     if lang not in langcodes:
