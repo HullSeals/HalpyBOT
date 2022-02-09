@@ -48,6 +48,13 @@
             "use":"Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
 		}
     },
+    "Facts": {
+        "allfacts": {
+            "aliases":[],
+            "arguments":"[language code]",
+            "use":"Lists all facts of a given language two-letter code. Defaults to English (en)."
+        }
+    },
     "Utility":{
         "ping":{
             "aliases":[],
