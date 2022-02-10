@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 import json
-
+import git
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 from src import __version__
@@ -22,7 +22,7 @@ with open("data/help/commands.json", "r") as jsonfile:
 
 
 @Commands.command("help")
-async def help(ctx: Context, args: List[str]):
+async def hbot_help(ctx: Context, args: List[str]):
     """
     Reply with a list of commands or with details on a given command
 
@@ -41,19 +41,27 @@ async def help(ctx: Context, args: List[str]):
         await ctx.redirect(help_string)
     else:
         # A specific command has been queried
-        help_text = get_help_text(args[0])
+        for arg in args:
+            help_text = get_help_text(arg)
 
-        if help_text == None:
-            await ctx.redirect(
-                f"The command {args[0]} could not be found in the list. Try running help without an argument to get "
-                f"the list of commands")
-        else:
-            await ctx.reply(help_text)
+            if help_text is None:
+                await ctx.reply(
+                    f"The command {arg} could not be found in the list. Try running help without an argument to get "
+                    f"the list of commands")
+            else:
+                await ctx.reply(help_text)
 
 
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):
-    return await ctx.redirect(f"HalpyBOT v{str(__version__)}\n"
+    try:
+        repo = git.Repo(search_parent_directories=True)
+        sha = repo.head.object.hexsha
+        sha = sha[0:7]
+        sha = f", build {sha}"
+    except git.exc.InvalidGitRepositoryError:
+        sha = ""
+    return await ctx.redirect(f"HalpyBOT v{str(__version__)}{sha}\n"
                               f"Developed by the Hull Seals, using Pydle\n"
                               f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
                               f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"

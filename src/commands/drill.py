@@ -20,7 +20,7 @@ from ..packages.database import Grafana
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
-CacheOverride = False
+cache_override = False
 cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
                  "South": "North", "SW": "NE", "West": "East", "NW": "SE"}
 
@@ -37,6 +37,9 @@ async def cmd_drillcase(ctx: Context, args: List[str]):
     """
     args = " ".join(args)
     args = args.split(",")
+    # Clean out the list, only pass "full" args.
+    args = [x.strip(' ') for x in args]
+    args = [ele for ele in args if ele.strip()]
     if len(args) < 4:
         return await ctx.reply(get_help_text("drillcase"))
     system = await sys_cleaner(args[2])
@@ -59,6 +62,9 @@ async def cmd_drillkfcase(ctx: Context, args: List[str]):
     """
     args = " ".join(args)
     args = args.split(",")
+    # Clean out the list, only pass "full" args.
+    args = [x.strip(' ') for x in args]
+    args = [ele for ele in args if ele.strip()]
     if len(args) < 6:
         return await ctx.reply(get_help_text("drillkfcase"))
     system = await sys_cleaner(args[2])
@@ -83,6 +89,9 @@ async def cmd_drillcbcase(ctx: Context, args: List[str]):
     """
     args = " ".join(args)
     args = args.split(",")
+    # Clean out the list, only pass "full" args.
+    args = [x.strip(' ') for x in args]
+    args = [ele for ele in args if ele.strip()]
     if len(args) < 6:
         return await ctx.reply(get_help_text("drillcbcase"))
     system = await sys_cleaner(args[2])
@@ -95,13 +104,10 @@ async def cmd_drillcbcase(ctx: Context, args: List[str]):
 
 
 async def lookup(system):
+    sys_name = system
     try:
-        sys_name = system
-
         exact_sys = sys_name == system
-
         landmark, distance, direction = await checklandmarks(sys_name)
-
         # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
         direction = cardinal_flip[direction]
         if exact_sys:

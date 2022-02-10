@@ -17,7 +17,7 @@ from ..packages.models import Context
 from ..packages.facts import Fact, FactUpdateError, FactHandlerError, InvalidFactException, Facts
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
-from ..packages.utils import language_codes
+from ..packages.utils import language_codes, strip_non_ascii
 from ..packages.configmanager import config
 
 langcodes = language_codes()
@@ -69,8 +69,11 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         return await ctx.reply("Cannot comply: Language code must be ISO-639-1 compliant.")
 
     try:
-
-        await Facts.add_fact(name, lang, ' '.join(args[1:]), ctx.sender)
+        # Strip non-ASCII from facts, to ensure only standard ASCII are used.
+        fact = ' '.join(args[1:])
+        fact = strip_non_ascii(fact)
+        fact = str(fact[0])
+        await Facts.add_fact(name, lang, fact, ctx.sender)
         return await ctx.reply("Fact has been added.")
 
     except NoDatabaseConnection:
@@ -126,7 +129,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
     if not args:
         lang = 'en'
     else:
-        lang = args[0]
+        lang = args[0].lower()
 
     # Input validation
     if lang not in langcodes:
@@ -161,7 +164,11 @@ async def cmd_editfact(ctx: Context, args: List[str]):
         return await ctx.reply("That fact does not exist.")
     else:
         try:
-            fact.text = ' '.join(args[1:])
+            # Strip non-ASCII from facts, to ensure only standard ASCII are used.
+            message = ' '.join(args[1:])
+            message = strip_non_ascii(message)
+            message = str(message[0])
+            fact.text = message
             return await ctx.reply("Fact successfully edited.")
         except NoDatabaseConnection:
             return await ctx.reply("Unable to add fact: No database connection available. Entering Offline Mode, "

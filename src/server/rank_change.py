@@ -30,7 +30,6 @@ async def tail(request):
     # Parse arguments
     rank = request["rank"]
     subject = request["subject"]
-    result = None
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
         with DatabaseConnection() as db:

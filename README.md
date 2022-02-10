@@ -9,7 +9,7 @@ This bot is in ACTIVE DEVELOPMENT.
 # Installation
 
 ## Requirements
-* Python 3.8+
+* Python 3.8-3.9
 * Pydle Python Library
 * Asyncio Python Library
 * Pure-SASL Python Library
@@ -63,4 +63,4 @@ Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome-t
 This project is governed under the [GNU General Public License v3.0](LICENSE) license.
 
 # Project Status
-The bot is running v1.4 in production, but still under active development.
+The bot is running v1.5 in production, but still under active development.

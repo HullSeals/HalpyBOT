@@ -21,6 +21,7 @@ from ..database import DatabaseConnection, NoDatabaseConnection, Grafana
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
+
 class Permission:
 
     def __init__(self, vhost: str, level: int, msg: str):
@@ -53,7 +54,7 @@ Cybermgr = Permission(vhost="cybersealmgr.hullseals.space",
                       level=6,
                       msg="You need to be a cyberseal manager for this.")
 
-Owner = Permission(vhost="Rixxan.admin.hullseals.space",
+Owner = Permission(vhost="rixxan.admin.hullseals.space",
                    level=7,
                    msg="You need to be a Rixxan to use this")
 
@@ -66,6 +67,7 @@ _levels = {
     Cybermgr.vhost: 6,
     Owner.vhost: 7,
 }
+
 
 def log_unauthorized(user: str, channel: str, command: str, args: List[str], required: int, provided: int):
     """Emit an authorization incident to the dashboard log table
@@ -86,6 +88,7 @@ def log_unauthorized(user: str, channel: str, command: str, args: List[str], req
     except NoDatabaseConnection:
         # TODO stash DB call and execute once we get back to online mode
         pass
+
 
 class Require:
 
