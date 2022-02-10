@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 edsm_classes.py - (data)classes for the EDSM module
 
@@ -13,11 +13,13 @@ See license.md
 from typing import TypedDict, Union, Optional
 from dataclasses import dataclass
 
+
 class Coordinates(TypedDict):
     """EDSM object coordinates dictionary"""
     x: Union[float, int]
     y: Union[float, int]
     z: Union[float, int]
+
 
 class SystemInfo(TypedDict):
     """EDSM system information dictionary"""
@@ -28,6 +30,7 @@ class SystemInfo(TypedDict):
     population: int
     security: str
     economy: str
+
 
 @dataclass()
 class Location:

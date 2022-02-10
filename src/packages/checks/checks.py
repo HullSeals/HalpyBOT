@@ -1,16 +1,5 @@
 """
-This file uses Open Source components.
-You can find the source code of their open source projects along with license
-information below. We acknowledge and are grateful to these developers for their contributions to open source.
-
-Project: SPARK / pipsqueak3 https://github.com/FuelRats/pipsqueak3
-License: https://github.com/FuelRats/pipsqueak3/blob/develop/LICENSE
-
-BSD 3-Clause License
-Copyright (c) 2018, The Fuel Rats Mischief
-All rights reserved.
-
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 checks.py - Check check check...
 
@@ -23,9 +12,14 @@ See license.md
 
 import functools
 from typing import List
+import logging
 
 from ..models import User
 from ..configmanager import config
+from ..database import DatabaseConnection, NoDatabaseConnection, Grafana
+
+logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 
 class Permission:
@@ -60,7 +54,7 @@ Cybermgr = Permission(vhost="cybersealmgr.hullseals.space",
                       level=6,
                       msg="You need to be a cyberseal manager for this.")
 
-Owner = Permission(vhost="Rixxan.admin.hullseals.space",
+Owner = Permission(vhost="rixxan.admin.hullseals.space",
                    level=7,
                    msg="You need to be a Rixxan to use this")
 
@@ -73,6 +67,28 @@ _levels = {
     Cybermgr.vhost: 6,
     Owner.vhost: 7,
 }
+
+
+def log_unauthorized(user: str, channel: str, command: str, args: List[str], required: int, provided: int):
+    """Emit an authorization incident to the dashboard log table
+
+    Args:
+        user (str): User that invoked the command
+        channel (str): Channel the command was invoked in, username if in DM
+        command (str): Used command
+        args (list): List of arguments provided by the user
+        required (int): Required permission level
+        provided (int): Provided permission level
+
+    """
+    try:
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spCreateUnauthCmdAccess', [user, channel, command, ' '.join(args), required, provided])
+    except NoDatabaseConnection:
+        # TODO stash DB call and execute once we get back to online mode
+        pass
+
 
 class Require:
 
@@ -99,28 +115,53 @@ class Require:
                 # Get role
                 whois = await User.get_info(ctx.bot, ctx.sender)
                 vhost = User.process_vhost(whois.hostname)
+
                 if vhost is None:
-                    return await ctx.reply(role.msg if
-                                           message is None else message)
+                    await ctx.reply(role.msg if
+                                    message is None else message)
+                    logger.warning(f"Permission error: {ctx.sender}!@{whois.hostname} used "
+                                   f"{ctx.command} (Req: {required_level}) in "
+                                   f"{ctx.channel}.")
+                    return log_unauthorized(user=f"{ctx.sender}!@{whois.hostname}",
+                                            channel=ctx.channel,
+                                            command=ctx.command,
+                                            args=args,
+                                            required=required_level,
+                                            provided=0)
+
                 # Find user level that belongs to vhost
                 user_level = int(_levels[vhost])
                 # If permission is not correct, send deniedMessage
+
                 if user_level < required_level:
-                    return await ctx.reply(role.msg if
-                                           message is None else message)
+                    await ctx.reply(role.msg if
+                                    message is None else message)
+                    # Log it and send off for the dashboard
+                    logger.warning(f"Permission error: {ctx.sender}!@{whois.hostname} used "
+                                   f"{ctx.command} (Req: {required_level}) in "
+                                   f"{ctx.channel}.")
+                    return log_unauthorized(user=f"{ctx.sender}!@{whois.hostname}",
+                                            channel=ctx.channel,
+                                            command=ctx.command,
+                                            args=args,
+                                            required=required_level,
+                                            provided=user_level)
                 else:
                     return await function(ctx, args)
+
             return guarded
+
         return decorator
 
     @staticmethod
     def DM():
         """Require command to be executed in a Direct Message with the bot"""
+
         def decorator(function):
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
                 if ctx.in_channel:
-                    return
+                    return await ctx.redirect("You have to run that command in DMs with me!")
                 else:
                     return await function(ctx, args)
 
@@ -136,7 +177,7 @@ class Require:
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
                 if ctx.in_channel is False:
-                    return
+                    return await ctx.reply("You have to run this command in a channel! Aborted.")
                 else:
                     return await function(ctx, args)
 

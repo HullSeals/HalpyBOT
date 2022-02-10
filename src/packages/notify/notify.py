@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 notify.py - Amazon Web Services Simple Notification Service interface
 
@@ -16,16 +16,23 @@ import boto3
 import boto3.exceptions
 
 from ..configmanager import config
+from ..database import Grafana
+
+logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
+
 
 class SNSError(Exception):
     """
     Base class for Halpy-SNS exceptions
     """
 
+
 class NotificationFailure(SNSError):
     """
     Raised when unable to send notification
     """
+
 
 class SubscriptionError(SNSError):
     """
@@ -40,6 +47,7 @@ if config['Notify']['secret'] and config['Notify']['access']:
                        aws_secret_access_key=config['Notify']['secret'])  # AWS IAM Secret
 else:
     sns = None
+
 
 async def listTopics():
     """Subscribe
@@ -81,7 +89,7 @@ async def subscribe(topic, endpoint):
          (str or None): Protocol if successful
 
      Raises:
-         ValueError: Value is neither a phone number or email adress
+         ValueError: Value is neither a phone number nor email adress
          SubscriptionError: Parameters are valid but subscription could not be registered
 
      """
@@ -104,7 +112,7 @@ async def subscribe(topic, endpoint):
     try:
         sns.subscribe(TopicArn=topic, Protocol=protocol, Endpoint=endpoint)
     except boto3.exceptions.Boto3Error as ex:
-        logging.info(f"NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.")
+        logger.info(f"NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.")
         raise SubscriptionError(ex)
 
 
@@ -117,7 +125,7 @@ async def listSubByTopic(topic_arn):
          topic_arn (str): The group the message is being sent to.
 
      Returns:
-         (list): All numbers, emails, etc subscribed to the topic.
+         (list): All numbers, emails, etc. subscribed to the topic.
 
      Raises:
          SNSError: Raised when query to AWS was unsuccessful

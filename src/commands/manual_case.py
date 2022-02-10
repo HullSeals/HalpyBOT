@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 manual_case.py - Manual case creation module
 
@@ -12,14 +12,18 @@ See license.md
 
 from typing import List
 import logging
-# We'll temporarily use Requests
-import requests
+import aiohttp
 import datetime
 
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
-from ..packages.models import Context
+from ..packages.models import Context, User
 from ..packages.configmanager import config
+from ..packages.database import Grafana
+
+logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
+
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
@@ -31,8 +35,19 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     Usage: !manualcase [IRC name] [case info]
     Aliases: mancase, manualfish, manfish
     """
+    if len(args) == 0 or len(args) == 1:
+        return await ctx.reply(get_help_text("mancase"))
+
+    # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
+    try:
+        await User.get_channels(ctx.bot, args[0])
+    except AttributeError:
+        return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
+    except KeyError:
+        return await ctx.reply(get_help_text("mancase"))
+
     info = ctx.message
-    logging.info(f"Manual case by {ctx.sender} in {ctx.channel}")
+    logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
     for channel in config["Manual Case"]["send_to"].split():
         await ctx.bot.message(channel, f"xxxx MANCASE -- NEWCASE xxxx\n"
                                        f"{info}\n"
@@ -72,10 +87,11 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     }
 
     try:
-        requests.post(config['Discord Notifications']['url'], json=cn_message)
-    except requests.exceptions.HTTPError as err:
+        async with aiohttp.ClientSession() as session:
+            await session.post(config['Discord Notifications']['url'], json=cn_message)
+    except aiohttp.ClientError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
-        logging.error(f"Unable to notify Discord: {err}")
+        logger.error(f"Unable to notify Discord: {err}")
 
 
 @Commands.command("tsping", "wssping")
@@ -83,14 +99,14 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
 @Require.channel()
 async def cmd_tsping(ctx: Context, args: List[str]):
     """
-    Ping the Trained Seals role on Discord. Annoying as duck and not to be used lightly
+    Ping the 'Trained Seals' role on Discord. Annoying as duck and not to be used lightly
 
     Usage: !tsping [info]
     Aliases: wssping
     """
-    info = "No additional info provided. Check with the Dispatcher!"
-    if ctx.message != "":
-        info = ctx.message
+    if len(args) == 0:
+        return await ctx.reply(get_help_text("tsping"))
+    info = ctx.message
 
     cn_message = {
         "content": f"Attention, {config['Discord Notifications']['trainedrole']}! Seals are needed for this case.",
@@ -119,9 +135,10 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     }
 
     try:
-        result = requests.post(config['Discord Notifications']['url'], json=cn_message)
-    except requests.exceptions.HTTPError as err:
+        async with aiohttp.ClientSession() as session:
+            await session.post(config['Discord Notifications']['url'], json=cn_message)
+    except aiohttp.ClientError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
-        logging.error(f"Unable to notify Discord: {err}")
+        logger.error(f"Unable to notify Discord: {err}")
     else:
         return await ctx.reply("Trained Seals ping sent out successfully.")

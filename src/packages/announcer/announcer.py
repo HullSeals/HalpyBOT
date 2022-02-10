@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 announcer.py - Client announcement handler
 
@@ -14,18 +14,26 @@ See license.md
 from __future__ import annotations
 import pydle
 import json
-from typing import List, Dict, Optional
 import logging
-import tweepy
+from typing import List, Dict, Optional
 
-from ..configmanager import config
+from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa, sys_cleaner
+from ..ircclient import client
+from ..database import Grafana
+from .twitter import TwitterCasesAcc, TwitterConnectionError
 
-from ..edsm import checklandmarks, NoResultsEDSM, EDSMLookupError
+logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
+
+cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
+                 "South": "North", "SW": "NE", "West": "East", "NW": "SE"}
+
 
 class AnnouncementError(Exception):
     """
     Could not announce request
     """
+
 
 class Announcer:
 
@@ -40,7 +48,6 @@ class Announcer:
             bot (pydle.Client): Bot client we make announcements with
 
         """
-        self._client = bot
         self._announcements = {}
         # Load data
         with open('data/announcer/announcer.json', 'r') as cf:
@@ -56,53 +63,43 @@ class Announcer:
                 content=anntype['Content']
             )
 
-    @property
-    def client(self):
-        return self._client
-
-    @client.setter
-    def client(self, client: Optional[pydle.Client]):
-        self._client = client
-
     def rehash(self):
         pass
 
     async def announce(self, announcement: str, args: Dict):
+        """Announce a new case
+
+        Args:
+            announcement: The type of announcement to make
+            args: Arguments for the case announcement
+
+        Returns:
+            Nothing
+
+        Raises:
+            AnnouncementError: Case could not be announced for any reason
+
+        """
         ann = self._announcements[announcement]
         # noinspection PyBroadException
         # We want to catch everything
         try:
             for ch in ann.channels:
-                await self._client.message(ch, await ann.format(args))
-            if "Platform" in args:
-                twita = f"A new {args['Platform']} case has come in."
+                await client.message(ch, await ann.format(args))
+            if "Platform" in args.keys():
                 try:
-                    twitstr = await ann.twitformat(args)
-                    twitmsg = f"{twita} {twitstr} Call your jumps, Seals!"
-                    auth = tweepy.OAuthHandler(config['Twitter']['api_key'],
-                                               config['Twitter']['api_secret'])
-                    auth.set_access_token(config['Twitter']['access_token'],
-                                          config['Twitter']['access_secret'])
-                    api = tweepy.API(auth, wait_on_rate_limit=True,
-                                     wait_on_rate_limit_notify=True)
-                    try:
-                        api.verify_credentials()
-                    except tweepy.error.TweepError as err:
-                        logging.error(f"ERROR in Twitter Authentication: {err}")
-                    try:
-                        api.update_status(twitmsg)
-                    except tweepy.error.TweepError as err:
-                        logging.error(f"ERROR in Twitter Update: {err}")
-                except NameError as err:
-                    logging.error(f"ERROR! {err}")
+                    await TwitterCasesAcc.tweet_case(announcement, args)
+                except TwitterConnectionError:
+                    return
         except Exception as ex:
             raise AnnouncementError(ex)
+
 
 class Announcement:
 
     def __init__(self, ID: str, name: str, description: str,
                  channels: List[str], edsm: Optional[int], content: List[str]):
-        """Create a new announcement object
+        """Create a new announceable object
 
         Args:
             ID (str): Announcement reference code, used by API
@@ -135,64 +132,77 @@ class Announcement:
             IndexError: an invalid number of parameters was provided
 
         """
+        if "System" in args.keys():
+            args["System"] = await sys_cleaner(args["System"])
         # Come on pylint
-        edsmstr = ''
         try:
             announcement = self._content.format(**args)
         except IndexError:
             raise
-        if self._edsm and args["System"]:
+        if self._edsm:
             try:
-                landmark, distance, direction = await checklandmarks(args["System"])
-                # What we have is good, however, to make things look nice we need to flip the direction Aussie Style
-                dirA = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
-                olddir = dirA.index(direction)
-                dirB = ["South", "SW", "West", "NW", "North", "NE", "East", "SE", "South"]
-                direction = f'{dirB[olddir]}'
-                edsmstr = f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-            except NoResultsEDSM:
-                edsmstr = f"\nSystem {args['System']} not found in EDSM."
-            except EDSMLookupError:
-                edsmstr = f"\nUnable to query EDSM. Dispatch, please contact a cyberseal."
-        elif self._edsm:
-            ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
-        return announcement + edsmstr
+                announcement += await self.get_edsm_data(args)
+            except ValueError:
+                announcement += 'Attention Dispatch, please confirm clients system before proceeding.'
+        return announcement
 
-
-    async def twitformat(self, args) -> str:
-        """Format twitter line in a ready-to-be-sent format
-
-        This includes the result of the EDSM query if specified in the config
+    async def get_edsm_data(self, args: Dict, twitter: bool = False) -> Optional[str]:
+        """Calculates and formats a ready-to-go string with EDSM info about a system
 
         Args:
-            *args: List of parameters to be formatted into the announcement
+            args: Arguments for the case announcement
+            twitter: True if the information is meant to be sent over Twitter, else False.
 
         Returns:
-            (str): Fully formatted announcement
+            (str) string with information about the existence of a system, plus
+                distance and cardinal direction from the nearest landmark
 
         Raises:
-            IndexError: an invalid number of parameters was provided
+            ValueError: Raised if System parameter is not present in `args` dict
 
         """
-        # Come on pylint
-        edsmstr = ''
-        try:
-            announcement = self._content.format(**args)
-        except IndexError:
-            raise
         if self._edsm and args["System"]:
+            sys_name = args["System"]
             try:
-                landmark, distance, direction = await checklandmarks(args["System"])
-                # What we have is good, however, to make things look nice we need to flip the direction Aussie Style
-                dirA = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
-                olddir = dirA.index(direction)
-                dirB = ["South", "SW", "West", "NW", "North", "NE", "East", "SE", "South"]
-                direction = f'{dirB[olddir]}'
-                edsmstr = f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-            except NoResultsEDSM:
-                edsmstr = "System Not Found in EDSM."
+                exact_sys = sys_name == args["System"]
+                landmark, distance, direction = await checklandmarks(sys_name)
+                # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
+                direction = cardinal_flip[direction]
+                if twitter:
+                    return f"{distance} LY {direction} of {landmark}"
+                else:
+                    if exact_sys:
+                        return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+                    else:
+                        return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM "\
+                               f"was {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
+            except NoResultsEDSM as er:
+                if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
+                    dssa, distance, direction = await checkdssa(args['System'])
+                    return f"\n{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
+                           f"{args['System']}."
+                else:
+                    found_sys, close_sys = await get_nearby_system(sys_name)
+
+                    if found_sys:
+                        try:
+                            landmark, distance, direction = await checklandmarks(close_sys)
+                            return f"\n{args['System']} could not be found in EDSM. System closest in name found in "\
+                                   f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
+                        except NoResultsEDSM as er:
+                            if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
+                                dssa, distance, direction = await checkdssa(close_sys)
+                                return f"\n{sys_name} could not be found in EDSM. System closest in name found in " \
+                                       f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in " \
+                                       f"{dssa}, {distance} LY {direction} of {close_sys}. "
+                    else:
+                        return "\nDistance to landmark or DSSA unknown." if twitter else "\nSystem Not Found in EDSM." \
+                                                                                         " match to sys name format " \
+                                                                                         "or sys name lookup " \
+                                                                                         "failed.\nPlease check " \
+                                                                                         "system name with client "
+
             except EDSMLookupError:
-                edsmstr = f"\nUnable to query EDSM."
-        elif self._edsm:
-            ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
-        return edsmstr
+                return '' if twitter else "\nUnable to query EDSM."
+        else:
+            raise ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")

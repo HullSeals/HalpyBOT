@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 server_announcer.py - Handler for announcements requested by the API
 
@@ -20,6 +20,7 @@ from .auth import Authenticate
 
 routes = web.RouteTableDef()
 
+
 @routes.post('/announce')
 @Authenticate()
 async def announce(request):
@@ -33,6 +34,7 @@ async def announce(request):
         raise web.HTTPOk
     except AnnouncementError:
         raise web.HTTPInternalServerError
+
 
 MainAnnouncer = Announcer()
 

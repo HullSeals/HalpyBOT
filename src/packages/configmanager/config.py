@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 config.py - Configuration manager
 
@@ -13,17 +13,23 @@ See license.md
 import logging
 import configparser
 
+logger = logging.getLogger(__name__)
+
 config = configparser.ConfigParser()
 config.read('config/config.ini')
+
 
 class ConfigException(Exception):
     """Base class for configuration errors"""
 
+
 class ConfigWriteError(ConfigException):
     """Unable to write to config file"""
 
+
 class ConfigValidationFailure(ConfigException):
     """One or more required configuration entries are not present"""
+
 
 def config_write(module: str, key: str, value):
     """Write a value to the configuration file
@@ -34,7 +40,7 @@ def config_write(module: str, key: str, value):
         value (str): New value
 
     """
-    logging.info(f"{module}, {key} set to {value}")
+    logger.info(f"{module}, {key} set to {value}")
     config[module][key] = value
     try:
         with open('config/config.ini', 'w') as conf:

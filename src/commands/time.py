@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 time.py - get in-game time
 
@@ -15,6 +15,7 @@ from datetime import datetime
 
 from ..packages.command import Commands
 from ..packages.models import Context
+
 
 @Commands.command("utc")
 async def cmd_utc(ctx: Context, args: List[str]):

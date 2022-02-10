@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 facthandler.py - Database interaction for the fact module
 
@@ -10,7 +10,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-
 from __future__ import annotations
 from typing import List, Optional
 import json
@@ -20,20 +19,24 @@ from ..database import DatabaseConnection, NoDatabaseConnection
 from ..configmanager import config
 from ..command import Commands
 
+
 class FactHandlerError(Exception):
     """
     Base class for fact handler exceptions
     """
+
 
 class FactUpdateError(FactHandlerError):
     """
     Unable to update a fact attribute to the database
     """
 
+
 class InvalidFactException(FactHandlerError):
     """
     Raised when an invalid fact is created
     """
+
 
 class Fact:
 
@@ -394,5 +397,6 @@ class FactHandler:
         # Else (no args, no default arg)
         else:
             return str(reqfact.text)
+
 
 Facts = FactHandler()

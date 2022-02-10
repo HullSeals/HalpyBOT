@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 utils.py - miscellaneous utility functions
 
@@ -13,6 +13,7 @@ See license.md
 import re
 import json
 
+
 def language_codes():
     """Get a dict of ISO-639-1 language codes
 
@@ -23,6 +24,7 @@ def language_codes():
     with open("data/languages/iso639-1.json") as file:
         langs = json.load(file)
         return langs
+
 
 def strip_non_ascii(string: str):
     """Strip non-ASCII characters from a string

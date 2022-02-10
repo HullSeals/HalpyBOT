@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 context.py - Message context object
 
@@ -12,10 +12,12 @@ See license.md
 
 import pydle
 
+
 class Context:
     """Message context object"""
 
-    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str):
+    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str,
+                 command: str):
         """Create message context object
 
         Args:
@@ -31,6 +33,7 @@ class Context:
         self.sender = sender
         self.in_channel = in_channel
         self.message = message
+        self.command = command
 
     async def reply(self, message: str):
         """Send a message to the channel a message was sent in
@@ -42,3 +45,14 @@ class Context:
 
         """
         await self.bot.reply(self.channel, self.sender, self.in_channel, message)
+
+    async def redirect(self, message: str):
+        """Send a message to the person a DM-only command was run by
+
+        Args:
+            message (str): The message to be sent
+
+        """
+        if self.in_channel is True:
+            await self.bot.reply(self.channel, self.sender, self.in_channel, "Responding in DMs!")
+        await self.bot.reply(self.channel, self.sender, False, message)

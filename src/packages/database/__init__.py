@@ -1,4 +1,6 @@
-from .connection import DatabaseConnection, NoDatabaseConnection, latency
+from .connection import DatabaseConnection, NoDatabaseConnection, latency, Grafana
 
 __all__ = ["DatabaseConnection",
-           "NoDatabaseConnection"]
+           "NoDatabaseConnection",
+           "latency",
+           "Grafana"]

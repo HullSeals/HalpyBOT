@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 rank_change.py - Handler for Seal vhost changes requested by the API
 
@@ -11,14 +11,16 @@ See license.md
 
 """
 
-from typing import Dict
 from aiohttp import web
 
-from .server import APIConnector, HalpyClient
+from .server import APIConnector
 from .auth import Authenticate
+
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
+from ..packages.ircclient import client as botclient
 
 routes = web.RouteTableDef()
+
 
 @routes.post('/tail')
 @Authenticate()
@@ -28,7 +30,6 @@ async def tail(request):
     # Parse arguments
     rank = request["rank"]
     subject = request["subject"]
-    result = None
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
         with DatabaseConnection() as db:
@@ -36,9 +37,10 @@ async def tail(request):
             cursor.execute(f"SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,))
             result = cursor.fetchall()
             for i in result:
-                await HalpyClient.client.rawmsg("hs", "SETALL", i[0], vhost)
+                await botclient.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:
-        raise
+        raise web.HTTPServiceUnavailable
+
 
 APIConnector.add_routes(routes)

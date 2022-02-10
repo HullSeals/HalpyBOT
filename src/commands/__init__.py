@@ -10,6 +10,9 @@ from . import settings
 from . import shutdown
 from . import time
 from . import userinfo
+from . import help
+from . import caseutils
+from . import drill
 
 __all__ = ["delayedboard",
            "edsm",
@@ -22,4 +25,7 @@ __all__ = ["delayedboard",
            "settings",
            "shutdown",
            "time",
-           "userinfo"]
+           "userinfo",
+           "help",
+           "caseutils",
+           "drill"]

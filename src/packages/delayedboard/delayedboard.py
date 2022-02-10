@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 delayedboard.py - Database interaction for Delayed Board commands
 
@@ -12,6 +12,7 @@ See license.md
 
 from ..database import DatabaseConnection, NoDatabaseConnection
 from ..utils import strip_non_ascii
+
 
 class DelayedCase:
 
@@ -52,11 +53,11 @@ class DelayedCase:
         return out_args
 
     @staticmethod
-    async def reopen(cID, casestat, author):
+    async def reopen(case_id, casestat, author):
         """Reopen a previously closed case on the Delayed Board
 
         Args:
-            cID (int): the ID of the case to be reopened
+            case_id (int): the ID of the case to be reopened
             casestat (str): New status: 1 for `needs seals`,
                 2 for `waiting for seals/client to arrive`
             author (str): Nickname of user
@@ -72,7 +73,7 @@ class DelayedCase:
             NoDatabaseConnection: When no connection to the database could be established
 
         """
-        in_args = [int(cID), int(casestat), author, 0, 0, 0]
+        in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
         try:
             with DatabaseConnection() as db:
@@ -86,11 +87,11 @@ class DelayedCase:
         return out_args
 
     @staticmethod
-    async def status(cID, casestat, author):
+    async def status(case_id, casestat, author):
         """Update status code of a Delayed Case
 
         Args:
-            cID (int): the ID of the case to be updated
+            case_id (int): the ID of the case to be updated
             casestat (int): New status code: 1 for `needs seals`,
                 2 for `waiting for seals/client to arrive`
             author (str): Nickname of user
@@ -106,7 +107,7 @@ class DelayedCase:
             NoDatabaseConnection: When no connection to the database could be established
 
         """
-        in_args = [int(cID), int(casestat), author, 0, 0, 0]
+        in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
         try:
             with DatabaseConnection() as db:
@@ -120,11 +121,11 @@ class DelayedCase:
         return out_args
 
     @staticmethod
-    async def notes(cID, message, author):
+    async def notes(case_id, message, author):
         """Update notes of a Delayed Board case
 
         Args:
-            cID (int): Delayed Case ID of the case we want to edit
+            case_id (int): Delayed Case ID of the case we want to edit
             message (str): new case notes
             author (str): User who invoked command
 
@@ -140,7 +141,7 @@ class DelayedCase:
 
         """
         message = strip_non_ascii(message)
-        in_args = [int(cID), str(message[0]), author, 0, 0, 0]
+        in_args = [int(case_id), str(message[0]), author, 0, 0, 0]
         out_args = []
         try:
             with DatabaseConnection() as db:

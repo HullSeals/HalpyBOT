@@ -10,7 +10,7 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.4.2
+HalpyBOT v1.5
 
 user.py - User dataclass
 
@@ -43,7 +43,7 @@ class User:
     hostname: str
     realname: str
     identified: bool
-    channels: set
+    channels: Optional[set]
     server: str
     server_info: str
     secure: bool
@@ -64,8 +64,9 @@ class User:
         """
         # fetch the user object from pydle
         data = await bot.whois(nickname)
-
-        # if we got a object back
+        if 'channels' not in data.keys():
+            data['channels'] = None
+        # if we got an object back
         if data:
             return cls(**data, nickname=nickname)
         else:
@@ -90,8 +91,8 @@ class User:
         if vhost is None:
             return None
         # RixxanCheck(TM)
-        if vhost == "Rixxan.admin.hullseals.space":
-            return vhost
+        if vhost.lower().endswith("rixxan.admin.hullseals.space"):
+            return "rixxan.admin.hullseals.space"
         # sanity / security check
         if not vhost.endswith(".hullseals.space"):
             return None
