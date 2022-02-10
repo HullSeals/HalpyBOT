@@ -42,28 +42,28 @@ async def test_open():
 @pytest.mark.asyncio
 async def test_check():
     checked_number = await DelayedCase.check()
-    assert int(checked_number) > curr_delayed
+    assert int(checked_number) > int(curr_delayed)
 
 
 @pytest.mark.asyncio
 async def test_close():
-    closed = await DelayedCase.status(testID, "3", "HalpyBOT Test Library")
+    closed = await DelayedCase.status(int(testID), 3, "HalpyBOT Test Library")
     assert closed[1] == 0
 
 
 @pytest.mark.asyncio
 async def test_reopen():
-    reopen = await DelayedCase.reopen(testID, "2", "HalpyBOT Test Library")
+    reopen = await DelayedCase.reopen(int(testID), "2", "HalpyBOT Test Library")
     assert reopen[1] == 0
 
 
 @pytest.mark.asyncio
 async def test_notes():
-    notes = await DelayedCase.notes(testID, "Modified Case Notes", "HalpyBOT Test Library")
+    notes = await DelayedCase.notes(int(testID), "Modified Case Notes", "HalpyBOT Test Library")
     assert notes[1] == 0
 
 
 @pytest.mark.asyncio
 async def test_close2():
-    closed = await DelayedCase.status(testID, "3", "HalpyBOT Test Library")
+    closed = await DelayedCase.status(int(testID), 3, "HalpyBOT Test Library")
     assert closed[1] == 0

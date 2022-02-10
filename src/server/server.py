@@ -44,7 +44,7 @@ class HalpyServer(web.Application):
                                                             'User-Agent' in request.headers else "None"),  # Agent
                                                            request.path,  # Route
                                                            request.method,  # HTTP Method
-                                                           (str(await request.json()) if request.has_body else
+                                                           (str(await request.json()) if request.can_read_body else
                                                             "None"),  # Body
                                                            (1 if success else 0),  # HMAC match
                                                            str(request.version)  # Misc
@@ -96,7 +96,6 @@ class HalpyServer(web.Application):
             return ex
         finally:
             asyncio.ensure_future(self._log_request(request, successful))
-
 
 
 @routes.get('/')

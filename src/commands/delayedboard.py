@@ -77,11 +77,11 @@ async def cmd_ReopenDelayedCase(ctx: Context, args: List[str]):
     elif not args[0].isnumeric():
         return await ctx.reply("No valid case number was provided.")
 
-    cID = int(args[0])
+    case_id = int(args[0])
     casestat = args[1]
 
     try:
-        results = await DelayedCase.reopen(cID, casestat, ctx.sender)
+        results = await DelayedCase.reopen(case_id, casestat, ctx.sender)
     except NoDatabaseConnection:
         return await ctx.reply("Cannot reopen case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -108,10 +108,10 @@ async def cmd_closeDelayedCase(ctx: Context, args: List[str]):
     if len(args) < 1 or not args[0].isnumeric():
         return await ctx.reply("Cannot comply: no valid case number was provided.")
 
-    cID = int(args[0])
+    case_id = int(args[0])
 
     try:
-        results = await DelayedCase.status(cID, 3, ctx.sender)  # set casestat to 3 to close case
+        results = await DelayedCase.status(case_id, 3, ctx.sender)  # set casestat to 3 to close case
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -141,11 +141,11 @@ async def cmd_updateDelayedStatus(ctx: Context, args: List[str]):
     if len(args) < 2 or args[1] not in '12':
         return await ctx.reply("Cannot comply: please set a valid status code")
 
-    cID = int(args[0])
+    case_id = int(args[0])
     casestat = int(args[1])
 
     try:
-        results = await DelayedCase.status(cID, casestat, ctx.sender)
+        results = await DelayedCase.status(case_id, casestat, ctx.sender)
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -180,10 +180,10 @@ async def cmd_updateDelayedNotes(ctx: Context, args: List[str]):
     if len(message) > 400:
         return await ctx.reply("Cannot update notes: maximum length for notes is 400 characters.")
 
-    cID = int(args[0])
+    case_id = int(args[0])
 
     try:
-        results = await DelayedCase.notes(cID, message, ctx.sender)
+        results = await DelayedCase.notes(case_id, message, ctx.sender)
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
                                "Contact a cyberseal immediately!")
@@ -244,7 +244,7 @@ async def cmd_updateDelayedCase(ctx: Context, args: List[str]):
             return await cmd_updateDelayedNotes(ctx, args)
 
         # Both: call procedures back to back
-        cID = int(args[0])
+        case_id = int(args[0])
         casestat = int(args[1])
         message = ' '.join(args[2:])
 
@@ -252,8 +252,8 @@ async def cmd_updateDelayedCase(ctx: Context, args: List[str]):
         if casestat not in [1, 2]:
             return await ctx.reply("Cannot comply: please set a valid status code")
 
-        statusout = await DelayedCase.status(cID, casestat, ctx.sender)
-        notesout = await DelayedCase.notes(cID, message, ctx.sender)
+        statusout = await DelayedCase.status(case_id, casestat, ctx.sender)
+        notesout = await DelayedCase.notes(case_id, message, ctx.sender)
 
     except NoDatabaseConnection:
         return await ctx.reply("Cannot update case: running in OFFLINE MODE. "
