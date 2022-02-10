@@ -69,6 +69,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         return await ctx.reply("Cannot comply: Language code must be ISO-639-1 compliant.")
 
     try:
+        # Strip non-ASCII from facts, to ensure only standard ASCII are used.
         fact = ' '.join(args[1:])
         fact = strip_non_ascii(fact)
         fact = str(fact[0])
@@ -163,6 +164,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
         return await ctx.reply("That fact does not exist.")
     else:
         try:
+            # Strip non-ASCII from facts, to ensure only standard ASCII are used.
             message = ' '.join(args[1:])
             message = strip_non_ascii(message)
             message = str(message[0])
