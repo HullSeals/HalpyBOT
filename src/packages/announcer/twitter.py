@@ -39,7 +39,7 @@ class TwitterConnectionError(TweetError):
     """
 
 
-class Twitter(tweepy.API):
+class Twitter(tweepy.Client):
 
     def __init__(self, *args, **kwargs):
         if not config.getboolean('Twitter', 'enabled'):
@@ -47,10 +47,6 @@ class Twitter(tweepy.API):
             return
         self._open = True
         super().__init__(*args, **kwargs)
-        try:
-            self.verify_credentials()
-        except tweepy.TweepyException:
-            raise TwitterConnectionError("Incorrect auth details have been provided.")
 
     def __bool__(self):
         """Checks if Twitter functionality has been enabled in config
@@ -75,9 +71,14 @@ class Twitter(tweepy.API):
         mainline_tw = f"A new {args['Platform']} case has come in."
         if self.__bool__():  # Eh, this is stupid and unneccesary I guess. Keep it anyway
             try:
+
                 edsm_info = await announcement.get_edsm_data(args, twitter=True)
                 twitmsg = f"{mainline_tw} {edsm_info} Call your jumps, Seals!"
-                self.update_status(twitmsg)
+                auth = tweepy.Client(consumer_key=config['Twitter']['api_key'],
+                                     consumer_secret=config['Twitter']['api_secret'],
+                                     access_token=config['Twitter']['access_token'],
+                                     access_token_secret=config['Twitter']['access_secret'])
+                auth.create_tweet(text=twitmsg)
             except (NameError, tweepy.errors.TweepyException) as err:
                 logger.error(f"ERROR in Twitter Update: {err}")
                 raise TwitterConnectionError(err)
@@ -85,9 +86,4 @@ class Twitter(tweepy.API):
             return
 
 
-auth = tweepy.OAuthHandler(config['Twitter']['api_key'],
-                           config['Twitter']['api_secret'])
-auth.set_access_token(config['Twitter']['access_token'],
-                      config['Twitter']['access_secret'])
-TwitterCasesAcc = Twitter(auth, wait_on_rate_limit=True,
-                          wait_on_rate_limit_notify=True)
+TwitterCasesAcc = Twitter(wait_on_rate_limit=True)
