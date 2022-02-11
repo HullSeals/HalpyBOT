@@ -88,7 +88,7 @@ class Announcer:
                 await client.message(ch, await ann.format(args))
             if "Platform" in args.keys():
                 try:
-                    await TwitterCasesAcc.tweet_case(announcement, args)
+                    await TwitterCasesAcc.tweet_case(ann, args)
                 except TwitterConnectionError:
                     return
         except Exception as ex:
