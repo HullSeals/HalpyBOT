@@ -19,6 +19,7 @@ from ..packages.checks import Require, Cyberseal
 from ..packages.database import latency, NoDatabaseConnection, Grafana
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
+from src import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
@@ -85,7 +86,9 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     try:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+                headers={"User-Agent": DEFAULT_USER_AGENT}
+        ) as session:
             async with await session.get("https://hosting.zaonce.net/launcher-status/status.json") as response:
                 responses = await response.json()
     except aiohttp.ClientError as er:

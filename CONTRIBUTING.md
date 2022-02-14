@@ -51,7 +51,7 @@ Make a feature branch off of develop using git checkout -b feature/halpy-IssueID
 - fix - Bug fixes
 - testing - New or updated tests.
 
-An example of a correctly branch names is `feature/halpy-6`
+An example of a correctly-named branch is `feature/halpy-6`
 
 Implementations of minor functions _may_ be included in the branch of a more major function, if creating a separate branch would be exceptionally cumbersome. Keep the guidelines for commit messages in mind.
 

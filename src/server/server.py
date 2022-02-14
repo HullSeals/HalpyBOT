@@ -10,17 +10,16 @@ Licensed under the GNU General Public License
 See license.md
 
 """
-from typing import Union
+import git
 import aiohttp.web
-from aiohttp import web
-from aiohttp.web import Request, StreamResponse
 import asyncio
 import logging
+from aiohttp.web import Request, StreamResponse
+from typing import Union
+from aiohttp import web
 from datetime import datetime
 from ..packages.configmanager import config
-
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNotAllowed, HTTPNotFound
-
 from src import __version__
 from ..packages.ircclient import client as botclient
 from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
@@ -100,12 +99,19 @@ class HalpyServer(web.Application):
 
 @routes.get('/')
 async def server_root(request):
+    try:
+        repo = git.Repo()
+        sha = repo.head.object.hexsha
+        sha = sha[0:7]
+        sha = f" build {sha}"
+    except git.exc.InvalidGitRepositoryError:
+        sha = ""
     response = {"app": "Hull Seals HalpyBOT",
-                "version": __version__,
+                "version": f"{__version__}{sha}",
                 "bot_nick": botclient.nickname,
                 "irc_connected": "True" if botclient.connected else "False",
                 "offline_mode": config['Offline Mode']['enabled'],
-                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat()
+                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
                 }
     return web.json_response(response)
 

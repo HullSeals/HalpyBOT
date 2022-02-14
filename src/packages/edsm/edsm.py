@@ -19,7 +19,7 @@ from dataclasses import dataclass
 import json
 from time import time
 from typing import Optional, Union
-
+from src import DEFAULT_USER_AGENT
 from ..models import SystemInfo, Coordinates, Location
 from ..utils import get_time_seconds
 from ..configmanager import config
@@ -103,7 +103,9 @@ class GalaxySystem:
 
         # Else, get the system from EDSM
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(
+                    headers={"User-Agent": DEFAULT_USER_AGENT}
+            ) as session:
                 async with await session.get("https://www.edsm.net/api-v1/system", params={"systemName": name,
                                                                                            "showCoordinates": 1,
                                                                                            "showInformation": 1},
@@ -173,7 +175,9 @@ class GalaxySystem:
         """
         # Else, get the system from EDSM
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(
+                    headers={"User-Agent": DEFAULT_USER_AGENT}
+            ) as session:
                 async with await session.get("https://www.edsm.net/api-v1/sphere-systems",
                                              params={"x": x,
                                                      "y": y,
@@ -247,7 +251,9 @@ class Commander:
                 return cls._lookupCache[name.strip().upper()].object
 
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(
+                    headers={"User-Agent": DEFAULT_USER_AGENT}
+            ) as session:
                 async with await session.get("https://www.edsm.net/api-logs-v1/get-position",
                                              params={"commanderName": name,
                                                      "showCoordinates": 1}, timeout=10) as response:
@@ -611,7 +617,9 @@ async def get_nearby_system(sys_name: str, cache_override: bool = False):
     nameToCheck = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(
+                    headers={"User-Agent": DEFAULT_USER_AGENT}
+            ) as session:
                 async with await session.get("https://www.edsm.net/api-v1/systems",
                                              params={"systemName": nameToCheck}, timeout=10) as response:
                     responces = await response.json()
