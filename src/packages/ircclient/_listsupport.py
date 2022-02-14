@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 listsupport.py - Handler for LIST IRC commands
 

@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 auth.py - Bare bones HAPIC authentication system
 

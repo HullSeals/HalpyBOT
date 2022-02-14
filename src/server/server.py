@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 server.py - Hull Seals API -> HalpyBOT server
 

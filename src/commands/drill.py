@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 drill.py - Commands for the training and drilling of Seals
 

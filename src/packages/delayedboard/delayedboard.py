@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 delayedboard.py - Database interaction for Delayed Board commands
 

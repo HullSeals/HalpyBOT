@@ -1,5 +1,5 @@
 """"
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 puppet.py - Bot sock puppet
 
