@@ -14,7 +14,7 @@ from typing import List
 import logging
 import aiohttp
 import datetime
-
+from src import DEFAULT_USER_AGENT
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context, User
@@ -87,7 +87,9 @@ async def cmd_manualCase(ctx: Context, args: List[str]):
     }
 
     try:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+                headers={"User-Agent": DEFAULT_USER_AGENT}
+        ) as session:
             await session.post(config['Discord Notifications']['url'], json=cn_message)
     except aiohttp.ClientError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
@@ -135,7 +137,9 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     }
 
     try:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+                headers={"User-Agent": DEFAULT_USER_AGENT}
+        ) as session:
             await session.post(config['Discord Notifications']['url'], json=cn_message)
     except aiohttp.ClientError as err:
         await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")

@@ -55,7 +55,7 @@ async def hbot_help(ctx: Context, args: List[str]):
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):
     try:
-        repo = git.Repo(search_parent_directories=True)
+        repo = git.Repo()
         sha = repo.head.object.hexsha
         sha = sha[0:7]
         sha = f", build {sha}"
