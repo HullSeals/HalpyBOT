@@ -53,6 +53,26 @@
             "aliases":[],
             "arguments":"[language code]",
             "use":"Lists all facts of a given language two-letter code. Defaults to English (en)."
+        },
+        "factinfo":{
+            "aliases":[],
+            "arguments":"[name-lang]",
+            "use":"Get information about a specific fact."
+        },
+        "deletefact":{
+            "aliases":[],
+            "arguments":"[name-lang]",
+            "use":"Deletes a fact from the database."
+        },
+        "addfact":{
+            "aliases":[],
+            "arguments":"[name-lang] [text]",
+            "use":"Adds a fact to the database with the specified language. Defaults to English."
+        },
+        "editfact":{
+            "aliases":["updatefact"],
+            "arguments":"[name-lang] [new text]",
+            "use":"Edits a fact in the database with the specified language."
         }
     },
     "Utility":{
