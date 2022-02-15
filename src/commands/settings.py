@@ -17,7 +17,7 @@ import logging
 
 from ..packages.checks import Require, Cyberseal, Moderator
 from ..packages.configmanager import config_write, config
-from ..packages.command import CommandGroup, Commands
+from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.models import Context
 from ..packages.database import Grafana
 
@@ -38,7 +38,7 @@ async def cmd_nick(ctx: Context, args: List[str]):
     Aliases: settings nick
     """
     if len(args) == 0:
-        return await ctx.reply("!bot_management nick [newnick]: Sets a new name for the bot.")
+        return await ctx.reply(get_help_text("settings nick"))
     logger.info(f"NICK CHANGE from {config['IRC']['nickname']} to {args[0]} by {ctx.sender}")
     await ctx.bot.set_nickname(args[0])
     # Write changes to config file
@@ -56,7 +56,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     Aliases: settings prefix
     """
     if not args:
-        return await ctx.reply(f"Prefix: {config['IRC']['commandPrefix']}")
+        return await ctx.reply(get_help_text("settings prefix"))
     logger.info(f"PREFIX CHANGE from {config['IRC']['commandPrefix']} by {ctx.sender}")
     config_write('IRC', 'commandPrefix', args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
@@ -75,7 +75,7 @@ async def cmd_offline(ctx: Context, args: List[str]):
     Aliases: settings offline
     """
     if len(args) == 0:
-        return await ctx.reply(f"!bot_management offline [Status]: Changes the current offline mode status.\nCurrent "
+        return await ctx.reply(f"{get_help_text('settings offline')}\nCurrent "
                                f"offline setting: {config['Offline Mode']['enabled']}")
     if args[0].lower() == "true" and config['Offline Mode']['enabled'] != 'True':
         set_to = "True"
@@ -102,7 +102,7 @@ async def cmd_override_omw(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0 or len(args) == 1:
-        return await ctx.reply(f"!settings warning_override [True/False]: Changes the current Offline Warning mode.\n"
+        return await ctx.reply(f"{get_help_text('settings warning_override')}\n"
                                f"Current warning override setting: {config['Offline Mode']['warning override']}")
     request = args[0].lower()
 
@@ -112,8 +112,6 @@ async def cmd_override_omw(ctx: Context, args: List[str]):
     elif request in ('disable', 'false'):
         config_write('Offline Mode', 'warning override', 'False')
         request = False
-    else:
-        return await ctx.reply("!settings warning_override [True/False]: Changes the current Offline Warning mode.")
     if request is True or request is False:
         return await ctx.reply(f"Override has been {'enabled.' if request is True else 'disabled.'} You MUST "
                                f"inform an on-duty cyberseal of this action immediately.")
@@ -130,7 +128,7 @@ async def cmd_joinchannel(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.reply("!joinchannel [#channel]: Adds the bot to the given channel.")
+        return await ctx.reply(get_help_text("joinchannel"))
     try:
         await ctx.bot.join(args[0])
         return await ctx.reply(f"Bot joined channel {args[0]}")
@@ -149,4 +147,12 @@ async def cmd_part(ctx: Context, args: List[str]):
     Usage: !partchannel
     Aliases: n/a
     """
-    await ctx.bot.part(message=f"Parted by {ctx.sender}", channel=ctx.channel)
+    if len(args) == 0:
+        return await ctx.reply(get_help_text("partchannel"))
+    try:
+        await ctx.bot.part(message=f"Parted by {ctx.sender}", channel=ctx.channel)
+        return await ctx.redirect(f"Bot parted channel {args[0]}")
+    except pydle.client.NotInChannel:
+        return await ctx.reply("Bot is not in that channel!")
+    except ValueError:
+        return await ctx.reply(f"Channel {args[0]} does not exist.")
