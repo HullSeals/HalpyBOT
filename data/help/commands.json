@@ -130,6 +130,11 @@
             "aliases":[],
             "arguments":"",
             "use":"Reply with information about HalpyBOT"
+        },
+        "say":{
+            "aliases":[],
+            "arguments":"[channel] [text]",
+            "use":"Make the Bot say something"
         }
     },
     "Delay":{
@@ -184,6 +189,53 @@
             "aliases":[],
             "arguments":"[cmdr], [platform], [system], [hull], [cansynth], [o2]",
             "use":"Starts a new Drill CB Case, separated by Commas"
+		}
+    },
+    "Administrative": {
+        "notifyinfo details":{
+            "aliases":[],
+            "arguments":"[group]",
+            "use":"List the contact details of a particular group."
+		},
+        "notifyinfo groups":{
+            "aliases":[],
+            "arguments":"",
+            "use":"List the registered notify groups."
+		},
+        "addsub":{
+            "aliases":["subnotify", "alertme", "subscribe", "subscribenotify"],
+            "arguments":"[group] [info]",
+            "use":"Adds a phone number or email address to the notification group given."
+		},
+        "settings nick": {
+            "aliases":[],
+            "arguments":"[newnick]",
+            "use":"Change the nickname of the bot."
+        },
+        "settings prefix": {
+            "aliases":[],
+            "arguments":"[new prefix]",
+            "use":"Change the interaction prefix of the bot."
+        },
+        "settings offline": {
+            "aliases":[],
+            "arguments":"[True/False]",
+            "use":"Change the Offline Mode database connection status."
+        },
+        "settings warning_override": {
+            "aliases":[],
+            "arguments":"[True/False]",
+            "use":"Enable override for offline mode notifications."
+        },
+        "joinchannel":{
+            "aliases":[],
+            "arguments":"[channel]",
+            "use":"Make the bot join a channel. After restart, it will still be in the channel."
+		},
+        "partchannel":{
+            "aliases":[],
+            "arguments":"[channel]",
+            "use":"Make the bot leave a channel."
 		}
     }
 }
