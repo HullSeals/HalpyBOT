@@ -73,6 +73,11 @@
             "aliases":["updatefact"],
             "arguments":"[name-lang] [new text]",
             "use":"Edits a fact in the database with the specified language."
+        },
+        "ufi":{
+            "aliases":["updatefactindex"],
+            "arguments":"",
+            "use":"Updates the local fact cache with the database."
         }
     },
     "Utility":{
@@ -80,6 +85,16 @@
             "aliases":[],
             "arguments":"",
             "use":"Check to see if the bot is responding to commands."
+		},
+        "dbping":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Reply with the latency between the Bot and the Database."
+		},
+        "edsmping":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Reply with the latency between the Bot and the EDSM API."
 		},
         "serverstatus":{
             "aliases":[],
@@ -172,6 +187,11 @@
             "aliases":[],
             "arguments":"[case ID] [case status]",
             "use":"Reopens a previously-closed case, if a case is improperly closed. Moderator only"
+        },
+        "checkstatus":{
+            "aliases":[],
+            "arguments":"",
+            "use":"Check if any cases are currently marked as 'Delayed' in the database."
         }
     },
     "Drill":{
@@ -236,6 +256,11 @@
             "aliases":[],
             "arguments":"[channel]",
             "use":"Make the bot leave a channel."
+		},
+        "shutdown":{
+            "aliases":["restart", "sealpukku", "reboot"],
+            "arguments":"",
+            "use":"Shut down the bot. Will restart the bot if configured under daemon processing."
 		}
     }
 }
