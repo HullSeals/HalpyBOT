@@ -63,7 +63,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
     Aliases: notifyinfo endpoints
     """
     if len(args) == 0:
-        return await ctx.reply("!notifyinfo details [group]: List contact details of particular groups.")
+        return await ctx.reply(get_help_text("notifyinfo"))
 
     group = args[0].lower().strip()
 
@@ -99,7 +99,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0 or len(args) == 1:
-        return await ctx.reply("!addsub [group] [info]: Sends a notification to the Cyberseals with a given message.")
+        return await ctx.reply(get_help_text("addsub"))
 
     group = args[0].lower().strip()
 
