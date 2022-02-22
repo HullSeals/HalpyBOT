@@ -15,12 +15,12 @@ Before contributing to the project, please read the general Cyberseals code of c
 
 ## Merge requests
 
-- ALL merge requests MUST be peer reviewed by at least 1 Cyberseal team member
+- ALL merge requests MUST be reviewed by at least 1 Cyberseal team member
 - Requests can only be submitted if the branch is in a FULLY working state
 
 Make sure that the branch you're working on is up-to-date with develop.
 
-In the requests description, please mention the issue as `resolves #issueID` to automatically link the MR and the issue.
+In the merge request description, please mention the issue as `resolves #issueID` to automatically link the MR and the issue.
 
 ## Naming standards
 
