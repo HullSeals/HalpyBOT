@@ -50,8 +50,8 @@ async def hbot_help(ctx: Context, args: List[str]):
 
                 if help_text is None:
                     await ctx.reply(
-                        f"The command {arg} could not be found in the list. Try running help without an argument to get "
-                        f"the list of commands")
+                        f"The command {arg} could not be found in the list. Try running help without an argument to get"
+                        f" the list of commands")
                 else:
                     await ctx.reply(help_text)
 

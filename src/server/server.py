@@ -20,7 +20,7 @@ from aiohttp import web
 from datetime import datetime
 from ..packages.configmanager import config
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNotAllowed, HTTPNotFound
-from src import __version__
+from src import __version__, DEFAULT_USER_AGENT
 from ..packages.ircclient import client as botclient
 from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
 
@@ -106,7 +106,9 @@ async def server_root(request):
         sha = f" build {sha}"
     except git.exc.InvalidGitRepositoryError:
         sha = ""
-    response = {"app": "Hull Seals HalpyBOT",
+    if botclient.nickname == "<unregistered>":
+        botclient.nickname = "Not Connected"
+    response = {"app": DEFAULT_USER_AGENT,
                 "version": f"{__version__}{sha}",
                 "bot_nick": botclient.nickname,
                 "irc_connected": "True" if botclient.connected else "False",
