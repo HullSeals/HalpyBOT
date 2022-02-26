@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 test_edsm.py - Elite: Dangerous Star Map API interface module tests
 

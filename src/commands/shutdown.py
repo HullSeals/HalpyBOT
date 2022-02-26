@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 shutdown.py - Will be with you shortly, please hold!
 
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
 
-@Commands.command("shutdown", "restart", "sealpukku")
+@Commands.command("shutdown", "restart", "sealpukku", "reboot")
 @Require.DM()
 @Require.permission(Admin)
 async def cmd_shutdown(ctx: Context, args: List[str]):

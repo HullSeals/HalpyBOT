@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 caseutils.py - Commands involving the management of Seal cases
 

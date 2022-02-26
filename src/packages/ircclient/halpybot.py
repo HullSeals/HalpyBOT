@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 halpybot.py - Pydle client module for HalpyBOT
 

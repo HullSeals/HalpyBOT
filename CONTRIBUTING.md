@@ -15,12 +15,12 @@ Before contributing to the project, please read the general Cyberseals code of c
 
 ## Merge requests
 
-- ALL merge requests MUST be peer reviewed by at least 1 Cyberseal team member
+- ALL merge requests MUST be reviewed by at least 1 Cyberseal team member
 - Requests can only be submitted if the branch is in a FULLY working state
 
 Make sure that the branch you're working on is up-to-date with develop.
 
-In the requests description, please mention the issue as `resolves #issueID` to automatically link the MR and the issue.
+In the merge request description, please mention the issue as `resolves #issueID` to automatically link the MR and the issue.
 
 ## Naming standards
 
@@ -51,7 +51,7 @@ Make a feature branch off of develop using git checkout -b feature/halpy-IssueID
 - fix - Bug fixes
 - testing - New or updated tests.
 
-An example of a correctly branch names is `feature/halpy-6`
+An example of a correctly-named branch is `feature/halpy-6`
 
 Implementations of minor functions _may_ be included in the branch of a more major function, if creating a separate branch would be exceptionally cumbersome. Keep the guidelines for commit messages in mind.
 

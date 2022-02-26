@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 help.py - get command list and command details when queried
 
@@ -41,21 +41,25 @@ async def hbot_help(ctx: Context, args: List[str]):
         await ctx.redirect(help_string)
     else:
         # A specific command has been queried
-        for arg in args:
-            help_text = get_help_text(arg)
+        help_text = get_help_text(" ".join(args))
+        if help_text is not None:
+            await ctx.reply(help_text)
+        else:
+            for arg in args:
+                help_text = get_help_text(arg)
 
-            if help_text is None:
-                await ctx.reply(
-                    f"The command {arg} could not be found in the list. Try running help without an argument to get "
-                    f"the list of commands")
-            else:
-                await ctx.reply(help_text)
+                if help_text is None:
+                    await ctx.reply(
+                        f"The command {arg} could not be found in the list. Try running help without an argument to get"
+                        f" the list of commands")
+                else:
+                    await ctx.reply(help_text)
 
 
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):
     try:
-        repo = git.Repo(search_parent_directories=True)
+        repo = git.Repo()
         sha = repo.head.object.hexsha
         sha = sha[0:7]
         sha = f", build {sha}"

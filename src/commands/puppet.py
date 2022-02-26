@@ -1,5 +1,5 @@
 """"
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 puppet.py - Bot sock puppet
 
@@ -13,7 +13,7 @@ See license.md
 from typing import List
 
 from ..packages.checks import Require, Cyberseal
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 
 
@@ -28,5 +28,5 @@ async def cmd_say(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
-        return await ctx.reply("!say [channel] [text]: Make the bot say something.")
+        return await ctx.reply(get_help_text("say"))
     await ctx.bot.message(str(args[0]), ' '.join(args[1:]))
