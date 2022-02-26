@@ -189,7 +189,11 @@ async def cmd_coordslookup(ctx, args: List[str]):
     xcoord = args[0].strip()
     ycoord = args[1].strip()
     zcoord = args[2].strip()
-    if xcoord.lstrip("+-").isdigit() is False or ycoord.lstrip("+-").isdigit() is False or zcoord.lstrip("+-").isdigit() is False:
+    try:
+        coordcheck = float(xcoord)
+        coordcheck = float(ycoord)
+        coordcheck = float(zcoord)
+    except ValueError:
         return await ctx.reply("All coordinates must be numeric.")
     try:
         system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
