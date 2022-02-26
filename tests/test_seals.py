@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 test_seals.py - Fetching information about a registered user module tests
 

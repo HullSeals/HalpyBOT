@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 test_database.py - Database connection initialization module tests
 

@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 server.py - Hull Seals API -> HalpyBOT server
 
@@ -10,18 +10,17 @@ Licensed under the GNU General Public License
 See license.md
 
 """
-from typing import Union
+import git
 import aiohttp.web
-from aiohttp import web
-from aiohttp.web import Request, StreamResponse
 import asyncio
 import logging
+from aiohttp.web import Request, StreamResponse
+from typing import Union
+from aiohttp import web
 from datetime import datetime
 from ..packages.configmanager import config
-
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNotAllowed, HTTPNotFound
-
-from src import __version__
+from src import __version__, DEFAULT_USER_AGENT
 from ..packages.ircclient import client as botclient
 from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
 
@@ -100,12 +99,21 @@ class HalpyServer(web.Application):
 
 @routes.get('/')
 async def server_root(request):
-    response = {"app": "Hull Seals HalpyBOT",
-                "version": __version__,
+    try:
+        repo = git.Repo()
+        sha = repo.head.object.hexsha
+        sha = sha[0:7]
+        sha = f" build {sha}"
+    except git.exc.InvalidGitRepositoryError:
+        sha = ""
+    if botclient.nickname == "<unregistered>":
+        botclient.nickname = "Not Connected"
+    response = {"app": DEFAULT_USER_AGENT,
+                "version": f"{__version__}{sha}",
                 "bot_nick": botclient.nickname,
                 "irc_connected": "True" if botclient.connected else "False",
                 "offline_mode": config['Offline Mode']['enabled'],
-                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat()
+                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
                 }
     return web.json_response(response)
 

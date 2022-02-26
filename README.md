@@ -1,4 +1,4 @@
-# HalpyBOT 1.5
+# HalpyBOT 1.5.2
 This is the repository for HalpyBOT, the Hull Seals IRC Chatbot Assistant.
 
 # Description
@@ -10,20 +10,15 @@ This bot is in ACTIVE DEVELOPMENT.
 
 ## Requirements
 * Python 3.8-3.9
-* Pydle Python Library
-* Asyncio Python Library
-* Pure-SASL Python Library
 * Setuptools Python Library
-* MySQL Python Library
-* Numpy Python Library
-* Requests Python Library
-* Pytest Python Library
-* Boto3 Python Library
-* Aiohttp Python Library
-* Tweepy Python Library
+* pip Package Manager
 
 ## Usage
-To install, download the latest [release](https://gitlab.com/hull-seals-cyberseals/irc/halpybot/-/tags) from our repository. Upload and extract the files to the directory or subdirectory you wish to install from, and create your own config.ini to fit your server, following the example config file provided.
+- To install, download the latest [release](https://gitlab.com/hull-seals/code/irc/halpybot/-/tags/) from our repository. 
+- Upload and extract the files to the directory or subdirectory you wish to install from.
+- Create your own config.ini to fit your server, following the example config file provided.
+- Install mandatory requirements with pip (`pip install -r requirements.txt`).
+- Run the bot (`start.py`) from the command line using Python.
 
 ## Troubleshooting
 - Upon installation, be sure to replace the information in config.ini to match your own details.
@@ -33,9 +28,10 @@ To install, download the latest [release](https://gitlab.com/hull-seals-cybersea
 - If no issue is similar, open a new bug report. Be sure to be detailed.
 - The notification module will not load if no Amazon Web Services config data is provided.
 The bot will run just fine without these, but staff notification functions will not be available.
+- The Twitter module (disabled by default) requires Twitter APIv2 access. Do not enable this module without API access.
 
 # Support
-The best way to receive support is through the issues section of this repository. As every setup is different, support may be unable to help you, but in general we will try when we can.
+The best way to receive support is through the issue section of this repository. As every setup is different, support may be unable to help you, but in general we will try when we can.
 If for some reason you are unable to do so, emailing us at [code@hullseals.space](mailto:code@hullseals.space) will also reach the same team.
 
 If you are a member of the Hull Seals, please file a ticket [here](https://hullseals.space/support) instead.
@@ -53,7 +49,7 @@ Interested in joining the Hull Seals Cyberseals? Read up on [the Welcome Board](
 Project developers:
 
 * [Rik Overveld](https://gitlab.com/rik079)
-* [David Sangrey](https://gitlab.com/Rixxan) (Responsible Cyberseal Manager)
+* [David Sangrey](https://gitlab.com/Rixxan)
 * [Feliksas](https://gitlab.com/feliksas)
 * [Ned Stevenson](https://gitlab.com/stuntphish)
 
@@ -63,4 +59,4 @@ Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome-t
 This project is governed under the [GNU General Public License v3.0](LICENSE) license.
 
 # Project Status
-The bot is running v1.5 in production, but still under active development.
+The bot is running v1.5.2 in production, and still under active development.

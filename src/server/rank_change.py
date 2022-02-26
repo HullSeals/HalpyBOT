@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 rank_change.py - Handler for Seal vhost changes requested by the API
 

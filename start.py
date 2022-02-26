@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 > For the Hull Seals, with a boot to the head
 Rixxan
@@ -21,7 +21,7 @@ from os import path, mkdir
 from aiohttp import web
 
 from src.server import APIConnector
-
+from src import commands
 from src.packages.ircclient import pool, client
 from src.packages.configmanager import config
 
@@ -61,8 +61,6 @@ root.addHandler(file_handler)
 
 def _start_bot():
     """Starts HalpyBOT with the specified config values."""
-    from src import commands
-
     bot_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(bot_loop)
 

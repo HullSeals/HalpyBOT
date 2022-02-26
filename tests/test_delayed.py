@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 test_delayed.py - DDatabase interaction for Delayed Board module tests
 

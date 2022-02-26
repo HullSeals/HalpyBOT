@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 fact.py - Fact module management commands
 
@@ -12,7 +12,7 @@ See license.md
 
 from typing import List, Optional
 
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 from ..packages.facts import Fact, FactUpdateError, FactHandlerError, InvalidFactException, Facts
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
@@ -33,7 +33,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if not args or len(args) != 1:
-        return await ctx.redirect("Usage: !factinfo [name-lang]")
+        return await ctx.reply(get_help_text("factinfo"))
     name = args[0].split('-')[0]
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
     fact: Optional[Fact] = await Facts.get(name, lang)
@@ -61,7 +61,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
     """
 
     if not args or len(args) < 2:
-        return await ctx.reply("Usage: !addfact [name-lang] [text]")
+        return await ctx.reply(get_help_text("addfact"))
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
     name = args[0].split('-')[0]
 
@@ -98,7 +98,7 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if not args or len(args) != 1:
-        return await ctx.reply("Usage: !deletefact [fact-lang]")
+        return await ctx.reply(get_help_text("deletefact"))
 
     name = args[0].split('-')[0]
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'
@@ -154,7 +154,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
     Aliases: updatefact
     """
     if not args or len(args) < 2:
-        return await ctx.reply("Usage: !editfact [name-lang] [new text]")
+        return await ctx.reply(get_help_text("deletefact"))
 
     name = args[0].split('-')[0]
     lang = args[0].split('-')[1] if len(args[0].split('-')) == 2 else 'en'

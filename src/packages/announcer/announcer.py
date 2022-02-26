@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5
+HalpyBOT v1.5.2
 
 announcer.py - Client announcement handler
 
@@ -174,33 +174,34 @@ class Announcement:
                     if exact_sys:
                         return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
                     else:
-                        return f"\n{args['System']} could not be found in EDSM. System closest in name found in EDSM "\
-                               f"was {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
+                        return f"Corrected system exists in EDSM, {distance} LY {direction} of {landmark}." if twitter \
+                            else f"System cleaner found a matching EDSM system. {sys_name} is {distance} LY " \
+                                 f"{direction} of {landmark}."
             except NoResultsEDSM as er:
                 if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
                     dssa, distance, direction = await checkdssa(args['System'])
-                    return f"\n{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of " \
-                           f"{args['System']}."
+                    return f"No major landmark found within 10,000 LY of the provided system." if twitter else \
+                        f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
                 else:
                     found_sys, close_sys = await get_nearby_system(sys_name)
 
                     if found_sys:
                         try:
                             landmark, distance, direction = await checklandmarks(close_sys)
-                            return f"\n{args['System']} could not be found in EDSM. System closest in name found in "\
+                            return f"System Cleaner found a matching EDSM system {distance} LY {direction} of " \
+                                   f"{landmark}." if twitter else f"\n{args['System']} could not be found in EDSM. " \
+                                                                  f"System closest in name found in "\
                                    f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                         except NoResultsEDSM as er:
                             if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
                                 dssa, distance, direction = await checkdssa(close_sys)
-                                return f"\n{sys_name} could not be found in EDSM. System closest in name found in " \
-                                       f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in " \
-                                       f"{dssa}, {distance} LY {direction} of {close_sys}. "
+                                return f"Corrected system calculated to be {distance} LY {direction} of {dssa}." if \
+                                    twitter else f"\n{er}\nThe closest DSSA Carrier is " \
+                                                 f"in {dssa}, {distance} LY {direction} of {close_sys}. "
                     else:
-                        return "\nDistance to landmark or DSSA unknown." if twitter else "\nSystem Not Found in EDSM." \
-                                                                                         " match to sys name format " \
-                                                                                         "or sys name lookup " \
-                                                                                         "failed.\nPlease check " \
-                                                                                         "system name with client "
+                        return "\nDistance to landmark or DSSA unknown. Check case details with Dispatch." if twitter \
+                            else "\nSystem Not Found in EDSM. match to sys name format or sys name lookup failed.\n" \
+                                 "Please check system name with client. "
 
             except EDSMLookupError:
                 return '' if twitter else "\nUnable to query EDSM."
