@@ -8,19 +8,28 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
+
+Special thanks to TheUnkn0wn1 for his assistance on this module!
 """
 
 from __future__ import annotations
+
+import typing
+
 import aiohttp
+import asyncio
 import numpy as np
 import logging
 import math
-from dataclasses import dataclass
+import cattr
+from pathlib import Path
+from attr import dataclass
 import json
 from time import time
 from typing import Optional, Union
 from src import DEFAULT_USER_AGENT
 from ..models import SystemInfo, Coordinates, Location
+from ..models import edsm_classes
 from ..utils import get_time_seconds
 from ..configmanager import config
 from ..database import Grafana
@@ -49,7 +58,7 @@ class EDSMConnectionError(EDSMLookupError):
 
 
 landmarks = []
-dssas = []
+carriers = []
 
 
 @dataclass()
@@ -58,7 +67,7 @@ class EDSMQuery:
     time: time()
 
 
-@dataclass(frozen=True)
+@dataclass
 class GalaxySystem:
     """EDSM system object
 
@@ -67,10 +76,15 @@ class GalaxySystem:
     """
     name: str
     coords: Coordinates
-    coordsLocked: bool
-    information: SystemInfo
 
     _lookupCache = {}
+
+    @classmethod
+    def from_api(cls, api: edsm_classes.Galaxy) -> GalaxySystem:
+        return cls(
+            name=api.name,
+            coords=api.coords
+        )
 
     @classmethod
     async def get_info(cls, name, cache_override: bool = False) -> Optional[GalaxySystem]:
@@ -118,11 +132,12 @@ class GalaxySystem:
 
         # Return None if system doesn't exist
         if len(responses) == 0:
-            sysobj = None
-        else:
-            sysobj = cls(**responses)
+            return None
+        api: edsm_classes.Galaxy = cattr.structure(responses, edsm_classes.Galaxy)
 
         # Store in cache and return
+        sysobj = GalaxySystem.from_api(api=api)
+
         cls._lookupCache[name] = EDSMQuery(sysobj, time())
         return sysobj
 
@@ -208,18 +223,24 @@ class Commander:
     Commander info received from the EDSM API
 
     """
+    # The Four Things We Care About
+    msgnum: int
     name: str
     system: str
     coordinates: Coordinates
     date: Optional[str]
-    isDocked: bool
-    station: Optional[str]
-    dateDocked: Optional[str]
-    shipType: str
-    dateLastActivity: str
-    shipFuel: Optional
 
     _lookupCache = {}
+
+    @classmethod
+    def from_api(cls, name: str, api: edsm_classes.Commander) -> Commander:
+        return cls(
+            msgnum=api.msgnum,
+            name=name,
+            system=api.system,
+            coordinates=api.coordinates,
+            date=api.date
+        )
 
     @classmethod
     async def get_cmdr(cls, name, cache_override: bool = False) -> Optional[Commander]:
@@ -262,22 +283,19 @@ class Commander:
         except (aiohttp.ClientError, KeyError) as er:
             logger.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
             raise EDSMConnectionError("Error! Unable to get commander info.")
-
         # Return None if cmdr doesn't exist
         if len(responses) == 0 or responses['msgnum'] == 203:
-            cmdrobj = None
-        else:
-            # Why do we have to do this? come on, EDSM!
-            if 'isDocked' not in responses.keys():
-                raise EDSMConnectionError("Error! CMDR Exists, but unable to get info.")
-            if not responses['isDocked']:
-                responses['station'], responses['dateDocked'] = None, None
-            # Throw out data we don't need
-            del responses['msgnum'], responses['msg'], \
-                responses['firstDiscover'], responses['url'], responses['shipId']
-            cmdrobj = cls(**responses, name=name)
+            return None
+        if responses['msgnum'] == 201:
+            raise EDSMConnectionError
+        api: edsm_classes.Commander = cattr.structure(responses, edsm_classes.Commander)
+
+        if api.system is None:
+            raise EDSMConnectionError("Error! CMDR Exists, but unable to get info.")
 
         # Store in cache and return
+        cmdrobj = Commander.from_api(name=name, api=api)
+
         cls._lookupCache[name.strip().upper()] = EDSMQuery(cmdrobj, time())
         return cmdrobj
 
@@ -347,52 +365,46 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
         NoResultsEDSM: No point was found for either A, B, or both.
 
     """
-    # Set default values
-    coordsA, coordsB = None, None
 
-    try:
-        system1 = await GalaxySystem.get_info(name=sysa, cache_override=cache_override)
-        system2 = await GalaxySystem.get_info(name=sysb, cache_override=cache_override)
+    # get both systems at the same time.
+    system1, system2 = await asyncio.gather(
+        GalaxySystem.get_info(name=sysa, cache_override=cache_override),
+        GalaxySystem.get_info(name=sysb, cache_override=cache_override),
+    )
 
-        if system1 is not None:
-            coordsA = system1.coords
-        if system2 is not None:
-            coordsB = system2.coords
+    if system1 is None:
+        # not a system, maybe a commander?
+        cmdr1 = await Commander.location(name=sysa, cache_override=cache_override)
+        if cmdr1 is not None:
+            systemA = cmdr1.coordinates
+        else:
+            systemA = None
+    else:
+        systemA = system1.coords
 
-    except EDSMLookupError:
-        raise
-
-    if not coordsA:
-        try:
-            cmdr1 = await Commander.location(name=sysa, cache_override=cache_override)
-            if cmdr1 is not None:
-                coordsA = cmdr1.coordinates
-        except EDSMLookupError:
-            raise
-
-    if not coordsB:
-        try:
-            cmdr2 = await Commander.location(name=sysb, cache_override=cache_override)
-            if cmdr2 is not None:
-                coordsB = cmdr2.coordinates
-        except EDSMLookupError:
-            raise
-
-    if coordsA and coordsB:
-        distance = await calc_distance(coordsA['x'], coordsB['x'], coordsA['y'], coordsB['y'],
-                                       coordsA['z'], coordsB['z'])
-        distance = f'{distance:,}'
-        direction = await calc_direction(coordsB['x'], coordsA['x'], coordsB['z'], coordsA['z'])
-        return distance, direction
+    if system2 is None:
+        cmdr2 = await Commander.location(name=sysb, cache_override=cache_override)
+        if cmdr2 is not None:
+            systemB = cmdr2.coordinates
+        else:
+            systemB = None
+    else:
+        systemB = system2.coords
 
     # Actually ok that we might be giving cmdr names to sys_cleaner. It won't do anything to names without - in
-    if not coordsA:
+    if not systemA:
         raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysa)}' was found in the EDSM "
                             f"database.")
 
-    if not coordsB:
+    if not systemB:
         raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysb)}' was found in the EDSM "
                             f"database.")
+
+    distance = calc_distance(systemA.x, systemB.x, systemA.y, systemB.y,
+                             systemA.z, systemB.z)
+    distance = f'{distance:,}'
+    direction = await calc_direction(systemB.x, systemA.x, systemB.z, systemA.z)
+    return distance, direction
 
 
 async def checklandmarks(edsm_sys_name, cache_override: bool = False):
@@ -423,51 +435,45 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
     Coords, LMCoords, = None, None
 
     try:
-        system = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
-        if system is not None:
-            Coords = system.coords
+        sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
+        if sys:
+            Coords = sys.coords
     except EDSMLookupError:
         raise
 
-    if system is None:
+    if not sys:
 
         try:
-            system = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
-            if system is not None:
-                system.name = edsm_sys_name
-                Coords = system.coordinates
+            cmdr = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
+            if cmdr:
+                Coords = cmdr.coordinates
         except EDSMLookupError:
             raise
 
-    if system is not None:
-
-        currclosest, currLandmarkx, currLandmarkz = None, None, None
-
+    if Coords:
         # Load JSON file if landmarks cache is empty, else we just get objects from the cache
+
+        target = Path() / "data" / "edsm" / "landmarks.json"
         if not landmarks:
-            with open('data/edsm/landmarks.json') as jsonfile:
-                landmarks = json.load(jsonfile)
+            landmarks = json.loads(target.read_text())
+            landmarks = cattr.structure(landmarks, typing.List[GalaxySystem])
 
         maxdist = config['EDSM']['Maximum landmark distance']
+        distances = {
+            calc_distance(
+                Coords.x, item.coords.x,
+                Coords.y, item.coords.y,
+                Coords.z, item.coords.z
+            ): item for item in landmarks
+        }
+        minimum_key = min(distances)
+        minimum = distances[minimum_key]
 
-        for landmark in range(len(landmarks)):
-            currlandmark = landmarks[landmark]['Name']
-            LMCoords = landmarks[landmark]['Coords']
-
-            distancecheck = await calc_distance(Coords['x'], LMCoords['x'],
-                                                Coords['y'], LMCoords['y'],
-                                                Coords['z'], LMCoords['z'])
-            if float(distancecheck) < float(maxdist):
-                currclosest = currlandmark
-                maxdist = distancecheck
-                currLandmarkx = LMCoords['x']
-                currLandmarkz = LMCoords['z']
-
-        if currclosest is not None:
-            direction = await calc_direction(Coords['x'], currLandmarkx, Coords['z'], currLandmarkz)
-            return currclosest, f'{maxdist:,}', direction
+        if minimum_key < float(maxdist):
+            direction = await calc_direction(Coords.x, minimum.coords.x, Coords.z, minimum.coords.z)
+            return minimum.name, f'{minimum_key:,}', direction
         else:
-            raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {system.name}.")
+            raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {edsm_sys_name.name}.")
 
     if not Coords:
         raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
@@ -493,7 +499,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
 
     """
-    global dssas
+    global carriers  # FIXME: REMOVE MUTABLE GLOBAL (BAD BAD BAD)
     # Set default values
     Coords, LMCoords, maxdist = None, None, None
 
@@ -515,38 +521,32 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
     if Coords:
 
-        currclosest, currDSSAx, currDSSAz = None, None, None
-
         # Load JSON file if dssa cache is empty, else we just get objects from the cache
-        if not dssas:
-            with open('data/edsm/dssa.json') as jsonfile:
-                dssas = json.load(jsonfile)
+        target = Path() / "data" / "edsm" / "dssa.json"
+        if not carriers:
+            carriers = json.loads(target.read_text())
+            carriers = cattr.structure(carriers, typing.List[GalaxySystem])
 
-        for dssa in range(len(dssas)):
-            currdssa = dssas[dssa]['name']
-            DSSACoords = dssas[dssa]['coords']
+        distances = {
+            calc_distance(
+                Coords.x, item.coords.x,
+                Coords.y, item.coords.y,
+                Coords.z, item.coords.z
+            ): item for item in carriers
+        }
 
-            distancecheck = await calc_distance(Coords['x'], DSSACoords['x'],
-                                                Coords['y'], DSSACoords['y'],
-                                                Coords['z'], DSSACoords['z'])
-            if maxdist is None or (float(distancecheck) < float(maxdist)):
-                currclosest = currdssa
-                maxdist = distancecheck
-                currDSSAx = DSSACoords['x']
-                currDSSAz = DSSACoords['z']
+        minimum_key = min(distances)
+        minimum = distances[minimum_key]
 
-        if currclosest is not None:
-            direction = await calc_direction(Coords['x'], currDSSAx, Coords['z'], currDSSAz)
-            return currclosest, f'{maxdist:,}', direction
-        else:
-            raise NoResultsEDSM(f"No DSSA Carriers Found.")
+        direction = await calc_direction(Coords.x, minimum.coords.x, Coords.z, minimum.coords.z)
+        return minimum.name, f'{minimum_key:,}', direction
 
     if not Coords:
         raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
                             f" database.")
 
 
-async def calc_distance(x1, x2, y1, y2, z1, z2):
+def calc_distance(x1, x2, y1, y2, z1, z2):
     """Calculate distance XYZ -> XYZ
 
     Only call this method directly when the coordinates of both points are known. If

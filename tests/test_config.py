@@ -17,7 +17,6 @@ from src.packages.configmanager import *
 
 
 # Does the Config file exist?
-@pytest.mark.asyncio
 def test_config_exists():
     config_file = os.path.exists("config/config.ini")
     assert config_file is True

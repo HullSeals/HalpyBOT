@@ -1,5 +1,4 @@
 pydle~=0.9.4
-asyncio~=3.4.3
 pure-sasl~=0.6.2
 setuptools~=60.5.0
 mysql-connector~=2.2.9
@@ -12,3 +11,10 @@ aiohttp~=3.8.1
 tweepy~=4.5.0
 Brotli~=1.0.9
 GitPython~=3.1.26
+requests~=2.27.1
+bs4~=0.0.1
+beautifulsoup4~=4.10.0
+pyperclip~=1.8.2
+tqdm~=4.62.3
+asyncio~=3.4.3
+attrs~=21.4.0

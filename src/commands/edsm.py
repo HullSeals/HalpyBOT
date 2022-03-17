@@ -9,7 +9,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+import logging
 from typing import List
 
 from ..packages.edsm import (GalaxySystem, Commander, EDSMLookupError,
@@ -18,6 +18,7 @@ from ..packages.edsm import (GalaxySystem, Commander, EDSMLookupError,
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 
+logger = logging.getLogger(__name__)
 
 @Commands.command("lookup", "syslookup")
 async def cmd_systemlookup(ctx: Context, args: List[str]):
@@ -70,8 +71,10 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
 
     try:
         location = await Commander.location(name=cmdr, cache_override=cache_override)
-    except EDSMConnectionError as er:
-        return await ctx.reply(str(er))
+    except EDSMConnectionError:
+        logger.exception("Failed to query EDSM for commander data.")
+        # kill it. kill it with fire. ~ TheUnkn0wn1
+        return ctx.reply("Failed to query EDSM for commander data.")
 
     if location is None:
         return await ctx.reply("CMDR not found or not sharing location on EDSM")

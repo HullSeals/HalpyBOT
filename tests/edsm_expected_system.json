@@ -1,0 +1,20 @@
+{
+    "name": "Sol",
+    "coords": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "coordsLocked": true,
+    "information": {
+        "allegiance": "Federation",
+        "government": "Democracy",
+        "faction": "Mother Gaia",
+        "factionState": "Civil liberty",
+        "population": 22780919531,
+        "security": "High",
+        "economy": "Refinery",
+        "secondEconomy": "Service",
+        "reserve": "Common"
+    }
+}

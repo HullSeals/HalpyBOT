@@ -117,9 +117,6 @@ async def test_noncmdr2():
 async def test_location():
     location = await Commander.location("Rixxan")
     assert location is not None
-    assert type(location.system) is str
-    assert type(location.coordinates) is dict
-    assert type(location.time) is str
 
 
 # Landmarks
@@ -137,9 +134,8 @@ async def test_dssa():
 
 
 # Calculate Distance
-@pytest.mark.asyncio
-async def test_coords():
-    coords = await calc_distance(-1, 2, 3, 400, 500, 600)
+def test_coords():
+    coords = calc_distance(-1, 2, 3, 400, 500, 600)
     assert coords == 409.41
 
 
