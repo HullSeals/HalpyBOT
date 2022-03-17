@@ -100,8 +100,8 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
 
     try:
         # Parse systems/CMDRs from string
-        listToStr = ' '.join([str(elem) for elem in args])
-        points = listToStr.split(":", 1)
+        list_to_str = ' '.join([str(elem) for elem in args])
+        points = list_to_str.split(":", 1)
         pointa, pointb = ''.join(points[0]).strip(), ''.join(points[1]).strip()
 
     except IndexError:

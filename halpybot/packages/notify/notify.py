@@ -49,7 +49,7 @@ else:
     sns = None
 
 
-async def listTopics():
+async def list_topics():
     """Subscribe
 
      List all SNS topics on the given account.
@@ -70,10 +70,10 @@ async def listTopics():
     except boto3.exceptions.Boto3Error as ex:
         raise SNSError(ex)
     topics = response["Topics"]
-    topicList = []
+    topic_list = []
     for topic in range(len(topics)):
-        topicList.append(topics[topic]["TopicArn"].split(":")[5])
-    return topicList
+        topic_list.append(topics[topic]["TopicArn"].split(":")[5])
+    return topic_list
 
 
 async def subscribe(topic, endpoint):
@@ -116,7 +116,7 @@ async def subscribe(topic, endpoint):
         raise SubscriptionError(ex)
 
 
-async def listSubByTopic(topic_arn):
+async def list_sub_by_topic(topic_arn):
     """List Subscribers
 
      List subscriptions by topic.
@@ -142,7 +142,7 @@ async def listSubByTopic(topic_arn):
     return sublist
 
 
-async def sendNotification(topic, message, subject):
+async def send_notification(topic, message, subject):
     """Send notification to a group
 
      Send Notifications to the specified group. Abuse this and I hunt you.

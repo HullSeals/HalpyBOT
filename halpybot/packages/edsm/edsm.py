@@ -432,10 +432,10 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
     """
     global landmarks
     # Set default values
-    LMCoords = None
+    lm_coords = None
 
-    Coords = await get_coordinates(edsm_sys_name, cache_override)
-    if Coords:
+    coords = await get_coordinates(edsm_sys_name, cache_override)
+    if coords:
         # Load JSON file if landmarks cache is empty, else we just get objects from the cache
 
         target = Path() / "data" / "edsm" / "landmarks.json"
@@ -446,21 +446,21 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         maxdist = config['EDSM']['Maximum landmark distance']
         distances = {
             calc_distance(
-                Coords.x, item.coords.x,
-                Coords.y, item.coords.y,
-                Coords.z, item.coords.z
+                coords.x, item.coords.x,
+                coords.y, item.coords.y,
+                coords.z, item.coords.z
             ): item for item in landmarks
         }
         minimum_key = min(distances)
         minimum = distances[minimum_key]
 
         if minimum_key < float(maxdist):
-            direction = await calc_direction(Coords.x, minimum.coords.x, Coords.z, minimum.coords.z)
+            direction = await calc_direction(coords.x, minimum.coords.x, coords.z, minimum.coords.z)
             return minimum.name, f'{minimum_key:,}', direction
         else:
             raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}.")
 
-    if not Coords:
+    if not coords:
         raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
                             f" database.")
 
@@ -486,11 +486,11 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
     """
     global carriers  # FIXME: REMOVE MUTABLE GLOBAL (BAD BAD BAD)
     # Set default values
-    LMCoords, maxdist = None, None
+    lm_coords, maxdist = None, None
 
-    Coords = await get_coordinates(edsm_sys_name, cache_override)
+    coords = await get_coordinates(edsm_sys_name, cache_override)
 
-    if Coords:
+    if coords:
 
         # Load JSON file if dssa cache is empty, else we just get objects from the cache
         target = Path() / "data" / "edsm" / "dssa.json"
@@ -500,19 +500,19 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
         distances = {
             calc_distance(
-                Coords.x, item.coords.x,
-                Coords.y, item.coords.y,
-                Coords.z, item.coords.z
+                coords.x, item.coords.x,
+                coords.y, item.coords.y,
+                coords.z, item.coords.z
             ): item for item in carriers
         }
 
         minimum_key = min(distances)
         minimum = distances[minimum_key]
 
-        direction = await calc_direction(Coords.x, minimum.coords.x, Coords.z, minimum.coords.z)
+        direction = await calc_direction(coords.x, minimum.coords.x, coords.z, minimum.coords.z)
         return minimum.name, f'{minimum_key:,}', direction
 
-    if not Coords:
+    if not coords:
         raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
                             f" database.")
 
@@ -585,26 +585,26 @@ async def calc_direction(x1, x2, y1, y2):
 
 
 async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
-    Coords = None
+    coords = None
     sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
     if sys:
-        Coords = sys.coords
+        coords = sys.coords
     if not sys:
         cmdr = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
         if cmdr:
-            Coords = cmdr.coordinates
-    return Coords
+            coords = cmdr.coordinates
+    return coords
 
 
 async def get_nearby_system(sys_name: str, cache_override: bool = False):
-    nameToCheck = await sys_cleaner(sys_name)
+    name_to_check = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
             async with aiohttp.ClientSession(
                     headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get("https://www.edsm.net/api-v1/systems",
-                                             params={"systemName": nameToCheck}, timeout=10) as response:
+                                             params={"systemName": name_to_check}, timeout=10) as response:
                     responces = await response.json()
             if responces:
                 sys = responces[0]["name"]
@@ -612,8 +612,8 @@ async def get_nearby_system(sys_name: str, cache_override: bool = False):
 
             # Cheeky bottom test to not include spaces in the repeat queries and not include it in the 5 request cap
             while True:
-                nameToCheck = nameToCheck[:-1]
-                if nameToCheck[-1] != " ":
+                name_to_check = name_to_check[:-1]
+                if name_to_check[-1] != " ":
                     break
         except aiohttp.ClientError as er:
             logger.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)

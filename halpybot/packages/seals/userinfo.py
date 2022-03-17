@@ -15,7 +15,7 @@ from ..database import DatabaseConnection, NoDatabaseConnection
 
 async def whois(subject):
     # Set default values
-    uID, uCases, uName, uRegdate, uDW, uDW2 = None, None, None, None, None, None
+    u_id, u_cases, u_name, u_regdate, u_distant_worlds, u_distant_worlds_2 = None, None, None, None, None, None
     try:
 
         with DatabaseConnection() as db:
@@ -26,17 +26,17 @@ async def whois(subject):
             for res in cursor.stored_results():
                 result = res.fetchall()
             for res in result:
-                uID, uCases, uName, uRegdate, uDW = res
-                if uDW == 1:
-                    uDW2 = ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
+                u_id, u_cases, u_name, u_regdate, u_distant_worlds = res
+                if u_distant_worlds == 1:
+                    u_distant_worlds_2 = ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
                 else:
-                    uDW2 = ", with registered CMDRs of"
+                    u_distant_worlds_2 = ", with registered CMDRs of"
 
     except NoDatabaseConnection:
         return "Error searching user."
 
-    if uID is None:
+    if u_id is None:
         return "No registered user found by that name!"
     else:
-        return f"CMDR {subject} has a Seal ID of {uID}, registered on {uRegdate}{uDW2} {uName}" \
-               f", and has been involved with {uCases} rescues."
+        return f"CMDR {subject} has a Seal ID of {u_id}, registered on {u_regdate}{u_distant_worlds_2} {u_name}" \
+               f", and has been involved with {u_cases} rescues."

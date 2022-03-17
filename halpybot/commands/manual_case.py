@@ -28,7 +28,7 @@ logger.addHandler(Grafana)
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_manualCase(ctx: Context, args: List[str]):
+async def cmd_manual_case(ctx: Context, args: List[str]):
     """
     Manually create a new case
 

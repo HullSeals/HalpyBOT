@@ -167,12 +167,12 @@ async def test_distance():
 
 
 @pytest.mark.asyncio
-async def test_distance_noA():
+async def test_distance_no_a():
     with pytest.raises(EDSMConnectionError):
         await checkdistance("", "Delkar")
 
 
 @pytest.mark.asyncio
-async def test_distance_badSys():
+async def test_distance_bad_sys():
     with pytest.raises(NoResultsEDSM):
         await checkdistance("Sagittarius A*", "ThisCMDRDoesntExist")

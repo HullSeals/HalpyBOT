@@ -65,12 +65,12 @@ async def get_time_seconds(time: str):
         raise ValueError("get_time_seconds input does not match hh:mm:ss format")
     res = pattern.search(time)
     counter = 0
-    conversionTable = {
+    conversion_table = {
         "hour": 3600,
         "minutes": 60,
         "seconds": 1
     }
-    for unit in conversionTable.keys():
+    for unit in conversion_table.keys():
         value = int(res.group(unit))
-        counter += value * conversionTable[unit]
+        counter += value * conversion_table[unit]
     return str(counter)

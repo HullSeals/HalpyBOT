@@ -38,7 +38,7 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     try:
-        results = await notify.listTopics()
+        results = await notify.list_topics()
     except notify.SNSError:
         return await ctx.reply("Unable to retrieve group data from AWS servers, "
                                "poke Rixxan if this keeps occurring")
@@ -75,7 +75,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
         return await ctx.reply(f"Invalid group given: {group}.")
 
     try:
-        results = await notify.listSubByTopic(config['Notify'][group])
+        results = await notify.list_sub_by_topic(config['Notify'][group])
         if len(results) == 0:
             return await ctx.reply("No users currently subscribed to that group.")
         else:
@@ -166,7 +166,7 @@ async def format_notification(notify_type, group, sender, message):
     message = ' '.join(message)
     message = f"{notify_type} used by {sender}: {message}"
     try:
-        await notify.sendNotification(topic, message, subject)
+        await notify.send_notification(topic, message, subject)
     except notify.NotificationFailure:
         return "Unable to send the notification!"
     return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"

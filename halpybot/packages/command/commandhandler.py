@@ -134,7 +134,7 @@ class CommandGroup:
             # See if it's a command, and execute
             if command in Commands._commandList:
                 try:
-                    return await self.invoke_command(Command=command, command_context=ctx, Arguments=args)
+                    return await self.invoke_command(command=command, command_context=ctx, arguments=args)
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
 
@@ -225,16 +225,16 @@ class CommandGroup:
             raise CommandAlreadyExists
         self._commandList[name] = (function, main)
 
-    async def invoke_command(self, Command: str, command_context: Context, Arguments: List[str]):
+    async def invoke_command(self, command: str, command_context: Context, arguments: List[str]):
         """Call a command
 
         If the command is part of a group attached to root, `Command` is the group, and
         `Arguments[0]` the name of the subcommand.
 
         Args:
-            Command (str): name of the command or command group
+            command (str): name of the command or command group
             command_context (Context): Message context object
-            Arguments (list of str): list of command arguments
+            arguments (list of str): list of command arguments
 
         Raises:
             CommandHandlerError: Raised when a command or subcommand is not found
@@ -243,24 +243,24 @@ class CommandGroup:
                 in the command execution itself.
 
         """
-        Command = Command.lower()
+        command = command.lower()
         # Sanity check
-        if Command not in self.command_list:
+        if command not in self.command_list:
             raise CommandHandlerError("(sub)command not found.")
-        Cmd = self.command_list[Command][0]
-        if isinstance(Cmd, CommandGroup):  # Command group
-            subgroup = CommandGroup.get_group(name=Cmd._group_name)
+        cmd = self.command_list[command][0]
+        if isinstance(cmd, CommandGroup):  # Command group
+            subgroup = CommandGroup.get_group(name=cmd._group_name)
             # If no subcommand is provided, send a provisional help response
-            if len(Arguments) < 1:
+            if len(arguments) < 1:
                 return await command_context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
-                                                   f"{Cmd._group_name}: "
+                                                   f"{cmd._group_name}: "
                                                    f"{', '.join(sub for sub in subgroup.get_commands(True))}")
             # Recursion, yay!
-            await Cmd.invoke_command(Command=Arguments[0],
-                                     command_context=command_context, Arguments=Arguments[1:])
+            await cmd.invoke_command(command=arguments[0],
+                                     command_context=command_context, arguments=arguments[1:])
         else:
             try:
-                await Cmd(command_context, Arguments)
+                await cmd(command_context, arguments)
             except Exception as er:
                 raise CommandException(er)
 

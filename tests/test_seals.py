@@ -32,9 +32,9 @@ async def test_bad_whois():
 
 
 @pytest.mark.asyncio
-async def test_noDB():
+async def test_no_db():
     prev_value = config['Offline Mode']['enabled']
     config_write('Offline Mode', 'enabled', 'True')
-    noDatabase = await whois("ThisCMDRDoesntExist")
-    assert noDatabase == "Error searching user."
+    no_database = await whois("ThisCMDRDoesntExist")
+    assert no_database == "Error searching user."
     config_write('Offline Mode', 'enabled', prev_value)
