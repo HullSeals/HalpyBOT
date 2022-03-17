@@ -539,7 +539,7 @@ def calc_distance(x1, x2, y1, y2, z1, z2):
     p2 = np.array([x2, y2, z2])
     squared_dist = np.sum((p1 - p2) ** 2, axis=0)
     dist = np.sqrt(squared_dist)
-    dist = np.around(dist, decimals=2, out=None)
+    dist = np.around(dist, decimals=2)
     return float(dist)
 
 

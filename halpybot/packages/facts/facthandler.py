@@ -263,7 +263,7 @@ class FactHandler:
         if name in Commands.commandList.keys():
             raise InvalidFactException("This fact is already an existing command")
         # Check if we have an English fact:
-        if not await self.get(name, 'en') and lang.lower() != 'en':
+        if not await self.get(name) and lang.lower() != 'en':
             raise InvalidFactException("All registered facts must have an English version")
         if (name, lang) in self._factCache:
             raise InvalidFactException("This fact already exists.")

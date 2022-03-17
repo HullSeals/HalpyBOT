@@ -106,9 +106,9 @@ async def test_noncmdr():
 # 2: Cached CMDR
 @pytest.mark.asyncio
 async def test_noncmdr2():
-    cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
+    cmdr = await Commander.get_cmdr("Rixxan")
     assert cmdr.name == "Rixxan"
-    cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
+    cmdr = await Commander.get_cmdr("Rixxan")
     assert cmdr.name == "Rixxan"
 
 
