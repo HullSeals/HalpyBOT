@@ -458,7 +458,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
             direction = await calc_direction(Coords.x, minimum.coords.x, Coords.z, minimum.coords.z)
             return minimum.name, f'{minimum_key:,}', direction
         else:
-            raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {edsm_sys_name.name}.")
+            raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}.")
 
     if not Coords:
         raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
