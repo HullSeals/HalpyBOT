@@ -19,7 +19,7 @@ from ..packages.checks import Require, Cyberseal
 from ..packages.database import latency, NoDatabaseConnection, Grafana
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
-from src import DEFAULT_USER_AGENT
+from halpybot import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)

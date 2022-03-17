@@ -12,7 +12,7 @@ See license.md
 
 from typing import List
 
-from src.packages.command.commandhandler import get_help_text
+from halpybot.packages.command.commandhandler import get_help_text
 
 from ..packages.seals import whois
 from ..packages.command import Commands

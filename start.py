@@ -20,10 +20,10 @@ import datetime
 from os import path, mkdir
 from aiohttp import web
 
-from src.server import APIConnector
-from src import commands
-from src.packages.ircclient import pool, client
-from src.packages.configmanager import config
+from halpybot.server import APIConnector
+from halpybot import commands
+from halpybot.packages.ircclient import pool, client
+from halpybot.packages.configmanager import config
 
 logFile: str = config['Logging']['log_file']
 CLI_level = config['Logging']['cli_level']

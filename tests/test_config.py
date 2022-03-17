@@ -13,7 +13,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 """
 import pytest
 import os
-from src.packages.configmanager import *
+from halpybot.packages.configmanager import *
 
 
 # Does the Config file exist?

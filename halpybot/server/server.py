@@ -20,7 +20,7 @@ from aiohttp import web
 from datetime import datetime
 from ..packages.configmanager import config
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNotAllowed, HTTPNotFound
-from src import __version__, DEFAULT_USER_AGENT
+from halpybot import __version__, DEFAULT_USER_AGENT
 from ..packages.ircclient import client as botclient
 from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
 

@@ -12,8 +12,8 @@ See license.md
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
 import pytest
-from src.packages.checks import *
-from src.packages.models import User
+from halpybot.packages.checks import *
+from halpybot.packages.models import User
 
 
 # Do the levels line up with expected permissions?

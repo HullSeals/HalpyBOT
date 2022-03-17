@@ -14,7 +14,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 import pytest
 import aiohttp
 import asyncio
-from src.packages.edsm import *
+from halpybot.packages.edsm import *
 from unittest.mock import patch
 
 
@@ -45,7 +45,7 @@ async def test_non_sys():
 # 3: GetInfo error
 @pytest.mark.asyncio
 async def test_request_error():
-    with patch('src.packages.edsm.GalaxySystem.get_info', side_effect=aiohttp.ClientError("Err")):
+    with patch('halpybot.packages.edsm.GalaxySystem.get_info', side_effect=aiohttp.ClientError("Err")):
         with pytest.raises(aiohttp.ClientError):
             await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", cache_override=True)
 
@@ -83,7 +83,7 @@ async def test_sys_not_nearby():
 # 3: GetNearby error
 @pytest.mark.asyncio
 async def test_request_nearby_error():
-    with patch('src.packages.edsm.GalaxySystem.get_nearby', side_effect=aiohttp.ClientError("Err")):
+    with patch('halpybot.packages.edsm.GalaxySystem.get_nearby', side_effect=aiohttp.ClientError("Err")):
         with pytest.raises(aiohttp.ClientError):
             await GalaxySystem.get_nearby('1', '2', '3')
 

@@ -27,7 +27,7 @@ from attr import dataclass
 import json
 from time import time
 from typing import Optional, Union
-from src import DEFAULT_USER_AGENT
+from halpybot import DEFAULT_USER_AGENT
 from ..models import SystemInfo, Coordinates, Location
 from ..models import edsm_classes
 from ..utils import get_time_seconds

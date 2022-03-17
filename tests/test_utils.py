@@ -13,8 +13,8 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 """
 import pytest
 import os.path
-from src.packages.utils import *
-from src.packages.command import get_help_text
+from halpybot.packages.utils import *
+from halpybot.packages.command import get_help_text
 
 
 # Test Time

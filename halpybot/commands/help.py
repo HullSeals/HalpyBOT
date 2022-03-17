@@ -15,7 +15,7 @@ import json
 import git
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
-from src import __version__
+from halpybot import __version__
 
 with open("data/help/commands.json", "r") as jsonfile:
     json_dict = json.load(jsonfile)

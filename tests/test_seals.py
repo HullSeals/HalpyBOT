@@ -12,8 +12,8 @@ See license.md
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
 import pytest
-from src.packages.seals import *
-from src.packages.configmanager import config, config_write
+from halpybot.packages.seals import *
+from halpybot.packages.configmanager import config, config_write
 
 
 # Test Time
