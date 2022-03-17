@@ -14,7 +14,7 @@ See license.md
 from aiohttp import web
 
 from .server import APIConnector
-from .auth import Authenticate
+from .auth import authenticate
 
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
 from ..packages.ircclient import client as botclient
@@ -23,7 +23,7 @@ routes = web.RouteTableDef()
 
 
 @routes.post('/tail')
-@Authenticate()
+@authenticate()
 async def tail(request):
     if request.body_exists:
         request = await request.json()

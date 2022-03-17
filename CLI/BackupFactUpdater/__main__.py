@@ -62,15 +62,15 @@ def run():
         with open(jsonpath, "r") as jsonfile:
             print("20% Opening backup file...")
             resdict = json.load(jsonfile)
-        DatabaseConnection = mysql.connector.connect(**dbconfig)
+        database_connection = mysql.connector.connect(**dbconfig)
         print("40% Connection started...")
-        cursor = DatabaseConnection.cursor()
+        cursor = database_connection.cursor()
         cursor.execute(f"SELECT factName, factLang, factText "
                        f"FROM {table}")
         print("60% Got data, parsing...")
         for (Name, Lang, Text) in cursor:
             resdict[f"{Name}-{Lang}"] = Text
-        DatabaseConnection.close()
+        database_connection.close()
         print("80% Writing to file...")
         with open(jsonpath, "w+") as jsonfile:
             json.dump(resdict, jsonfile, indent=4)

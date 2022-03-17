@@ -154,7 +154,7 @@ class Require:
         return decorator
 
     @staticmethod
-    def DM():
+    def direct_message():
         """Require command to be executed in a Direct Message with the bot"""
 
         def decorator(function):
@@ -186,7 +186,7 @@ class Require:
         return decorator
 
     @staticmethod
-    def AWS():
+    def aws():
         """Require Amazon Web Services configuration data to be specified in config"""
 
         def decorator(function):

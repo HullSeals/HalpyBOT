@@ -34,7 +34,7 @@ def get_hmac(msg):
 const_key_check = hmac.new(bytes(client_secret, 'utf8'), msg=check_constant.encode('utf8'), digestmod=hashlib.sha256)
 
 
-def Authenticate():
+def authenticate():
     def decorator(function):
         @functools.wraps(function)
         async def guarded(request):

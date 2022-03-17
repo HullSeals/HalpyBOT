@@ -26,7 +26,7 @@ logger.addHandler(Grafana)
 
 
 @Commands.command("shutdown", "restart", "sealpukku", "reboot")
-@Require.DM()
+@Require.direct_message()
 @Require.permission(Admin)
 async def cmd_shutdown(ctx: Context, args: List[str]):
     """

@@ -260,7 +260,7 @@ class FactHandler:
             FactUpdateError: Fact was added, but cache could not be updated.
 
         """
-        if name in Commands.commandList.keys():
+        if name in Commands.command_list.keys():
             raise InvalidFactException("This fact is already an existing command")
         # Check if we have an English fact:
         if not await self.get(name) and lang.lower() != 'en':

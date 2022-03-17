@@ -376,34 +376,34 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
         # not a system, maybe a commander?
         cmdr1 = await Commander.location(name=sysa, cache_override=cache_override)
         if cmdr1 is not None:
-            systemA = cmdr1.coordinates
+            system_a = cmdr1.coordinates
         else:
-            systemA = None
+            system_a = None
     else:
-        systemA = system1.coords
+        system_a = system1.coords
 
     if system2 is None:
         cmdr2 = await Commander.location(name=sysb, cache_override=cache_override)
         if cmdr2 is not None:
-            systemB = cmdr2.coordinates
+            system_b = cmdr2.coordinates
         else:
-            systemB = None
+            system_b = None
     else:
-        systemB = system2.coords
+        system_b = system2.coords
 
     # Actually ok that we might be giving cmdr names to sys_cleaner. It won't do anything to names without - in
-    if not systemA:
+    if not system_a:
         raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysa)}' was found in the EDSM "
                             f"database.")
 
-    if not systemB:
+    if not system_b:
         raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysb)}' was found in the EDSM "
                             f"database.")
 
-    distance = calc_distance(systemA.x, systemB.x, systemA.y, systemB.y,
-                             systemA.z, systemB.z)
+    distance = calc_distance(system_a.x, system_b.x, system_a.y, system_b.y,
+                             system_a.z, system_b.z)
     distance = f'{distance:,}'
-    direction = await calc_direction(systemB.x, systemA.x, systemB.z, systemA.z)
+    direction = await calc_direction(system_b.x, system_a.x, system_b.z, system_a.z)
     return distance, direction
 
 

@@ -98,7 +98,7 @@ class CommandGroup:
         return None
 
     @property
-    def commandList(self):
+    def command_list(self):
         """dict: list of commands in this group"""
         return self._commandList
 
@@ -245,9 +245,9 @@ class CommandGroup:
         """
         Command = Command.lower()
         # Sanity check
-        if Command not in self.commandList:
+        if Command not in self.command_list:
             raise CommandHandlerError("(sub)command not found.")
-        Cmd = self.commandList[Command][0]
+        Cmd = self.command_list[Command][0]
         if isinstance(Cmd, CommandGroup):  # Command group
             subgroup = CommandGroup.get_group(name=Cmd._group_name)
             # If no subcommand is provided, send a provisional help response

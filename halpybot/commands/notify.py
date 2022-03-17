@@ -29,7 +29,7 @@ timer = 0
 
 @NotifyInfo.command("groups")
 @Require.permission(Moderator)
-@Require.AWS()
+@Require.aws()
 async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     List the existing notification groups.
@@ -53,8 +53,8 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
 
 @NotifyInfo.command("details", "endpoints")
 @Require.permission(Owner)
-@Require.DM()
-@Require.AWS()
+@Require.direct_message()
+@Require.aws()
 async def cmd_listnotify(ctx: Context, args: List[str]):
     """
     List contact details of particular groups.
@@ -88,8 +88,8 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
 
 @Commands.command("subnotify", "alertme", "addsub", "subscribe", "subscribenotify")
 @Require.permission(Admin)
-@Require.DM()
-@Require.AWS()
+@Require.direct_message()
+@Require.aws()
 async def cmd_subscribe(ctx: Context, args: List[str]):
     """
     Add a user to a valid group
@@ -123,7 +123,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
 @Commands.command("summonstaff", "callstaff", "opsignal", "opsig")
 @Require.permission(Pup)
 @Require.channel()
-@Require.AWS()
+@Require.aws()
 async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
     Send a notification to the Admins and Moderators.
@@ -140,7 +140,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
 @Commands.command("summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig")
 @Require.permission(Pup)
 @Require.channel()
-@Require.AWS()
+@Require.aws()
 async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
     Send a notification to the Cyberseals.
