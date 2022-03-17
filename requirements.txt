@@ -18,3 +18,4 @@ pyperclip~=1.8.2
 tqdm~=4.63.0
 asyncio~=3.4.3
 attrs~=21.4.0
+cattrs~=1.10.0

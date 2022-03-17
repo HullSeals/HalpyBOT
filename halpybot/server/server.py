@@ -15,11 +15,11 @@ import aiohttp.web
 import asyncio
 import logging
 from aiohttp.web import Request, StreamResponse
-from typing import Union
+from typing import Type, Union
 from aiohttp import web
 from datetime import datetime
 from ..packages.configmanager import config
-from aiohttp.web_exceptions import HTTPBadRequest, HTTPClientError, HTTPMethodNotAllowed, HTTPNotFound
+from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
 from ..packages.ircclient import client as botclient
 from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
@@ -52,7 +52,8 @@ class HalpyServer(web.Application):
             # TODO: stash call and run later when reconnected
             pass
 
-    async def __filter_request(self, request: Request) -> Union[None, HTTPClientError]:
+    async def __filter_request(self, request: Request) -> Union[
+            Type[HTTPBadRequest], None, HTTPMethodNotAllowed, HTTPNotFound]:
         """A method to filter out spam requests that would otherwise result
         in a large error message and log them neatly"""
         # If they don't provide authentication, we log it and return 400
