@@ -9,7 +9,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 
-Special thanks to TheUnkn0wn1 for his assistance on this module!
+Special thanks to TheUnkn0wn1 for his assistance on this module! - https://github.com/theunkn0wn1
 """
 
 from __future__ import annotations
