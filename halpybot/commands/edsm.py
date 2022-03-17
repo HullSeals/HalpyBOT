@@ -20,6 +20,7 @@ from ..packages.models import Context
 
 logger = logging.getLogger(__name__)
 
+
 @Commands.command("lookup", "syslookup")
 async def cmd_systemlookup(ctx: Context, args: List[str]):
     """

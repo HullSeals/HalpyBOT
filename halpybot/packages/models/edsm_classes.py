@@ -18,12 +18,14 @@ See license.md
 from typing import Union, Optional
 from attr import dataclass
 
+
 @dataclass
 class Coordinates:
     """EDSM object coordinates dictionary"""
     x: float
     y: float
     z: float
+
 
 @dataclass
 class SystemInfo:
@@ -44,6 +46,7 @@ class Location:
     coordinates: Coordinates
     time: Optional[str]
 
+
 @dataclass
 class Commander:
     # Three Keys We Care About
@@ -51,6 +54,7 @@ class Commander:
     system: str
     coordinates: Coordinates
     date: Optional[str]
+
 
 @dataclass
 class Galaxy:
