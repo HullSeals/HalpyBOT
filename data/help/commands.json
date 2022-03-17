@@ -1,266 +1,306 @@
 {
-    "EDSM":{
-        "lookup":{
-            "aliases":["syslookup"],
-            "arguments":"[System Name]",
-            "use":"Check if a system exists in EDSM"
-		},
-        "locate":{
-            "aliases":["cmdrlookup", "locatecmdr"],
-            "arguments":"[CMDR Name]",
-            "use":"Check if a CMDR exists and shares their location in EDSM"
-		},
-        "distance":{
-            "aliases":["dist"],
-            "arguments":"[point 1] : [point 2]",
-            "use":"Check the distance between two points in EDSM"
-		},
-        "landmark":{
-            "aliases":[],
-            "arguments":"[EDSM Valid Location]",
-            "use":"Check if a given point is nearby a given Landmark System"
-		},
-        "dssa":{
-            "aliases":[],
-            "arguments":"[EDSM Valid Location]",
-            "use":"Check for the closest DSSA carrier to a given location."
-		},
-        "coords":{
-            "aliases":["coordcheck"],
-            "arguments":"[x] [y] [z]",
-            "use":"Check EDSM for a nearby system to a set of coordinates"
-        }
+  "EDSM": {
+    "lookup": {
+      "aliases": [
+        "syslookup"
+      ],
+      "arguments": "[System Name]",
+      "use": "Check if a system exists in EDSM"
     },
-    "Dispatch":{
-        "mancase":{
-            "aliases":["manualcase"],
-            "arguments":"[IRC name] [case info]",
-            "use":"Used to start a new Manual Seal Case by Dispatchers. Drillled Seals Only, and run in a channel."
-		},
-        "manfish":{
-            "aliases":["manualfish"],
-            "arguments":"[IRC name] [case info]",
-            "use":"Used to start a new Manual Kingfisher Case by Dispatchers. Drillled Seals Only, and run in a channel."
-		},
-        "tsping":{
-            "aliases":["wssping"],
-            "arguments":"[case info]",
-            "use":"Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
-		}
+    "locate": {
+      "aliases": [
+        "cmdrlookup",
+        "locatecmdr"
+      ],
+      "arguments": "[CMDR Name]",
+      "use": "Check if a CMDR exists and shares their location in EDSM"
     },
-    "Facts": {
-        "allfacts": {
-            "aliases":[],
-            "arguments":"[language code]",
-            "use":"Lists all facts of a given language two-letter code. Defaults to English (en)."
-        },
-        "factinfo":{
-            "aliases":[],
-            "arguments":"[name-lang]",
-            "use":"Get information about a specific fact."
-        },
-        "deletefact":{
-            "aliases":[],
-            "arguments":"[name-lang]",
-            "use":"Deletes a fact from the database."
-        },
-        "addfact":{
-            "aliases":[],
-            "arguments":"[name-lang] [text]",
-            "use":"Adds a fact to the database with the specified language. Defaults to English."
-        },
-        "editfact":{
-            "aliases":["updatefact"],
-            "arguments":"[name-lang] [new text]",
-            "use":"Edits a fact in the database with the specified language."
-        },
-        "ufi":{
-            "aliases":["updatefactindex"],
-            "arguments":"",
-            "use":"Updates the local fact cache with the database."
-        }
+    "distance": {
+      "aliases": [
+        "dist"
+      ],
+      "arguments": "[point 1] : [point 2]",
+      "use": "Check the distance between two points in EDSM"
     },
-    "Utility":{
-        "ping":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Check to see if the bot is responding to commands."
-		},
-        "dbping":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Reply with the latency between the Bot and the Database."
-		},
-        "edsmping":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Reply with the latency between the Bot and the EDSM API."
-		},
-        "serverstatus":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Reply with the current Elite server status according to EDSM."
-        },
-        "utc":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Check for the current In Game Time and Date"
-		},
-        "year":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Check for the current In Game Year"
-		},
-        "whois":{
-            "aliases":[],
-            "arguments":"[name]",
-            "use":"Check the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT."
-		},
-        "whoami":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Check the user information on yourself. Must be a registered user, and run in DMs with HalpyBOT."
-		},
-        "forcejoin":{
-            "aliases":[],
-            "arguments":"[user] [channel name]",
-            "use":"Force a user to join an allowed channel in IRC. Drilled Seals Only, must be run in a channel."
-		},
-        "rrjoin":{
-            "aliases":[],
-            "arguments":"[user]",
-            "use":"Force a user to join #Repair-Requests channel in IRC. Drilled Seals Only, must be run in a channel."
-        },
-        "opsignal":{
-            "aliases":["summonstaff", "callstaff", "opsig"],
-            "arguments":"[info]",
-            "use":"Sends a notification to the Admins and Mods with a given message."
-        },
-        "cybersignal":{
-            "aliases":["summontech", "calltech", "cybersig"],
-            "arguments":"[info]",
-            "use":"Sends a notification to the Cyberseals with a given message."
-        },
-        "about":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Reply with information about HalpyBOT"
-        },
-        "say":{
-            "aliases":[],
-            "arguments":"[channel] [text]",
-            "use":"Make the Bot say something"
-        }
+    "landmark": {
+      "aliases": [],
+      "arguments": "[EDSM Valid Location]",
+      "use": "Check if a given point is nearby a given Landmark System"
     },
-    "Delay":{
-        "delaystatus":{
-            "aliases":["checkstatus"],
-            "arguments":"",
-            "use":"Checks the system for Delayed Cases"
-		},
-        "delaycase":{
-            "aliases":[],
-            "arguments":"[case status] [notes]",
-            "use":"Adds a new case to the Delayed system, and responds with a unique Case ID."
-		},
-        "updatestatus":{
-            "aliases":[],
-            "arguments":"[case ID] [case status]",
-            "use":"Updates the Status Code of a case - see the table of different status codes below!"
-		},
-        "updatenotes":{
-            "aliases":[],
-            "arguments":"[case ID] [new notes]",
-            "use":"Updates the Notes attached to a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
-        },
-        "updatecase" :{
-            "aliases":[],
-            "arguments":"[case ID] (case status) (case notes)",
-            "use":"Updates both the Status Code and Notes of a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
-        },
-        "close":{
-            "aliases":["endcase"],
-            "arguments":"[case ID]",
-            "use":"Closes a case and removes it from the Delayed Case system. It's encouraged to update the notes before you close a case!"
-        },
-        "reopen":{
-            "aliases":[],
-            "arguments":"[case ID] [case status]",
-            "use":"Reopens a previously-closed case, if a case is improperly closed. Moderator only"
-        },
-        "checkstatus":{
-            "aliases":[],
-            "arguments":"",
-            "use":"Check if any cases are currently marked as 'Delayed' in the database."
-        }
+    "dssa": {
+      "aliases": [],
+      "arguments": "[EDSM Valid Location]",
+      "use": "Check for the closest DSSA carrier to a given location."
     },
-    "Drill":{
-        "drillcase":{
-            "aliases":[],
-            "arguments":"[cmdr], [platform], [system], [hull]",
-            "use":"Starts a new Drill Case, separated by Commas"
-		},
-        "drillkfcase":{
-            "aliases":[],
-            "arguments":"[cmdr], [platform], [system], [planet], [coords], [type]",
-            "use":"Starts a new Drill Kingfisher Case, separated by Commas"
-		},
-        "drillcbcase":{
-            "aliases":[],
-            "arguments":"[cmdr], [platform], [system], [hull], [cansynth], [o2]",
-            "use":"Starts a new Drill CB Case, separated by Commas"
-		}
-    },
-    "Administrative": {
-        "notifyinfo details":{
-            "aliases":[],
-            "arguments":"[group]",
-            "use":"List the contact details of a particular group."
-		},
-        "notifyinfo groups":{
-            "aliases":[],
-            "arguments":"",
-            "use":"List the registered notify groups."
-		},
-        "addsub":{
-            "aliases":["subnotify", "alertme", "subscribe", "subscribenotify"],
-            "arguments":"[group] [info]",
-            "use":"Adds a phone number or email address to the notification group given."
-		},
-        "settings nick": {
-            "aliases":[],
-            "arguments":"[newnick]",
-            "use":"Change the nickname of the bot."
-        },
-        "settings prefix": {
-            "aliases":[],
-            "arguments":"[new prefix]",
-            "use":"Change the interaction prefix of the bot."
-        },
-        "settings offline": {
-            "aliases":[],
-            "arguments":"[True/False]",
-            "use":"Change the Offline Mode database connection status."
-        },
-        "settings warning_override": {
-            "aliases":[],
-            "arguments":"[True/False]",
-            "use":"Enable override for offline mode notifications."
-        },
-        "joinchannel":{
-            "aliases":[],
-            "arguments":"[channel]",
-            "use":"Make the bot join a channel. After restart, it will still be in the channel."
-		},
-        "partchannel":{
-            "aliases":[],
-            "arguments":"[channel]",
-            "use":"Make the bot leave a channel."
-		},
-        "shutdown":{
-            "aliases":["restart", "sealpukku", "reboot"],
-            "arguments":"",
-            "use":"Shut down the bot. Will restart the bot if configured under daemon processing."
-		}
+    "coords": {
+      "aliases": [
+        "coordcheck"
+      ],
+      "arguments": "[x] [y] [z]",
+      "use": "Check EDSM for a nearby system to a set of coordinates"
     }
+  },
+  "Dispatch": {
+    "mancase": {
+      "aliases": [
+        "manualcase"
+      ],
+      "arguments": "[IRC name] [case info]",
+      "use": "Used to start a new Manual Seal Case by Dispatchers. Drillled Seals Only, and run in a channel."
+    },
+    "manfish": {
+      "aliases": [
+        "manualfish"
+      ],
+      "arguments": "[IRC name] [case info]",
+      "use": "Used to start a new Manual Kingfisher Case by Dispatchers. Drillled Seals Only, and run in a channel."
+    },
+    "tsping": {
+      "aliases": [
+        "wssping"
+      ],
+      "arguments": "[case info]",
+      "use": "Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
+    }
+  },
+  "Facts": {
+    "allfacts": {
+      "aliases": [],
+      "arguments": "[language code]",
+      "use": "Lists all facts of a given language two-letter code. Defaults to English (en)."
+    },
+    "factinfo": {
+      "aliases": [],
+      "arguments": "[name-lang]",
+      "use": "Get information about a specific fact."
+    },
+    "deletefact": {
+      "aliases": [],
+      "arguments": "[name-lang]",
+      "use": "Deletes a fact from the database."
+    },
+    "addfact": {
+      "aliases": [],
+      "arguments": "[name-lang] [text]",
+      "use": "Adds a fact to the database with the specified language. Defaults to English."
+    },
+    "editfact": {
+      "aliases": [
+        "updatefact"
+      ],
+      "arguments": "[name-lang] [new text]",
+      "use": "Edits a fact in the database with the specified language."
+    },
+    "ufi": {
+      "aliases": [
+        "updatefactindex"
+      ],
+      "arguments": "",
+      "use": "Updates the local fact cache with the database."
+    }
+  },
+  "Utility": {
+    "ping": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Check to see if the bot is responding to commands."
+    },
+    "dbping": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Reply with the latency between the Bot and the Database."
+    },
+    "edsmping": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Reply with the latency between the Bot and the EDSM API."
+    },
+    "serverstatus": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Reply with the current Elite server status according to EDSM."
+    },
+    "utc": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Check for the current In Game Time and Date"
+    },
+    "year": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Check for the current In Game Year"
+    },
+    "whois": {
+      "aliases": [],
+      "arguments": "[name]",
+      "use": "Check the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT."
+    },
+    "whoami": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Check the user information on yourself. Must be a registered user, and run in DMs with HalpyBOT."
+    },
+    "forcejoin": {
+      "aliases": [],
+      "arguments": "[user] [channel name]",
+      "use": "Force a user to join an allowed channel in IRC. Drilled Seals Only, must be run in a channel."
+    },
+    "rrjoin": {
+      "aliases": [],
+      "arguments": "[user]",
+      "use": "Force a user to join #Repair-Requests channel in IRC. Drilled Seals Only, must be run in a channel."
+    },
+    "opsignal": {
+      "aliases": [
+        "summonstaff",
+        "callstaff",
+        "opsig"
+      ],
+      "arguments": "[info]",
+      "use": "Sends a notification to the Admins and Mods with a given message."
+    },
+    "cybersignal": {
+      "aliases": [
+        "summontech",
+        "calltech",
+        "cybersig"
+      ],
+      "arguments": "[info]",
+      "use": "Sends a notification to the Cyberseals with a given message."
+    },
+    "about": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Reply with information about HalpyBOT"
+    },
+    "say": {
+      "aliases": [],
+      "arguments": "[channel] [text]",
+      "use": "Make the Bot say something"
+    }
+  },
+  "Delay": {
+    "delaystatus": {
+      "aliases": [
+        "checkstatus"
+      ],
+      "arguments": "",
+      "use": "Checks the system for Delayed Cases"
+    },
+    "delaycase": {
+      "aliases": [],
+      "arguments": "[case status] [notes]",
+      "use": "Adds a new case to the Delayed system, and responds with a unique Case ID."
+    },
+    "updatestatus": {
+      "aliases": [],
+      "arguments": "[case ID] [case status]",
+      "use": "Updates the Status Code of a case - see the table of different status codes below!"
+    },
+    "updatenotes": {
+      "aliases": [],
+      "arguments": "[case ID] [new notes]",
+      "use": "Updates the Notes attached to a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
+    },
+    "updatecase": {
+      "aliases": [],
+      "arguments": "[case ID] (case status) (case notes)",
+      "use": "Updates both the Status Code and Notes of a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
+    },
+    "close": {
+      "aliases": [
+        "endcase"
+      ],
+      "arguments": "[case ID]",
+      "use": "Closes a case and removes it from the Delayed Case system. It's encouraged to update the notes before you close a case!"
+    },
+    "reopen": {
+      "aliases": [],
+      "arguments": "[case ID] [case status]",
+      "use": "Reopens a previously-closed case, if a case is improperly closed. Moderator only"
+    },
+    "checkstatus": {
+      "aliases": [],
+      "arguments": "",
+      "use": "Check if any cases are currently marked as 'Delayed' in the database."
+    }
+  },
+  "Drill": {
+    "drillcase": {
+      "aliases": [],
+      "arguments": "[cmdr], [platform], [system], [hull]",
+      "use": "Starts a new Drill Case, separated by Commas"
+    },
+    "drillkfcase": {
+      "aliases": [],
+      "arguments": "[cmdr], [platform], [system], [planet], [coords], [type]",
+      "use": "Starts a new Drill Kingfisher Case, separated by Commas"
+    },
+    "drillcbcase": {
+      "aliases": [],
+      "arguments": "[cmdr], [platform], [system], [hull], [cansynth], [o2]",
+      "use": "Starts a new Drill CB Case, separated by Commas"
+    }
+  },
+  "Administrative": {
+    "notifyinfo details": {
+      "aliases": [],
+      "arguments": "[group]",
+      "use": "List the contact details of a particular group."
+    },
+    "notifyinfo groups": {
+      "aliases": [],
+      "arguments": "",
+      "use": "List the registered notify groups."
+    },
+    "addsub": {
+      "aliases": [
+        "subnotify",
+        "alertme",
+        "subscribe",
+        "subscribenotify"
+      ],
+      "arguments": "[group] [info]",
+      "use": "Adds a phone number or email address to the notification group given."
+    },
+    "settings nick": {
+      "aliases": [],
+      "arguments": "[newnick]",
+      "use": "Change the nickname of the bot."
+    },
+    "settings prefix": {
+      "aliases": [],
+      "arguments": "[new prefix]",
+      "use": "Change the interaction prefix of the bot."
+    },
+    "settings offline": {
+      "aliases": [],
+      "arguments": "[True/False]",
+      "use": "Change the Offline Mode database connection status."
+    },
+    "settings warning_override": {
+      "aliases": [],
+      "arguments": "[True/False]",
+      "use": "Enable override for offline mode notifications."
+    },
+    "joinchannel": {
+      "aliases": [],
+      "arguments": "[channel]",
+      "use": "Make the bot join a channel. After restart, it will still be in the channel."
+    },
+    "partchannel": {
+      "aliases": [],
+      "arguments": "[channel]",
+      "use": "Make the bot leave a channel."
+    },
+    "shutdown": {
+      "aliases": [
+        "restart",
+        "sealpukku",
+        "reboot"
+      ],
+      "arguments": "",
+      "use": "Shut down the bot. Will restart the bot if configured under daemon processing."
+    }
+  }
 }
