@@ -15,7 +15,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from typing import Union, Optional
+from typing import Optional
 from attr import dataclass
 
 

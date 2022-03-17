@@ -21,7 +21,7 @@ from os import path, mkdir
 from aiohttp import web
 
 from halpybot.server import APIConnector
-from halpybot import commands
+from halpybot import commands  # No, this isn't unused. We need this.
 from halpybot.packages.ircclient import pool, client
 from halpybot.packages.configmanager import config
 
