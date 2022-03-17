@@ -13,7 +13,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 """
 import pytest
 import time
-from src.packages.database import *
+from halpybot.packages.database import *
 
 
 # Test Database Latency

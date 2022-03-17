@@ -13,17 +13,17 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import logging.handlers
-import threading
 import asyncio
 import datetime
+import logging.handlers
+import threading
 from os import path, mkdir
-from aiohttp import web
 
-from src.server import APIConnector
-from src import commands
-from src.packages.ircclient import pool, client
-from src.packages.configmanager import config
+from aiohttp import web
+from halpybot import commands  # No, this isn't unused. We need this.
+from halpybot.packages.configmanager import config
+from halpybot.packages.ircclient import pool, client
+from halpybot.server import APIConnector
 
 logFile: str = config['Logging']['log_file']
 CLI_level = config['Logging']['cli_level']

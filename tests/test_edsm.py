@@ -14,7 +14,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 import pytest
 import aiohttp
 import asyncio
-from src.packages.edsm import *
+from halpybot.packages.edsm import *
 from unittest.mock import patch
 
 
@@ -45,7 +45,7 @@ async def test_non_sys():
 # 3: GetInfo error
 @pytest.mark.asyncio
 async def test_request_error():
-    with patch('src.packages.edsm.GalaxySystem.get_info', side_effect=aiohttp.ClientError("Err")):
+    with patch('halpybot.packages.edsm.GalaxySystem.get_info', side_effect=aiohttp.ClientError("Err")):
         with pytest.raises(aiohttp.ClientError):
             await GalaxySystem.get_info("Praisehalpydamnwhyisthisnotasysnam", cache_override=True)
 
@@ -83,7 +83,7 @@ async def test_sys_not_nearby():
 # 3: GetNearby error
 @pytest.mark.asyncio
 async def test_request_nearby_error():
-    with patch('src.packages.edsm.GalaxySystem.get_nearby', side_effect=aiohttp.ClientError("Err")):
+    with patch('halpybot.packages.edsm.GalaxySystem.get_nearby', side_effect=aiohttp.ClientError("Err")):
         with pytest.raises(aiohttp.ClientError):
             await GalaxySystem.get_nearby('1', '2', '3')
 
@@ -106,9 +106,9 @@ async def test_noncmdr():
 # 2: Cached CMDR
 @pytest.mark.asyncio
 async def test_noncmdr2():
-    cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
+    cmdr = await Commander.get_cmdr("Rixxan")
     assert cmdr.name == "Rixxan"
-    cmdr = await Commander.get_cmdr("Rixxan", cache_override=False)
+    cmdr = await Commander.get_cmdr("Rixxan")
     assert cmdr.name == "Rixxan"
 
 
@@ -117,9 +117,6 @@ async def test_noncmdr2():
 async def test_location():
     location = await Commander.location("Rixxan")
     assert location is not None
-    assert type(location.system) is str
-    assert type(location.coordinates) is dict
-    assert type(location.time) is str
 
 
 # Landmarks
@@ -137,9 +134,8 @@ async def test_dssa():
 
 
 # Calculate Distance
-@pytest.mark.asyncio
-async def test_coords():
-    coords = await calc_distance(-1, 2, 3, 400, 500, 600)
+def test_coords():
+    coords = calc_distance(-1, 2, 3, 400, 500, 600)
     assert coords == 409.41
 
 
@@ -171,12 +167,12 @@ async def test_distance():
 
 
 @pytest.mark.asyncio
-async def test_distance_noA():
+async def test_distance_no_a():
     with pytest.raises(EDSMConnectionError):
         await checkdistance("", "Delkar")
 
 
 @pytest.mark.asyncio
-async def test_distance_badSys():
+async def test_distance_bad_sys():
     with pytest.raises(NoResultsEDSM):
         await checkdistance("Sagittarius A*", "ThisCMDRDoesntExist")

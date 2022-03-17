@@ -13,8 +13,8 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 """
 import pytest
 import os.path
-from src.packages.utils import *
-from src.packages.command import get_help_text
+from halpybot.packages.utils import *
+from halpybot.packages.command import get_help_text
 
 
 # Test Time
@@ -33,13 +33,11 @@ async def test_seconds_bad():
 
 # Test Lang Codes
 # 1: If the file exists, we will assume it is correct.
-@pytest.mark.asyncio
 def test_lang():
     assert os.path.exists("data/languages/iso639-1.json") is True
 
 
 # 2: Check if the file returns a dict
-@pytest.mark.asyncio
 def test_lang_content():
     langs = language_codes()
     assert type(langs) == dict
@@ -47,14 +45,12 @@ def test_lang_content():
 
 # Test Strip ASCII
 # 1: Strip non-ascii
-@pytest.mark.asyncio
 def test_strip():
     string = strip_non_ascii("This has Non-Ascii ö to Strip")
     assert string == ("This has Non-Ascii  to Strip", True)
 
 
 # 2: Nothing to Strip
-@pytest.mark.asyncio
 def test_non_strip():
     string = strip_non_ascii("This has Non-Ascii to Strip")
     assert string == ("This has Non-Ascii to Strip", False)
@@ -62,13 +58,11 @@ def test_non_strip():
 
 # Test Help Commands
 # 1: If the file exists, we will assume it is correct.
-@pytest.mark.asyncio
 async def test_commands():
     assert os.path.exists("data/help/commands.json") is True
 
 
 # 2: Check a help command response. If it returns a not none value, we will assume it is true.
-@pytest.mark.asyncio
 async def test_commands_content():
     assert get_help_text("ping") is not None
 

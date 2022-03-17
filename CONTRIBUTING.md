@@ -1,6 +1,6 @@
 # Contributing
 
-Before contributing to the project, please read the general Cyberseals code of conduct [here](https://gitlab.com/hull-seals/welcome-to-the-hull-seals-devops-board/-/blob/master/CONTRIBUTING.md#our-standards)
+Before contributing to the project, please read the general Cyberseals code of conduct [here](https://gitlab.com/hull-seals/welcome/-/blob/master/CONTRIBUTING.md#our-standards)
 
 ## Helping with the project
 
