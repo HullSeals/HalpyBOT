@@ -432,24 +432,9 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
     """
     global landmarks
     # Set default values
-    Coords, LMCoords, = None, None
+    LMCoords = None
 
-    try:
-        sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
-        if sys:
-            Coords = sys.coords
-    except EDSMLookupError:
-        raise
-
-    if not sys:
-
-        try:
-            cmdr = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
-            if cmdr:
-                Coords = cmdr.coordinates
-        except EDSMLookupError:
-            raise
-
+    Coords = await get_coordinates(edsm_sys_name, cache_override)
     if Coords:
         # Load JSON file if landmarks cache is empty, else we just get objects from the cache
 
@@ -501,23 +486,9 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
     """
     global carriers  # FIXME: REMOVE MUTABLE GLOBAL (BAD BAD BAD)
     # Set default values
-    Coords, LMCoords, maxdist = None, None, None
+    LMCoords, maxdist = None, None
 
-    try:
-        sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
-        if sys:
-            Coords = sys.coords
-    except EDSMLookupError:
-        raise
-
-    if not sys:
-
-        try:
-            cmdr = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
-            if cmdr:
-                Coords = cmdr.coordinates
-        except EDSMLookupError:
-            raise
+    Coords = await get_coordinates(edsm_sys_name, cache_override)
 
     if Coords:
 
@@ -611,6 +582,18 @@ async def calc_direction(x1, x2, y1, y2):
     compass_lookup = round(degrees_final / 45)
     result = f'{directions[compass_lookup]}'
     return result
+
+
+async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
+    Coords = None
+    sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
+    if sys:
+        Coords = sys.coords
+    if not sys:
+        cmdr = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
+        if cmdr:
+            Coords = cmdr.coordinates
+    return Coords
 
 
 async def get_nearby_system(sys_name: str, cache_override: bool = False):
