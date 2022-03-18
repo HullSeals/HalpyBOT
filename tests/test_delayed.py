@@ -15,8 +15,8 @@ NOTE: These tests interact with a database. It is REQUIRED to manually set an SQ
       If this IP is not given, the test will skip.
 """
 import pytest
-from src.packages.delayedboard import *
-from src.packages.configmanager import config
+from halpybot.packages.delayedboard import *
+from halpybot.packages.configmanager import config
 
 safeIP = ""
 configIP = config['Database']['Host']

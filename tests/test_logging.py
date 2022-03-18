@@ -13,7 +13,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 """
 import pytest
 import os
-from src.packages.configmanager import config
+from halpybot.packages.configmanager import config
 
 logFile: str = config['Logging']['log_file']
 logFolder = os.path.dirname(logFile)

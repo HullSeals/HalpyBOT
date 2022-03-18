@@ -13,11 +13,10 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 """
 import pytest
 import os
-from src.packages.configmanager import *
+from halpybot.packages.configmanager import *
 
 
 # Does the Config file exist?
-@pytest.mark.asyncio
 def test_config_exists():
     config_file = os.path.exists("config/config.ini")
     assert config_file is True

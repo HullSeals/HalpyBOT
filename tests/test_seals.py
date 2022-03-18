@@ -12,8 +12,8 @@ See license.md
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
 import pytest
-from src.packages.seals import *
-from src.packages.configmanager import config, config_write
+from halpybot.packages.seals import *
+from halpybot.packages.configmanager import config, config_write
 
 
 # Test Time
@@ -32,9 +32,9 @@ async def test_bad_whois():
 
 
 @pytest.mark.asyncio
-async def test_noDB():
+async def test_no_db():
     prev_value = config['Offline Mode']['enabled']
     config_write('Offline Mode', 'enabled', 'True')
-    noDatabase = await whois("ThisCMDRDoesntExist")
-    assert noDatabase == "Error searching user."
+    no_database = await whois("ThisCMDRDoesntExist")
+    assert no_database == "Error searching user."
     config_write('Offline Mode', 'enabled', prev_value)
