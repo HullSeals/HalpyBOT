@@ -159,10 +159,7 @@ class GalaxySystem:
                 by default.
 
         """
-        try:
-            obj = await cls.get_info(name, cache_override)
-        except EDSMConnectionError:
-            raise
+        obj = await cls.get_info(name, cache_override)
         if obj is None:
             return False
         else:
@@ -326,11 +323,7 @@ class Commander:
                 by default.
 
         """
-        try:
-            location = await Commander.get_cmdr(name=name, cache_override=cache_override)
-        except EDSMConnectionError:
-            raise
-
+        location = await Commander.get_cmdr(name=name, cache_override=cache_override)
         if location is None:
             return None
         else:

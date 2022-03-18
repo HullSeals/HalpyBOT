@@ -40,14 +40,11 @@ class DelayedCase:
         message = strip_non_ascii(message)
         in_args = [int(status), str(message[0]), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spCreateDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spCreateDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
         out_args.append(True if message[1] else False)
         return out_args
@@ -75,14 +72,11 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spReopenDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spReopenDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
         return out_args
 
@@ -109,14 +103,11 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spUpdateStatusDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spUpdateStatusDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
         return out_args
 
@@ -143,14 +134,11 @@ class DelayedCase:
         message = strip_non_ascii(message)
         in_args = [int(case_id), str(message[0]), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spUpdateMsgDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.callproc('spUpdateMsgDelayedCase', in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
         out_args.append(True if message[1] else False)
         return out_args
@@ -168,15 +156,12 @@ class DelayedCase:
         """
         # Set default value
         result = None
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute("SELECT COUNT(ID) "
-                               "FROM casestatus "
-                               "WHERE case_status IN (1, 2);")
-                for res in cursor.fetchall():
-                    result = res[0]
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute("SELECT COUNT(ID) "
+                           "FROM casestatus "
+                           "WHERE case_status IN (1, 2);")
+            for res in cursor.fetchall():
+                result = res[0]
         # Return the total amount of open delayed cases on the board
         return result

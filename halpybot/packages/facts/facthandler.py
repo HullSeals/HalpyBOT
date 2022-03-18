@@ -210,16 +210,13 @@ class FactHandler:
 
     async def _from_database(self):
         """Get facts from database and update the cache"""
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute(f"SELECT factID, factName, factLang, factText, factAuthor "
-                               f"FROM {config['Facts']['table']}")
-                self._flush_cache()
-                for (ID, Name, Lang, Text, Author) in cursor:
-                    self._factCache[Name, Lang] = Fact(int(ID), Name, Lang, Text, Author)
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(f"SELECT factID, factName, factLang, factText, factAuthor "
+                           f"FROM {config['Facts']['table']}")
+            self._flush_cache()
+            for (ID, Name, Lang, Text, Author) in cursor:
+                self._factCache[Name, Lang] = Fact(int(ID), Name, Lang, Text, Author)
 
     async def _from_local(self):
         """Get facts from local backup file and update the cache"""
@@ -267,19 +264,13 @@ class FactHandler:
             raise InvalidFactException("All registered facts must have an English version")
         if (name, lang) in self._factCache:
             raise InvalidFactException("This fact already exists.")
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute(f"INSERT INTO {config['Facts']['table']} "
-                               f"(factName, factLang, factText, factAuthor) "
-                               f"VALUES (%s, %s, %s, %s);", (name, lang, text, author))
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(f"INSERT INTO {config['Facts']['table']} "
+                           f"(factName, factLang, factText, factAuthor) "
+                           f"VALUES (%s, %s, %s, %s);", (name, lang, text, author))
         # Reset the fact handler
-        try:
-            await self.fetch_facts(preserve_current=True)
-        except FactUpdateError:
-            raise
+        await self.fetch_facts(preserve_current=True)
 
     async def lang_by_fact(self, name: str):
         """Get a list of languages a fact exists in
@@ -334,14 +325,11 @@ class FactHandler:
         if lang.lower() == 'en' and len(await self.lang_by_fact(name)) > 1:
             raise FactHandlerError("Cannot delete English fact if other languages "
                                    "are registered for that fact name.")
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute(f"DELETE FROM {config['Facts']['table']} "
-                               f"WHERE factID = %s", (self._factCache[name, lang].ID,))
-                del self._factCache[name, lang]
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as db:
+            cursor = db.cursor()
+            cursor.execute(f"DELETE FROM {config['Facts']['table']} "
+                           f"WHERE factID = %s", (self._factCache[name, lang].ID,))
+            del self._factCache[name, lang]
 
     def list(self, lang: Optional[str] = None) -> List[tuple]:
         """Get a list of facts

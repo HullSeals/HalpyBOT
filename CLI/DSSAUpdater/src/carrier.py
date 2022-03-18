@@ -44,10 +44,7 @@ class DSSACarrier:
         """
         self._marked_manual = False
         self._location = location
-        try:
-            self._coords, self._has_system = self._get_coords(self._location), True
-        except EDSMLookupError:
-            raise
+        self._coords, self._has_system = self._get_coords(self._location), True
         if not self._coords:
             self._coords = {"x": None, "y": None, "z": None}
             self._marked_manual, self._has_system = True, False

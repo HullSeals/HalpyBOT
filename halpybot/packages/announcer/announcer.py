@@ -135,10 +135,7 @@ class Announcement:
         if "System" in args.keys():
             args["System"] = await sys_cleaner(args["System"])
         # Come on pylint
-        try:
-            announcement = self._content.format(**args)
-        except IndexError:
-            raise
+        announcement = self._content.format(**args)
         if self._edsm:
             try:
                 announcement += await self.get_edsm_data(args)

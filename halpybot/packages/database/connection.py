@@ -105,12 +105,9 @@ async def latency():
 
     """
     get_query = "SELECT 'latency';"
-    try:
-        db = DatabaseConnection()
-        cursor = db.cursor()
-        cursor.execute(get_query)
-        db.close()
-    except NoDatabaseConnection:
-        raise
+    db = DatabaseConnection()
+    cursor = db.cursor()
+    cursor.execute(get_query)
+    db.close()
     end = time.time()
     return end
