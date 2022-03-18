@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5.2
+HalpyBOT v1.5.3
 
 shutdown.py - Will be with you shortly, please hold!
 

@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5.2
+HalpyBOT v1.5.3
 
 time.py - get in-game time
 

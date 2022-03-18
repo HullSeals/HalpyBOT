@@ -10,7 +10,7 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.5.2
+HalpyBOT v1.5.3
 
 user.py - User dataclass
 
