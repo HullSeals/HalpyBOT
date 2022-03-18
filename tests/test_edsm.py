@@ -235,6 +235,11 @@ async def test_distance_bad_cleaner():
 
 
 @pytest.mark.asyncio
+async def test_distance_bad_cleaner_2():
+    not_procgen = await sys_cleaner("Col 285 Sector HN-I c1O-19")
+    assert not_procgen == "COL 285 SECTOR HN-I C10-19"
+
+@pytest.mark.asyncio
 async def test_distance_check_landmarks_far():
     with pytest.raises(NoResultsEDSM):
         await checklandmarks("Skaudoae UF-Q b47-1")
