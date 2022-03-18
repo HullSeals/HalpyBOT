@@ -11,13 +11,14 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
+import asyncio
+from unittest.mock import patch
 import pytest
 import aiohttp
-import asyncio
 
 import halpybot.packages.edsm.edsm
-from halpybot.packages.edsm import *
-from unittest.mock import patch
+from halpybot.packages.edsm import GalaxySystem, Commander, checkdistance, checkdssa, checklandmarks, NoResultsEDSM, \
+    calc_distance, calc_direction, get_nearby_system, EDSMConnectionError, sys_cleaner
 
 
 @pytest.fixture

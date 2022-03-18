@@ -11,9 +11,9 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
-import pytest
 import os.path
-from halpybot.packages.utils import *
+import pytest
+from halpybot.packages.utils import get_time_seconds, language_codes, strip_non_ascii
 from halpybot.packages.command import get_help_text
 
 
@@ -40,7 +40,7 @@ def test_lang():
 # 2: Check if the file returns a dict
 def test_lang_content():
     langs = language_codes()
-    assert type(langs) == dict
+    assert isinstance(langs, dict)
 
 
 # Test Strip ASCII

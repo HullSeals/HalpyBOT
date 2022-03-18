@@ -11,9 +11,9 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
-import pytest
 import time
-from halpybot.packages.database import *
+import pytest
+from halpybot.packages.database import latency
 
 
 # Test Database Latency

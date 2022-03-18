@@ -11,8 +11,8 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
-import pytest
 import os
+import pytest
 from halpybot.packages.configmanager import config
 
 logFile: str = config["Logging"]["log_file"]
@@ -28,7 +28,7 @@ async def test_log_path():
 # Test if we can create a file in the log directory
 @pytest.mark.asyncio
 async def test_log_write():
-    with open(os.path.join(logFolder, "testFile.txt"), "w"):
+    with open(os.path.join(logFolder, "testFile.txt"), "w", encoding='UTF-8'):
         pass
     assert os.path.exists(f"{logFolder}/testFile.txt")
 
