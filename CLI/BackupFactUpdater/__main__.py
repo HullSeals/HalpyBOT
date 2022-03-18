@@ -12,9 +12,10 @@ See license.md
 
 import json
 import os
+import sys
 
-import mysql.connector
 import configparser
+import mysql.connector
 
 """
 As a word of caution, this script must be run from `halpybot/`, NOT `halpybot/CLI`.
@@ -58,7 +59,7 @@ def run():
     )
     if cont != "Y":
         print("Roger, aborting...")
-        exit()
+        sys.exit()
     table = input("What DB table do you wish to fetch the facts from? ")
     print(f"0% Starting update from {table}. Please stand by...")
     try:
@@ -90,5 +91,5 @@ if __name__ == "__main__":
         print(
             "Please run this tool from the /CLI folder, with `python3 BackupFactUpdater`"
         )
-        exit()
+        sys.exit()
     run()

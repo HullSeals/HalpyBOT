@@ -13,11 +13,12 @@ Licensed under the GNU General Public License
 See license.md
 """
 import os.path
+import sys
 from datetime import datetime
 import json
+import configparser
 import pyperclip
 from tqdm import tqdm
-import configparser
 
 from src import DSSACarrier, scrape_spreadsheet
 
@@ -60,10 +61,10 @@ def run():
         print(
             "Error: This isn't a directory I can access, are you running a relative dir?"
         )
-        exit()
+        sys.exit()
     except Exception as er:
         print(f"Oops, that was an error: {er}. Contact Rik if the issue persists")
-        exit()
+        sys.exit()
 
     # Make sure we are committed to throwing 90+ queries at EDSM
     go = input("\nEDSM querying is about to start, do you wish to proceed? (Y/n) ")
@@ -72,7 +73,7 @@ def run():
             "Aborted. Carrrier info- and CSV files have already been created, don't forget to delete them!"
         )
         print("---")
-        exit()
+        sys.exit()
     print("Querying from EDSM, use Ctrl+C to interrupt\n")
 
     # Create an object for all our carriers and get their locations
@@ -99,7 +100,7 @@ def run():
             "\nAborted. Carrrier info- and CSV files have already been created, don't forget to delete them!"
         )
         print("---")
-        exit()
+        sys.exit()
     except Exception as er:
         print(f"Uh oh, something went wrong while receiving EDSM data: {er}")
 
@@ -127,15 +128,15 @@ def run():
             print("Copied.")
     print("\nUpdate completed, have a nice day.")
     print("---")
-    exit()
+    sys.exit()
 
 
 if __name__ == "__main__":
     # Tool may not be run from any other folder than CLI/ see CLI/BackupFactUpdater/__main__.py
     if not os.getcwd().endswith("CLI"):
         print("Please run this tool from the /CLI folder, with `python3 DSSAUpdater`")
-        exit()
+        sys.exit()
     try:
         run()
     except KeyboardInterrupt:
-        exit()
+        sys.exit()

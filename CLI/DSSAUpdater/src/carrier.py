@@ -171,6 +171,5 @@ class DSSACarrier:
         # Return None if system doesn't exist
         if len(responses) == 0:
             return None
-        else:
-            self._name = responses["name"]  # Update name for consistency
-            return responses["coords"]
+        self._name = responses["name"]  # Update name for consistency
+        return responses["coords"]

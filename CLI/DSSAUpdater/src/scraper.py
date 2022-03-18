@@ -10,10 +10,10 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from bs4 import BeautifulSoup
 import csv
-import requests
 import json
+from bs4 import BeautifulSoup
+import requests
 
 
 class SpreadsheetLayoutError(Exception):
@@ -65,7 +65,7 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
             continue
         if row[2].lower() != "carrier operational":  # 2 - Carrier status
             continue
-        elif row[9] == "":  # 9 - Carrier name
+        if row[9] == "":  # 9 - Carrier name
             anomalies.append(f"{index + 1} - Name field has no value")
         elif row[12] == "":  # 12 - Location
             anomalies.append(f"{index + 1} - Location field has no value")
