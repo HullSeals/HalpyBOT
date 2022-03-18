@@ -16,8 +16,15 @@ import pydle
 class Context:
     """Message context object"""
 
-    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str,
-                 command: str):
+    def __init__(
+        self,
+        bot: pydle.Client,
+        channel: str,
+        sender: str,
+        in_channel: bool,
+        message: str,
+        command: str,
+    ):
         """Create message context object
 
         Args:
@@ -54,5 +61,7 @@ class Context:
 
         """
         if self.in_channel is True:
-            await self.bot.reply(self.channel, self.sender, self.in_channel, "Responding in DMs!")
+            await self.bot.reply(
+                self.channel, self.sender, self.in_channel, "Responding in DMs!"
+            )
         await self.bot.reply(self.channel, self.sender, False, message)

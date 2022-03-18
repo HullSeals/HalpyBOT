@@ -16,7 +16,7 @@ import configparser
 logger = logging.getLogger(__name__)
 
 config = configparser.ConfigParser()
-config.read('config/config.ini')
+config.read("config/config.ini")
 
 
 class ConfigException(Exception):
@@ -43,7 +43,7 @@ def config_write(module: str, key: str, value):
     logger.info(f"{module}, {key} set to {value}")
     config[module][key] = value
     try:
-        with open('config/config.ini', 'w') as conf:
+        with open("config/config.ini", "w") as conf:
             config.write(conf)
     except (FileNotFoundError, PermissionError) as ex:
         raise ConfigException(str(ex))

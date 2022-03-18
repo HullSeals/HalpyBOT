@@ -43,7 +43,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 
-    if args[1] not in config['Force join command']['joinable'].lower():
+    if args[1] not in config["Force join command"]["joinable"].lower():
         return await ctx.reply("I can't move people there.")
 
     if args[1] in channels:
@@ -51,10 +51,12 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
 
     # Check if bot is oper. Let's do this properly later
     if not botuser.oper:
-        return await ctx.reply("Cannot comply: I'm not an IRC operator! Contact a cyberseal")
+        return await ctx.reply(
+            "Cannot comply: I'm not an IRC operator! Contact a cyberseal"
+        )
 
     # Then, let user join the channel
-    await ctx.bot.rawmsg('SAJOIN', args[0], args[1])
+    await ctx.bot.rawmsg("SAJOIN", args[0], args[1])
 
     # Now we manually confirm that the SAJOIN was successful
     channels = await User.get_channels(ctx.bot, args[0])
@@ -86,20 +88,22 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 
-    if '#repair-requests' in channels:
+    if "#repair-requests" in channels:
         return await ctx.reply("User is already on that channel!")
 
     # Check if bot is oper. Let's do this properly later
     if not botuser.oper:
-        return await ctx.reply("Cannot comply: I'm not an IRC operator! Contact a cyberseal")
+        return await ctx.reply(
+            "Cannot comply: I'm not an IRC operator! Contact a cyberseal"
+        )
 
     # Then, let user join the channel
-    await ctx.bot.rawmsg('SAJOIN', args[0], '#repair-requests')
+    await ctx.bot.rawmsg("SAJOIN", args[0], "#repair-requests")
 
     # Now we manually confirm that the SAJOIN was successful
     channels = await User.get_channels(ctx.bot, args[0])
 
-    if '#repair-requests' in channels:
+    if "#repair-requests" in channels:
         return await ctx.reply(f"{str(args[0])} forced to join #Repair-Requests")
     else:
         return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")

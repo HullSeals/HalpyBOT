@@ -25,9 +25,9 @@ from halpybot.packages.configmanager import config
 from halpybot.packages.ircclient import pool, client
 from halpybot.server import APIConnector
 
-logFile: str = config['Logging']['log_file']
-CLI_level = config['Logging']['cli_level']
-file_level = config['Logging']['file_level']
+logFile: str = config["Logging"]["log_file"]
+CLI_level = config["Logging"]["cli_level"]
+file_level = config["Logging"]["file_level"]
 
 try:
     logFolder = path.dirname(logFile)
@@ -37,7 +37,7 @@ except PermissionError:
     print("Unable to create log folder. Does this user have appropriate permissions?")
     exit()
 
-formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s')
+formatter = logging.Formatter("%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s")
 
 CLI_handler = logging.StreamHandler()
 CLI_handler.setLevel(CLI_level)
@@ -45,8 +45,14 @@ CLI_handler.setLevel(CLI_level)
 # Will rotate log files every monday at midnight and keep at most 12 files,
 # deleting the oldest, meaning logs are retained for 12 weeks (3 months)
 # noinspection PyTypeChecker
-file_handler = logging.handlers.TimedRotatingFileHandler(filename=logFile, when="w0", interval=14,
-                                                         backupCount=12, utc=True, atTime=datetime.time())
+file_handler = logging.handlers.TimedRotatingFileHandler(
+    filename=logFile,
+    when="w0",
+    interval=14,
+    backupCount=12,
+    utc=True,
+    atTime=datetime.time(),
+)
 file_handler.setLevel(file_level)
 
 CLI_handler.setFormatter(formatter)
@@ -64,8 +70,13 @@ def _start_bot():
     bot_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(bot_loop)
 
-    pool.connect(client, config['IRC']['server'], config['IRC']['port'],
-                 tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
+    pool.connect(
+        client,
+        config["IRC"]["server"],
+        config["IRC"]["port"],
+        tls=config.getboolean("IRC", "useSsl"),
+        tls_verify=False,
+    )
     pool.handle_forever()
 
 
@@ -74,7 +85,7 @@ def _start_server():
     asyncio.set_event_loop(server_loop)
     asyncio.get_event_loop()
 
-    web.run_app(app=APIConnector, port=int(config['API Connector']['port']))
+    web.run_app(app=APIConnector, port=int(config["API Connector"]["port"]))
 
 
 if __name__ == "__main__":

@@ -51,7 +51,8 @@ async def hbot_help(ctx: Context, args: List[str]):
                 if help_text is None:
                     await ctx.reply(
                         f"The command {arg} could not be found in the list. Try running help without an argument to get"
-                        f" the list of commands")
+                        f" the list of commands"
+                    )
                 else:
                     await ctx.reply(help_text)
 
@@ -65,10 +66,12 @@ async def cmd_about(ctx: Context, args: List[str]):
         sha = f", build {sha}"
     except git.exc.InvalidGitRepositoryError:
         sha = ""
-    return await ctx.redirect(f"HalpyBOT v{str(__version__)}{sha}\n"
-                              f"Developed by the Hull Seals, using Pydle\n"
-                              f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
-                              f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"
-                              f"Pydle: https://github.com/Shizmob/pydle/\n"
-                              f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
-                              f"in the development of HalpyBOT.")
+    return await ctx.redirect(
+        f"HalpyBOT v{str(__version__)}{sha}\n"
+        f"Developed by the Hull Seals, using Pydle\n"
+        f"HalpyBOT repository: https://hullse.al/HalpyBOT\n"
+        f"Developed by: Rik079, Rixxan, Feliksas, and StuntPhish\n"
+        f"Pydle: https://github.com/Shizmob/pydle/\n"
+        f"Many thanks to the Pydle Devs and TFRM Techrats for their assistance "
+        f"in the development of HalpyBOT."
+    )

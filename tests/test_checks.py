@@ -19,7 +19,15 @@ from halpybot.packages.models import User
 # Do the levels line up with expected permissions?
 @pytest.mark.asyncio
 async def test_config_write():
-    levels = {(Pup, 1), (Drilled, 2), (Moderator, 3), (Admin, 4), (Cyberseal, 5), (Cybermgr, 6), (Owner, 7)}
+    levels = {
+        (Pup, 1),
+        (Drilled, 2),
+        (Moderator, 3),
+        (Admin, 4),
+        (Cyberseal, 5),
+        (Cybermgr, 6),
+        (Owner, 7),
+    }
     for level_name, level_num in levels:
         assert level_name.level == level_num
 
@@ -42,7 +50,7 @@ async def test_permission_level():
         ("seal@seal.moderator.hullseals.space", "moderator.hullseals.space"),
         ("seal@seal.seal.hullseals.space", "seal.hullseals.space"),
         ("seal@seal.pup.hullseals.space", "pup.hullseals.space"),
-        ("seal@seal.admin.hullseals.space", "admin.hullseals.space")
+        ("seal@seal.admin.hullseals.space", "admin.hullseals.space"),
     }
     for given_host, expected_host in vhost_tests:
         vhost = User.process_vhost(given_host)
@@ -57,5 +65,12 @@ async def test_permission_level_rix():
 
 @pytest.mark.asyncio
 async def test_permission_level_comparisons():
-    assert Pup.level < Drilled.level < Moderator.level < Admin.level < Cyberseal.level < Cybermgr.level < Owner.level
-
+    assert (
+        Pup.level
+        < Drilled.level
+        < Moderator.level
+        < Admin.level
+        < Cyberseal.level
+        < Cybermgr.level
+        < Owner.level
+    )

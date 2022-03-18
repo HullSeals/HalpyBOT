@@ -14,18 +14,20 @@ from . import help
 from . import caseutils
 from . import drill
 
-__all__ = ["delayedboard",
-           "edsm",
-           "fact",
-           "forcejoin",
-           "manual_case",
-           "notify",
-           "ping",
-           "puppet",
-           "settings",
-           "shutdown",
-           "time",
-           "userinfo",
-           "help",
-           "caseutils",
-           "drill"]
+__all__ = [
+    "delayedboard",
+    "edsm",
+    "fact",
+    "forcejoin",
+    "manual_case",
+    "notify",
+    "ping",
+    "puppet",
+    "settings",
+    "shutdown",
+    "time",
+    "userinfo",
+    "help",
+    "caseutils",
+    "drill",
+]

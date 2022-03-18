@@ -49,9 +49,9 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     info = ctx.message
     logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
     for channel in config["Manual Case"]["send_to"].split():
-        await ctx.bot.message(channel, f"xxxx MANCASE -- NEWCASE xxxx\n"
-                                       f"{info}\n"
-                                       f"xxxxxxxx")
+        await ctx.bot.message(
+            channel, f"xxxx MANCASE -- NEWCASE xxxx\n" f"{info}\n" f"xxxxxxxx"
+        )
 
     # Send to Discord
     cn_message = {
@@ -70,29 +70,26 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
                     "icon_url": "https://hullseals.space/images/emblem_mid.png",
                 },
                 "fields": [
-                    {
-                        "name": "IRC Name:",
-                        "value": str(args[0]),
-                        "inline": False
-                    },
-
+                    {"name": "IRC Name:", "value": str(args[0]), "inline": False},
                     {
                         "name": "Case Info:",
-                        "value": ' '.join(args[1:]),
-                        "inline": False
-                    }
-                ]
+                        "value": " ".join(args[1:]),
+                        "inline": False,
+                    },
+                ],
             }
-        ]
+        ],
     }
 
     try:
         async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
+            headers={"User-Agent": DEFAULT_USER_AGENT}
         ) as session:
-            await session.post(config['Discord Notifications']['url'], json=cn_message)
+            await session.post(config["Discord Notifications"]["url"], json=cn_message)
     except aiohttp.ClientError as err:
-        await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
+        await ctx.reply(
+            "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
+        )
         logger.error(f"Unable to notify Discord: {err}")
 
 
@@ -126,23 +123,21 @@ async def cmd_tsping(ctx: Context, args: List[str]):
                     "icon_url": "https://hullseals.space/images/emblem_mid.png",
                 },
                 "fields": [
-                    {
-                        "name": "Additional information",
-                        "value": info,
-                        "inline": False
-                    }
-                ]
+                    {"name": "Additional information", "value": info, "inline": False}
+                ],
             }
-        ]
+        ],
     }
 
     try:
         async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
+            headers={"User-Agent": DEFAULT_USER_AGENT}
         ) as session:
-            await session.post(config['Discord Notifications']['url'], json=cn_message)
+            await session.post(config["Discord Notifications"]["url"], json=cn_message)
     except aiohttp.ClientError as err:
-        await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
+        await ctx.reply(
+            "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
+        )
         logger.error(f"Unable to notify Discord: {err}")
     else:
         return await ctx.reply("Trained Seals ping sent out successfully.")
