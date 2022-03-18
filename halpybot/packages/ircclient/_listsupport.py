@@ -24,7 +24,7 @@ class ListHandler(RFC1459Support):
         username=None,
         realname=None,
         eventloop=None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(nickname, fallback, username, realname, eventloop, **kwargs)
         self._pending_query = asyncio.Queue()
