@@ -14,6 +14,8 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 import pytest
 import aiohttp
 import asyncio
+
+import halpybot.packages.edsm.edsm
 from halpybot.packages.edsm import *
 from unittest.mock import patch
 
@@ -142,11 +144,23 @@ async def test_landmark():
     assert landmark == ("Sol", "83.11", "SW")
 
 
+@pytest.mark.asyncio
+async def test_distance_bad_landmark():
+    with pytest.raises(NoResultsEDSM):
+        await checklandmarks("Sagittarius B*")
+
+
 # DSSA
 @pytest.mark.asyncio
 async def test_dssa():
     dssa = await checkdssa("Col 285 Sector AA-A a30-2", cache_override=True)
     assert dssa == ("Synuefuae CM-J d10-42 (DSSA Artemis Rest)", "6,129.55", "East")
+
+
+@pytest.mark.asyncio
+async def test_distance_bad_dssa():
+    with pytest.raises(NoResultsEDSM):
+        await checkdssa("Sagittarius B*")
 
 
 # Calculate Distance
@@ -186,9 +200,41 @@ async def test_distance():
 async def test_distance_no_a():
     with pytest.raises(EDSMConnectionError):
         await checkdistance("", "Delkar")
+        await checkdistance("Delkar", "")
 
 
 @pytest.mark.asyncio
 async def test_distance_bad_sys():
     with pytest.raises(NoResultsEDSM):
-        await checkdistance("Sagittarius A*", "ThisCMDRDoesntExist")
+        await checkdistance("Sagittarius B*", "ThisCMDRDoesntExist")
+
+
+@pytest.mark.asyncio
+async def test_distance_bad_sys_2():
+    with pytest.raises(NoResultsEDSM):
+        await checkdistance("Sagittarius A*", "ThisCMDRStillDoesntExist")
+
+
+@pytest.mark.asyncio
+async def test_distance_with_cmdr():
+    dist = await checkdistance("Rixxan", "Delkar")
+    dist2 = await checkdistance("Delkar", "Rixxan")
+    assert dist[0] == dist2[0]
+
+
+@pytest.mark.asyncio
+async def test_distance_cmdr_coords():
+    cmdr = await halpybot.packages.edsm.edsm.get_coordinates("Rixxan")
+    assert cmdr is not None
+
+
+@pytest.mark.asyncio
+async def test_distance_bad_cleaner():
+    not_procgen = await sys_cleaner("lp 732-94")
+    assert not_procgen == "LP 732-94"
+
+
+@pytest.mark.asyncio
+async def test_distance_check_landmarks_far():
+    with pytest.raises(NoResultsEDSM):
+        await checklandmarks("Skaudoae UF-Q b47-1")
