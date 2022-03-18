@@ -22,6 +22,7 @@ from attr import dataclass
 @dataclass
 class Coordinates:
     """EDSM object coordinates dictionary"""
+
     x: float
     y: float
     z: float
@@ -30,6 +31,7 @@ class Coordinates:
 @dataclass
 class SystemInfo:
     """EDSM system information dictionary"""
+
     allegiance: str
     government: str
     faction: str
@@ -42,6 +44,7 @@ class SystemInfo:
 @dataclass()
 class Location:
     """EDSM location object"""
+
     system: str
     coordinates: Coordinates
     time: Optional[str]

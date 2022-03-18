@@ -107,7 +107,9 @@ class CommandGroup:
         """str: name of the command group"""
         return self._group_name
 
-    async def invoke_from_message(self, bot: pydle.Client, channel: str, sender: str, message: str):
+    async def invoke_from_message(
+        self, bot: pydle.Client, channel: str, sender: str, message: str
+    ):
         """Invoke a command or fact from a message
 
         For example, `message="!delaycase 1 test"` will result in cmd_DelayCase being called,
@@ -120,21 +122,23 @@ class CommandGroup:
             message (str): content of the message
 
         """
-        if message.startswith(config['IRC']['commandPrefix']):
+        if message.startswith(config["IRC"]["commandPrefix"]):
             # Start off with assigning all variables we need
             parts = message[1:].split(" ")
             command = parts[0].lower()
             args = parts[1:]
             args = [x for x in args if x]
             in_channel = bot.is_channel(channel)
-            ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]), command)
+            ctx = Context(bot, channel, sender, in_channel, " ".join(args[0:]), command)
             # Determines the language of an eventual fact
-            lang = command.split('-')[1] if '-' in command else 'en'
+            lang = command.split("-")[1] if "-" in command else "en"
 
             # See if it's a command, and execute
             if command in Commands._commandList:
                 try:
-                    return await self.invoke_command(command=command, command_context=ctx, arguments=args)
+                    return await self.invoke_command(
+                        command=command, command_context=ctx, arguments=args
+                    )
                 except CommandException as er:
                     await ctx.reply(f"Unable to execute command: {str(er)}")
 
@@ -145,15 +149,18 @@ class CommandGroup:
                 return
 
             # Are we requesting a specific language?
-            elif command.split('-')[0] in await self._factHandler.get_fact_names():
-                factname = command.split('-')[0]
+            elif command.split("-")[0] in await self._factHandler.get_fact_names():
+                factname = command.split("-")[0]
 
                 # Do we have a fact for this language?
                 if lang not in list(await self._factHandler.lang_by_fact(factname)):
-                    lang = 'en'
+                    lang = "en"
 
-                return await ctx.reply(await self._factHandler.fact_formatted(fact=(command.split('-')[0], lang),
-                                                                              arguments=args))
+                return await ctx.reply(
+                    await self._factHandler.fact_formatted(
+                        fact=(command.split("-")[0], lang), arguments=args
+                    )
+                )
 
     def add_group(self, *names):
         """Attach group to root
@@ -173,7 +180,9 @@ class CommandGroup:
         if self._is_root:
             raise CommandHandlerError("Can not add root group to any other group")
         for name in names:
-            CommandGroup._root._register(name, self, True if name == names[0] else False)
+            CommandGroup._root._register(
+                name, self, True if name == names[0] else False
+            )
         # Set main name
         self._group_name = names[0]
 
@@ -225,7 +234,9 @@ class CommandGroup:
             raise CommandAlreadyExists
         self._commandList[name] = (function, main)
 
-    async def invoke_command(self, command: str, command_context: Context, arguments: List[str]):
+    async def invoke_command(
+        self, command: str, command_context: Context, arguments: List[str]
+    ):
         """Call a command
 
         If the command is part of a group attached to root, `Command` is the group, and
@@ -252,12 +263,17 @@ class CommandGroup:
             subgroup = CommandGroup.get_group(name=cmd._group_name)
             # If no subcommand is provided, send a provisional help response
             if len(arguments) < 1:
-                return await command_context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
-                                                   f"{cmd._group_name}: "
-                                                   f"{', '.join(sub for sub in subgroup.get_commands(True))}")
+                return await command_context.reply(
+                    f"Subcommands of {config['IRC']['commandPrefix']}"
+                    f"{cmd._group_name}: "
+                    f"{', '.join(sub for sub in subgroup.get_commands(True))}"
+                )
             # Recursion, yay!
-            await cmd.invoke_command(command=arguments[0],
-                                     command_context=command_context, arguments=arguments[1:])
+            await cmd.invoke_command(
+                command=arguments[0],
+                command_context=command_context,
+                arguments=arguments[1:],
+            )
         else:
             try:
                 await cmd(command_context, arguments)
@@ -277,7 +293,11 @@ class CommandGroup:
         if mains is False:
             return list(self._commandList.keys())
         else:
-            return [str(cmd) for cmd in self._commandList if self._commandList[cmd][1] is True]
+            return [
+                str(cmd)
+                for cmd in self._commandList
+                if self._commandList[cmd][1] is True
+            ]
 
 
 def get_help_text(search_command: str):
@@ -289,8 +309,10 @@ def get_help_text(search_command: str):
                 arguments = details["arguments"]
                 aliases = details["aliases"]
                 usage = details["use"]
-                return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n" \
-                       f"{usage}"
+                return (
+                    f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n"
+                    f"{usage}"
+                )
     return None
 
 

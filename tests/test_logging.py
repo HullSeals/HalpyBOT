@@ -15,7 +15,7 @@ import pytest
 import os
 from halpybot.packages.configmanager import config
 
-logFile: str = config['Logging']['log_file']
+logFile: str = config["Logging"]["log_file"]
 logFolder = os.path.dirname(logFile)
 
 
@@ -28,7 +28,7 @@ async def test_log_path():
 # Test if we can create a file in the log directory
 @pytest.mark.asyncio
 async def test_log_write():
-    with open(os.path.join(logFolder, "testFile.txt"), 'w'):
+    with open(os.path.join(logFolder, "testFile.txt"), "w"):
         pass
     assert os.path.exists(f"{logFolder}/testFile.txt")
 

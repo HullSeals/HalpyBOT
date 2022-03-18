@@ -31,29 +31,39 @@ routes = web.RouteTableDef()
 
 
 class HalpyServer(web.Application):
-
     @staticmethod
     async def _log_request(request: Request, success: bool):
         # Log to the online dashboard
         try:
             with DatabaseConnection() as db:
                 cursor = db.cursor()
-                cursor.callproc('spCreateAPIConnRequest', [request.remote,  # Source
-                                                           (request.headers['User-Agent'] if
-                                                            'User-Agent' in request.headers else "None"),  # Agent
-                                                           request.path,  # Route
-                                                           request.method,  # HTTP Method
-                                                           (str(await request.json()) if request.can_read_body else
-                                                            "None"),  # Body
-                                                           (1 if success else 0),  # HMAC match
-                                                           str(request.version)  # Misc
-                                                           ])
+                cursor.callproc(
+                    "spCreateAPIConnRequest",
+                    [
+                        request.remote,  # Source
+                        (
+                            request.headers["User-Agent"]
+                            if "User-Agent" in request.headers
+                            else "None"
+                        ),  # Agent
+                        request.path,  # Route
+                        request.method,  # HTTP Method
+                        (
+                            str(await request.json())
+                            if request.can_read_body
+                            else "None"
+                        ),  # Body
+                        (1 if success else 0),  # HMAC match
+                        str(request.version),  # Misc
+                    ],
+                )
         except NoDatabaseConnection:
             # TODO: stash call and run later when reconnected
             pass
 
-    async def __filter_request(self, request: Request) -> Union[
-            Type[HTTPBadRequest], None, HTTPMethodNotAllowed, HTTPNotFound]:
+    async def __filter_request(
+        self, request: Request
+    ) -> Union[Type[HTTPBadRequest], None, HTTPMethodNotAllowed, HTTPNotFound]:
         """A method to filter out spam requests that would otherwise result
         in a large error message and log them neatly"""
         # If they don't provide authentication, we log it and return 400
@@ -61,7 +71,10 @@ class HalpyServer(web.Application):
         request_path = request.path
 
         if request_method == "POST":
-            if request.headers.get("hmac") is None or request.headers.get("keyCheck") is None:
+            if (
+                request.headers.get("hmac") is None
+                or request.headers.get("keyCheck") is None
+            ):
                 logger.info("Request submitted with incomplete auth headers")
                 return HTTPBadRequest
 
@@ -76,7 +89,9 @@ class HalpyServer(web.Application):
                     return None
         if no_method:
             logger.info("API request made for not used method")
-            return HTTPMethodNotAllowed(request_method, list({route.method for route in routes}))
+            return HTTPMethodNotAllowed(
+                request_method, list({route.method for route in routes})
+            )
         logger.info("API request made with unused path")
         return HTTPNotFound()
 
@@ -85,7 +100,9 @@ class HalpyServer(web.Application):
         try:
             request_error = await self.__filter_request(request)
             if request_error is not None:
-                logger.info(f"Invalid request submitted by {request.host} not processed")
+                logger.info(
+                    f"Invalid request submitted by {request.host} not processed"
+                )
                 raise request_error
             else:
                 response = await super()._handle(request)
@@ -98,7 +115,7 @@ class HalpyServer(web.Application):
             asyncio.ensure_future(self._log_request(request, successful))
 
 
-@routes.get('/')
+@routes.get("/")
 async def server_root(request):
     try:
         repo = git.Repo()
@@ -109,14 +126,16 @@ async def server_root(request):
         sha = ""
     if botclient.nickname == "<unregistered>":
         botclient.nickname = "Not Connected"
-    response = {"app": DEFAULT_USER_AGENT,
-                "version": f"{__version__}{sha}",
-                "bot_nick": botclient.nickname,
-                "irc_connected": "True" if botclient.connected else "False",
-                "offline_mode": config['Offline Mode']['enabled'],
-                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
-                }
+    response = {
+        "app": DEFAULT_USER_AGENT,
+        "version": f"{__version__}{sha}",
+        "bot_nick": botclient.nickname,
+        "irc_connected": "True" if botclient.connected else "False",
+        "offline_mode": config["Offline Mode"]["enabled"],
+        "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
+    }
     return web.json_response(response)
+
 
 APIConnector = HalpyServer()
 APIConnector.add_routes(routes)

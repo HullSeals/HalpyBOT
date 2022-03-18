@@ -35,6 +35,7 @@ class User:
     Info about a user from WHOIS
 
     """
+
     oper: bool
     idle: int
     away: bool
@@ -64,8 +65,8 @@ class User:
         """
         # fetch the user object from pydle
         data = await bot.whois(nickname)
-        if 'channels' not in data.keys():
-            data['channels'] = None
+        if "channels" not in data.keys():
+            data["channels"] = None
         # if we got an object back
         if data:
             return cls(**data, nickname=nickname)
@@ -116,5 +117,7 @@ class User:
 
         """
         user = await bot.whois(nick)
-        channels = user['channels']
-        return [ch.translate({ord(c): None for c in '+%@&~'}).lower() for ch in channels]
+        channels = user["channels"]
+        return [
+            ch.translate({ord(c): None for c in "+%@&~"}).lower() for ch in channels
+        ]

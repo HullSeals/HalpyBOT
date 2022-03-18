@@ -31,7 +31,6 @@ pool = pydle.ClientPool()
 
 
 class HalpyBOT(pydle.Client, ListHandler):
-
     def __init__(self, *args, **kwargs):
         """Initialize a new Pydle client"""
         super().__init__(*args, **kwargs)
@@ -69,7 +68,10 @@ class HalpyBOT(pydle.Client, ListHandler):
     async def on_disconnect(self, expected):
         await super().on_disconnect(expected)
         if self._reconnect_attempts >= self.RECONNECT_MAX_ATTEMPTS:
-            await crash_notif("exceeding reconnection attempt maximum", "on_disconnect max attempts reached")
+            await crash_notif(
+                "exceeding reconnection attempt maximum",
+                "on_disconnect max attempts reached",
+            )
 
     # End Crash Detection
 
@@ -82,13 +84,15 @@ class HalpyBOT(pydle.Client, ListHandler):
         """
         await super().on_connect()
         await self.operserv_login()
-        if config.getboolean('System Monitoring', 'failure_button'):
-            config_write('System Monitoring', 'failure_button', 'False')
+        if config.getboolean("System Monitoring", "failure_button"):
+            config_write("System Monitoring", "failure_button", "False")
         try:
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
         except NoDatabaseConnection:
-            logger.error("Could not fetch facts from DB, backup file loaded and entering OM")
-        for channel in config['Channels']['channellist'].split():
+            logger.error(
+                "Could not fetch facts from DB, backup file loaded and entering OM"
+            )
+        for channel in config["Channels"]["channellist"].split():
             await self.join(channel, force=True)
 
     async def on_message(self, target, nick, message):
@@ -110,7 +114,9 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         # Special command for getting the bot prefix
         if message == f"{self.nickname} prefix":
-            return await self.message(target, f"Prefix: {config['IRC']['commandPrefix']}")
+            return await self.message(
+                target, f"Prefix: {config['IRC']['commandPrefix']}"
+            )
 
         # Pass message to command handler
         if self._commandhandler:
@@ -142,7 +148,9 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         Note: a logout command is not currently available
         """
-        return await self.raw(f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n")
+        return await self.raw(
+            f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n"
+        )
 
     async def join(self, channel, password=None, force: bool = False):
         """Join a channel
@@ -160,9 +168,9 @@ class HalpyBOT(pydle.Client, ListHandler):
         if not force and channel not in await self.all_channels():
             raise ValueError(f"No such channel: {channel}")
         await super().join(channel, password)
-        if channel not in config['Channels']['channellist'].split():
-            config['Channels']['channellist'] += f' {channel}'
-            with open('config/config.ini', 'w') as conf:
+        if channel not in config["Channels"]["channellist"].split():
+            config["Channels"]["channellist"] += f" {channel}"
+            with open("config/config.ini", "w") as conf:
                 config.write(conf)
 
     async def part(self, channel, message=None):
@@ -174,35 +182,39 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         """
         await super().part(channel, message)
-        chlist = config['Channels']['channellist'].split()
+        chlist = config["Channels"]["channellist"].split()
         if channel in chlist:
             chlist.remove(channel)
-            config['Channels']['channellist'] = ' '.join(chlist)
-            with open('config/config.ini', 'w') as conf:
+            config["Channels"]["channellist"] = " ".join(chlist)
+            with open("config/config.ini", "w") as conf:
                 config.write(conf)
 
 
 client = HalpyBOT(
-    nickname=config['IRC']['nickname'],
-    sasl_identity=config['SASL']['identity'],
-    sasl_password=config['SASL']['password'],
-    sasl_username=config['SASL']['username'],
-    eventloop=asyncio.get_event_loop()
+    nickname=config["IRC"]["nickname"],
+    sasl_identity=config["SASL"]["identity"],
+    sasl_password=config["SASL"]["password"],
+    sasl_username=config["SASL"]["username"],
+    eventloop=asyncio.get_event_loop(),
 )
 
 
 async def crash_notif(crashtype, condition):
-    if config.getboolean('System Monitoring', 'failure_button'):
-        logging.critical("HalpyBOT has failed, but this incident has already been reported.")
+    if config.getboolean("System Monitoring", "failure_button"):
+        logging.critical(
+            "HalpyBOT has failed, but this incident has already been reported."
+        )
     else:
         subject = "HalpyBOT has died!"
-        topic = config['Notify']['cybers']
+        topic = config["Notify"]["cybers"]
         message = f"HalpyBOT has shut down due to {crashtype}. Investigate immediately. Error Text: {condition}"
         try:
             await notify.send_notification(topic, message, subject)
             # Only trip the fuse if a notification is passed
-            config_write('System Monitoring', 'failure_button', 'True')
+            config_write("System Monitoring", "failure_button", "True")
         except notify.NotificationFailure:
             logging.critical("Unable to send the notification!")
-    logging.critical(f"{crashtype} detected. Shutting down for my own protection! {condition}")
+    logging.critical(
+        f"{crashtype} detected. Shutting down for my own protection! {condition}"
+    )
     os.kill(os.getpid(), signal.SIGTERM)

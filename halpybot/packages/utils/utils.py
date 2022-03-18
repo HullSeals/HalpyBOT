@@ -39,7 +39,7 @@ def strip_non_ascii(string: str):
             - has_stripped (bool): True is characters were removed, else False
 
     """
-    res = re.subn(r'[^\x00-\x7f]', r'', string)
+    res = re.subn(r"[^\x00-\x7f]", r"", string)
     if res != (string, 0):
         # Return new string and True if characters were removed
         return res[0], True
@@ -60,16 +60,12 @@ async def get_time_seconds(time: str):
         ValueError: String does not match required format
 
     """
-    pattern = re.compile(r'(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)')
+    pattern = re.compile(r"(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)")
     if not re.match(pattern, time):
         raise ValueError("get_time_seconds input does not match hh:mm:ss format")
     res = pattern.search(time)
     counter = 0
-    conversion_table = {
-        "hour": 3600,
-        "minutes": 60,
-        "seconds": 1
-    }
+    conversion_table = {"hour": 3600, "minutes": 60, "seconds": 1}
     for unit in conversion_table.keys():
         value = int(res.group(unit))
         counter += value * conversion_table[unit]

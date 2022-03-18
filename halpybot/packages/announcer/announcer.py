@@ -17,7 +17,14 @@ import json
 import logging
 from typing import List, Dict, Optional
 
-from ..edsm import checklandmarks, get_nearby_system, NoResultsEDSM, EDSMLookupError, checkdssa, sys_cleaner
+from ..edsm import (
+    checklandmarks,
+    get_nearby_system,
+    NoResultsEDSM,
+    EDSMLookupError,
+    checkdssa,
+    sys_cleaner,
+)
 from ..ircclient import client
 from ..database import Grafana
 from .twitter import TwitterCasesAcc, TwitterConnectionError
@@ -25,8 +32,16 @@ from .twitter import TwitterCasesAcc, TwitterConnectionError
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
-cardinal_flip = {"North": "South", "NE": "SW", "East": "West", "SE": "NW",
-                 "South": "North", "SW": "NE", "West": "East", "NW": "SE"}
+cardinal_flip = {
+    "North": "South",
+    "NE": "SW",
+    "East": "West",
+    "SE": "NW",
+    "South": "North",
+    "SW": "NE",
+    "West": "East",
+    "NW": "SE",
+}
 
 
 class AnnouncementError(Exception):
@@ -36,7 +51,6 @@ class AnnouncementError(Exception):
 
 
 class Announcer:
-
     def __init__(self, bot: Optional[pydle.Client] = None):
         """Initialize announcer
 
@@ -50,17 +64,17 @@ class Announcer:
         """
         self._announcements = {}
         # Load data
-        with open('data/announcer/announcer.json', 'r') as cf:
+        with open("data/announcer/announcer.json", "r") as cf:
             self._config = json.load(cf)
         # Create announcement objects and store them in dict
-        for anntype in self._config['AnnouncerType']:
-            self._announcements[anntype['ID']] = Announcement(
-                ID=anntype['ID'],
-                name=anntype['Name'],
-                description=anntype['Description'],
-                channels=anntype['Channels'],
-                edsm=anntype['EDSM'],
-                content=anntype['Content']
+        for anntype in self._config["AnnouncerType"]:
+            self._announcements[anntype["ID"]] = Announcement(
+                ID=anntype["ID"],
+                name=anntype["Name"],
+                description=anntype["Description"],
+                channels=anntype["Channels"],
+                edsm=anntype["EDSM"],
+                content=anntype["Content"],
             )
 
     def rehash(self):
@@ -96,9 +110,15 @@ class Announcer:
 
 
 class Announcement:
-
-    def __init__(self, ID: str, name: str, description: str,
-                 channels: List[str], edsm: Optional[int], content: List[str]):
+    def __init__(
+        self,
+        ID: str,
+        name: str,
+        description: str,
+        channels: List[str],
+        edsm: Optional[int],
+        content: List[str],
+    ):
         """Create a new announceable object
 
         Args:
@@ -115,7 +135,7 @@ class Announcement:
         self.description = description
         self.channels = channels
         self._edsm = edsm
-        self._content = ''.join(content)
+        self._content = "".join(content)
 
     async def format(self, args) -> str:
         """Format announcement in a ready-to-be-sent format
@@ -140,7 +160,7 @@ class Announcement:
             try:
                 announcement += await self.get_edsm_data(args)
             except ValueError:
-                announcement += 'Attention Dispatch, please confirm clients system before proceeding.'
+                announcement += "Attention Dispatch, please confirm clients system before proceeding."
         return announcement
 
     async def get_edsm_data(self, args: Dict, twitter: bool = False) -> Optional[str]:
@@ -171,36 +191,62 @@ class Announcement:
                     if exact_sys:
                         return f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
                     else:
-                        return f"Corrected system exists in EDSM, {distance} LY {direction} of {landmark}." if twitter \
-                            else f"System cleaner found a matching EDSM system. {sys_name} is {distance} LY " \
-                                 f"{direction} of {landmark}."
+                        return (
+                            f"Corrected system exists in EDSM, {distance} LY {direction} of {landmark}."
+                            if twitter
+                            else f"System cleaner found a matching EDSM system. {sys_name} is {distance} LY "
+                            f"{direction} of {landmark}."
+                        )
             except NoResultsEDSM as er:
-                if str(er) == f"No major landmark systems within 10,000 ly of {args['System']}.":
-                    dssa, distance, direction = await checkdssa(args['System'])
-                    return f"No major landmark found within 10,000 LY of the provided system." if twitter else \
-                        f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
+                if (
+                    str(er)
+                    == f"No major landmark systems within 10,000 ly of {args['System']}."
+                ):
+                    dssa, distance, direction = await checkdssa(args["System"])
+                    return (
+                        f"No major landmark found within 10,000 LY of the provided system."
+                        if twitter
+                        else f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
+                    )
                 else:
                     found_sys, close_sys = await get_nearby_system(sys_name)
 
                     if found_sys:
                         try:
-                            landmark, distance, direction = await checklandmarks(close_sys)
-                            return f"System Cleaner found a matching EDSM system {distance} LY {direction} of " \
-                                   f"{landmark}." if twitter else f"\n{args['System']} could not be found in EDSM. " \
-                                                                  f"System closest in name found in "\
-                                   f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
+                            landmark, distance, direction = await checklandmarks(
+                                close_sys
+                            )
+                            return (
+                                f"System Cleaner found a matching EDSM system {distance} LY {direction} of "
+                                f"{landmark}."
+                                if twitter
+                                else f"\n{args['System']} could not be found in EDSM. "
+                                f"System closest in name found in "
+                                f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
+                            )
                         except NoResultsEDSM as er:
-                            if str(er) == f"No major landmark systems within 10,000 ly of {close_sys}.":
+                            if (
+                                str(er)
+                                == f"No major landmark systems within 10,000 ly of {close_sys}."
+                            ):
                                 dssa, distance, direction = await checkdssa(close_sys)
-                                return f"Corrected system calculated to be {distance} LY {direction} of {dssa}." if \
-                                    twitter else f"\n{er}\nThe closest DSSA Carrier is " \
-                                                 f"in {dssa}, {distance} LY {direction} of {close_sys}. "
+                                return (
+                                    f"Corrected system calculated to be {distance} LY {direction} of {dssa}."
+                                    if twitter
+                                    else f"\n{er}\nThe closest DSSA Carrier is "
+                                    f"in {dssa}, {distance} LY {direction} of {close_sys}. "
+                                )
                     else:
-                        return "\nDistance to landmark or DSSA unknown. Check case details with Dispatch." if twitter \
-                            else "\nSystem Not Found in EDSM. match to sys name format or sys name lookup failed.\n" \
-                                 "Please check system name with client. "
+                        return (
+                            "\nDistance to landmark or DSSA unknown. Check case details with Dispatch."
+                            if twitter
+                            else "\nSystem Not Found in EDSM. match to sys name format or sys name lookup failed.\n"
+                            "Please check system name with client. "
+                        )
 
             except EDSMLookupError:
-                return '' if twitter else "\nUnable to query EDSM."
+                return "" if twitter else "\nUnable to query EDSM."
         else:
-            raise ValueError("Built-in EDSM lookup requires a 'System' parameter in the announcement configuration")
+            raise ValueError(
+                "Built-in EDSM lookup requires a 'System' parameter in the announcement configuration"
+            )

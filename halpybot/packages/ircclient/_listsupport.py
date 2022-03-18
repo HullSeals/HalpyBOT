@@ -17,9 +17,15 @@ import asyncio
 
 
 class ListHandler(RFC1459Support):
-
-    def __init__(self, nickname: str = "HalpyLISTener", fallback=[],
-                 username=None, realname=None, eventloop=None, **kwargs):
+    def __init__(
+        self,
+        nickname: str = "HalpyLISTener",
+        fallback=[],
+        username=None,
+        realname=None,
+        eventloop=None,
+        **kwargs
+    ):
         super().__init__(nickname, fallback, username, realname, eventloop, **kwargs)
         self._pending_query = asyncio.Queue()
         self._channellist = set()

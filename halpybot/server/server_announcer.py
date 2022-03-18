@@ -21,7 +21,7 @@ from .auth import authenticate
 routes = web.RouteTableDef()
 
 
-@routes.post('/announce')
+@routes.post("/announce")
 @authenticate()
 async def announce(request):
     if request.body_exists:

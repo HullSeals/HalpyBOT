@@ -40,9 +40,8 @@ class TwitterConnectionError(TweetError):
 
 
 class Twitter(tweepy.Client):
-
     def __init__(self, *args, **kwargs):
-        if not config.getboolean('Twitter', 'enabled'):
+        if not config.getboolean("Twitter", "enabled"):
             self._open = False
             return
         self._open = True
@@ -69,15 +68,19 @@ class Twitter(tweepy.Client):
 
         """
         mainline_tw = f"A new {args['Platform']} case has come in."
-        if self.__bool__():  # Eh, this is stupid and unneccesary I guess. Keep it anyway
+        if (
+            self.__bool__()
+        ):  # Eh, this is stupid and unneccesary I guess. Keep it anyway
             try:
 
                 edsm_info = await announcement.get_edsm_data(args, twitter=True)
                 twitmsg = f"{mainline_tw} {edsm_info} Call your jumps, Seals!"
-                auth = tweepy.Client(consumer_key=config['Twitter']['api_key'],
-                                     consumer_secret=config['Twitter']['api_secret'],
-                                     access_token=config['Twitter']['access_token'],
-                                     access_token_secret=config['Twitter']['access_secret'])
+                auth = tweepy.Client(
+                    consumer_key=config["Twitter"]["api_key"],
+                    consumer_secret=config["Twitter"]["api_secret"],
+                    access_token=config["Twitter"]["access_token"],
+                    access_token_secret=config["Twitter"]["access_secret"],
+                )
                 auth.create_tweet(text=twitmsg)
             except (NameError, tweepy.errors.TweepyException) as err:
                 logger.error(f"ERROR in Twitter Update: {err}")
