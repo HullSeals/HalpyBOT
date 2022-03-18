@@ -53,10 +53,7 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     try:
         if await GalaxySystem.exists(name=system, cache_override=cache_override):
             return await ctx.reply(f"System {await sys_cleaner(system)} exists in EDSM")
-        else:
-            return await ctx.reply(
-                f"System {await sys_cleaner(system)} not found in EDSM"
-            )
+        return await ctx.reply(f"System {await sys_cleaner(system)} not found in EDSM")
 
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system details.")
@@ -91,10 +88,9 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
 
     if location is None:
         return await ctx.reply("CMDR not found or not sharing location on EDSM")
-    else:
-        return await ctx.reply(
-            f"CMDR {cmdr} was last seen in {location.system} on {location.time}"
-        )
+    return await ctx.reply(
+        f"CMDR {cmdr} was last seen in {location.system} on {location.time}"
+    )
 
 
 @Commands.command("distance", "dist")
@@ -123,20 +119,17 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
 
     if not pointb:
         return await ctx.reply("Please provide two points to look up, separated by a :")
-
-    else:
-
-        try:
-            distance, direction = await checkdistance(
-                pointa, pointb, cache_override=cache_override
-            )
-        except EDSMLookupError:
-            logger.exception("Failed to query EDSM for system or CMDR details.")
-            return await ctx.reply("Failed to query EDSM for system or CMDR details.")
-        return await ctx.reply(
-            f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
-            f"{await sys_cleaner(pointb)}."
+    try:
+        distance, direction = await checkdistance(
+            pointa, pointb, cache_override=cache_override
         )
+    except EDSMLookupError:
+        logger.exception("Failed to query EDSM for system or CMDR details.")
+        return await ctx.reply("Failed to query EDSM for system or CMDR details.")
+    return await ctx.reply(
+        f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
+        f"{await sys_cleaner(pointb)}."
+    )
 
 
 @Commands.command("landmark")
@@ -243,7 +236,4 @@ async def cmd_coordslookup(ctx, args: List[str]):
         return await ctx.reply(
             f"No systems known to EDSM within 100ly of {xcoord}, {ycoord}, {zcoord}."
         )
-    else:
-        return await ctx.reply(
-            f"{system} is {dist} LY from {xcoord}, {ycoord}, {zcoord}."
-        )
+    return await ctx.reply(f"{system} is {dist} LY from {xcoord}, {ycoord}, {zcoord}.")

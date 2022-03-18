@@ -167,8 +167,7 @@ class Require:
                         required=required_level,
                         provided=user_level,
                     )
-                else:
-                    return await function(ctx, args)
+                return await function(ctx, args)
 
             return guarded
 
@@ -185,8 +184,7 @@ class Require:
                     return await ctx.redirect(
                         "You have to run that command in DMs with me!"
                     )
-                else:
-                    return await function(ctx, args)
+                return await function(ctx, args)
 
             return guarded
 
@@ -221,8 +219,7 @@ class Require:
                     return await ctx.reply(
                         "Cannot comply: AWS Config data is required for this module."
                     )
-                else:
-                    return await function(ctx, args)
+                return await function(ctx, args)
 
             return guarded
 

@@ -63,7 +63,7 @@ async def cmd_create_delayed_case(ctx: Context, args: List[str]):
         return await ctx.reply(
             f"Started a new Delayed Case with the ID #{results[0]} and status code {case_status}."
         )
-    elif results[1] == 1:
+    if results[1] == 1:
         return await ctx.reply("Cannot create case: contact a cyberseal")
 
 
@@ -84,7 +84,7 @@ async def cmd_reopen_delayed_case(ctx: Context, args: List[str]):
         return await ctx.reply(
             "Cannot reopen case: no valid case number/case status was provided."
         )
-    elif not args[0].isnumeric():
+    if not args[0].isnumeric():
         return await ctx.reply("No valid case number was provided.")
 
     case_id = int(args[0])
@@ -100,8 +100,7 @@ async def cmd_reopen_delayed_case(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Successfully reopened Delayed Case #{results[0]}.")
-    else:
-        return await ctx.reply(str(results[2]))
+    return await ctx.reply(str(results[2]))
 
 
 @Commands.command("endcase", "close")
@@ -134,8 +133,7 @@ async def cmd_close_delayed_case(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Case #{results[0]} closed.")
-    else:
-        return await ctx.reply(str(results[2]))
+    return await ctx.reply(str(results[2]))
 
 
 @Commands.command("updatestatus")
@@ -170,8 +168,7 @@ async def cmd_update_delayed_status(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Case #{results[0]} now has status {casestat}.")
-    else:
-        return await ctx.reply(str(results[2]))
+    return await ctx.reply(str(results[2]))
 
 
 @Commands.command("updatenotes")
@@ -219,8 +216,7 @@ async def cmd_update_delayed_notes(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Notes for case #{results[0]} have been updated.")
-    else:
-        return await ctx.reply(str(results[2]))
+    return await ctx.reply(str(results[2]))
 
 
 @Commands.command("delaystatus", "checkstatus")
@@ -242,10 +238,9 @@ async def cmd_check_delayed_cases(ctx: Context, args: List[str]):
 
     if count == 0:
         return await ctx.reply("No Cases marked Delayed. Good Job, Seals!")
-    else:
-        return await ctx.reply(
-            f"{count} Cases Marked as Delayed! Monitor them here: https://hullse.al/delayedCases"
-        )
+    return await ctx.reply(
+        f"{count} Cases Marked as Delayed! Monitor them here: https://hullse.al/delayedCases"
+    )
 
 
 @Commands.command("updatecase")

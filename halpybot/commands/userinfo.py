@@ -38,8 +38,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
             "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
             "and has been involved with countless rescues."
         )
-    else:
-        return await ctx.redirect(await whois(cmdr))
+    return await ctx.redirect(await whois(cmdr))
 
 
 @Commands.command("whoami")

@@ -10,17 +10,17 @@ Licensed under the GNU General Public License
 See license.md
 
 """
-import git
-import aiohttp.web
 import asyncio
 import logging
-from aiohttp.web import Request, StreamResponse
 from typing import Type, Union
-from aiohttp import web
 from datetime import datetime
-from ..packages.configmanager import config
+import git
+import aiohttp.web
+from aiohttp.web import Request, StreamResponse
+from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
+from ..packages.configmanager import config
 from ..packages.ircclient import client as botclient
 from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
 
@@ -104,10 +104,9 @@ class HalpyServer(web.Application):
                     f"Invalid request submitted by {request.host} not processed"
                 )
                 raise request_error
-            else:
-                response = await super()._handle(request)
-                successful = True
-                return response
+            response = await super()._handle(request)
+            successful = True
+            return response
         except aiohttp.web.HTTPError as ex:
             successful = False
             return ex
@@ -122,7 +121,7 @@ async def server_root(request):
         sha = repo.head.object.hexsha
         sha = sha[0:7]
         sha = f" build {sha}"
-    except git.exc.InvalidGitRepositoryError:
+    except git.InvalidGitRepositoryError:
         sha = ""
     if botclient.nickname == "<unregistered>":
         botclient.nickname = "Not Connected"

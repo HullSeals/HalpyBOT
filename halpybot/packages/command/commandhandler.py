@@ -12,13 +12,13 @@ See license.md
 
 from __future__ import annotations
 from typing import List
-import pydle
 import json
+import pydle
 
 from ..configmanager import config
 from ..models import Context
 
-with open("data/help/commands.json", "r") as jsonfile:
+with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
     json_dict = json.load(jsonfile)
 
 
@@ -149,7 +149,7 @@ class CommandGroup:
                 return
 
             # Are we requesting a specific language?
-            elif command.split("-")[0] in await self._factHandler.get_fact_names():
+            if command.split("-")[0] in await self._factHandler.get_fact_names():
                 factname = command.split("-")[0]
 
                 # Do we have a fact for this language?
@@ -180,9 +180,7 @@ class CommandGroup:
         if self._is_root:
             raise CommandHandlerError("Can not add root group to any other group")
         for name in names:
-            CommandGroup._root._register(
-                name, self, True if name == names[0] else False
-            )
+            CommandGroup._root._register(name, self, bool(name == names[0]))
         # Set main name
         self._group_name = names[0]
 
@@ -206,7 +204,7 @@ class CommandGroup:
         def decorator(function):
             # Register every provided name
             for name in names:
-                self._register(name, function, True if name == names[0] else False)
+                self._register(name, function, bool(name == names[0]))
             # Set command attribute, so we can check if a function is an IRC-facing command or not
             setattr(function, "is_command", True)
             return function
@@ -292,12 +290,9 @@ class CommandGroup:
         """
         if mains is False:
             return list(self._commandList.keys())
-        else:
-            return [
-                str(cmd)
-                for cmd in self._commandList
-                if self._commandList[cmd][1] is True
-            ]
+        return [
+            str(cmd) for cmd in self._commandList if self._commandList[cmd][1] is True
+        ]
 
 
 def get_help_text(search_command: str):

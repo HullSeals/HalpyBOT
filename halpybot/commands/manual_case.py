@@ -12,8 +12,8 @@ See license.md
 
 from typing import List
 import logging
-import aiohttp
 import datetime
+import aiohttp
 from halpybot import DEFAULT_USER_AGENT
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled

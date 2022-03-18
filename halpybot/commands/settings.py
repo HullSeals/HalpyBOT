@@ -12,8 +12,8 @@ See license.md
 
 from typing import List
 
-import pydle
 import logging
+import pydle
 
 from ..packages.checks import Require, Cyberseal, Moderator
 from ..packages.configmanager import config_write, config
@@ -63,7 +63,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     config_write("IRC", "commandPrefix", args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
     await ctx.bot.message(
-        f"#cybers", f"Warning, prefix changed to {args[0]} by {ctx.sender}!"
+        "#cybers", f"Warning, prefix changed to {args[0]} by {ctx.sender}!"
     )
 
 
@@ -96,7 +96,7 @@ async def cmd_offline(ctx: Context, args: List[str]):
         f"OFFLINE MODE CHANGE from {config['Offline Mode']['enabled']} to {set_to.upper()} by {ctx.sender}"
     )
     # Write changes to config file
-    config_write("Offline Mode", "enabled", "{0}".format(set_to))
+    config_write("Offline Mode", "enabled", f"{set_to}")
     await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")
 
 

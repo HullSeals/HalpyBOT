@@ -11,9 +11,9 @@ See license.md
 """
 
 from __future__ import annotations
-from pydle.features.rfc1459 import RFC1459Support
 from typing import List
 import asyncio
+from pydle.features.rfc1459 import RFC1459Support
 
 
 class ListHandler(RFC1459Support):

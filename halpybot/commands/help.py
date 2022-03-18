@@ -10,14 +10,14 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from typing import List
 import json
 import git
+from typing import List
+from halpybot import __version__
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
-from halpybot import __version__
 
-with open("data/help/commands.json", "r") as jsonfile:
+with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
     json_dict = json.load(jsonfile)
 
 
@@ -64,7 +64,7 @@ async def cmd_about(ctx: Context, args: List[str]):
         sha = repo.head.object.hexsha
         sha = sha[0:7]
         sha = f", build {sha}"
-    except git.exc.InvalidGitRepositoryError:
+    except git.InvalidGitRepositoryError:
         sha = ""
     return await ctx.redirect(
         f"HalpyBOT v{str(__version__)}{sha}\n"

@@ -63,14 +63,13 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
 
     if args[1].lower() in channels:
         return await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
-    else:
-        return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")
+    return await ctx.reply("Oh noes! something went wrong, contact a cyberseal!")
 
 
 @Commands.command("rrjoin")
 @Require.channel()
 @Require.permission(Drilled)
-async def cmd_sajoin(ctx: Context, args: List[str]):
+async def cmd_rrjoin(ctx: Context, args: List[str]):
     """
     Make the bot force a user to join the repair channel.
 

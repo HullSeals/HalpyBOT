@@ -12,10 +12,10 @@ See license.md
 
 import functools
 import hmac
-from aiohttp import web
 import hashlib
 import json
 import logging
+from aiohttp import web
 
 from ..packages.configmanager import config
 from ..packages.database import Grafana
@@ -62,7 +62,7 @@ def authenticate():
                 )
                 raise web.HTTPUnauthorized()
             # If the key is correct but HMAC is different, the body has been altered in transit and should be rejected
-            elif not hmac.compare_digest(clientmac, mac.hexdigest()):
+            if not hmac.compare_digest(clientmac, mac.hexdigest()):
                 logger.warning("Failed authentication. Bad request body")
                 raise web.HTTPUnprocessableEntity()
             else:

@@ -14,9 +14,9 @@ import logging
 import asyncio
 import os
 import signal
-import pydle
-
 from typing import Optional
+
+import pydle
 from .. import notify
 from ..configmanager import config_write, config
 from ._listsupport import ListHandler

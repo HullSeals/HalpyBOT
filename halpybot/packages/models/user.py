@@ -70,8 +70,7 @@ class User:
         # if we got an object back
         if data:
             return cls(**data, nickname=nickname)
-        else:
-            return None
+        return None
 
     @classmethod
     # FIXME this should be Optional[str], but I don't want to touch it now since I don't

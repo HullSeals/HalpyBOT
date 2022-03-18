@@ -50,11 +50,9 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
             "No groups currently registered, contact Rixxan if you suspect "
             "this may be an error."
         )
-    else:
-        return await ctx.reply(
-            f"Registered notification groups: "
-            f"{', '.join(group for group in results)}"
-        )
+    return await ctx.reply(
+        f"Registered notification groups: {', '.join(group for group in results)}"
+    )
 
 
 @NotifyInfo.command("details", "endpoints")
@@ -84,11 +82,10 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
         results = await notify.list_sub_by_topic(config["Notify"][group])
         if len(results) == 0:
             return await ctx.reply("No users currently subscribed to that group.")
-        else:
-            results = str(results)
-            return await ctx.reply(
-                f"Following endpoints are subscribed to group {group}: {results}"
-            )
+        results = str(results)
+        return await ctx.reply(
+            f"Following endpoints are subscribed to group {group}: {results}"
+        )
 
     except notify.SNSError:
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")

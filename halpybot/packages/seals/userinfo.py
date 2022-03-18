@@ -46,8 +46,7 @@ async def whois(subject):
 
     if u_id is None:
         return "No registered user found by that name!"
-    else:
-        return (
-            f"CMDR {subject} has a Seal ID of {u_id}, registered on {u_regdate}{u_distant_worlds_2} {u_name}"
-            f", and has been involved with {u_cases} rescues."
-        )
+    return (
+        f"CMDR {subject} has a Seal ID of {u_id}, registered on {u_regdate}{u_distant_worlds_2} {u_name}"
+        f", and has been involved with {u_cases} rescues."
+    )

@@ -35,7 +35,7 @@ async def tail(request):
         with DatabaseConnection() as db:
             cursor = db.cursor()
             cursor.execute(
-                f"SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,)
+                "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,)
             )
             result = cursor.fetchall()
             for i in result:

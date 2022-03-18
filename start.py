@@ -16,6 +16,7 @@ See license.md
 import asyncio
 import datetime
 import logging.handlers
+import sys
 import threading
 from os import path, mkdir
 
@@ -35,7 +36,7 @@ try:
         mkdir(logFolder)
 except PermissionError:
     print("Unable to create log folder. Does this user have appropriate permissions?")
-    exit()
+    sys.exit()
 
 formatter = logging.Formatter("%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s")
 

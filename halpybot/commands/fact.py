@@ -45,17 +45,16 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     fact: Optional[Fact] = await Facts.get(name, lang)
     if fact is None:
         return await ctx.redirect("Fact not found.")
-    else:
-        langlist = await Facts.lang_by_fact(name)
-        reply = (
-            f"Fact: {fact.name}\n"
-            f"Language: {langcodes[lang.lower()] + f' ({fact.language})'}\n"
-            f"All langs: {', '.join(f'{langcodes[lan.lower()]} ({lan.upper()})' for lan in langlist)}\n"
-            f"ID: {fact.ID}\n"
-            f"Author: {fact.author}\n"
-            f"Text: {fact.raw_text}"
-        )
-        return await ctx.redirect(reply)
+    langlist = await Facts.lang_by_fact(name)
+    reply = (
+        f"Fact: {fact.name}\n"
+        f"Language: {langcodes[lang.lower()] + f' ({fact.language})'}\n"
+        f"All langs: {', '.join(f'{langcodes[lan.lower()]} ({lan.upper()})' for lan in langlist)}\n"
+        f"ID: {fact.ID}\n"
+        f"Author: {fact.author}\n"
+        f"Text: {fact.raw_text}"
+    )
+    return await ctx.redirect(reply)
 
 
 @Commands.command("addfact")
@@ -159,11 +158,10 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
 
     if len(factlist) == 0:
         return await ctx.redirect(f"No {langcodes[lang.lower()]} facts found.")
-    else:
-        return await ctx.redirect(
-            f"All {langcodes[lang.lower()]} facts:\n"
-            f"{', '.join(fact for fact in factlist)}"
-        )
+    return await ctx.redirect(
+        f"All {langcodes[lang.lower()]} facts:\n"
+        f"{', '.join(fact for fact in factlist)}"
+    )
 
 
 @Commands.command("editfact", "updatefact")
@@ -184,25 +182,24 @@ async def cmd_editfact(ctx: Context, args: List[str]):
     fact = await Facts.get(name, lang)
     if fact is None:
         return await ctx.reply("That fact does not exist.")
-    else:
-        try:
-            # Strip non-ASCII from facts, to ensure only standard ASCII are used.
-            message = " ".join(args[1:])
-            message = strip_non_ascii(message)
-            message = str(message[0])
-            fact.text = message
-            return await ctx.reply("Fact successfully edited.")
-        except NoDatabaseConnection:
-            return await ctx.reply(
-                "Unable to add fact: No database connection available. Entering Offline Mode, "
-                "contact a cyberseal."
-            )
-        except FactUpdateError:
-            return await ctx.reply(
-                "Unable to update a fact that only "
-                "exists in local storage, please update "
-                "the fact cache and try again."
-            )
+    try:
+        # Strip non-ASCII from facts, to ensure only standard ASCII are used.
+        message = " ".join(args[1:])
+        message = strip_non_ascii(message)
+        message = str(message[0])
+        fact.text = message
+        return await ctx.reply("Fact successfully edited.")
+    except NoDatabaseConnection:
+        return await ctx.reply(
+            "Unable to add fact: No database connection available. Entering Offline Mode, "
+            "contact a cyberseal."
+        )
+    except FactUpdateError:
+        return await ctx.reply(
+            "Unable to update a fact that only "
+            "exists in local storage, please update "
+            "the fact cache and try again."
+        )
 
 
 @Commands.command("ufi", "updatefactindex")

@@ -10,12 +10,12 @@ Licensed under the GNU General Public License
 See license.md
 
 """
+import tweepy
+import logging
 
 from ..configmanager import config
 from ..database import Grafana
 
-import tweepy
-import logging
 
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)

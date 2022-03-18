@@ -15,18 +15,18 @@ Special thanks to TheUnkn0wn1 for his assistance on this module! - https://githu
 from __future__ import annotations
 
 import typing
-
-import aiohttp
-import asyncio
-import numpy as np
 import logging
 import math
-import cattr
+import asyncio
 from pathlib import Path
-from attr import dataclass
 import json
 from time import time
 from typing import Optional, Union
+
+import aiohttp
+import numpy as np
+import cattr
+from attr import dataclass
 from halpybot import DEFAULT_USER_AGENT
 from ..models import Coordinates, Location
 from ..models import edsm_classes
@@ -169,10 +169,7 @@ class GalaxySystem:
 
         """
         obj = await cls.get_info(name, cache_override)
-        if obj is None:
-            return False
-        else:
-            return True
+        return bool(obj is not None)
 
     @classmethod
     async def get_nearby(cls, x, y, z):
@@ -343,16 +340,15 @@ class Commander:
         location = await Commander.get_cmdr(name=name, cache_override=cache_override)
         if location is None:
             return None
+        if location.date is None:
+            location_time = "an unknown date and time."
         else:
-            if location.date is None:
-                location_time = "an unknown date and time."
-            else:
-                location_time = location.date
-            return Location(
-                system=location.system,
-                coordinates=location.coordinates,
-                time=location_time,
-            )
+            location_time = location.date
+        return Location(
+            system=location.system,
+            coordinates=location.coordinates,
+            time=location_time,
+        )
 
 
 async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
@@ -449,7 +445,6 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
     """
     global landmarks  # FIXME: Similar to Carriers, fix mutable global
     # Set default values
-    lm_coords = None
 
     coords = await get_coordinates(edsm_sys_name, cache_override)
     if coords:
@@ -480,10 +475,9 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
                 coords.x, minimum.coords.x, coords.z, minimum.coords.z
             )
             return minimum.name, f"{minimum_key:,}", direction
-        else:
-            raise NoResultsEDSM(
-                f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}."
-            )
+        raise NoResultsEDSM(
+            f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}."
+        )
 
     if not coords:
         raise NoResultsEDSM(
@@ -513,7 +507,6 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
     """
     global carriers  # FIXME: REMOVE MUTABLE GLOBAL (BAD BAD BAD)
     # Set default values
-    lm_coords, maxdist = None, None
 
     coords = await get_coordinates(edsm_sys_name, cache_override)
 

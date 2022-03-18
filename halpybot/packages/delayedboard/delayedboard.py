@@ -10,7 +10,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database import DatabaseConnection, NoDatabaseConnection
+from ..database import DatabaseConnection
 from ..utils import strip_non_ascii
 
 
@@ -45,7 +45,7 @@ class DelayedCase:
             for result in cursor.stored_results():
                 out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
-        out_args.append(True if message[1] else False)
+        out_args.append(bool(message[1]))
         return out_args
 
     @staticmethod
@@ -139,7 +139,7 @@ class DelayedCase:
             for result in cursor.stored_results():
                 out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
-        out_args.append(True if message[1] else False)
+        out_args.append(bool(message[1]))
         return out_args
 
     @staticmethod

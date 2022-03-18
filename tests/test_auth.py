@@ -16,4 +16,7 @@ from halpybot.server.auth import *
 
 def test_hmac():
     mac = get_hmac("testHMACstring")
-    assert mac.hexdigest() == "4b3483adbf2b40ae35f23384674353bb0009d2aa72d5c099a7523067834d0fb8"
+    assert (
+        mac.hexdigest()
+        == "4b3483adbf2b40ae35f23384674353bb0009d2aa72d5c099a7523067834d0fb8"
+    )

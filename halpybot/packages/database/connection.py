@@ -11,10 +11,10 @@ See license.md
 """
 
 import mysql.connector
-from mysql.connector import MySQLConnection
 import logging
 import time
 import asyncio
+from mysql.connector import MySQLConnection
 
 from ..configmanager import config_write, config
 
@@ -61,8 +61,6 @@ class NoDatabaseConnection(ConnectionError):
     """
     Raised when 3 consecutive attempts at reconnection are unsuccessful
     """
-
-    pass
 
 
 class DatabaseConnection(MySQLConnection):

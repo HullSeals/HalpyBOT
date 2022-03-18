@@ -12,14 +12,14 @@ See license.md
 
 import time
 from typing import List
-import aiohttp
 import logging
+import aiohttp
+from halpybot import DEFAULT_USER_AGENT
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import latency, NoDatabaseConnection, Grafana
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
-from halpybot import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
@@ -70,7 +70,7 @@ async def cmd_edsmping(ctx: Context, args: List[str]):
     start = time.time()
     try:
         await GalaxySystem.exists(name="Sol", cache_override=True)
-    except EDSMLookupError as er:
+    except EDSMLookupError:
         logger.exception("Failed to query EDSM.")
         return await ctx.reply("Failed to query EDSM.")
     finish = time.time()

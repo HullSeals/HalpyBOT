@@ -134,11 +134,10 @@ async def lookup(system):
         direction = cardinal_flip[direction]
         if exact_sys:
             return f"System exists in EDSM, {distance} LY {direction} of {landmark}."
-        else:
-            return (
-                f"{system} could not be found in EDSM. System closest in name found in EDSM was"
-                f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
-            )
+        return (
+            f"{system} could not be found in EDSM. System closest in name found in EDSM was"
+            f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
+        )
     except NoResultsEDSM as er:
         if str(er) == f"No major landmark systems within 10,000 ly of {system}.":
             dssa, distance, direction = await checkdssa(system)
@@ -146,31 +145,29 @@ async def lookup(system):
                 f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
                 f"{system}."
             )
-        else:
-            found_sys, close_sys = await get_nearby_system(sys_name)
-            if found_sys:
-                try:
-                    landmark, distance, direction = await checklandmarks(close_sys)
-                    return (
-                        f"{system} could not be found in EDSM. System closest in name found in EDSM was"
-                        f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
-                    )
-                except NoResultsEDSM as er:
-                    if (
-                        str(er)
-                        == f"No major landmark systems within 10,000 ly of {close_sys}."
-                    ):
-                        dssa, distance, direction = await checkdssa(close_sys)
-                        return (
-                            f"{sys_name} could not be found in EDSM. System closest in name found in "
-                            f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in "
-                            f"{dssa}, {distance} LY {direction} of {close_sys}. "
-                        )
-            else:
+        found_sys, close_sys = await get_nearby_system(sys_name)
+        if found_sys:
+            try:
+                landmark, distance, direction = await checklandmarks(close_sys)
                 return (
-                    "System Not Found in EDSM. match to sys name format or sys name lookup failed.\nPlease "
-                    "check system name with client "
+                    f"{system} could not be found in EDSM. System closest in name found in EDSM was"
+                    f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                 )
+            except NoResultsEDSM as er:
+                if (
+                    str(er)
+                    == f"No major landmark systems within 10,000 ly of {close_sys}."
+                ):
+                    dssa, distance, direction = await checkdssa(close_sys)
+                    return (
+                        f"{sys_name} could not be found in EDSM. System closest in name found in "
+                        f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in "
+                        f"{dssa}, {distance} LY {direction} of {close_sys}. "
+                    )
+        return (
+            "System Not Found in EDSM. match to sys name format or sys name lookup failed.\nPlease "
+            "check system name with client "
+        )
 
     except EDSMLookupError:
         return "Unable to query EDSM"

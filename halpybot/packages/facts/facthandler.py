@@ -51,7 +51,7 @@ class Fact:
             author (str): Fact author
 
         """
-        self._offline = True if ID is None else False
+        self._offline = bool(ID is None)
         self._ID = ID
         self._name = name
         self._lang = lang
@@ -198,8 +198,7 @@ class FactHandler:
         """
         if (name, lang) in self._factCache.keys():
             return self._factCache[name, lang]
-        else:
-            return None
+        return None
 
     async def fetch_facts(self, preserve_current: bool = False):
         """Refresh fact cache.
@@ -240,7 +239,7 @@ class FactHandler:
             # Get lang and fact. This is stupid, just ignore
             if "-" in fact:
                 factname = str(fact).split("-")[0]
-                lang = str(fact).split("-")[1]
+                lang = str(fact).split("-", maxsplit=1)[0]
             else:
                 factname = fact
                 lang = "en"
@@ -369,12 +368,11 @@ class FactHandler:
         """
         if not lang:
             return list(self._factCache.keys())
-        else:
-            langlist = []
-            for fact in self._factCache.keys():
-                if fact[1].lower() == lang.lower():
-                    langlist.append(fact[0])
-            return langlist
+        langlist = []
+        for fact in self._factCache.keys():
+            if fact[1].lower() == lang.lower():
+                langlist.append(fact[0])
+        return langlist
 
     async def fact_formatted(self, fact: tuple, arguments: List[str]):
         """Format a ready-to-be-sent fact
@@ -404,12 +402,11 @@ class FactHandler:
             return str(reqfact.default_argument) + str(reqfact.text)
 
         # If we have arguments add them
-        elif arguments:
+        if arguments:
             return str(" ".join(arguments).strip() + ": " + reqfact.text)
 
         # Else (no args, no default arg)
-        else:
-            return str(reqfact.text)
+        return str(reqfact.text)
 
 
 Facts = FactHandler()
