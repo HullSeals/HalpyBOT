@@ -22,7 +22,7 @@ from ..packages.ircclient import client as botclient
 routes = web.RouteTableDef()
 
 
-@routes.post('/tail')
+@routes.post("/tail")
 @authenticate()
 async def tail(request):
     if request.body_exists:
@@ -34,7 +34,9 @@ async def tail(request):
         vhost = f"{subject}.{rank}.hullseals.space"
         with DatabaseConnection() as db:
             cursor = db.cursor()
-            cursor.execute(f"SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,))
+            cursor.execute(
+                f"SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,)
+            )
             result = cursor.fetchall()
             for i in result:
                 await botclient.rawmsg("hs", "SETALL", i[0], vhost)

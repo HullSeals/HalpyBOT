@@ -30,7 +30,9 @@ async def cmd_utc(ctx: Context, args: List[str]):
     current_monthday = curr_datetime.strftime("%d %B")
     year = datetime.now().year
     year = str(year + 1286)
-    await ctx.reply("It is currently " + current_utc + " UTC on " + current_monthday + ", " + year)
+    await ctx.reply(
+        "It is currently " + current_utc + " UTC on " + current_monthday + ", " + year
+    )
 
 
 @Commands.command("year")

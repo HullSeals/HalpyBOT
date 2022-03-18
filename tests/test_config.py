@@ -54,7 +54,8 @@ async def test_config_value():
         "config['Logging']['log_file']",
         "config['Facts']['table']",
         "config['Twitter']['enabled']",
-        "config['System Monitoring']['failure_button']"}
+        "config['System Monitoring']['failure_button']",
+    }
     for value in config_values:
         assert value is not None
 
@@ -62,10 +63,10 @@ async def test_config_value():
 # Can we write to the Config file?
 @pytest.mark.asyncio
 async def test_config_write():
-    prev_value = config['IRC']['usessl']
-    config_write('IRC', 'usessl', 'True')
-    assert config['IRC']['usessl'] == 'True'
-    config_write('IRC', 'usessl', 'False')
-    assert config['IRC']['usessl'] == 'False'
-    config_write('IRC', 'usessl', prev_value)
-    assert config['IRC']['usessl'] == prev_value
+    prev_value = config["IRC"]["usessl"]
+    config_write("IRC", "usessl", "True")
+    assert config["IRC"]["usessl"] == "True"
+    config_write("IRC", "usessl", "False")
+    assert config["IRC"]["usessl"] == "False"
+    config_write("IRC", "usessl", prev_value)
+    assert config["IRC"]["usessl"] == prev_value

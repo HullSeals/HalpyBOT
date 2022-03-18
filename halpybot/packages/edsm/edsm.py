@@ -74,6 +74,7 @@ class GalaxySystem:
     System info received from the EDSM API.
 
     """
+
     name: str
     coords: Coordinates
 
@@ -81,13 +82,12 @@ class GalaxySystem:
 
     @classmethod
     def from_api(cls, api: edsm_classes.Galaxy) -> GalaxySystem:
-        return cls(
-            name=api.name,
-            coords=api.coords
-        )
+        return cls(name=api.name, coords=api.coords)
 
     @classmethod
-    async def get_info(cls, name, cache_override: bool = False) -> Optional[GalaxySystem]:
+    async def get_info(
+        cls, name, cache_override: bool = False
+    ) -> Optional[GalaxySystem]:
         """Get a system object from the EDSM API.
 
         If the same object was requested less than
@@ -111,24 +111,33 @@ class GalaxySystem:
         if name in cls._lookupCache.keys() and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name].time
-            cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
+            cachetime = int(await get_time_seconds(config["EDSM"]["timeCached"]))
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name].object
 
         # Else, get the system from EDSM
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
-                async with await session.get("https://www.edsm.net/api-v1/system", params={"systemName": name,
-                                                                                           "showCoordinates": 1,
-                                                                                           "showInformation": 1},
-                                             timeout=10) as response:
+                async with await session.get(
+                    "https://www.edsm.net/api-v1/system",
+                    params={
+                        "systemName": name,
+                        "showCoordinates": 1,
+                        "showInformation": 1,
+                    },
+                    timeout=10,
+                ) as response:
                     responses = await response.json()
 
         except aiohttp.ClientError as er:
-            logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
-            raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
+            logger.error(
+                f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True
+            )
+            raise EDSMConnectionError(
+                "Unable to verify system, having issues connecting to the EDSM API."
+            )
 
         # Return None if system doesn't exist
         if len(responses) == 0:
@@ -188,19 +197,22 @@ class GalaxySystem:
         # Else, get the system from EDSM
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
-                async with await session.get("https://www.edsm.net/api-v1/sphere-systems",
-                                             params={"x": x,
-                                                     "y": y,
-                                                     "z": z,
-                                                     "radius": 100,
-                                                     "minRadius": 1}, timeout=10) as response:
+                async with await session.get(
+                    "https://www.edsm.net/api-v1/sphere-systems",
+                    params={"x": x, "y": y, "z": z, "radius": 100, "minRadius": 1},
+                    timeout=10,
+                ) as response:
                     responses = await response.json()
 
         except aiohttp.ClientError as er:
-            logger.error(f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True)
-            raise EDSMConnectionError("Unable to verify system, having issues connecting to the EDSM API.")
+            logger.error(
+                f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True
+            )
+            raise EDSMConnectionError(
+                "Unable to verify system, having issues connecting to the EDSM API."
+            )
 
         # Return None if system doesn't exist
         if len(responses) == 0:
@@ -220,6 +232,7 @@ class Commander:
     Commander info received from the EDSM API
 
     """
+
     # The Four Things We Care About
     msgnum: int
     name: str
@@ -236,7 +249,7 @@ class Commander:
             name=name,
             system=api.system,
             coordinates=api.coordinates,
-            date=api.date
+            date=api.date,
         )
 
     @classmethod
@@ -264,26 +277,30 @@ class Commander:
         if name.strip().upper() in cls._lookupCache.keys() and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name.strip().upper()].time
-            cachetime = int(await get_time_seconds(config['EDSM']['timeCached']))
+            cachetime = int(await get_time_seconds(config["EDSM"]["timeCached"]))
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name.strip().upper()].object
 
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
-                async with await session.get("https://www.edsm.net/api-logs-v1/get-position",
-                                             params={"commanderName": name,
-                                                     "showCoordinates": 1}, timeout=10) as response:
+                async with await session.get(
+                    "https://www.edsm.net/api-logs-v1/get-position",
+                    params={"commanderName": name, "showCoordinates": 1},
+                    timeout=10,
+                ) as response:
                     responses = await response.json()
 
         except (aiohttp.ClientError, KeyError) as er:
-            logger.error(f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True)
+            logger.error(
+                f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True
+            )
             raise EDSMConnectionError("Error! Unable to get commander info.")
         # Return None if cmdr doesn't exist
-        if len(responses) == 0 or responses['msgnum'] == 203:
+        if len(responses) == 0 or responses["msgnum"] == 203:
             return None
-        if responses['msgnum'] == 201:
+        if responses["msgnum"] == 201:
             raise EDSMConnectionError
         api: edsm_classes.Commander = cattr.structure(responses, edsm_classes.Commander)
 
@@ -331,9 +348,11 @@ class Commander:
                 location_time = "an unknown date and time."
             else:
                 location_time = location.date
-            return Location(system=location.system,
-                            coordinates=location.coordinates,
-                            time=location_time)
+            return Location(
+                system=location.system,
+                coordinates=location.coordinates,
+                time=location_time,
+            )
 
 
 async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
@@ -386,16 +405,21 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
 
     # Actually ok that we might be giving cmdr names to sys_cleaner. It won't do anything to names without - in
     if not system_a:
-        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysa)}' was found in the EDSM "
-                            f"database.")
+        raise NoResultsEDSM(
+            f"No system and/or commander named '{await sys_cleaner(sysa)}' was found in the EDSM "
+            f"database."
+        )
 
     if not system_b:
-        raise NoResultsEDSM(f"No system and/or commander named '{await sys_cleaner(sysb)}' was found in the EDSM "
-                            f"database.")
+        raise NoResultsEDSM(
+            f"No system and/or commander named '{await sys_cleaner(sysb)}' was found in the EDSM "
+            f"database."
+        )
 
-    distance = calc_distance(system_a.x, system_b.x, system_a.y, system_b.y,
-                             system_a.z, system_b.z)
-    distance = f'{distance:,}'
+    distance = calc_distance(
+        system_a.x, system_b.x, system_a.y, system_b.y, system_a.z, system_b.z
+    )
+    distance = f"{distance:,}"
     direction = await calc_direction(system_b.x, system_a.x, system_b.z, system_a.z)
     return distance, direction
 
@@ -436,26 +460,36 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
             landmarks = json.loads(target.read_text())
             landmarks = cattr.structure(landmarks, typing.List[GalaxySystem])
 
-        maxdist = config['EDSM']['Maximum landmark distance']
+        maxdist = config["EDSM"]["Maximum landmark distance"]
         distances = {
             calc_distance(
-                coords.x, item.coords.x,
-                coords.y, item.coords.y,
-                coords.z, item.coords.z
-            ): item for item in landmarks
+                coords.x,
+                item.coords.x,
+                coords.y,
+                item.coords.y,
+                coords.z,
+                item.coords.z,
+            ): item
+            for item in landmarks
         }
         minimum_key = min(distances)
         minimum = distances[minimum_key]
 
         if minimum_key < float(maxdist):
-            direction = await calc_direction(coords.x, minimum.coords.x, coords.z, minimum.coords.z)
-            return minimum.name, f'{minimum_key:,}', direction
+            direction = await calc_direction(
+                coords.x, minimum.coords.x, coords.z, minimum.coords.z
+            )
+            return minimum.name, f"{minimum_key:,}", direction
         else:
-            raise NoResultsEDSM(f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}.")
+            raise NoResultsEDSM(
+                f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}."
+            )
 
     if not coords:
-        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
-                            f" database.")
+        raise NoResultsEDSM(
+            f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+            f" database."
+        )
 
 
 async def checkdssa(edsm_sys_name, cache_override: bool = False):
@@ -493,21 +527,29 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
         distances = {
             calc_distance(
-                coords.x, item.coords.x,
-                coords.y, item.coords.y,
-                coords.z, item.coords.z
-            ): item for item in carriers
+                coords.x,
+                item.coords.x,
+                coords.y,
+                item.coords.y,
+                coords.z,
+                item.coords.z,
+            ): item
+            for item in carriers
         }
 
         minimum_key = min(distances)
         minimum = distances[minimum_key]
 
-        direction = await calc_direction(coords.x, minimum.coords.x, coords.z, minimum.coords.z)
-        return minimum.name, f'{minimum_key:,}', direction
+        direction = await calc_direction(
+            coords.x, minimum.coords.x, coords.z, minimum.coords.z
+        )
+        return minimum.name, f"{minimum_key:,}", direction
 
     if not coords:
-        raise NoResultsEDSM(f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
-                            f" database.")
+        raise NoResultsEDSM(
+            f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+            f" database."
+        )
 
 
 def calc_distance(x1, x2, y1, y2, z1, z2):
@@ -562,8 +604,8 @@ async def calc_direction(x1, x2, y1, y2):
 
     """
     # Treat the coordinates like a right triangle - this is Trig that I swore off of after high school.
-    xdeterminer = (x2 - x1)
-    ydeterminer = (y2 - y1)
+    xdeterminer = x2 - x1
+    ydeterminer = y2 - y1
     degrees_temp = math.atan2(xdeterminer, ydeterminer) / math.pi * 180
     # All Coordinates must be Positive.
     if degrees_temp < 0:
@@ -573,7 +615,7 @@ async def calc_direction(x1, x2, y1, y2):
     # Round to the nearest degree, treat Directions as an array and compass_lookup as the array item number.
     directions = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
     compass_lookup = round(degrees_final / 45)
-    result = f'{directions[compass_lookup]}'
+    result = f"{directions[compass_lookup]}"
     return result
 
 
@@ -583,7 +625,9 @@ async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
     if sys:
         coords = sys.coords
     if not sys:
-        cmdr = await Commander.location(name=edsm_sys_name, cache_override=cache_override)
+        cmdr = await Commander.location(
+            name=edsm_sys_name, cache_override=cache_override
+        )
         if cmdr:
             coords = cmdr.coordinates
     return coords
@@ -594,10 +638,13 @@ async def get_nearby_system(sys_name: str, cache_override: bool = False):
     for _ in range(5):
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
-                async with await session.get("https://www.edsm.net/api-v1/systems",
-                                             params={"systemName": name_to_check}, timeout=10) as response:
+                async with await session.get(
+                    "https://www.edsm.net/api-v1/systems",
+                    params={"systemName": name_to_check},
+                    timeout=10,
+                ) as response:
                     responces = await response.json()
             if responces:
                 sys = responces[0]["name"]
@@ -609,7 +656,9 @@ async def get_nearby_system(sys_name: str, cache_override: bool = False):
                 if name_to_check[-1] != " ":
                     break
         except aiohttp.ClientError as er:
-            logger.error(f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True)
+            logger.error(
+                f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True
+            )
     return False, None
 
 
@@ -653,7 +702,9 @@ async def sys_cleaner(sys_name: str):
 
             sys_name = " ".join(sys_name_parts)
     except IndexError:
-        logger.info(f"System cleaner thought {sys_name} was proc-gen and could not correct formatting")
+        logger.info(
+            f"System cleaner thought {sys_name} was proc-gen and could not correct formatting"
+        )
         return sys_name.strip()
 
     logger.debug(f"System cleaner produced {sys_name} from {orig_sys}")

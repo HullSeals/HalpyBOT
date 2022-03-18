@@ -40,15 +40,21 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
     try:
         results = await notify.list_topics()
     except notify.SNSError:
-        return await ctx.reply("Unable to retrieve group data from AWS servers, "
-                               "poke Rixxan if this keeps occurring")
+        return await ctx.reply(
+            "Unable to retrieve group data from AWS servers, "
+            "poke Rixxan if this keeps occurring"
+        )
 
     if len(results) == 0:
-        return await ctx.reply("No groups currently registered, contact Rixxan if you suspect "
-                               "this may be an error.")
+        return await ctx.reply(
+            "No groups currently registered, contact Rixxan if you suspect "
+            "this may be an error."
+        )
     else:
-        return await ctx.reply(f"Registered notification groups: "
-                               f"{', '.join(group for group in results)}")
+        return await ctx.reply(
+            f"Registered notification groups: "
+            f"{', '.join(group for group in results)}"
+        )
 
 
 @NotifyInfo.command("details", "endpoints")
@@ -75,12 +81,14 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
         return await ctx.reply(f"Invalid group given: {group}.")
 
     try:
-        results = await notify.list_sub_by_topic(config['Notify'][group])
+        results = await notify.list_sub_by_topic(config["Notify"][group])
         if len(results) == 0:
             return await ctx.reply("No users currently subscribed to that group.")
         else:
             results = str(results)
-            return await ctx.reply(f"Following endpoints are subscribed to group {group}: {results}")
+            return await ctx.reply(
+                f"Following endpoints are subscribed to group {group}: {results}"
+            )
 
     except notify.SNSError:
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
@@ -108,14 +116,17 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
     elif group in ["cybers", "cyberseals"]:
         group = "cybers"
     else:
-        return await ctx.reply("Please specify a valid group, for example: "
-                               "'moderators', 'cyberseals'")
+        return await ctx.reply(
+            "Please specify a valid group, for example: " "'moderators', 'cyberseals'"
+        )
     try:
-        await notify.subscribe(config['Notify'][group], args[1])
+        await notify.subscribe(config["Notify"][group], args[1])
         return await ctx.reply(f"Subscription {args[1]} added to group {group}")
     except ValueError:
-        return await ctx.reply("Please specify a valid email address or phone number"
-                               "in international format.")
+        return await ctx.reply(
+            "Please specify a valid email address or phone number"
+            "in international format."
+        )
     except notify.SubscriptionError:
         return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
@@ -137,7 +148,9 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     return await ctx.reply(response)
 
 
-@Commands.command("summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig")
+@Commands.command(
+    "summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig"
+)
 @Require.permission(Pup)
 @Require.channel()
 @Require.aws()
@@ -158,12 +171,14 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
 async def format_notification(notify_type, group, sender, message):
     global timer
     # Check if last staff call was < 5 min ago
-    if timer != 0 and time.time() < timer + int(await get_time_seconds(config['Notify']['timer'])):
+    if timer != 0 and time.time() < timer + int(
+        await get_time_seconds(config["Notify"]["timer"])
+    ):
         return "Someone already called less than 5 minutes ago. hang on, staff is responding."
     timer = time.time()
     subject = f"HALPYBOT: {notify_type} Used"
-    topic = config['Notify'][f'{group}']
-    message = ' '.join(message)
+    topic = config["Notify"][f"{group}"]
+    message = " ".join(message)
     message = f"{notify_type} used by {sender}: {message}"
     try:
         await notify.send_notification(topic, message, subject)

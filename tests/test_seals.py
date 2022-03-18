@@ -21,8 +21,11 @@ from halpybot.packages.configmanager import config, config_write
 @pytest.mark.asyncio
 async def test_good_whois():
     user = await whois("HalpyBOT")
-    user = user[:len(user) // 2]
-    assert user == "CMDR HalpyBOT has a Seal ID of 235, registered on 2019-12-20, is a DW2 Veteran and Founder Seal"
+    user = user[: len(user) // 2]
+    assert (
+        user
+        == "CMDR HalpyBOT has a Seal ID of 235, registered on 2019-12-20, is a DW2 Veteran and Founder Seal"
+    )
 
 
 @pytest.mark.asyncio
@@ -33,8 +36,8 @@ async def test_bad_whois():
 
 @pytest.mark.asyncio
 async def test_no_db():
-    prev_value = config['Offline Mode']['enabled']
-    config_write('Offline Mode', 'enabled', 'True')
+    prev_value = config["Offline Mode"]["enabled"]
+    config_write("Offline Mode", "enabled", "True")
     no_database = await whois("ThisCMDRDoesntExist")
     assert no_database == "Error searching user."
-    config_write('Offline Mode', 'enabled', prev_value)
+    config_write("Offline Mode", "enabled", prev_value)
