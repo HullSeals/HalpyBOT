@@ -72,9 +72,7 @@ async def cmd_edsmping(ctx: Context, args: List[str]):
         await GalaxySystem.exists(name="Sol", cache_override=True)
     except EDSMLookupError as er:
         logger.exception("Failed to query EDSM.")
-        return await ctx.reply(
-            "Failed to query EDSM."
-        )
+        return await ctx.reply("Failed to query EDSM.")
     finish = time.time()
     final = round(finish - start, 2)
     await ctx.reply("EDSM Latency: " + str(final) + " seconds")
