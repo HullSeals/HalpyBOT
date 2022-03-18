@@ -108,7 +108,7 @@ def run():
         carriers_good + carriers_bad
     )  # This ensures that the carriers with no coordinates will be printed last
     with open(
-        f"{config['Standalone']['path']}/COORDINATES_" f"{timestamp}.json", "w+"
+        f"{config['Standalone']['path']}/COORDINATES_{timestamp}.json", "w+"
     ) as jsonfile:
         json.dump(carriers, jsonfile, indent=4)
 

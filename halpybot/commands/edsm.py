@@ -57,6 +57,7 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
             )
 
     except EDSMLookupError as er:
+        # FIXME: THIS IS DUMB BAD CODE. LOG IT AND OUTPUT GENERIC ERROR.
         return await ctx.reply(
             str(er)
         )  # Return error if one is raised down the call stack.
@@ -130,6 +131,7 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
                 pointa, pointb, cache_override=cache_override
             )
         except EDSMLookupError as er:
+            # FIXME: Log and output generic error.
             return await ctx.reply(str(er))
         return await ctx.reply(
             f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
@@ -173,6 +175,7 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
                 f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
                 f"{direction} of {await sys_cleaner(system)}."
             )
+        # FIXME: Log and output generic error.
         return await ctx.reply(str(er))
 
 
@@ -205,6 +208,7 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
             f"{await sys_cleaner(system)}."
         )
     except EDSMLookupError as er:
+        # FIXME: Log and output generic error.
         return await ctx.reply(str(er))
 
 
@@ -233,6 +237,7 @@ async def cmd_coordslookup(ctx, args: List[str]):
     try:
         system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
     except EDSMLookupError as er:
+        # FIXME: Log and output generic error.
         return await ctx.reply(
             str(er)
         )  # Return error if one is raised down the call stack.

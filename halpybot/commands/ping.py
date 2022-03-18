@@ -71,6 +71,7 @@ async def cmd_edsmping(ctx: Context, args: List[str]):
     try:
         await GalaxySystem.exists(name="Sol", cache_override=True)
     except EDSMLookupError as er:
+        # FIXME: BAD.
         return await ctx.reply(str(er))
     finish = time.time()
     final = round(finish - start, 2)

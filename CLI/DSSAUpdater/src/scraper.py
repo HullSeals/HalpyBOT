@@ -98,7 +98,7 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
         )
 
     # And finally, create a file with all carrier info + any problems that may have arisen
-    with open(f"{path}/carrier_data_" f"{timestamp}.json", "w+") as jsonfile:
+    with open(f"{path}/carrier_data_{timestamp}.json", "w+") as jsonfile:
         json.dump([carriers, {"Issues": anomalies}], jsonfile, indent=4)
         print(f"Carrier data copied to: carrier_data_{timestamp}.json")
 

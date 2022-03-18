@@ -350,7 +350,7 @@ class FactHandler:
         with DatabaseConnection() as db:
             cursor = db.cursor()
             cursor.execute(
-                f"DELETE FROM {config['Facts']['table']} " f"WHERE factID = %s",
+                f"DELETE FROM {config['Facts']['table']} WHERE factID = %s",
                 (self._factCache[name, lang].ID,),
             )
             del self._factCache[name, lang]
@@ -396,7 +396,7 @@ class FactHandler:
         # Sanity check
         if not reqfact:
             raise FactHandlerError(
-                "Fact could not be found, even though it " "should exist"
+                "Fact could not be found, even though it should exist"
             )
 
         # If we have no args but a default one, send it

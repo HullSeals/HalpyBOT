@@ -117,7 +117,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
         group = "cybers"
     else:
         return await ctx.reply(
-            "Please specify a valid group, for example: " "'moderators', 'cyberseals'"
+            "Please specify a valid group, for example: 'moderators', 'cyberseals'"
         )
     try:
         await notify.subscribe(config["Notify"][group], args[1])

@@ -158,7 +158,7 @@ class DelayedCase:
         with DatabaseConnection() as db:
             cursor = db.cursor()
             cursor.execute(
-                "SELECT COUNT(ID) " "FROM casestatus " "WHERE case_status IN (1, 2);"
+                "SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2);"
             )
             for res in cursor.fetchall():
                 result = res[0]

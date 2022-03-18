@@ -63,7 +63,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     config_write("IRC", "commandPrefix", args[0])
     await ctx.reply(f"Changed prefix to '{args[0]}'")
     await ctx.bot.message(
-        f"#cybers", f"Warning, prefix changed to {args[0]} by " f"{ctx.sender}!"
+        f"#cybers", f"Warning, prefix changed to {args[0]} by {ctx.sender}!"
     )
 
 

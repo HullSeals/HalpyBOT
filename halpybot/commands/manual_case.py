@@ -50,7 +50,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
     for channel in config["Manual Case"]["send_to"].split():
         await ctx.bot.message(
-            channel, f"xxxx MANCASE -- NEWCASE xxxx\n" f"{info}\n" f"xxxxxxxx"
+            channel, f"xxxx MANCASE -- NEWCASE xxxx\n{info}\nxxxxxxxx"
         )
 
     # Send to Discord

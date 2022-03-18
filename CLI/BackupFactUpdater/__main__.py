@@ -45,7 +45,7 @@ def run():
         "connect_timeout": int(config.get("Database", "timeout")),
     }
 
-    print("=============\n" "HalpyBOT fact file updater\n" "=============")
+    print("=============\nHalpyBOT fact file updater\n=============")
     print("\n")
     print(
         "WARNING: this operation may lead to the backup file not updating correctly.\n"
@@ -68,7 +68,7 @@ def run():
         database_connection = mysql.connector.connect(**dbconfig)
         print("40% Connection started...")
         cursor = database_connection.cursor()
-        cursor.execute(f"SELECT factName, factLang, factText " f"FROM {table}")
+        cursor.execute(f"SELECT factName, factLang, factText FROM {table}")
         print("60% Got data, parsing...")
         for (Name, Lang, Text) in cursor:
             resdict[f"{Name}-{Lang}"] = Text
