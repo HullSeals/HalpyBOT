@@ -24,8 +24,10 @@ from ..packages.edsm import (
 )
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
+from ..packages.database import Grafana
 
 logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 
 @Commands.command("lookup", "syslookup")
@@ -56,11 +58,11 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
                 f"System {await sys_cleaner(system)} not found in EDSM"
             )
 
-    except EDSMLookupError as er:
-        # FIXME: THIS IS DUMB BAD CODE. LOG IT AND OUTPUT GENERIC ERROR.
+    except EDSMLookupError:
+        logger.exception("Failed to query EDSM for system details.")
         return await ctx.reply(
-            str(er)
-        )  # Return error if one is raised down the call stack.
+            "Failed to query EDSM for system details."
+        )
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
@@ -130,9 +132,11 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
             distance, direction = await checkdistance(
                 pointa, pointb, cache_override=cache_override
             )
-        except EDSMLookupError as er:
-            # FIXME: Log and output generic error.
-            return await ctx.reply(str(er))
+        except EDSMLookupError:
+            logger.exception("Failed to query EDSM for system or CMDR details.")
+            return await ctx.reply(
+                "Failed to query EDSM for system or CMDR details."
+            )
         return await ctx.reply(
             f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
             f"{await sys_cleaner(pointb)}."
@@ -175,8 +179,10 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
                 f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
                 f"{direction} of {await sys_cleaner(system)}."
             )
-        # FIXME: Log and output generic error.
-        return await ctx.reply(str(er))
+        logger.exception("Failed to query EDSM for landmark details.")
+        return await ctx.reply(
+            "Failed to query EDSM for landmark details."
+        )
 
 
 @Commands.command("dssa")
@@ -207,9 +213,11 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
             f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
             f"{await sys_cleaner(system)}."
         )
-    except EDSMLookupError as er:
-        # FIXME: Log and output generic error.
-        return await ctx.reply(str(er))
+    except EDSMLookupError:
+        logger.exception("Failed to query EDSM for DSSA details.")
+        return await ctx.reply(
+            "Failed to query EDSM for DSSA details."
+        )
 
 
 @Commands.command("coordcheck", "coords")
@@ -236,11 +244,11 @@ async def cmd_coordslookup(ctx, args: List[str]):
         return await ctx.reply("All coordinates must be numeric.")
     try:
         system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
-    except EDSMLookupError as er:
-        # FIXME: Log and output generic error.
+    except EDSMLookupError:
+        logger.exception("Failed to query EDSM for coordinate details.")
         return await ctx.reply(
-            str(er)
-        )  # Return error if one is raised down the call stack.
+            "Failed to query EDSM for coordinate details."
+        )
     if system is None:
         return await ctx.reply(
             f"No systems known to EDSM within 100ly of {xcoord}, {ycoord}, {zcoord}."

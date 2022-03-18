@@ -447,7 +447,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         NoResultsEDSM: No point was found for `edsm_sys_name`
 
     """
-    global landmarks
+    global landmarks # FIXME: Similar to Carriers, fix mutable global
     # Set default values
     lm_coords = None
 
