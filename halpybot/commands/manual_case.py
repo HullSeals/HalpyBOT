@@ -86,7 +86,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
             headers={"User-Agent": DEFAULT_USER_AGENT}
         ) as session:
             await session.post(config["Discord Notifications"]["url"], json=cn_message)
-    except aiohttp.ClientError as err:
+    except aiohttp.ClientError:
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
@@ -134,7 +134,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
             headers={"User-Agent": DEFAULT_USER_AGENT}
         ) as session:
             await session.post(config["Discord Notifications"]["url"], json=cn_message)
-    except aiohttp.ClientError as err:
+    except aiohttp.ClientError:
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
