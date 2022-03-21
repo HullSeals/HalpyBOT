@@ -10,6 +10,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+import logging
 import time
 from typing import List
 
@@ -19,6 +20,10 @@ from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.configmanager import config
 from ..packages.utils import get_time_seconds
 from ..packages.models import Context
+from ..packages.database import Grafana
+
+logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
@@ -40,6 +45,7 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
     try:
         results = await notify.list_topics()
     except notify.SNSError:
+        logger.exception("Unable to get group data from AWS.")
         return await ctx.reply(
             "Unable to retrieve group data from AWS servers, "
             "poke Rixxan if this keeps occurring"
@@ -88,6 +94,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
         )
 
     except notify.SNSError:
+        logging.exception("Unable to get info from AWS.")
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
 
 
@@ -125,6 +132,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
             "in international format."
         )
     except notify.SubscriptionError:
+        logging.exception("Unable to add subscription.")
         return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
 
@@ -180,5 +188,6 @@ async def format_notification(notify_type, group, sender, message):
     try:
         await notify.send_notification(topic, message, subject)
     except notify.NotificationFailure:
+        logging.exception("Notification not sent! I hope it wasn't important...")
         return "Unable to send the notification!"
     return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"

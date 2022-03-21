@@ -102,6 +102,7 @@ def log_unauthorized(
                 [user, channel, command, " ".join(args), required, provided],
             )
     except NoDatabaseConnection:
+        logging.exception("Incident not logged in the database!")
         # TODO stash DB call and execute once we get back to online mode
         pass
 

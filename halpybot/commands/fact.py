@@ -10,6 +10,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+import logging
 from typing import List, Optional
 
 from ..packages.command import Commands, get_help_text
@@ -25,6 +26,8 @@ from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.utils import language_codes, strip_non_ascii
 from ..packages.configmanager import config
+
+logger = logging.getLogger(__name__)
 
 langcodes = language_codes()
 
@@ -91,14 +94,13 @@ async def cmd_addfact(ctx: Context, args: List[str]):
             "contact a cyberseal."
         )
     except FactUpdateError:
-        return await ctx.reply(
-            "Fact has been added, but cache could not be fully updated. "
-            "Please contact a cyberseal"
-        )
+        logger.exception("Fact added, but cache not updated.")
+        return await ctx.reply("An exception occured. " "Please contact a cyberseal!")
 
     # Raised when fact name is illegal for some reason
-    except InvalidFactException as ex:
-        return await ctx.reply(f"Cannot add fact: {str(ex)}")
+    except InvalidFactException:
+        logger.exception("Cannot add fact!")
+        return await ctx.reply("Error! Cannot add fact.")
 
 
 @Commands.command("deletefact")
@@ -123,11 +125,13 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
         await Facts.delete_fact(name, lang)
         return await ctx.reply("Fact has been deleted.")
     except NoDatabaseConnection:
+        logger.exception("Unable to add fact, database error!")
         return await ctx.reply(
             "Unable to add fact: No database connection available. Entering Offline Mode, "
             "contact a cyberseal."
         )
     except FactHandlerError:
+        logger.exception("Fact Handling Error, probably no english variant.")
         return await ctx.reply(
             "Cannot comply: All facts must have an English "
             "version, please delete the version in other languages "
@@ -190,11 +194,13 @@ async def cmd_editfact(ctx: Context, args: List[str]):
         fact.text = message
         return await ctx.reply("Fact successfully edited.")
     except NoDatabaseConnection:
+        logger.exception("No database connection! Fact not edited. ")
         return await ctx.reply(
-            "Unable to add fact: No database connection available. Entering Offline Mode, "
+            "Unable to edit fact: No database connection available. Entering Offline Mode, "
             "contact a cyberseal."
         )
     except FactUpdateError:
+        logger.exception("Fact does not exist on the database!")
         return await ctx.reply(
             "Unable to update a fact that only "
             "exists in local storage, please update "
@@ -217,6 +223,7 @@ async def cmd_ufi(ctx: Context, args: List[str]):
     try:
         await Facts.fetch_facts(preserve_current=True)
     except NoDatabaseConnection:
+        logger.exception("No Database Connection.")
         return await ctx.reply(
             "Cannot comply: No database connection. "
             "Preserving and locking current fact cache, "

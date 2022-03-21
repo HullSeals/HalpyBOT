@@ -33,6 +33,7 @@ class GrafanaHandler(logging.Handler):
                 cursor = database_connection.cursor()
                 cursor.callproc("spCreateHalpyErrLog", [name, prio, msg])
         except NoDatabaseConnection:
+            logging.exception("Incident not logged in the database!")
             # TODO stash DB call and execute once we get back to online mode
             pass
 

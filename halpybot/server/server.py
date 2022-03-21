@@ -57,6 +57,7 @@ class HalpyServer(web.Application):
                     ],
                 )
         except NoDatabaseConnection:
+            logging.exception("Incident not logged in the database!")
             # TODO: stash call and run later when reconnected
             pass
 

@@ -95,6 +95,7 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
             ) as response:
                 responses = await response.json()
     except aiohttp.ClientError:
+        logging.exception("aiohttp has encountered an error.")
         logger.exception("Error in Elite Server Status lookup.")
         raise EDSMConnectionError(
             "Unable to verify Elite Status, having issues connecting to the Elite API."
