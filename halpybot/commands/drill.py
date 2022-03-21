@@ -126,6 +126,15 @@ async def cmd_drillcbcase(ctx: Context, args: List[str]):
 
 
 async def lookup(system):
+    """Calculates and formats a ready-to-go string with EDSM info about a system
+
+    Args:
+        system (str): The system being called by the Trainer
+
+    Returns:
+        (str) string with information about the existence of a system, plus
+            distance and cardinal direction from the nearest landmark
+    """
     sys_name = system
     try:
         exact_sys = sys_name == system
@@ -171,6 +180,5 @@ async def lookup(system):
             "System Not Found in EDSM. match to sys name format or sys name lookup failed.\nPlease "
             "check system name with client "
         )
-
     except EDSMLookupError:
         return "Unable to query EDSM"

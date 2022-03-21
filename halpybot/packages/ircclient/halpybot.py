@@ -200,6 +200,16 @@ client = HalpyBOT(
 
 
 async def crash_notif(crashtype, condition):
+    """
+    Send a notification to the staff in the event of a failure in the bot.
+
+    Args:
+        crashtype (str): The type of incident being reported.
+        condition: The error being reported that is preventing the bot from starting.
+
+    Returns:
+        Nothing.
+    """
     if config.getboolean("System Monitoring", "failure_button"):
         logging.critical(
             "HalpyBOT has failed, but this incident has already been reported."

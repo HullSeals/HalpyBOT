@@ -29,7 +29,6 @@ async def hbot_help(ctx: Context, args: List[str]):
     Usage: !help [command]
     Aliases: n/a
     """
-
     if not args:
         # Return low detail list of commands
         help_string = ""
@@ -59,6 +58,12 @@ async def hbot_help(ctx: Context, args: List[str]):
 
 @Commands.command("about")
 async def cmd_about(ctx: Context, args: List[str]):
+    """
+    Reply with the details of the bot including acknowledgements
+
+    Usage: !about
+    Aliases: n/a
+    """
     try:
         repo = git.Repo()
         sha = repo.head.object.hexsha

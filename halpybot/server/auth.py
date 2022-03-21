@@ -28,6 +28,15 @@ check_constant = config["API Connector"]["key_check_constant"]
 
 
 def get_hmac(msg):
+    """
+    Calculate the HMAC value for message validation
+
+    Args:
+        msg (str): A jsondump of the message sent to the server.
+
+    Returns:
+        A new hmac object
+    """
     return hmac.new(
         bytes(client_secret, "utf8"), msg=msg.encode("utf8"), digestmod=hashlib.sha256
     )

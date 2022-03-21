@@ -303,6 +303,15 @@ class CommandGroup:
 
 
 def get_help_text(search_command: str):
+    """
+    Retrieve the help text for usage and arguments of a command.
+
+    Args:
+        search_command (str): The command being looked up in the dictionary
+
+    Returns:
+        (str or None): Help instructions for a given command, None if unsuccessful.
+    """
     search_command = search_command.lower()
     for command_dict in json_dict.values():
         for command, details in command_dict.items():

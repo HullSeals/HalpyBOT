@@ -209,7 +209,6 @@ class Announcement:
                         else f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
                     )
                 found_sys, close_sys = await get_nearby_system(sys_name)
-
                 if found_sys:
                     try:
                         landmark, distance, direction = await checklandmarks(close_sys)

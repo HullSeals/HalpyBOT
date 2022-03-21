@@ -15,7 +15,9 @@ import requests
 
 
 class EDSMLookupError(Exception):
-    pass
+    """
+    Base class for lookup errors
+    """
 
 
 class DSSACarrier:

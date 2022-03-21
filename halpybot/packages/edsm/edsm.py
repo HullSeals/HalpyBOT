@@ -615,6 +615,16 @@ async def calc_direction(x_coord_1, x_coord_2, y_coord_1, y_coord_2):
 
 
 async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
+    """
+    Get the coordinates of a given system in EDSM
+
+    Args:
+        edsm_sys_name (str): Name of the system being searched for.
+        cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
+
+    Returns:
+        ('Coordinates' or None): A coordinate class object if exists, else None.
+    """
     coords = None
     sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
     if sys:
@@ -629,6 +639,17 @@ async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
 
 
 async def get_nearby_system(sys_name: str):
+    """
+    Get a nearby system to a given system in EDSM
+
+    Args:
+        sys_name (str): Name of the system being searched for.
+
+    Returns:
+        (tuple): A tuple with the following values:
+            - (bool): If a system could be located
+            - (str or None): The system found, None if False
+    """
     name_to_check = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
@@ -656,6 +677,15 @@ async def get_nearby_system(sys_name: str):
 
 
 async def sys_cleaner(sys_name: str):
+    """
+    Attempt to match a given system string to the procedurally generated system naming convention.
+
+    Args:
+        sys_name (str): The given string which should be a system name.
+
+    Returns:
+        (str): The processed string, possibly matched to a procedurally generated naming convention.
+    """
     orig_sys = sys_name
     sys_name = " ".join(sys_name.split())
     sys_name = sys_name.upper()

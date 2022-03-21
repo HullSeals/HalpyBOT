@@ -174,6 +174,18 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
 
 
 async def format_notification(notify_type, group, sender, message):
+    """
+    Format the notification to be sent to Seal Staff
+
+    Args:
+        notify_type (str): Type of signal being sent.
+        group (str): Which group is being contacted.
+        sender (str): Who is sending the notification.
+        message (List[str]): Content of the message being sent.
+
+    Returns:
+        (str): A string confirming if the message was sent or not.
+    """
     global TIMER
     # Check if last staff call was < 5 min ago
     if TIMER != 0 and time.time() < TIMER + int(
