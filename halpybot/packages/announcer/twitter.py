@@ -10,8 +10,8 @@ Licensed under the GNU General Public License
 See license.md
 
 """
-import tweepy
 import logging
+import tweepy
 
 from ..configmanager import config
 from ..database import Grafana
@@ -83,8 +83,8 @@ class Twitter(tweepy.Client):
                 )
                 auth.create_tweet(text=twitmsg)
             except (NameError, tweepy.errors.TweepyException) as err:
-                logger.error(f"ERROR in Twitter Update: {err}")
-                raise TwitterConnectionError(err)
+                logger.exception("ERROR in Twitter Update")
+                raise TwitterConnectionError(err) from err
         else:
             return
 

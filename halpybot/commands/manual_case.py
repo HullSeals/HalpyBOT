@@ -90,7 +90,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
-        logger.error(f"Unable to notify Discord: {err}")
+        logger.exception("Unable to notify Discord.")
 
 
 @Commands.command("tsping", "wssping")
@@ -138,6 +138,6 @@ async def cmd_tsping(ctx: Context, args: List[str]):
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
-        logger.error(f"Unable to notify Discord: {err}")
+        logger.exception("Unable to notify Discord.")
     else:
         return await ctx.reply("Trained Seals ping sent out successfully.")

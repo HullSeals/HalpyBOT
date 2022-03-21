@@ -159,13 +159,16 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
             f"The closest landmark system is {landmark}, {distance} LY {direction} of "
             f"{await sys_cleaner(system)}."
         )
-    except EDSMLookupError as er:
-        if str(er) == f"No major landmark systems within 10,000 ly of {system}.":
+    except EDSMLookupError:
+        if (
+            str(EDSMLookupError)
+            == f"No major landmark systems within 10,000 ly of {system}."
+        ):
             dssa, distance, direction = await checkdssa(
                 edsm_sys_name=system, cache_override=cache_override
             )
             return await ctx.reply(
-                f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
+                f"{EDSMLookupError}\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
                 f"{direction} of {await sys_cleaner(system)}."
             )
         logger.exception("Failed to query EDSM for landmark details.")
@@ -228,7 +231,9 @@ async def cmd_coordslookup(ctx, args: List[str]):
     except ValueError:
         return await ctx.reply("All coordinates must be numeric.")
     try:
-        system, dist = await GalaxySystem.get_nearby(x=xcoord, y=ycoord, z=zcoord)
+        system, dist = await GalaxySystem.get_nearby(
+            x_coord=xcoord, y_coord=ycoord, z_coord=zcoord
+        )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for coordinate details.")
         return await ctx.reply("Failed to query EDSM for coordinate details.")

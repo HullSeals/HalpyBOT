@@ -28,7 +28,7 @@ from ..packages.database import Grafana
 logger = logging.getLogger(__name__)
 logger.addHandler(Grafana)
 
-cache_override = False
+CACHE_OVERRIDE = False
 cardinal_flip = {
     "North": "South",
     "NE": "SW",
@@ -138,11 +138,14 @@ async def lookup(system):
             f"{system} could not be found in EDSM. System closest in name found in EDSM was"
             f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
         )
-    except NoResultsEDSM as er:
-        if str(er) == f"No major landmark systems within 10,000 ly of {system}.":
+    except NoResultsEDSM:
+        if (
+            str(NoResultsEDSM)
+            == f"No major landmark systems within 10,000 ly of {system}."
+        ):
             dssa, distance, direction = await checkdssa(system)
             return (
-                f"{er}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
+                f"{NoResultsEDSM}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
                 f"{system}."
             )
         found_sys, close_sys = await get_nearby_system(sys_name)
@@ -153,15 +156,15 @@ async def lookup(system):
                     f"{system} could not be found in EDSM. System closest in name found in EDSM was"
                     f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                 )
-            except NoResultsEDSM as er:
+            except NoResultsEDSM:
                 if (
-                    str(er)
+                    str(NoResultsEDSM)
                     == f"No major landmark systems within 10,000 ly of {close_sys}."
                 ):
                     dssa, distance, direction = await checkdssa(close_sys)
                     return (
                         f"{sys_name} could not be found in EDSM. System closest in name found in "
-                        f"EDSM was {close_sys}.\n{er}\nThe closest DSSA Carrier is in "
+                        f"EDSM was {close_sys}.\n{NoResultsEDSM}\nThe closest DSSA Carrier is in "
                         f"{dssa}, {distance} LY {direction} of {close_sys}. "
                     )
         return (

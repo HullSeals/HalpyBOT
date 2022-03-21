@@ -17,8 +17,19 @@ import pytest
 import aiohttp
 
 import halpybot.packages.edsm.edsm
-from halpybot.packages.edsm import GalaxySystem, Commander, checkdistance, checkdssa, checklandmarks, NoResultsEDSM, \
-    calc_distance, calc_direction, get_nearby_system, EDSMConnectionError, sys_cleaner
+from halpybot.packages.edsm import (
+    GalaxySystem,
+    Commander,
+    checkdistance,
+    checkdssa,
+    checklandmarks,
+    NoResultsEDSM,
+    calc_distance,
+    calc_direction,
+    get_nearby_system,
+    EDSMConnectionError,
+    sys_cleaner,
+)
 
 
 @pytest.fixture
@@ -180,13 +191,13 @@ async def test_direction():
 # Calculate Direction
 @pytest.mark.asyncio
 async def test_nearby():
-    nearby = await get_nearby_system("Sagittarius A*", cache_override=True)
+    nearby = await get_nearby_system("Sagittarius A*")
     assert nearby == (True, "Sagittarius A*")
 
 
 @pytest.mark.asyncio
 async def test_nearby_extra():
-    nearby = await get_nearby_system("Delkar 3 a", cache_override=True)
+    nearby = await get_nearby_system("Delkar 3 a")
     assert nearby == (True, "Delkar")
 
 

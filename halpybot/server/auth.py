@@ -65,9 +65,8 @@ def authenticate():
             if not hmac.compare_digest(clientmac, mac.hexdigest()):
                 logger.warning("Failed authentication. Bad request body")
                 raise web.HTTPUnprocessableEntity()
-            else:
-                logger.info("Successfully authenticated API request")
-                return await function(request)
+            logger.info("Successfully authenticated API request")
+            return await function(request)
 
         return guarded
 

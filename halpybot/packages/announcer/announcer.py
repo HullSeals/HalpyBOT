@@ -64,8 +64,10 @@ class Announcer:
         """
         self._announcements = {}
         # Load data
-        with open("data/announcer/announcer.json", "r", encoding="UTF-8") as cf:
-            self._config = json.load(cf)
+        with open(
+            "data/announcer/announcer.json", "r", encoding="UTF-8"
+        ) as announcer_json:
+            self._config = json.load(announcer_json)
         # Create announcement objects and store them in dict
         for anntype in self._config["AnnouncerType"]:
             self._announcements[anntype["ID"]] = Announcement(
@@ -98,15 +100,15 @@ class Announcer:
         # noinspection PyBroadException
         # We want to catch everything
         try:
-            for ch in ann.channels:
-                await client.message(ch, await ann.format(args))
+            for channel in ann.channels:
+                await client.message(channel, await ann.format(args))
             if "Platform" in args.keys():
                 try:
                     await TwitterCasesAcc.tweet_case(ann, args)
                 except TwitterConnectionError:
                     return
-        except Exception as ex:
-            raise AnnouncementError(ex)
+        except Exception:
+            raise AnnouncementError(Exception) from Exception
 
 
 class Announcement:
@@ -195,14 +197,14 @@ class Announcement:
                     else f"System cleaner found a matching EDSM system. {sys_name} is {distance} LY "
                     f"{direction} of {landmark}."
                 )
-            except NoResultsEDSM as er:
+            except NoResultsEDSM:
                 if (
-                    str(er)
+                    str(NoResultsEDSM)
                     == f"No major landmark systems within 10,000 ly of {args['System']}."
                 ):
                     dssa, distance, direction = await checkdssa(args["System"])
                     return (
-                        f"No major landmark found within 10,000 LY of the provided system."
+                        "No major landmark found within 10,000 LY of the provided system."
                         if twitter
                         else f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
                     )
@@ -219,16 +221,16 @@ class Announcement:
                             f"System closest in name found in "
                             f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                         )
-                    except NoResultsEDSM as er:
+                    except NoResultsEDSM:
                         if (
-                            str(er)
+                            str(NoResultsEDSM)
                             == f"No major landmark systems within 10,000 ly of {close_sys}."
                         ):
                             dssa, distance, direction = await checkdssa(close_sys)
                             return (
                                 f"Corrected system calculated to be {distance} LY {direction} of {dssa}."
                                 if twitter
-                                else f"\n{er}\nThe closest DSSA Carrier is "
+                                else f"\n{NoResultsEDSM}\nThe closest DSSA Carrier is "
                                 f"in {dssa}, {distance} LY {direction} of {close_sys}. "
                             )
                 return (

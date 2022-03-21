@@ -25,8 +25,8 @@ async def whois(subject):
     )
     try:
 
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             args = (subject, 0, 0, 0, 0, 0, 0)
             # Instead of inline code, we call a stored procedure to put some of this work on the database.
             cursor.callproc("spWhoIs", args)

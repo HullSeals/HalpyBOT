@@ -108,7 +108,7 @@ class GalaxySystem:
         """
         name = await sys_cleaner(name)
         # Check if cached
-        if name in cls._lookupCache.keys() and cache_override is False:
+        if name in cls._lookupCache and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name].time
             cachetime = int(await get_time_seconds(config["EDSM"]["timeCached"]))
@@ -131,13 +131,11 @@ class GalaxySystem:
                 ) as response:
                     responses = await response.json()
 
-        except aiohttp.ClientError as er:
-            logger.error(
-                f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True
-            )
+        except aiohttp.ClientError:
+            logger.exception("EDSM: Error in `system get_info()` lookup.")
             raise EDSMConnectionError(
                 "Unable to verify system, having issues connecting to the EDSM API."
-            )
+            ) from aiohttp.ClientError
 
         # Return None if system doesn't exist
         if len(responses) == 0:
@@ -172,13 +170,13 @@ class GalaxySystem:
         return bool(obj is not None)
 
     @classmethod
-    async def get_nearby(cls, x, y, z):
+    async def get_nearby(cls, x_coord, y_coord, z_coord):
         """Get a nearby system based on coordinates from the EDSM API.
 
         Args:
-            x (str): The subject x coordinate
-            y (str): The subject y coordinate
-            z (str): The subject z coordinate
+            x_coord (str): The subject x coordinate
+            y_coord (str): The subject y coordinate
+            z_coord (str): The subject z coordinate
 
         Returns:
             (tuple): a tuple with the following values:
@@ -198,18 +196,22 @@ class GalaxySystem:
             ) as session:
                 async with await session.get(
                     "https://www.edsm.net/api-v1/sphere-systems",
-                    params={"x": x, "y": y, "z": z, "radius": 100, "minRadius": 1},
+                    params={
+                        "x": x_coord,
+                        "y": y_coord,
+                        "z": z_coord,
+                        "radius": 100,
+                        "minRadius": 1,
+                    },
                     timeout=10,
                 ) as response:
                     responses = await response.json()
 
-        except aiohttp.ClientError as er:
-            logger.error(
-                f"EDSM: Error in `system get_info()` lookup: {er}", exc_info=True
-            )
+        except aiohttp.ClientError:
+            logger.exception("EDSM: Error in `system get_info()` lookup.")
             raise EDSMConnectionError(
                 "Unable to verify system, having issues connecting to the EDSM API."
-            )
+            ) from aiohttp.ClientError
 
         # Return None if system doesn't exist
         if len(responses) == 0:
@@ -271,7 +273,7 @@ class Commander:
         """
 
         # Check if cached
-        if name.strip().upper() in cls._lookupCache.keys() and cache_override is False:
+        if name.strip().upper() in cls._lookupCache and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name.strip().upper()].time
             cachetime = int(await get_time_seconds(config["EDSM"]["timeCached"]))
@@ -289,11 +291,11 @@ class Commander:
                 ) as response:
                     responses = await response.json()
 
-        except (aiohttp.ClientError, KeyError) as er:
-            logger.error(
-                f"EDSM: Error in Commander `get_cmdr()` lookup: {er}", exc_info=True
-            )
-            raise EDSMConnectionError("Error! Unable to get commander info.")
+        except (aiohttp.ClientError, KeyError) as get_cmdr_error:
+            logger.exception("EDSM: Error in Commander `get_cmdr()` lookup.")
+            raise EDSMConnectionError(
+                "Error! Unable to get commander info."
+            ) from get_cmdr_error
         # Return None if cmdr doesn't exist
         if len(responses) == 0 or responses["msgnum"] == 203:
             return None
@@ -545,43 +547,43 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         )
 
 
-def calc_distance(x1, x2, y1, y2, z1, z2):
+def calc_distance(x_coord_1, x_coord_2, y_coord_1, y_coord_2, z_coord_1, z_coord_2):
     """Calculate distance XYZ -> XYZ
 
     Only call this method directly when the coordinates of both points are known. If
     only the point names are known, use `edsm/checkdistance` instead.
 
     Args:
-        x1 (int or float): X-coordinate of point A
-        x2 (int or float): X-coordinate of point B
-        y1 (int or float): Y-coordinate of point A
-        y2 (int or float): Y-coordinate of point B
-        z1 (int or float): Z-coordinate of point A
-        z2 (int or float): Z-coordinate of point B
+        x_coord_1 (int or float): X-coordinate of point A
+        x_coord_2 (int or float): X-coordinate of point B
+        y_coord_1 (int or float): Y-coordinate of point A
+        y_coord_2 (int or float): Y-coordinate of point B
+        z_coord_1 (int or float): Z-coordinate of point A
+        z_coord_2 (int or float): Z-coordinate of point B
 
     Returns:
         (float): Distance between two points
 
     """
-    p1 = np.array([x1, y1, z1])
-    p2 = np.array([x2, y2, z2])
-    squared_dist = np.sum((p1 - p2) ** 2, axis=0)
+    point_1 = np.array([x_coord_1, y_coord_1, z_coord_1])
+    point_2 = np.array([x_coord_2, y_coord_2, z_coord_2])
+    squared_dist = np.sum((point_1 - point_2) ** 2, axis=0)
     dist = np.sqrt(squared_dist)
     dist = np.around(dist, decimals=2)
     return float(dist)
 
 
-async def calc_direction(x1, x2, y1, y2):
+async def calc_direction(x_coord_1, x_coord_2, y_coord_1, y_coord_2):
     """Calculate direction
 
     Uses some Fancy Math™ to determine the approximate
     cardinal direction in 2D space between two points.
 
     Args:
-        x1 (int or float): X-coordinate of point A
-        x2 (int or float): X-coordinate of point B
-        y1 (int or float): Y-coordinate of point A
-        y2 (int or float): Y-coordinate of point B
+        x_coord_1 (int or float): X-coordinate of point A
+        x_coord_2 (int or float): X-coordinate of point B
+        y_coord_1 (int or float): Y-coordinate of point A
+        y_coord_2 (int or float): Y-coordinate of point B
 
     Returns:
         (str): Cardinal direction from A to B, one of the following values:
@@ -597,8 +599,8 @@ async def calc_direction(x1, x2, y1, y2):
 
     """
     # Treat the coordinates like a right triangle - this is Trig that I swore off of after high school.
-    xdeterminer = x2 - x1
-    ydeterminer = y2 - y1
+    xdeterminer = x_coord_2 - x_coord_1
+    ydeterminer = y_coord_2 - y_coord_1
     degrees_temp = math.atan2(xdeterminer, ydeterminer) / math.pi * 180
     # All Coordinates must be Positive.
     if degrees_temp < 0:
@@ -626,7 +628,7 @@ async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
     return coords
 
 
-async def get_nearby_system(sys_name: str, cache_override: bool = False):
+async def get_nearby_system(sys_name: str):
     name_to_check = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
@@ -648,10 +650,8 @@ async def get_nearby_system(sys_name: str, cache_override: bool = False):
                 name_to_check = name_to_check[:-1]
                 if name_to_check[-1] != " ":
                     break
-        except aiohttp.ClientError as er:
-            logger.error(
-                f"EDSM: Error in `get_nearby_system()` lookup: {er}", exc_info=True
-            )
+        except aiohttp.ClientError:
+            logger.exception("EDSM: Error in `get_nearby_system()` lookup.")
     return False, None
 
 

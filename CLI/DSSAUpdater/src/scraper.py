@@ -53,8 +53,8 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
     # Before we do anything else, cram it all into a .csv for Mr. User to do a thing with
     # NOTE: this .csv file is not used for processing the data as is happening a few lines ahead
     # it just exists for your (yes dear reader, YOU!) convenience
-    with open(f"{path}/dssa_{timestamp}.csv", "w") as f:
-        csv.writer(f, quoting=csv.QUOTE_NONNUMERIC).writerows(rows)
+    with open(f"{path}/dssa_{timestamp}.csv", "w", encoding="UTF-8") as dssa_timestamp:
+        csv.writer(dssa_timestamp, quoting=csv.QUOTE_NONNUMERIC).writerows(rows)
         print(f"\nRaw spreadsheet copied into: dssa_{timestamp}.csv")
 
     # Get rid of all rows we don't want to include
@@ -98,7 +98,9 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
         )
 
     # And finally, create a file with all carrier info + any problems that may have arisen
-    with open(f"{path}/carrier_data_{timestamp}.json", "w+") as jsonfile:
+    with open(
+        f"{path}/carrier_data_{timestamp}.json", "w+", encoding="UTF-8"
+    ) as jsonfile:
         json.dump([carriers, {"Issues": anomalies}], jsonfile, indent=4)
         print(f"Carrier data copied to: carrier_data_{timestamp}.json")
 

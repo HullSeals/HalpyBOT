@@ -69,8 +69,8 @@ async def list_topics():
     # List all SNS Topics on the Acct
     try:
         response = sns.list_topics()
-    except boto3.exceptions.Boto3Error as ex:
-        raise SNSError(ex)
+    except boto3.exceptions.Boto3Error as boto_exception:
+        raise SNSError(boto_exception) from boto_exception
     topics = response["Topics"]
     topic_list = []
     for topic in range(len(topics)):
@@ -113,9 +113,9 @@ async def subscribe(topic, endpoint):
 
     try:
         sns.subscribe(TopicArn=topic, Protocol=protocol, Endpoint=endpoint)
-    except boto3.exceptions.Boto3Error as ex:
+    except boto3.exceptions.Boto3Error as boto_exception:
         logger.info(f"NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.")
-        raise SubscriptionError(ex)
+        raise SubscriptionError(boto_exception) from boto_exception
 
 
 async def list_sub_by_topic(topic_arn):
@@ -135,8 +135,8 @@ async def list_sub_by_topic(topic_arn):
     """
     try:
         response = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
-    except boto3.exceptions.Boto3Error as ex:
-        raise SNSError(ex)
+    except boto3.exceptions.Boto3Error as boto_exception:
+        raise SNSError(boto_exception) from boto_exception
     subscriptions = response["Subscriptions"]
     sublist = []
     for sub in range(len(subscriptions)):
@@ -160,5 +160,5 @@ async def send_notification(topic, message, subject):
     """
     try:
         sns.publish(TopicArn=topic, Message=message, Subject=subject)
-    except boto3.exceptions.Boto3Error as ex:
-        raise NotificationFailure(ex)
+    except boto3.exceptions.Boto3Error as boto_exception:
+        raise NotificationFailure(boto_exception) from boto_exception

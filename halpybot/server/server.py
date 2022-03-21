@@ -15,7 +15,6 @@ import logging
 from typing import Type, Union
 from datetime import datetime
 import git
-import aiohttp.web
 from aiohttp.web import Request, StreamResponse
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
@@ -35,8 +34,8 @@ class HalpyServer(web.Application):
     async def _log_request(request: Request, success: bool):
         # Log to the online dashboard
         try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
+            with DatabaseConnection() as database_connection:
+                cursor = database_connection.cursor()
                 cursor.callproc(
                     "spCreateAPIConnRequest",
                     [
@@ -107,7 +106,7 @@ class HalpyServer(web.Application):
             response = await super()._handle(request)
             successful = True
             return response
-        except aiohttp.web.HTTPError as ex:
+        except web.HTTPError as ex:
             successful = False
             return ex
         finally:

@@ -39,8 +39,8 @@ class DelayedCase:
         message = strip_non_ascii(message)
         in_args = [int(status), str(message[0]), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.callproc("spCreateDelayedCase", in_args)
             for result in cursor.stored_results():
                 out_args.append(result.fetchall())
@@ -71,8 +71,8 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.callproc("spReopenDelayedCase", in_args)
             for result in cursor.stored_results():
                 out_args.append(result.fetchall())
@@ -102,8 +102,8 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.callproc("spUpdateStatusDelayedCase", in_args)
             for result in cursor.stored_results():
                 out_args.append(result.fetchall())
@@ -133,8 +133,8 @@ class DelayedCase:
         message = strip_non_ascii(message)
         in_args = [int(case_id), str(message[0]), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.callproc("spUpdateMsgDelayedCase", in_args)
             for result in cursor.stored_results():
                 out_args.append(result.fetchall())
@@ -155,8 +155,8 @@ class DelayedCase:
         """
         # Set default value
         result = None
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.execute(
                 "SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2);"
             )

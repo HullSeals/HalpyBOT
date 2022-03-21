@@ -12,7 +12,15 @@ See license.md
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
 import pytest
-from halpybot.packages.checks import *
+from halpybot.packages.checks import (
+    Pup,
+    Drilled,
+    Moderator,
+    Admin,
+    Cyberseal,
+    Cybermgr,
+    Owner,
+)
 from halpybot.packages.models import User
 
 

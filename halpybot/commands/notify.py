@@ -24,7 +24,7 @@ NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
 
 # Set default value. This was originally Null but pylint didn't like that. Epoch gang!
-timer = 0
+TIMER = 0
 
 
 @NotifyInfo.command("groups")
@@ -166,13 +166,13 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
 
 
 async def format_notification(notify_type, group, sender, message):
-    global timer
+    global TIMER
     # Check if last staff call was < 5 min ago
-    if timer != 0 and time.time() < timer + int(
+    if TIMER != 0 and time.time() < TIMER + int(
         await get_time_seconds(config["Notify"]["timer"])
     ):
         return "Someone already called less than 5 minutes ago. hang on, staff is responding."
-    timer = time.time()
+    TIMER = time.time()
     subject = f"HALPYBOT: {notify_type} Used"
     topic = config["Notify"][f"{group}"]
     message = " ".join(message)

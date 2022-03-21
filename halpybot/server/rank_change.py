@@ -32,8 +32,8 @@ async def tail(request):
     subject = request["subject"]
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.execute(
                 "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,)
             )
@@ -42,7 +42,7 @@ async def tail(request):
                 await botclient.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:
-        raise web.HTTPServiceUnavailable
+        raise web.HTTPServiceUnavailable from NoDatabaseConnection
 
 
 APIConnector.add_routes(routes)

@@ -12,11 +12,17 @@ See license.md
 
 from __future__ import annotations
 from typing import List
+import logging
 import json
 import pydle
-
+from ..database import Grafana
 from ..configmanager import config
 from ..models import Context
+
+
+logger = logging.getLogger(__name__)
+logger.addHandler(Grafana)
+
 
 with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
     json_dict = json.load(jsonfile)
@@ -139,8 +145,9 @@ class CommandGroup:
                     return await self.invoke_command(
                         command=command, command_context=ctx, arguments=args
                     )
-                except CommandException as er:
-                    await ctx.reply(f"Unable to execute command: {str(er)}")
+                except CommandException:
+                    logger.exception("Failed to invoke the command!")
+                    await ctx.reply("Unable to execute command.")
 
             # Possible fact
 
@@ -228,7 +235,7 @@ class CommandGroup:
 
 
         """
-        if name in self._commandList.keys():
+        if name in self._commandList:
             raise CommandAlreadyExists
         self._commandList[name] = (function, main)
 
@@ -275,8 +282,8 @@ class CommandGroup:
         else:
             try:
                 await cmd(command_context, arguments)
-            except Exception as er:
-                raise CommandException(er)
+            except Exception:
+                raise CommandException(Exception) from Exception
 
     def get_commands(self, mains: bool = False):
         """Get a list of registered commands in a group

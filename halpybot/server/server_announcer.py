@@ -33,7 +33,7 @@ async def announce(request):
         await MainAnnouncer.announce(announcement=announcement, args=args)
         raise web.HTTPOk
     except AnnouncementError:
-        raise web.HTTPInternalServerError
+        raise web.HTTPInternalServerError from AnnouncementError
 
 
 MainAnnouncer = Announcer()

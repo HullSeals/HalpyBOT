@@ -149,8 +149,8 @@ class Fact:
         if self._offline:
             raise FactUpdateError
         try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
+            with DatabaseConnection() as database_connection:
+                cursor = database_connection.cursor()
                 args = (
                     self._name,
                     self._lang.lower(),
@@ -169,7 +169,7 @@ class Fact:
             raise FactUpdateError(
                 "Fact was probably updated locally but could "
                 "not be uploaded to the database."
-            )
+            ) from NoDatabaseConnection
 
 
 class FactHandler:
@@ -196,7 +196,7 @@ class FactHandler:
             (`Fact` or None) Fact object if exists, else None
 
         """
-        if (name, lang) in self._factCache.keys():
+        if (name, lang) in self._factCache:
             return self._factCache[name, lang]
         return None
 
@@ -220,25 +220,27 @@ class FactHandler:
 
     async def _from_database(self):
         """Get facts from database and update the cache"""
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.execute(
                 f"SELECT factID, factName, factLang, factText, factAuthor "
                 f"FROM {config['Facts']['table']}"
             )
             self._flush_cache()
-            for (ID, Name, Lang, Text, Author) in cursor:
-                self._factCache[Name, Lang] = Fact(int(ID), Name, Lang, Text, Author)
+            for (fact_id, fact_name, fact_lang, fact_text, fact_author) in cursor:
+                self._factCache[fact_name, fact_lang] = Fact(
+                    int(fact_id), fact_name, fact_lang, fact_text, fact_author
+                )
 
     async def _from_local(self):
         """Get facts from local backup file and update the cache"""
-        with open("data/facts/backup_facts.json") as jsonfile:
+        with open("data/facts/backup_facts.json", encoding="UTF-8") as jsonfile:
             backupfile = json.load(jsonfile)
         self._flush_cache()
         for fact in backupfile.keys():
             # Get lang and fact. This is stupid, just ignore
             if "-" in fact:
-                factname = str(fact).split("-")[0]
+                factname = str(fact).split("-", maxsplit=1)[0]
                 lang = str(fact).split("-", maxsplit=1)[0]
             else:
                 factname = fact
@@ -271,7 +273,7 @@ class FactHandler:
             FactUpdateError: Fact was added, but cache could not be updated.
 
         """
-        if name in Commands.command_list.keys():
+        if name in Commands.command_list:
             raise InvalidFactException("This fact is already an existing command")
         # Check if we have an English fact:
         if not await self.get(name) and lang.lower() != "en":
@@ -280,8 +282,8 @@ class FactHandler:
             )
         if (name, lang) in self._factCache:
             raise InvalidFactException("This fact already exists.")
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.execute(
                 f"INSERT INTO {config['Facts']['table']} "
                 f"(factName, factLang, factText, factAuthor) "
@@ -304,7 +306,7 @@ class FactHandler:
 
         """
         langlist = []
-        for fact in self._factCache.keys():
+        for fact in self._factCache:
             if fact[0] == name:
                 langlist.append(fact[1])
         return langlist
@@ -320,7 +322,7 @@ class FactHandler:
 
         """
         namelist = []
-        for fact in self._factCache.keys():
+        for fact in self._factCache:
             if fact[0] in namelist:
                 pass
             else:
@@ -346,8 +348,8 @@ class FactHandler:
                 "Cannot delete English fact if other languages "
                 "are registered for that fact name."
             )
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.execute(
                 f"DELETE FROM {config['Facts']['table']} WHERE factID = %s",
                 (self._factCache[name, lang].ID,),
@@ -369,7 +371,7 @@ class FactHandler:
         if not lang:
             return list(self._factCache.keys())
         langlist = []
-        for fact in self._factCache.keys():
+        for fact in self._factCache:
             if fact[1].lower() == lang.lower():
                 langlist.append(fact[0])
         return langlist

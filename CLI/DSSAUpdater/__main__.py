@@ -25,7 +25,7 @@ from src import DSSACarrier, scrape_spreadsheet
 config = configparser.ConfigParser()
 config.read("DSSAUpdater/config.ini")
 
-link = (
+SHEET_LINK = (
     "https://docs.google.com/spreadsheets/d/e/2PACX-"
     "1vTevQUcLThqo4emXE4nowJeasI07gFio4fETwevAXKIA18NhlDzbnZzRMVUOAT26OROfHG7fCXvTLgY/pubhtml?gid=0&single=true"
 )
@@ -50,25 +50,28 @@ def run():
     carriers_good = []
     carriers_bad = []
     needs_manual = []
-    carrierdata = None  # Happy now, pylint?
 
     # Get data from the scraper
     try:
         carrierdata, issues = scrape_spreadsheet(
-            path=config["Standalone"]["path"], sheetlink=link, timestamp=timestamp
+            path=config["Standalone"]["path"], sheetlink=SHEET_LINK, timestamp=timestamp
         )
     except FileNotFoundError:
         print(
             "Error: This isn't a directory I can access, are you running a relative dir?"
         )
         sys.exit()
-    except Exception as er:
-        print(f"Oops, that was an error: {er}. Contact Rik if the issue persists")
+    except Exception:
+        print(
+            f"Oops, that was an error: {Exception}. Contact Rik if the issue persists"
+        )
         sys.exit()
 
     # Make sure we are committed to throwing 90+ queries at EDSM
-    go = input("\nEDSM querying is about to start, do you wish to proceed? (Y/n) ")
-    if go.upper() != "Y":
+    edsm_confirm = input(
+        "\nEDSM querying is about to start, do you wish to proceed? (Y/n) "
+    )
+    if edsm_confirm.upper() != "Y":
         print(
             "Aborted. Carrrier info- and CSV files have already been created, don't forget to delete them!"
         )
@@ -101,15 +104,17 @@ def run():
         )
         print("---")
         sys.exit()
-    except Exception as er:
-        print(f"Uh oh, something went wrong while receiving EDSM data: {er}")
+    except Exception:
+        print(f"Uh oh, something went wrong while receiving EDSM data: {Exception}")
 
     # Write it to the file
     carriers = (
         carriers_good + carriers_bad
     )  # This ensures that the carriers with no coordinates will be printed last
     with open(
-        f"{config['Standalone']['path']}/COORDINATES_{timestamp}.json", "w+"
+        f"{config['Standalone']['path']}/COORDINATES_{timestamp}.json",
+        "w+",
+        encoding="UTF-8",
     ) as jsonfile:
         json.dump(carriers, jsonfile, indent=4)
 

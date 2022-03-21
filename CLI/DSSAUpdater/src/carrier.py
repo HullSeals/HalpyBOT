@@ -166,7 +166,7 @@ class DSSACarrier:
         except requests.exceptions.RequestException:
             raise EDSMLookupError(
                 "Unable to verify system, having issues connecting to the EDSM API."
-            )
+            ) from requests.exceptions.RequestException
 
         # Return None if system doesn't exist
         if len(responses) == 0:

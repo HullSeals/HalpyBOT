@@ -10,10 +10,10 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import mysql.connector
 import logging
 import time
 import asyncio
+import mysql.connector
 from mysql.connector import MySQLConnection
 
 from ..configmanager import config_write, config
@@ -29,8 +29,8 @@ class GrafanaHandler(logging.Handler):
     @staticmethod
     async def _upload_log(name: str, prio: int, msg: str) -> None:
         try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
+            with DatabaseConnection() as database_connection:
+                cursor = database_connection.cursor()
                 cursor.callproc("spCreateHalpyErrLog", [name, prio, msg])
         except NoDatabaseConnection:
             # TODO stash DB call and execute once we get back to online mode
@@ -83,14 +83,14 @@ class DatabaseConnection(MySQLConnection):
                 self.autocommit = autocommit
                 logger.info("Connection established.")
                 break
-            except mysql.connector.Error as er:
-                logger.error(f"Unable to connect to DB, attempting a reconnect: {er}")
+            except mysql.connector.Error as mysql_error:
+                logger.exception(f"Unable to connect to DB, attempting a reconnect.")
                 # And we do the same for when the connection fails
                 if _ == 2:
                     logger.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")
                     # Set offline mode, can only be removed by restart
                     config_write("Offline Mode", "enabled", "True")
-                    raise NoDatabaseConnection
+                    raise NoDatabaseConnection from mysql_error
                 continue
 
     def __enter__(self):
@@ -108,9 +108,9 @@ async def latency():
 
     """
     get_query = "SELECT 'latency';"
-    db = DatabaseConnection()
-    cursor = db.cursor()
+    database_connection = DatabaseConnection()
+    cursor = database_connection.cursor()
     cursor.execute(get_query)
-    db.close()
+    database_connection.close()
     end = time.time()
     return end

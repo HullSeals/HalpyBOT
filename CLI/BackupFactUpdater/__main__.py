@@ -29,7 +29,7 @@ UPDATE: Nope -_-
 
 hours_wasted_trying_to_understand_why = 10
 
-jsonpath = "data/facts/backup_facts.json"
+JSON_PATH = "data/facts/backup_facts.json"
 
 config = configparser.ConfigParser()
 config.read("BackupFactUpdater/config.ini")
@@ -63,7 +63,7 @@ def run():
     table = input("What DB table do you wish to fetch the facts from? ")
     print(f"0% Starting update from {table}. Please stand by...")
     try:
-        with open(jsonpath, "r") as jsonfile:
+        with open(JSON_PATH, "r", encoding="UTF-8") as jsonfile:
             print("20% Opening backup file...")
             resdict = json.load(jsonfile)
         database_connection = mysql.connector.connect(**dbconfig)
@@ -71,11 +71,11 @@ def run():
         cursor = database_connection.cursor()
         cursor.execute(f"SELECT factName, factLang, factText FROM {table}")
         print("60% Got data, parsing...")
-        for (Name, Lang, Text) in cursor:
-            resdict[f"{Name}-{Lang}"] = Text
+        for (name, lang, text) in cursor:
+            resdict[f"{name}-{lang}"] = text
         database_connection.close()
         print("80% Writing to file...")
-        with open(jsonpath, "w+") as jsonfile:
+        with open(JSON_PATH, "w+", encoding="UTF-8") as jsonfile:
             json.dump(resdict, jsonfile, indent=4)
             print(
                 "100% Done. Confirm that the update was successful, and have a great day!"

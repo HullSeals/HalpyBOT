@@ -21,7 +21,7 @@ def language_codes():
         (dict): A dictionary {2 letter abbreviation: name}
 
     """
-    with open("data/languages/iso639-1.json") as file:
+    with open("data/languages/iso639-1.json", encoding="UTF-8") as file:
         langs = json.load(file)
         return langs
 
@@ -63,7 +63,7 @@ async def get_time_seconds(time: str):
     res = pattern.search(time)
     counter = 0
     conversion_table = {"hour": 3600, "minutes": 60, "seconds": 1}
-    for unit in conversion_table.keys():
+    for unit in conversion_table:
         value = int(res.group(unit))
         counter += value * conversion_table[unit]
     return str(counter)

@@ -89,7 +89,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         try:
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
         except NoDatabaseConnection:
-            logger.error(
+            logger.exception(
                 "Could not fetch facts from DB, backup file loaded and entering OM"
             )
         for channel in config["Channels"]["channellist"].split():
@@ -170,7 +170,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         await super().join(channel, password)
         if channel not in config["Channels"]["channellist"].split():
             config["Channels"]["channellist"] += f" {channel}"
-            with open("config/config.ini", "w") as conf:
+            with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
 
     async def part(self, channel, message=None):
@@ -186,7 +186,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         if channel in chlist:
             chlist.remove(channel)
             config["Channels"]["channellist"] = " ".join(chlist)
-            with open("config/config.ini", "w") as conf:
+            with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
 
 

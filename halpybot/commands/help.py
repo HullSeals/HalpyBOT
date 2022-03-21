@@ -11,8 +11,8 @@ See license.md
 """
 
 import json
-import git
 from typing import List
+import git
 from halpybot import __version__
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context

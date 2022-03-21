@@ -104,5 +104,4 @@ async def cmd_rrjoin(ctx: Context, args: List[str]):
 
     if "#repair-requests" in channels:
         return await ctx.reply(f"{str(args[0])} forced to join #Repair-Requests")
-    else:
-        return await ctx.reply(f"Oh noes! something went wrong, contact a cyberseal!")
+    return await ctx.reply("Oh noes! something went wrong, contact a cyberseal!")

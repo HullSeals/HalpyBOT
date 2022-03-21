@@ -95,8 +95,8 @@ def log_unauthorized(
 
     """
     try:
-        with DatabaseConnection() as db:
-            cursor = db.cursor()
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
             cursor.callproc(
                 "spCreateUnauthCmdAccess",
                 [user, channel, command, " ".join(args), required, provided],
@@ -201,8 +201,7 @@ class Require:
                     return await ctx.reply(
                         "You have to run this command in a channel! Aborted."
                     )
-                else:
-                    return await function(ctx, args)
+                return await function(ctx, args)
 
             return guarded
 
