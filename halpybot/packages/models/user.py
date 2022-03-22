@@ -23,7 +23,7 @@ See license.md
 
 
 from __future__ import annotations
-from typing import Union, Optional
+from typing import Optional
 from dataclasses import dataclass
 import pydle
 
@@ -73,9 +73,7 @@ class User:
         return None
 
     @classmethod
-    # FIXME this should be Optional[str], but I don't want to touch it now since I don't
-    # have time to test
-    def process_vhost(cls, vhost: Union[str, None]) -> Optional[str]:
+    def process_vhost(cls, vhost: Optional[str]) -> Optional[str]:
         """Get a users vhost-role
 
         Format <role>.hullseals.space

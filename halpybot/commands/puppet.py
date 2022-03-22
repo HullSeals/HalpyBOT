@@ -27,6 +27,6 @@ async def cmd_say(ctx: Context, args: List[str]):
     Usage: !say [channel] [text]
     Aliases: n/a
     """
-    if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
+    if len(args) <= 1:  # Minimum Number of Args is 2.
         return await ctx.reply(get_help_text("say"))
     await ctx.bot.message(str(args[0]), " ".join(args[1:]))

@@ -152,7 +152,7 @@ async def cmd_update_delayed_status(ctx: Context, args: List[str]):
     if len(args) < 1 or not args[0].isnumeric():
         return await ctx.reply("Cannot comply: no valid case number was provided.")
 
-    if len(args) < 2 or args[1] not in "12":
+    if len(args) < 2 or args[1] not in ["1", "2"]:
         return await ctx.reply("Cannot comply: please set a valid status code")
 
     case_id = int(args[0])

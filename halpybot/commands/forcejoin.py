@@ -29,7 +29,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     Usage: !forcejoin [user] [channel]
     Aliases: n/a
     """
-    if len(args) == 0 or len(args) == 1:
+    if len(args) <= 1:
         return await ctx.reply(get_help_text("forcejoin"))
 
     # Convert channel name to lower case to avoid issues with the already-in-channel check
