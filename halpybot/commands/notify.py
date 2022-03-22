@@ -69,7 +69,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
     Aliases: notifyinfo endpoints
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("notifyinfo"))
+        return await ctx.reply(get_help_text("notifyinfo details"))
 
     group = args[0].lower().strip()
 

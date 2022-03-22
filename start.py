@@ -15,7 +15,6 @@ See license.md
 
 import asyncio
 from logging import Handler, basicConfig, getLevelName
-import inspect
 import sys
 import threading
 from os import path, mkdir

@@ -11,6 +11,7 @@ See license.md
 """
 from typing import List
 
+import halpybot.packages.announcer.announcer
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context
@@ -25,16 +26,6 @@ from ..packages.edsm import (
 
 
 CACHE_OVERRIDE = False
-cardinal_flip = {
-    "North": "South",
-    "NE": "SW",
-    "East": "West",
-    "SE": "NW",
-    "South": "North",
-    "SW": "NE",
-    "West": "East",
-    "NW": "SE",
-}
 
 
 @Commands.command("drillcase")
@@ -136,7 +127,7 @@ async def lookup(system):
         exact_sys = sys_name == system
         landmark, distance, direction = await checklandmarks(sys_name)
         # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
-        direction = cardinal_flip[direction]
+        direction = halpybot.packages.announcer.announcer.cardinal_flip[direction]
         if exact_sys:
             return f"System exists in EDSM, {distance} LY {direction} of {landmark}."
         return (

@@ -15,13 +15,13 @@ import os
 import signal
 from typing import Optional
 import pydle
+from loguru import logger
 from .. import notify
 from ..configmanager import config_write, config
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import Facts
 from ..database import NoDatabaseConnection
-from loguru import logger
 
 
 pool = pydle.ClientPool()
