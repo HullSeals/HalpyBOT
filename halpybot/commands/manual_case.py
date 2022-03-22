@@ -11,18 +11,14 @@ See license.md
 """
 
 from typing import List
-import logging
 import datetime
+from loguru import logger
 import aiohttp
 from halpybot import DEFAULT_USER_AGENT
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context, User
 from ..packages.configmanager import config
-from ..packages.database import Grafana
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
@@ -35,7 +31,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     Usage: !manualcase [IRC name] [case info]
     Aliases: mancase, manualfish, manfish
     """
-    if len(args) == 0 or len(args) == 1:
+    if len(args) <= 1:
         return await ctx.reply(get_help_text("mancase"))
 
     # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
@@ -47,7 +43,9 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
         return await ctx.reply(get_help_text("mancase"))
 
     info = ctx.message
-    logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
+    logger.info(
+        "Manual case by {sender} in {channel}", sender=ctx.sender, channel=ctx.channel
+    )
     for channel in config["Manual Case"]["send_to"].split():
         await ctx.bot.message(
             channel, f"xxxx MANCASE -- NEWCASE xxxx\n{info}\nxxxxxxxx"

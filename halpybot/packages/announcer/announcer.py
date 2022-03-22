@@ -13,7 +13,6 @@ See license.md
 
 from __future__ import annotations
 import json
-import logging
 from typing import List, Dict, Optional
 import pydle
 
@@ -26,11 +25,8 @@ from ..edsm import (
     sys_cleaner,
 )
 from ..ircclient import client
-from ..database import Grafana
 from .twitter import TwitterCasesAcc, TwitterConnectionError
 
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 cardinal_flip = {
     "North": "South",

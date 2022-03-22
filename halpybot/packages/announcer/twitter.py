@@ -10,15 +10,10 @@ Licensed under the GNU General Public License
 See license.md
 
 """
-import logging
+from loguru import logger
 import tweepy
 
 from ..configmanager import config
-from ..database import Grafana
-
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 class TweetError(Exception):

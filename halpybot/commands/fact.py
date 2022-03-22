@@ -10,8 +10,8 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import logging
 from typing import List, Optional
+from loguru import logger
 
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
@@ -27,7 +27,6 @@ from ..packages.database import NoDatabaseConnection
 from ..packages.utils import language_codes, strip_non_ascii
 from ..packages.configmanager import config
 
-logger = logging.getLogger(__name__)
 
 langcodes = language_codes()
 

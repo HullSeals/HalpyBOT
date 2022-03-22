@@ -12,14 +12,11 @@ See license.md
 
 import functools
 from typing import List
-import logging
+from loguru import logger
 
 from ..models import User
 from ..configmanager import config
-from ..database import DatabaseConnection, NoDatabaseConnection, Grafana
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
+from ..database import DatabaseConnection, NoDatabaseConnection
 
 
 class Permission:
@@ -102,9 +99,7 @@ def log_unauthorized(
                 [user, channel, command, " ".join(args), required, provided],
             )
     except NoDatabaseConnection:
-        logging.exception("Incident not logged in the database!")
-        # TODO stash DB call and execute once we get back to online mode
-        pass
+        logger.exception("Incident not logged in the database!")
 
 
 class Require:
@@ -135,9 +130,12 @@ class Require:
                 if vhost is None:
                     await ctx.reply(role.msg if message is None else message)
                     logger.warning(
-                        f"Permission error: {ctx.sender}!@{whois.hostname} used "
-                        f"{ctx.command} (Req: {required_level}) in "
-                        f"{ctx.channel}."
+                        "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
+                        sender=ctx.sender,
+                        host=whois.hostname,
+                        command=ctx.command,
+                        req=required_level,
+                        channel=ctx.channel,
                     )
                     return log_unauthorized(
                         user=f"{ctx.sender}!@{whois.hostname}",
@@ -156,9 +154,12 @@ class Require:
                     await ctx.reply(role.msg if message is None else message)
                     # Log it and send off for the dashboard
                     logger.warning(
-                        f"Permission error: {ctx.sender}!@{whois.hostname} used "
-                        f"{ctx.command} (Req: {required_level}) in "
-                        f"{ctx.channel}."
+                        "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
+                        sender=ctx.sender,
+                        host=whois.hostname,
+                        command=ctx.command,
+                        req=required_level,
+                        channel=ctx.channel,
                     )
                     return log_unauthorized(
                         user=f"{ctx.sender}!@{whois.hostname}",

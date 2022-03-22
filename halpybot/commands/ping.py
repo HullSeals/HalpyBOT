@@ -12,17 +12,14 @@ See license.md
 
 import time
 from typing import List
-import logging
+from loguru import logger
 import aiohttp
 from halpybot import DEFAULT_USER_AGENT
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
-from ..packages.database import latency, NoDatabaseConnection, Grafana
+from ..packages.database import latency, NoDatabaseConnection
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 @Commands.command("ping")
@@ -95,7 +92,6 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
             ) as response:
                 responses = await response.json()
     except aiohttp.ClientError:
-        logging.exception("aiohttp has encountered an error.")
         logger.exception("Error in Elite Server Status lookup.")
         raise EDSMConnectionError(
             "Unable to verify Elite Status, having issues connecting to the Elite API."

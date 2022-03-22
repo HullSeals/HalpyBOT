@@ -14,11 +14,12 @@ See license.md
 """
 
 import asyncio
-import datetime
-import logging.handlers
+from logging import Handler, basicConfig, getLevelName
+import inspect
 import sys
 import threading
 from os import path, mkdir
+from loguru import logger
 
 from aiohttp import web
 from halpybot import commands  # No, this isn't unused. We need this.
@@ -26,10 +27,12 @@ from halpybot.packages.configmanager import config
 from halpybot.packages.ircclient import pool, client
 from halpybot.server import APIConnector
 
+# Configure Logging File Name and Levels
 logFile: str = config["Logging"]["log_file"]
 CLI_level = config["Logging"]["cli_level"]
 file_level = config["Logging"]["file_level"]
 
+# Attempt to create log folder and path if it doesn't exist
 try:
     logFolder = path.dirname(logFile)
     if not path.exists(logFolder):
@@ -38,32 +41,38 @@ except PermissionError:
     print("Unable to create log folder. Does this user have appropriate permissions?")
     sys.exit()
 
-formatter = logging.Formatter("%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s")
-
-CLI_handler = logging.StreamHandler()
-CLI_handler.setLevel(CLI_level)
-
-# Will rotate log files every monday at midnight and keep at most 12 files,
-# deleting the oldest, meaning logs are retained for 12 weeks (3 months)
-# noinspection PyTypeChecker
-file_handler = logging.handlers.TimedRotatingFileHandler(
-    filename=logFile,
-    when="w0",
-    interval=14,
-    backupCount=12,
-    utc=True,
-    atTime=datetime.time(),
+# Set the log format
+FORMATTER = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra} | <cyan>{"
+    "name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level> "
 )
-file_handler.setLevel(file_level)
 
-CLI_handler.setFormatter(formatter)
-file_handler.setFormatter(formatter)
 
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
+class InterceptHandler(Handler):
+    def emit(self, record):
+        # Intercepts standard logging messages for the purpose of sending them to loguru
+        logger_opt = logger.opt(depth=1, exception=record.exc_info)
+        logger_opt.log(getLevelName(record.levelno), record.getMessage())
 
-root.addHandler(CLI_handler)
-root.addHandler(file_handler)
+
+# Hook logging intercept
+basicConfig(handlers=[InterceptHandler()], level=0)
+
+# Remove default logger
+logger.remove()
+
+# Addd File Logger
+logger.add(
+    logFile,
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+)
+
+# Add CLI Logger
+logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
 
 
 def _start_bot():

@@ -13,16 +13,11 @@ See license.md
 
 import os
 import signal
-import logging
 from typing import List
-
+from loguru import logger
 from ..packages.checks import Require, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
-from ..packages.database import Grafana
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 @Commands.command("shutdown", "restart", "sealpukku", "reboot")
@@ -35,6 +30,6 @@ async def cmd_shutdown(ctx: Context, args: List[str]):
     Usage: !shutdown
     Aliases: !reboot
     """
-    logger.critical(f"Shutdown has been ordered by {ctx.sender}")
+    logger.critical("Shutdown has been ordered by {sender}", sender=ctx.sender)
     await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
     os.kill(os.getpid(), signal.SIGTERM)

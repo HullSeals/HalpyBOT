@@ -11,9 +11,9 @@ See license.md
 
 """
 import asyncio
-import logging
 from typing import Type, Union
 from datetime import datetime
+from loguru import logger
 import git
 from aiohttp.web import Request, StreamResponse
 from aiohttp import web
@@ -21,10 +21,8 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNot
 from halpybot import __version__, DEFAULT_USER_AGENT
 from ..packages.configmanager import config
 from ..packages.ircclient import client as botclient
-from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
+from ..packages.database import DatabaseConnection, NoDatabaseConnection
 
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 routes = web.RouteTableDef()
 
@@ -57,9 +55,7 @@ class HalpyServer(web.Application):
                     ],
                 )
         except NoDatabaseConnection:
-            logging.exception("Incident not logged in the database!")
-            # TODO: stash call and run later when reconnected
-            pass
+            logger.exception("Connection attempt not logged in the database!")
 
     async def __filter_request(
         self, request: Request
@@ -101,7 +97,8 @@ class HalpyServer(web.Application):
             request_error = await self.__filter_request(request)
             if request_error is not None:
                 logger.info(
-                    f"Invalid request submitted by {request.host} not processed"
+                    "Invalid request submitted by {host} not processed",
+                    host=request.host,
                 )
                 raise request_error
             response = await super()._handle(request)

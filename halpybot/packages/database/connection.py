@@ -10,38 +10,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import logging
 import time
-import asyncio
 import mysql.connector
 from mysql.connector import MySQLConnection
-
+from loguru import logger
 from ..configmanager import config_write, config
-
-
-class GrafanaHandler(logging.Handler):
-    def emit(self, record: logging.LogRecord) -> None:
-        if record.levelno > 40:
-            asyncio.ensure_future(
-                self._upload_log(record.filename, record.levelno, record.msg)
-            )
-
-    @staticmethod
-    async def _upload_log(name: str, prio: int, msg: str) -> None:
-        try:
-            with DatabaseConnection() as database_connection:
-                cursor = database_connection.cursor()
-                cursor.callproc("spCreateHalpyErrLog", [name, prio, msg])
-        except NoDatabaseConnection:
-            logging.exception("Incident not logged in the database!")
-            # TODO stash DB call and execute once we get back to online mode
-            pass
-
-
-Grafana = GrafanaHandler()
-
-
-logger = logging.getLogger(__name__)
 
 
 dbconfig = {
@@ -85,7 +58,7 @@ class DatabaseConnection(MySQLConnection):
                 logger.info("Connection established.")
                 break
             except mysql.connector.Error as mysql_error:
-                logger.exception(f"Unable to connect to DB, attempting a reconnect.")
+                logger.exception("Unable to connect to DB, attempting a reconnect.")
                 # And we do the same for when the connection fails
                 if _ == 2:
                     logger.error("ABORTING CONNECTION - CONTINUING IN OFFLINE MODE")

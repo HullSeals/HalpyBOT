@@ -10,7 +10,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
-import logging
 
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
@@ -23,10 +22,7 @@ from ..packages.edsm import (
     NoResultsEDSM,
     get_nearby_system,
 )
-from ..packages.database import Grafana
 
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 CACHE_OVERRIDE = False
 cardinal_flip = {

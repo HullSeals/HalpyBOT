@@ -15,14 +15,13 @@ Special thanks to TheUnkn0wn1 for his assistance on this module! - https://githu
 from __future__ import annotations
 
 import typing
-import logging
 import math
 import asyncio
 from pathlib import Path
 import json
 from time import time
 from typing import Optional, Union
-
+from loguru import logger
 import aiohttp
 import numpy as np
 import cattr
@@ -32,10 +31,6 @@ from ..models import Coordinates, Location
 from ..models import edsm_classes
 from ..utils import get_time_seconds
 from ..configmanager import config
-from ..database import Grafana
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 class EDSMLookupError(Exception):
@@ -726,9 +721,14 @@ async def sys_cleaner(sys_name: str):
             sys_name = " ".join(sys_name_parts)
     except IndexError:
         logger.info(
-            f"System cleaner thought {sys_name} was proc-gen and could not correct formatting"
+            "System cleaner thought {sys_name} was proc-gen and could not correct formatting",
+            sys_name=sys_name,
         )
         return sys_name.strip()
 
-    logger.debug(f"System cleaner produced {sys_name} from {orig_sys}")
+    logger.debug(
+        "System cleaner produced {sys_name} from {orig_sys}",
+        sys_name=sys_name,
+        orig_sys=orig_sys,
+    )
     return sys_name.strip()

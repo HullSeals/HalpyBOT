@@ -10,10 +10,9 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import logging
 import configparser
+from loguru import logger
 
-logger = logging.getLogger(__name__)
 
 config = configparser.ConfigParser()
 config.read("config/config.ini")
@@ -40,7 +39,7 @@ def config_write(module: str, key: str, value):
         value (str): New value
 
     """
-    logger.info(f"{module}, {key} set to {value}")
+    logger.info("{module}, {key} set to {value}", module=module, key=key, value=value)
     config[module][key] = value
     try:
         with open("config/config.ini", "w", encoding="UTF-8") as conf:

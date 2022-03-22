@@ -12,16 +12,11 @@ See license.md
 
 from __future__ import annotations
 from typing import List
-import logging
 import json
 import pydle
-from ..database import Grafana
+from loguru import logger
 from ..configmanager import config
 from ..models import Context
-
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:

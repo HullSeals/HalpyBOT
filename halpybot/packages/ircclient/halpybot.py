@@ -10,22 +10,19 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import logging
 import asyncio
 import os
 import signal
 from typing import Optional
-
 import pydle
 from .. import notify
 from ..configmanager import config_write, config
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import Facts
-from ..database import NoDatabaseConnection, Grafana
+from ..database import NoDatabaseConnection
+from loguru import logger
 
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 pool = pydle.ClientPool()
 
@@ -211,7 +208,7 @@ async def crash_notif(crashtype, condition):
         Nothing.
     """
     if config.getboolean("System Monitoring", "failure_button"):
-        logging.critical(
+        logger.critical(
             "HalpyBOT has failed, but this incident has already been reported."
         )
     else:
@@ -223,8 +220,10 @@ async def crash_notif(crashtype, condition):
             # Only trip the fuse if a notification is passed
             config_write("System Monitoring", "failure_button", "True")
         except notify.NotificationFailure:
-            logging.exception("Unable to send the notification!")
-    logging.critical(
-        f"{crashtype} detected. Shutting down for my own protection! {condition}"
+            logger.exception("Unable to send the notification!")
+    logger.critical(
+        "{crashtype} detected. Shutting down for my own protection! {condition}",
+        crashtype=crashtype,
+        condition=condition,
     )
     os.kill(os.getpid(), signal.SIGTERM)

@@ -14,14 +14,11 @@ import functools
 import hmac
 import hashlib
 import json
-import logging
+from loguru import logger
 from aiohttp import web
 
 from ..packages.configmanager import config
-from ..packages.database import Grafana
 
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 client_secret = config["API Connector"]["key"]
 check_constant = config["API Connector"]["key_check_constant"]

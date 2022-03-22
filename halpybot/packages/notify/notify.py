@@ -11,15 +11,11 @@ See license.md
 """
 
 import re as REEE  # 🤫
-import logging
+from loguru import logger
 import boto3
 import boto3.exceptions
 
 from ..configmanager import config
-from ..database import Grafana
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 class SNSError(Exception):
@@ -114,7 +110,10 @@ async def subscribe(topic, endpoint):
     try:
         sns.subscribe(TopicArn=topic, Protocol=protocol, Endpoint=endpoint)
     except boto3.exceptions.Boto3Error as boto_exception:
-        logger.info(f"NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.")
+        logger.info(
+            "NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.",
+            endpoint=endpoint,
+        )
         raise SubscriptionError(boto_exception) from boto_exception
 
 

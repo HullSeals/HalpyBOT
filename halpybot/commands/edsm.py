@@ -9,8 +9,8 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-import logging
 from typing import List
+from loguru import logger
 
 from ..packages.edsm import (
     GalaxySystem,
@@ -24,10 +24,6 @@ from ..packages.edsm import (
 )
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
-from ..packages.database import Grafana
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 @Commands.command("lookup", "syslookup")
@@ -101,7 +97,7 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     Usage: !distance <--new> [system/cmdr 1] : [system/cmdr 2]
     Aliases: dist
     """
-    if len(args) == 0 or len(args) == 1:  # Minimum Number of Args is 2.
+    if len(args) <= 1:  # Minimum Number of Args is 2.
         return await ctx.reply(get_help_text("dist"))
     cache_override = False
     if args[0] == "--new":
@@ -217,9 +213,7 @@ async def cmd_coordslookup(ctx, args: List[str]):
     Aliases: coords
     """
 
-    if (
-        len(args) == 0 or len(args) == 1 or len(args) == 2
-    ):  # Minimum Number of Args is 3.
+    if len(args) <= 2:  # Minimum Number of Args is 3.
         return await ctx.reply(get_help_text("coords"))
     xcoord = args[0].strip()
     ycoord = args[1].strip()
