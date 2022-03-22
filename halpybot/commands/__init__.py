@@ -22,7 +22,7 @@ from . import settings
 from . import shutdown
 from . import time
 from . import userinfo
-from . import help
+from . import bot_help
 from . import caseutils
 from . import drill
 
@@ -39,7 +39,7 @@ __all__ = [
     "shutdown",
     "time",
     "userinfo",
-    "help",
+    "bot_help",
     "caseutils",
     "drill",
 ]

@@ -32,6 +32,15 @@ from halpybot.packages.edsm import (
 )
 
 
+@pytest.fixture
+def event_loop():
+    yield asyncio.get_event_loop()
+
+
+def pytest_sessionfinish(session, exitstatus):
+    asyncio.get_event_loop().close()
+
+
 # Test System
 # 1: Existing sys
 @pytest.mark.asyncio

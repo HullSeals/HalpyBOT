@@ -1,7 +1,7 @@
 """
 HalpyBOT v1.6
 
-help.py - get command list and command details when queried
+bot_help.py - get command list and command details when queried
 
 Copyright (c) 2022 The Hull Seals,
 All rights reserved.

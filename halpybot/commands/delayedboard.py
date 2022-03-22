@@ -11,7 +11,7 @@ See license.md
 """
 
 from typing import List
-
+from loguru import logger
 from ..packages.database import NoDatabaseConnection
 from ..packages.delayedboard import DelayedCase
 from ..packages.checks import Require, Drilled, Moderator
@@ -100,7 +100,8 @@ async def cmd_reopen_delayed_case(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Successfully reopened Delayed Case #{results[0]}.")
-    return await ctx.reply(str(results[2]))
+    logger.error("An error occured: {results}", results=str(results[2]))
+    return await ctx.reply("An error occured. Contact the Cybers.")
 
 
 @Commands.command("endcase", "close")
@@ -133,7 +134,8 @@ async def cmd_close_delayed_case(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Case #{results[0]} closed.")
-    return await ctx.reply(str(results[2]))
+    logger.error("An error occured: {results}", results=str(results[2]))
+    return await ctx.reply("An error occured. Contact the Cybers.")
 
 
 @Commands.command("updatestatus")
@@ -168,7 +170,8 @@ async def cmd_update_delayed_status(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Case #{results[0]} now has status {casestat}.")
-    return await ctx.reply(str(results[2]))
+    logger.error("An error occured: {results}", results=str(results[2]))
+    return await ctx.reply("An error occured. Contact the Cybers.")
 
 
 @Commands.command("updatenotes")
@@ -216,7 +219,8 @@ async def cmd_update_delayed_notes(ctx: Context, args: List[str]):
 
     if results[1] == 0:
         return await ctx.reply(f"Notes for case #{results[0]} have been updated.")
-    return await ctx.reply(str(results[2]))
+    logger.error("An error occured: {results}", results=str(results[2]))
+    return await ctx.reply("An error occured. Contact the Cybers.")
 
 
 @Commands.command("delaystatus", "checkstatus")
@@ -300,7 +304,7 @@ async def cmd_update_delayed_case(ctx: Context, args: List[str]):
     if notesout[1] != 0 or statusout[1] != 0:
         # Don't send error message twice if it's identical for status and notes
         if notesout[2] == statusout[2]:
-            await ctx.reply(statusout[2])
-        else:
-            await ctx.reply(notesout[2])
-            await ctx.reply(statusout[2])
+            logger.error("An error occured: {results}", results=str(notesout[2]))
+            return await ctx.reply("An error occured. Contact the Cybers.")
+        logger.error("An error occured: {results}, {results2}", results=str(notesout[2]), results2=str(statusout[2]))
+        return await ctx.reply("An error occured. Contact the Cybers.")
