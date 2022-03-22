@@ -55,7 +55,7 @@ class HalpyServer(web.Application):
                     ],
                 )
         except NoDatabaseConnection:
-            logger.exception("Connection attempt not logged in the database!")
+            logger.warning("Connection not logged in the database!")
 
     async def __filter_request(
         self, request: Request

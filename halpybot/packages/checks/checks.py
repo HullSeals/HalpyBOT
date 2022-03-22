@@ -99,7 +99,7 @@ def log_unauthorized(
                 [user, channel, command, " ".join(args), required, provided],
             )
     except NoDatabaseConnection:
-        logger.exception("Incident not logged in the database!")
+        logger.warning("No Database Connection! Connection not logged to External DB!")
 
 
 class Require:

@@ -241,7 +241,7 @@ class FactHandler:
             # Get lang and fact. This is stupid, just ignore
             if "-" in fact:
                 factname = str(fact).split("-", maxsplit=1)[0]
-                lang = str(fact).split("-", maxsplit=1)[0]
+                lang = str(fact).split("-", maxsplit=1)[1]
             else:
                 factname = fact
                 lang = "en"
