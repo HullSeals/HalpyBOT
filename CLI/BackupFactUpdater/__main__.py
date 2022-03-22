@@ -3,7 +3,7 @@ HalpyBOT CLI
 
 Simple tool for automatically updating the backup fact file
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License

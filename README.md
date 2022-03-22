@@ -1,4 +1,4 @@
-# HalpyBOT 1.5.2
+# HalpyBOT 1.6
 This is the repository for HalpyBOT, the Hull Seals IRC Chatbot Assistant.
 
 # Description
@@ -14,7 +14,7 @@ This bot is in ACTIVE DEVELOPMENT.
 * pip Package Manager
 
 ## Usage
-- To install, download the latest [release](https://gitlab.com/hull-seals/code/irc/halpybot/-/tags/) from our repository. 
+- To install, download the latest [release](https://gitlab.com/hull-seals/code/irc/halpybot/-/tags/) from our repository.
 - Upload and extract the files to the directory or subdirectory you wish to install from.
 - Create your own config.ini to fit your server, following the example config file provided.
 - Install mandatory requirements with pip (`pip install -r requirements.txt`).

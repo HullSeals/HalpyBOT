@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.2
+HalpyBOT v1.6
 
 help.py - get command list and command details when queried
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License

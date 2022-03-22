@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5.2
+HalpyBOT v1.6
 
 edsm_classes.py - (data)classes for the EDSM module
 
@@ -8,7 +8,7 @@ returns when queried.
 It is STRONGLY recommended to not use these datatypes directly
 in internal code, but to have an adapter in the middle.
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License

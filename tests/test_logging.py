@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.2
+HalpyBOT v1.6
 
 test_logging.py - Logging System Module Unit Tests
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License

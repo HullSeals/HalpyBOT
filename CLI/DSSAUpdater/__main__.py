@@ -6,7 +6,7 @@ DSSA spreadsheet scraper
 Spreadsheet data used with permission from Fleetcomm and
 DSSA administration
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -39,7 +39,7 @@ def run():
 
     print(
         "=" * 20
-        + "\nCopyright (c) 2021 The Hull Seals\nDSSA file updater for HalpyBOT\n"
+        + "\nCopyright (c) 2022 The Hull Seals\nDSSA file updater for HalpyBOT\n"
         + "=" * 20
         + "\n"
     )
