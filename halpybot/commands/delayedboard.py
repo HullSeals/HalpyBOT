@@ -306,5 +306,9 @@ async def cmd_update_delayed_case(ctx: Context, args: List[str]):
         if notesout[2] == statusout[2]:
             logger.error("An error occured: {results}", results=str(notesout[2]))
             return await ctx.reply("An error occured. Contact the Cybers.")
-        logger.error("An error occured: {results}, {results2}", results=str(notesout[2]), results2=str(statusout[2]))
+        logger.error(
+            "An error occured: {results}, {results2}",
+            results=str(notesout[2]),
+            results2=str(statusout[2]),
+        )
         return await ctx.reply("An error occured. Contact the Cybers.")
