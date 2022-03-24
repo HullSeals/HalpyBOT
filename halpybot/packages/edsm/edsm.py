@@ -52,8 +52,8 @@ class EDSMConnectionError(EDSMLookupError):
     """
 
 
-landmarks = []
-carriers = []
+LANDMARKS = []
+CARRIERS = []
 
 
 @dataclass()
@@ -440,7 +440,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         NoResultsEDSM: No point was found for `edsm_sys_name`
 
     """
-    global landmarks  # FIXME: Similar to Carriers, fix mutable global
+    global LANDMARKS  # FIXME: Similar to Carriers, fix mutable global
     # Set default values
 
     coords = await get_coordinates(edsm_sys_name, cache_override)
@@ -448,9 +448,9 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         # Load JSON file if landmarks cache is empty, else we just get objects from the cache
 
         target = Path() / "data" / "edsm" / "landmarks.json"
-        if not landmarks:
-            landmarks = json.loads(target.read_text())
-            landmarks = cattr.structure(landmarks, typing.List[GalaxySystem])
+        if not LANDMARKS:
+            LANDMARKS = json.loads(target.read_text())
+            LANDMARKS = cattr.structure(LANDMARKS, typing.List[GalaxySystem])
 
         maxdist = config["EDSM"]["Maximum landmark distance"]
         distances = {
@@ -462,7 +462,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
                 coords.z,
                 item.coords.z,
             ): item
-            for item in landmarks
+            for item in LANDMARKS
         }
         minimum_key = min(distances)
         minimum = distances[minimum_key]
@@ -502,7 +502,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
 
     """
-    global carriers  # FIXME: REMOVE MUTABLE GLOBAL (BAD BAD BAD)
+    global CARRIERS  # FIXME: REMOVE MUTABLE GLOBAL (BAD BAD BAD)
     # Set default values
 
     coords = await get_coordinates(edsm_sys_name, cache_override)
@@ -511,9 +511,9 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
         # Load JSON file if dssa cache is empty, else we just get objects from the cache
         target = Path() / "data" / "edsm" / "dssa.json"
-        if not carriers:
-            carriers = json.loads(target.read_text())
-            carriers = cattr.structure(carriers, typing.List[GalaxySystem])
+        if not CARRIERS:
+            CARRIERS = json.loads(target.read_text())
+            CARRIERS = cattr.structure(CARRIERS, typing.List[GalaxySystem])
 
         distances = {
             calc_distance(
@@ -524,7 +524,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
                 coords.z,
                 item.coords.z,
             ): item
-            for item in carriers
+            for item in CARRIERS
         }
 
         minimum_key = min(distances)
