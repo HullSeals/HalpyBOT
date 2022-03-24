@@ -35,6 +35,7 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.mark.asyncio
 async def test_open():
+    """Test that a delayed case can be opened"""
     global testID, curr_delayed
     curr_delayed = await DelayedCase.check()
     opened = await DelayedCase.open(
@@ -46,24 +47,28 @@ async def test_open():
 
 @pytest.mark.asyncio
 async def test_check():
+    """Test that the number of delayed cases can be tested for"""
     checked_number = await DelayedCase.check()
     assert int(checked_number) > int(curr_delayed)
 
 
 @pytest.mark.asyncio
 async def test_close():
+    """Test that a delayed case be closed"""
     closed = await DelayedCase.status(int(testID), 3, "HalpyBOT Test Library")
     assert closed[1] == 0
 
 
 @pytest.mark.asyncio
 async def test_reopen():
+    """Test that a delayed case can be reopened"""
     reopen = await DelayedCase.reopen(int(testID), "2", "HalpyBOT Test Library")
     assert reopen[1] == 0
 
 
 @pytest.mark.asyncio
 async def test_notes():
+    """Test that case notes can be modified"""
     notes = await DelayedCase.notes(
         int(testID), "Modified Case Notes", "HalpyBOT Test Library"
     )
@@ -72,5 +77,6 @@ async def test_notes():
 
 @pytest.mark.asyncio
 async def test_close2():
+    """Repeat the closure of the precvious test. Leave the system clean!"""
     closed = await DelayedCase.status(int(testID), 3, "HalpyBOT Test Library")
     assert closed[1] == 0

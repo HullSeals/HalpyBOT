@@ -19,22 +19,22 @@ logFile: str = config["Logging"]["log_file"]
 logFolder = os.path.dirname(logFile)
 
 
-# Test for Logging Directory Existence.
 @pytest.mark.asyncio
 async def test_log_path():
+    """Test that the log folder exists"""
     assert os.path.exists(logFolder)
 
 
-# Test if we can create a file in the log directory
 @pytest.mark.asyncio
 async def test_log_write():
+    """Test that the log directory is writable"""
     with open(os.path.join(logFolder, "testFile.txt"), "w", encoding="UTF-8"):
         pass
     assert os.path.exists(f"{logFolder}/testFile.txt")
 
 
-# Test for log rotation
 @pytest.mark.asyncio
 async def test_log_delete():
+    """Test that the log directory can be rotated"""
     os.remove(f"{logFolder}/testFile.txt")
     assert not os.path.exists(f"{logFolder}/testFile.txt")

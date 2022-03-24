@@ -17,81 +17,75 @@ from halpybot.packages.utils import get_time_seconds, language_codes, strip_non_
 from halpybot.packages.command import get_help_text
 
 
-# Test Time
 @pytest.mark.asyncio
 async def test_seconds():
+    """Test the time system responds properly"""
     time = await get_time_seconds("12:34:56")
     assert time == "45296"
 
 
-# Test Bad Time
 @pytest.mark.asyncio
 async def test_seconds_bad():
+    """Test the time system responds properly if an error occurs"""
     with pytest.raises(ValueError):
         await get_time_seconds("BACON")
 
 
-# Test Lang Codes
-# 1: If the file exists, we will assume it is correct.
 def test_lang():
+    """Test the lang files exist"""
     assert os.path.exists("data/languages/iso639-1.json") is True
 
 
-# 2: Check if the file returns a dict
 def test_lang_content():
+    """Test the lang file is formatted properly"""
     langs = language_codes()
     assert isinstance(langs, dict)
 
 
-# Test Strip ASCII
-# 1: Strip non-ascii
 def test_strip():
+    """Test ascii code can be stripped from a string"""
     string = strip_non_ascii("This has Non-Ascii ö to Strip")
     assert string == ("This has Non-Ascii  to Strip", True)
 
 
-# 2: Nothing to Strip
 def test_non_strip():
+    """Test ascii-compliant strings will be left alone"""
     string = strip_non_ascii("This has Non-Ascii to Strip")
     assert string == ("This has Non-Ascii to Strip", False)
 
 
-# Test Help Commands
-# 1: If the file exists, we will assume it is correct.
 async def test_commands():
+    """Test the help file exists"""
     assert os.path.exists("data/help/commands.json") is True
 
 
-# 2: Check a help command response. If it returns a not none value, we will assume it is true.
 async def test_commands_content():
+    """Test the help file is formatted properly"""
     assert get_help_text("ping") is not None
 
 
-# Test backup_facts Commands
-# If the file exists, we will assume it is correct.
 @pytest.mark.asyncio
 async def test_backup_facts_file():
+    """Test the backup fact file exists"""
     assert os.path.exists("data/facts/backup_facts.json") is True
 
 
 # TODO: Test Backup Fact with Fact test module
 
 
-# Test EDSM files
-# 1: If the file exists, we will assume it is correct.
 @pytest.mark.asyncio
 async def test_dssa_file():
+    """Test the DSSA file exists"""
     assert os.path.exists("data/edsm/dssa.json") is True
 
 
-# 1: If the file exists, we will assume it is correct.
 @pytest.mark.asyncio
 async def test_landmark_file():
+    """Test the landmark file exists"""
     assert os.path.exists("data/edsm/landmarks.json") is True
 
 
-# Test announcer file
-# 1: If the file exists, we will assume it is correct.
 @pytest.mark.asyncio
 async def test_announcer_file():
+    """Test the announcer file exists"""
     assert os.path.exists("data/announcer/announcer.json") is True

@@ -16,15 +16,15 @@ import pytest
 from halpybot.packages.configmanager import config, config_write
 
 
-# Does the Config file exist?
 def test_config_exists():
+    """Test that the config file exists. Without it, you aren't getting far."""
     config_file = os.path.exists("config/config.ini")
     assert config_file is True
 
 
-# Check critical aspects for value
 @pytest.mark.asyncio
 async def test_config_value():
+    """Test that critical values are in the config file."""
     config_values = {  # Essential if you are using NickServ/SASL
         "config['SASL']['username']",
         "config['SASL']['password']",
@@ -60,9 +60,9 @@ async def test_config_value():
         assert value is not None
 
 
-# Can we write to the Config file?
 @pytest.mark.asyncio
 async def test_config_write():
+    """Test that the config file is writable"""
     prev_value = config["IRC"]["usessl"]
     config_write("IRC", "usessl", "True")
     assert config["IRC"]["usessl"] == "True"

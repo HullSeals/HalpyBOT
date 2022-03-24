@@ -75,9 +75,6 @@ class Announcer:
                 content=anntype["Content"],
             )
 
-    def rehash(self):
-        pass
-
     async def announce(self, announcement: str, args: Dict):
         """Announce a new case
 

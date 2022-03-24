@@ -36,7 +36,7 @@ timestamp = datetime.now().strftime("%m%d%Y-%H%M%S")
 
 
 def run():
-
+    """Run the DSSA Updater"""
     print(
         "=" * 20
         + "\nCopyright (c) 2022 The Hull Seals\nDSSA file updater for HalpyBOT\n"

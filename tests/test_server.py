@@ -17,5 +17,6 @@ from halpybot.server.server import server_root
 
 @pytest.mark.asyncio
 async def test_root():
+    """Test the server responds properly to a GET / query"""
     mac = await server_root("bacon")
     assert mac.status == 200

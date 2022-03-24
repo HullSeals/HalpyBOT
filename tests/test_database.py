@@ -16,10 +16,11 @@ import pytest
 from halpybot.packages.database import latency
 
 
-# Test Database Latency
-# If the latency is any greater than 15, the connection is unusable.
 @pytest.mark.asyncio
 async def test_latency():
+    """Test the Database Latency.
+
+    If it's above 15, the connection is unusable."""
     start = time.time()
     connection = await latency()
     final = round(connection - start, 2)

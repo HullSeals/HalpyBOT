@@ -37,7 +37,7 @@ config.read("BackupFactUpdater/config.ini")
 
 # noinspection PyBroadException
 def run():
-
+    """Run the Backup Fact Updater"""
     dbconfig = {
         "user": config.get("Database", "user"),
         "password": config.get("Database", "password"),
