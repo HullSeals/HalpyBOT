@@ -14,6 +14,15 @@ from ..database import DatabaseConnection, NoDatabaseConnection
 
 
 async def whois(subject):
+    """Get a Seal's historical information from the Database.
+
+    Args:
+        subject (str): The Seal's name being searched
+
+    Returns:
+        (str): The details about the Seal, or an error string if not found.
+
+    """
     # Set default values
     u_id, u_cases, u_name, u_regdate, u_distant_worlds, u_distant_worlds_2 = (
         None,

@@ -113,6 +113,16 @@ class HalpyServer(web.Application):
 
 @routes.get("/")
 async def server_root(request):
+    """
+    Get the key information about the Bot
+
+    Args:
+        request (class): An object containing the content of the HTTP request.
+
+    Returns:
+        The formatted JSON response of the bot status
+
+    """
     try:
         repo = git.Repo()
         sha = repo.head.object.hexsha

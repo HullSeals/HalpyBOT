@@ -25,6 +25,18 @@ routes = web.RouteTableDef()
 @routes.post("/tail")
 @authenticate()
 async def tail(request):
+    """
+    Promote or Demote a Seal on the status of their training
+
+    Args:
+        request (class): An object containing the content of the HTTP request.
+
+    Returns:
+        Nothing
+
+    Raises:
+        HTTPOK or HTTPServiceUnavailable
+    """
     if request.body_exists:
         request = await request.json()
     # Parse arguments

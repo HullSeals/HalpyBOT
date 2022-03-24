@@ -24,6 +24,18 @@ routes = web.RouteTableDef()
 @routes.post("/announce")
 @authenticate()
 async def announce(request):
+    """
+    Collect and format a new announcer system message from a POST request.
+
+    Args:
+        request (class): An object containing the content of the HTTP request.
+
+    Returns:
+        Nothing
+
+    Raises:
+        HTTPOk or HTTPInternalServerError
+    """
     if request.body_exists:
         request = await request.json()
     # Parse arguments
