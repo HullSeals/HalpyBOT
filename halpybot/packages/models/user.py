@@ -49,6 +49,8 @@ class User:
     server_info: str
     secure: bool
     account: Optional[str]
+    real_hostname: Optional[str]
+    real_ip_address: Optional[str]
     nickname: str
 
     @classmethod

@@ -277,8 +277,8 @@ class CommandGroup:
         else:
             try:
                 await cmd(command_context, arguments)
-            except Exception:
-                raise CommandException(Exception) from Exception
+            except Exception as e:
+                raise CommandException from e
 
     def get_commands(self, mains: bool = False):
         """Get a list of registered commands in a group
