@@ -100,8 +100,8 @@ class Announcer:
                     await TwitterCasesAcc.tweet_case(ann, args)
                 except TwitterConnectionError:
                     return
-        except Exception:
-            raise AnnouncementError(Exception) from Exception
+        except Exception as announcement_exception:
+            raise AnnouncementError(Exception) from announcement_exception
 
 
 class Announcement:
