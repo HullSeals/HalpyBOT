@@ -23,7 +23,7 @@ from ..packages.edsm import (
     NoResultsEDSM,
     get_nearby_system,
 )
-
+from ..packages.announcer.announcer import cardinal_flip
 
 CACHE_OVERRIDE = False
 
@@ -127,7 +127,7 @@ async def lookup(system):
         exact_sys = sys_name == system
         landmark, distance, direction = await checklandmarks(sys_name)
         # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
-        direction = halpybot.packages.announcer.announcer.cardinal_flip[direction]
+        direction = cardinal_flip[direction]
         if exact_sys:
             return f"System exists in EDSM, {distance} LY {direction} of {landmark}."
         return (
