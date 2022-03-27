@@ -31,6 +31,20 @@ class WebhookSendError(DiscordWebhookError):
 
 
 async def send_webhook(hook_id: int, hook_token: str, body: Dict):
+    """Send a webhook payload to Discord
+
+    Args:
+        hook_id (int): ID for the webhook as registered with Discord
+        hook_token (str): Webhook token
+        body (Dict): JSON body for the request, see Discord API documentation
+
+    Returns:
+        Nothing
+
+    Raises:
+        WebhookSendError: Unable to post webhook
+
+    """
     try:
         async with aiohttp.ClientSession(
             headers={"User-Agent": DEFAULT_USER_AGENT}
