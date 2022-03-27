@@ -11,7 +11,6 @@ See license.md
 """
 from typing import List
 
-import halpybot.packages.announcer.announcer
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context

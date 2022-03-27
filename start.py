@@ -23,7 +23,7 @@ from loguru import logger
 from aiohttp import web
 from halpybot import commands  # No, this isn't unused. We need this.
 from halpybot.packages.configmanager import config
-from halpybot.packages.ircclient import pool, client
+from halpybot.packages.ircclient import client
 from halpybot.server import APIConnector
 
 # Configure Logging File Name and Levels
