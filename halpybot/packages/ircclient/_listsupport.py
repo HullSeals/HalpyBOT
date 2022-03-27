@@ -26,7 +26,14 @@ class ListHandler(RFC1459Support):
         eventloop=None,
         **kwargs,
     ):
-        super().__init__(nickname, fallback if fallback is not None else [], username, realname, eventloop, **kwargs)
+        super().__init__(
+            nickname,
+            fallback if fallback is not None else [],
+            username,
+            realname,
+            eventloop,
+            **kwargs,
+        )
         self._pending_query = asyncio.Queue()
         self._channellist = set()
 
