@@ -3,7 +3,7 @@ HalpyBOT CLI
 
 carrier.py - DSSA carrier object
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -15,7 +15,9 @@ import requests
 
 
 class EDSMLookupError(Exception):
-    pass
+    """
+    Base class for lookup errors
+    """
 
 
 class DSSACarrier:
@@ -23,8 +25,16 @@ class DSSACarrier:
     DSSA carrier object, as parsed from an external data source
     """
 
-    def __init__(self, name: str = "Unknown", call: str = "Unknown", status: int = 0, location: str = "Unknown",
-                 region: str = "Unknown", owner: str = "Unknown/Independent", decom_date: str = "Unknown"):
+    def __init__(
+        self,
+        name: str = "Unknown",
+        call: str = "Unknown",
+        status: int = 0,
+        location: str = "Unknown",
+        region: str = "Unknown",
+        owner: str = "Unknown/Independent",
+        decom_date: str = "Unknown",
+    ):
         """Initialize new DSSA carrier object
 
         Args:
@@ -44,10 +54,7 @@ class DSSACarrier:
         """
         self._marked_manual = False
         self._location = location
-        try:
-            self._coords, self._has_system = self._get_coords(self._location), True
-        except EDSMLookupError:
-            raise
+        self._coords, self._has_system = self._get_coords(self._location), True
         if not self._coords:
             self._coords = {"x": None, "y": None, "z": None}
             self._marked_manual, self._has_system = True, False
@@ -81,8 +88,10 @@ class DSSACarrier:
             (str): string representation of the carrier
 
         """
-        return f"DSSACarrier({self._name=}, {self._location=}, {self._has_system=}, {self._coords=}," \
-               f"{self.status=}, {self.owner=}, {self.region=}, {self.decom_date=})"
+        return (
+            f"DSSACarrier({self._name=}, {self._location=}, {self._has_system=}, {self._coords=},"
+            f"{self.status=}, {self.owner=}, {self.region=}, {self.decom_date=})"
+        )
 
     @property
     def coordinates(self) -> Optional[Dict]:
@@ -145,18 +154,24 @@ class DSSACarrier:
 
         """
         try:
-            response = requests.get("https://www.edsm.net/api-v1/system",
-                                    params={"systemName": system,
-                                            "showCoordinates": 1,
-                                            "showInformation": 1}, timeout=5)
+            response = requests.get(
+                "https://www.edsm.net/api-v1/system",
+                params={
+                    "systemName": system,
+                    "showCoordinates": 1,
+                    "showInformation": 1,
+                },
+                timeout=5,
+            )
             responses = response.json()
 
         except requests.exceptions.RequestException:
-            raise EDSMLookupError("Unable to verify system, having issues connecting to the EDSM API.")
+            raise EDSMLookupError(
+                "Unable to verify system, having issues connecting to the EDSM API."
+            ) from requests.exceptions.RequestException
 
         # Return None if system doesn't exist
         if len(responses) == 0:
             return None
-        else:
-            self._name = responses['name']  # Update name for consistency
-            return responses['coords']
+        self._name = responses["name"]  # Update name for consistency
+        return responses["coords"]

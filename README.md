@@ -1,4 +1,4 @@
-# HalpyBOT 1.5.2
+# HalpyBOT 1.6
 This is the repository for HalpyBOT, the Hull Seals IRC Chatbot Assistant.
 
 # Description
@@ -14,7 +14,7 @@ This bot is in ACTIVE DEVELOPMENT.
 * pip Package Manager
 
 ## Usage
-- To install, download the latest [release](https://gitlab.com/hull-seals/code/irc/halpybot/-/tags/) from our repository. 
+- To install, download the latest [release](https://gitlab.com/hull-seals/code/irc/halpybot/-/tags/) from our repository.
 - Upload and extract the files to the directory or subdirectory you wish to install from.
 - Create your own config.ini to fit your server, following the example config file provided.
 - Install mandatory requirements with pip (`pip install -r requirements.txt`).
@@ -43,7 +43,7 @@ work on the long awaited Dispatch Board project can finally begin.
 As always, bugfixes, speed, and stability updates are priorities as discovered, as well as general enhancements over time.
 
 # Contributing
-Interested in joining the Hull Seals Cyberseals? Read up on [the Welcome Board](https://gitlab.com/hull-seals/welcome-to-the-hull-seals-devops-board).
+Interested in joining the Hull Seals Cyberseals? Read up on [the Welcome Board](https://gitlab.com/hull-seals/welcome).
 
 # Authors and Acknowledgements
 Project developers:
@@ -53,7 +53,7 @@ Project developers:
 * [Feliksas](https://gitlab.com/feliksas)
 * [Ned Stevenson](https://gitlab.com/stuntphish)
 
-Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome-to-the-hull-seals-devops-board/blob/master/CONTRIBUTORS.md).
+Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome/blob/master/CONTRIBUTORS.md).
 
 # License
 This project is governed under the [GNU General Public License v3.0](LICENSE) license.

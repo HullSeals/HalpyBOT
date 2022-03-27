@@ -1,6 +1,6 @@
 # Contributing
 
-Before contributing to the project, please read the general Cyberseals code of conduct [here](https://gitlab.com/hull-seals/welcome-to-the-hull-seals-devops-board/-/blob/master/CONTRIBUTING.md#our-standards)
+Before contributing to the project, please read the general Cyberseals code of conduct [here](https://gitlab.com/hull-seals/welcome/-/blob/master/CONTRIBUTING.md#our-standards)
 
 ## Helping with the project
 
@@ -98,7 +98,7 @@ HalpyBOT v[VERSION]
 
 file_name.py - One-sentence description of what this file does.
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License

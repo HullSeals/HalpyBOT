@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.2
+HalpyBOT v1.6
 
 test_database.py - Database connection initialization module tests
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -11,15 +11,16 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
-import pytest
 import time
-from src.packages.database import *
+import pytest
+from halpybot.packages.database import latency
 
 
-# Test Database Latency
-# If the latency is any greater than 15, the connection is unusable.
 @pytest.mark.asyncio
 async def test_latency():
+    """Test the Database Latency.
+
+    If it's above 15, the connection is unusable."""
     start = time.time()
     connection = await latency()
     final = round(connection - start, 2)
