@@ -13,12 +13,14 @@ See license.md
 from typing import List
 import datetime
 from loguru import logger
-import aiohttp
-from halpybot import DEFAULT_USER_AGENT
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context, User
 from ..packages.configmanager import config
+from ..packages.announcer import send_webhook, WebhookSendError
+
+webhook_id = config["Discord Notifications"]["webhook_id"]
+webhook_token = config["Discord Notifications"]["webhook_token"]
 
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
@@ -80,15 +82,13 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     }
 
     try:
-        async with aiohttp.ClientSession(
-            headers={"User-Agent": DEFAULT_USER_AGENT}
-        ) as session:
-            await session.post(config["Discord Notifications"]["url"], json=cn_message)
-    except aiohttp.ClientError:
+        await send_webhook(
+            hook_id=webhook_id, hook_token=webhook_token, body=cn_message
+        )
+    except WebhookSendError:
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
-        logger.exception("Unable to notify Discord.")
 
 
 @Commands.command("tsping", "wssping")
@@ -128,14 +128,12 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     }
 
     try:
-        async with aiohttp.ClientSession(
-            headers={"User-Agent": DEFAULT_USER_AGENT}
-        ) as session:
-            await session.post(config["Discord Notifications"]["url"], json=cn_message)
-    except aiohttp.ClientError:
+        await send_webhook(
+            hook_id=webhook_id, hook_token=webhook_token, body=cn_message
+        )
+    except WebhookSendError:
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
-        logger.exception("Unable to notify Discord.")
     else:
         return await ctx.reply("Trained Seals ping sent out successfully.")

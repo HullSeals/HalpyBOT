@@ -12,5 +12,14 @@ See license.md
 
 from .announcer import Announcer, Announcement, AnnouncementError
 from .twitter import TwitterCasesAcc, Twitter, TwitterConnectionError
+from .dc_webhook import send_webhook, DiscordWebhookError, WebhookSendError
 
-__all__ = ["Announcer", "AnnouncementError", "TwitterCasesAcc", "Twitter"]
+__all__ = [
+    "Announcer",
+    "AnnouncementError",
+    "TwitterCasesAcc",
+    "Twitter",
+    "send_webhook",
+    "DiscordWebhookError",
+    "WebhookSendError",
+]
