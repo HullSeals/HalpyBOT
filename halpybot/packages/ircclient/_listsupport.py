@@ -11,7 +11,7 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 import asyncio
 from pydle.features.rfc1459 import RFC1459Support
 
@@ -20,7 +20,7 @@ class ListHandler(RFC1459Support):
     def __init__(
         self,
         nickname: str = "HalpyLISTener",
-        fallback=[],
+        fallback: Optional[List] = None,
         username=None,
         realname=None,
         eventloop=None,
