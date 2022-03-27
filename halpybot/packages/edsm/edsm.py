@@ -342,9 +342,7 @@ class Commander:
         else:
             location_time = location.date
         return Location(
-            system=location.system,
-            coordinates=location.coordinates,
-            time=location_time,
+            system=location.system, coordinates=location.coordinates, time=location_time
         )
 
 
