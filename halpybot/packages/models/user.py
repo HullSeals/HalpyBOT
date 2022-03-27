@@ -29,6 +29,7 @@ import pydle
 
 import cattr
 
+
 @dataclass(frozen=True)
 class User:
     """IRC User info
@@ -68,8 +69,8 @@ class User:
         """
         # fetch the user object from pydle
         data = await bot.whois(nickname)
-        if 'nickname' not in data:
-            data['nickname'] = nickname
+        if "nickname" not in data:
+            data["nickname"] = nickname
         return cattr.structure(data, Optional[User])
 
     @classmethod
