@@ -1,6 +1,7 @@
 # Contributing
 
-Before contributing to the project, please read the general Cyberseals code of conduct [here](https://gitlab.com/hull-seals/welcome/-/blob/master/CONTRIBUTING.md#our-standards)
+Before contributing to the project, please read the general Cyberseals code of conduct 
+[here](https://gitlab.com/hull-seals/welcome/-/blob/master/CONTRIBUTING.md#our-standards)
 
 ## Helping with the project
 
@@ -20,7 +21,8 @@ Before contributing to the project, please read the general Cyberseals code of c
 
 Make sure that the branch you're working on is up-to-date with develop.
 
-In the merge request description, please mention the issue as `resolves #issueID` to automatically link the MR and the issue.
+In the merge request description, please mention the issue as `resolves #issueID` 
+to automatically link the MR and the issue.
 
 ## Naming standards
 
@@ -44,7 +46,8 @@ For commits directly to 'develop' without an associated issue, please use the fo
 `[Typo] Fix typos that don't affect functioning of the bot`
 
 ### Branches
-Make a feature branch off of develop using git checkout -b feature/halpy-IssueID. For other types of pull requests please use one of the following:
+Make a feature branch off of develop using git checkout -b feature/halpy-IssueID. For other types of pull 
+requests please use one of the following:
 
 - doc - Documentation, or Documentation Update
 - feature - New Features/Functionality
@@ -53,11 +56,13 @@ Make a feature branch off of develop using git checkout -b feature/halpy-IssueID
 
 An example of a correctly-named branch is `feature/halpy-6`
 
-Implementations of minor functions _may_ be included in the branch of a more major function, if creating a separate branch would be exceptionally cumbersome. Keep the guidelines for commit messages in mind.
+Implementations of minor functions _may_ be included in the branch of a more major function, if creating a separate
+branch would be exceptionally cumbersome. Keep the guidelines for commit messages in mind.
 
 ### Merge requests names
 
-If working from a registered issue, Include the issue name enclosed in brackets in the title of your Pull Request, ie `[HALPY-123] Update to CONTRIBUTING.md`
+If working from a registered issue, Include the issue name enclosed in brackets in the title of your Pull Request, ie
+`[HALPY-123] Update to CONTRIBUTING.md`
 
 Otherwise, use the type of request:
 
@@ -71,7 +76,8 @@ Otherwise, use the type of request:
 
 #### Non-commands
 
-This project uses [Google Style Python Docstrings](https://gist.github.com/redlotus/3bc387c2591e3e908c9b63b97b11d24e) for non-commands
+This project uses [Google Style Python Docstrings](https://gist.github.com/redlotus/3bc387c2591e3e908c9b63b97b11d24e)for
+non-commands
 (functions that do not directly interact with a command handler)
 
 #### Commands
@@ -108,3 +114,7 @@ See license.md
 
 if the file makes use of licensed material, you must comply with all copyright
 and license notice requirements listed in the license of said material.
+
+### Code Style
+This project follows PEP8 guidelines. We strongly encourage efforts are taken to enforce these standards, 
+and encourage the use of tools like `Black` or `PyLint` to ensure compliance. 
