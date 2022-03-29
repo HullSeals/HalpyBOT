@@ -29,7 +29,6 @@ from attr import dataclass
 from halpybot import DEFAULT_USER_AGENT
 from ..models import Coordinates, Location
 from ..models import edsm_classes
-from ..utils import get_time_seconds
 from ..configmanager import config
 
 
@@ -106,7 +105,7 @@ class GalaxySystem:
         if name in cls._lookupCache and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name].time
-            cachetime = int(await get_time_seconds(config["EDSM"]["timeCached"]))
+            cachetime = int(config["EDSM"]["timeCached"])
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name].object
 
@@ -271,7 +270,7 @@ class Commander:
         if name.strip().upper() in cls._lookupCache and cache_override is False:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name.strip().upper()].time
-            cachetime = int(await get_time_seconds(config["EDSM"]["timeCached"]))
+            cachetime = int(config["EDSM"]["timeCached"])
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name.strip().upper()].object
 

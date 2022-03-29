@@ -77,31 +77,6 @@ _levels = {
 }
 
 
-def log_unauthorized(
-    user: str, channel: str, command: str, args: List[str], required: int, provided: int
-):
-    """Emit an authorization incident to the dashboard log table
-
-    Args:
-        user (str): User that invoked the command
-        channel (str): Channel the command was invoked in, username if in DM
-        command (str): Used command
-        args (list): List of arguments provided by the user
-        required (int): Required permission level
-        provided (int): Provided permission level
-
-    """
-    try:
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.callproc(
-                "spCreateUnauthCmdAccess",
-                [user, channel, command, " ".join(args), required, provided],
-            )
-    except NoDatabaseConnection:
-        logger.warning("No Database Connection! Connection not logged to External DB!")
-
-
 class Require:
     @staticmethod
     def permission(role: Permission, message: str = None):
@@ -137,14 +112,6 @@ class Require:
                         req=required_level,
                         channel=ctx.channel,
                     )
-                    return log_unauthorized(
-                        user=f"{ctx.sender}!@{whois.hostname}",
-                        channel=ctx.channel,
-                        command=ctx.command,
-                        args=args,
-                        required=required_level,
-                        provided=0,
-                    )
 
                 # Find user level that belongs to vhost
                 user_level = int(_levels[vhost])
@@ -161,14 +128,7 @@ class Require:
                         req=required_level,
                         channel=ctx.channel,
                     )
-                    return log_unauthorized(
-                        user=f"{ctx.sender}!@{whois.hostname}",
-                        channel=ctx.channel,
-                        command=ctx.command,
-                        args=args,
-                        required=required_level,
-                        provided=user_level,
-                    )
+
                 return await function(ctx, args)
 
             return guarded

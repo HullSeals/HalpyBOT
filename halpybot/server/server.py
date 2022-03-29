@@ -28,35 +28,6 @@ routes = web.RouteTableDef()
 
 
 class HalpyServer(web.Application):
-    @staticmethod
-    async def _log_request(request: Request, success: bool):
-        # Log to the online dashboard
-        try:
-            with DatabaseConnection() as database_connection:
-                cursor = database_connection.cursor()
-                cursor.callproc(
-                    "spCreateAPIConnRequest",
-                    [
-                        request.remote,  # Source
-                        (
-                            request.headers["User-Agent"]
-                            if "User-Agent" in request.headers
-                            else "None"
-                        ),  # Agent
-                        request.path,  # Route
-                        request.method,  # HTTP Method
-                        (
-                            str(await request.json())
-                            if request.can_read_body
-                            else "None"
-                        ),  # Body
-                        (1 if success else 0),  # HMAC match
-                        str(request.version),  # Misc
-                    ],
-                )
-        except NoDatabaseConnection:
-            logger.warning("Connection not logged in the database!")
-
     async def __filter_request(
         self, request: Request
     ) -> Union[Type[HTTPBadRequest], None, HTTPMethodNotAllowed, HTTPNotFound]:
@@ -92,7 +63,6 @@ class HalpyServer(web.Application):
         return HTTPNotFound()
 
     async def _handle(self, request: Request) -> StreamResponse:
-        successful = True
         try:
             request_error = await self.__filter_request(request)
             if request_error is not None:
@@ -102,13 +72,9 @@ class HalpyServer(web.Application):
                 )
                 raise request_error
             response = await super()._handle(request)
-            successful = True
             return response
         except web.HTTPError as ex:
-            successful = False
             return ex
-        finally:
-            asyncio.ensure_future(self._log_request(request, successful))
 
 
 @web.middleware
