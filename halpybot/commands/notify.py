@@ -191,7 +191,7 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
             except notify.NotificationFailure:
                 logger.exception("Notification not sent! I hope it wasn't important...")
                 return ctx.reply("Unable to send the notification!")
-            return ctx.reply(
+            return await ctx.reply(
                 f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
             )
 
