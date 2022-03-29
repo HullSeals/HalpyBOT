@@ -229,13 +229,14 @@ class NotificationLock:
         """
         Create new context manager for the timed notification lock
         """
-        self.locked = False
         # Check if last staff call was < 5 min ago
         if NotificationLock._timer != 0 and time.time() < NotificationLock._timer + int(
             config["Notify"]["timer"]
         ):
             self.locked = True
-        NotificationLock._timer = time.time()
+            NotificationLock._timer = time.time()
+        else:
+            self.locked = False
 
     def __enter__(self):
         return self
