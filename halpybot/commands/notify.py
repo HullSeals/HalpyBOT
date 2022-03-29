@@ -145,8 +145,22 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
     if len(args) == 0:
         return await ctx.reply(get_help_text("opsignal"))
-    response = await format_notification("OpSignal", "staff", ctx.sender, args)
-    return await ctx.reply(response)
+
+    global TIMER
+    # Check if last staff call was < 5 min ago
+    if TIMER != 0 and time.time() < TIMER + int(
+        await get_time_seconds(config["Notify"]["timer"])
+    ):
+        return "Someone already called less than 5 minutes ago. hang on, staff is responding."
+    TIMER = time.time()
+
+    subject, topic, message = await format_notification("OpSignal", "staff", ctx.sender, args)
+    try:
+        await notify.send_notification(topic, message, subject)
+    except notify.NotificationFailure:
+        logger.exception("Notification not sent! I hope it wasn't important...")
+        return "Unable to send the notification!"
+    return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
 
 
 @Commands.command(
@@ -165,8 +179,22 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("cybersignal"))
-    response = await format_notification("CyberSignal", "cybers", ctx.sender, args)
-    return await ctx.reply(response)
+
+    global TIMER
+    # Check if last staff call was < 5 min ago
+    if TIMER != 0 and time.time() < TIMER + int(
+        await get_time_seconds(config["Notify"]["timer"])
+    ):
+        return "Someone already called less than 5 minutes ago. hang on, staff is responding."
+    TIMER = time.time()
+
+    subject, topic, message = await format_notification("CyberSignal", "cybers", ctx.sender, args)
+    try:
+        await notify.send_notification(topic, message, subject)
+    except notify.NotificationFailure:
+        logger.exception("Notification not sent! I hope it wasn't important...")
+        return "Unable to send the notification!"
+    return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
 
 
 async def format_notification(notify_type, group, sender, message):
@@ -180,22 +208,10 @@ async def format_notification(notify_type, group, sender, message):
         message (List[str]): Content of the message being sent.
 
     Returns:
-        (str): A string confirming if the message was sent or not.
+        (tuple): Tuple with strings `subject`, `topic` and `message`
     """
-    global TIMER
-    # Check if last staff call was < 5 min ago
-    if TIMER != 0 and time.time() < TIMER + int(
-        await get_time_seconds(config["Notify"]["timer"])
-    ):
-        return "Someone already called less than 5 minutes ago. hang on, staff is responding."
-    TIMER = time.time()
     subject = f"HALPYBOT: {notify_type} Used"
     topic = config["Notify"][f"{group}"]
     message = " ".join(message)
     message = f"{notify_type} used by {sender}: {message}"
-    try:
-        await notify.send_notification(topic, message, subject)
-    except notify.NotificationFailure:
-        logger.exception("Notification not sent! I hope it wasn't important...")
-        return "Unable to send the notification!"
-    return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+    return subject, topic, message
