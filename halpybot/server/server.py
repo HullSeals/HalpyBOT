@@ -111,6 +111,13 @@ class HalpyServer(web.Application):
             asyncio.ensure_future(self._log_request(request, successful))
 
 
+@web.middleware
+async def compression_middleware(request, handler):
+    response = await handler(request)
+    response.enable_compression()
+    return response
+
+
 @routes.get("/")
 async def server_root(request):
     """
@@ -143,5 +150,5 @@ async def server_root(request):
     return web.json_response(response)
 
 
-APIConnector = HalpyServer()
+APIConnector = HalpyServer(middlewares=[compression_middleware])
 APIConnector.add_routes(routes)

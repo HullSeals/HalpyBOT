@@ -156,11 +156,9 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
             return await ctx.reply(
                 f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
             )
-
-        else:
-            return await ctx.reply(
-                "Someone already called less than 5 minutes ago. hang on, staff is responding."
-            )
+        return await ctx.reply(
+            "Someone already called less than 5 minutes ago. hang on, staff is responding."
+        )
 
 
 @Commands.command(
@@ -194,11 +192,9 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
             return await ctx.reply(
                 f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
             )
-
-        else:
-            return await ctx.reply(
-                "Someone already called less than 5 minutes ago. hang on, staff is responding."
-            )
+        return await ctx.reply(
+            "Someone already called less than 5 minutes ago. hang on, staff is responding."
+        )
 
 
 async def format_notification(notify_type, group, sender, message):

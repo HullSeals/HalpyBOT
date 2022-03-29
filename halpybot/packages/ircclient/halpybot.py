@@ -51,15 +51,15 @@ class HalpyBOT(pydle.Client, ListHandler):
     async def handle_forever(self):
         try:
             await super().handle_forever()
-        except ConnectionResetError as CRE:
-            await crash_notif("Connection Reset Error", CRE)
+        except ConnectionResetError as cre:
+            await crash_notif("Connection Reset Error", cre)
 
     # Sometimes, the bot will fail in its attempts to reconnect with a CAE
     async def _disconnect(self, expected):
         try:
             await super()._disconnect(expected)
-        except ConnectionAbortedError as CAE:
-            await crash_notif("Connection Aborted Error", CAE)
+        except ConnectionAbortedError as cae:
+            await crash_notif("Connection Aborted Error", cae)
 
     # Handle the clean disconnect but fail to reconnect of the bot
     async def on_disconnect(self, expected):
@@ -92,7 +92,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         for channel in config["Channels"]["channellist"].split():
             await self.join(channel, force=True)
 
-    async def on_message(self, target, nick, message):
+    async def on_message(self, target, by, message):
         """Handle an IRC message
 
         Invoked from Pydle on a new message. Message is passed to
@@ -100,14 +100,14 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         Args:
             target (str): Channel message was sent to
-            nick (str): Nickname of user who sent the message.
+            by (str): Nickname of user who sent the message.
             message (str):
 
         """
-        if nick == self.nickname:
+        if by == self.nickname:
             return  # Let's not react to ourselves shall we?
 
-        await super().on_channel_message(target, nick, message)
+        await super().on_channel_message(target, by, message)
 
         # Special command for getting the bot prefix
         if message == f"{self.nickname} prefix":
@@ -117,7 +117,7 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         # Pass message to command handler
         if self._commandhandler:
-            await self._commandhandler.invoke_from_message(self, target, nick, message)
+            await self._commandhandler.invoke_from_message(self, target, by, message)
 
     async def reply(self, channel: str, sender: str, in_channel: bool, message: str):
         """Reply to a message sent by a user

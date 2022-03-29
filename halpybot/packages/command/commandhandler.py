@@ -63,8 +63,8 @@ class CommandGroup:
         """
         self._is_root = is_root
         self._group_name = ""
-        self._commandList = {}
-        self._factHandler = None
+        self._command_list = {}
+        self._fact_handler = None
         # Don't allow registration of multiple root groups
         if CommandGroup._root is not None and is_root is True:
             raise CommandHandlerError("Can only have one root group")
@@ -76,11 +76,11 @@ class CommandGroup:
     @property
     def facthandler(self):
         """Fact handler object"""
-        return self._factHandler
+        return self._fact_handler
 
     @facthandler.setter
     def facthandler(self, handler):
-        self._factHandler = handler
+        self._fact_handler = handler
 
     @classmethod
     def get_group(cls, name: str):
@@ -101,7 +101,7 @@ class CommandGroup:
     @property
     def command_list(self):
         """dict: list of commands in this group"""
-        return self._commandList
+        return self._command_list
 
     @property
     def name(self):
@@ -135,7 +135,7 @@ class CommandGroup:
             lang = command.split("-")[1] if "-" in command else "en"
 
             # See if it's a command, and execute
-            if command in Commands._commandList:
+            if command in Commands._command_list:
                 try:
                     return await self.invoke_command(
                         command=command, command_context=ctx, arguments=args
@@ -147,19 +147,19 @@ class CommandGroup:
             # Possible fact
 
             # Ignore if we have no fact handler attached
-            if not self._factHandler:
+            if not self._fact_handler:
                 return
 
             # Are we requesting a specific language?
-            if command.split("-")[0] in await self._factHandler.get_fact_names():
+            if command.split("-")[0] in await self._fact_handler.get_fact_names():
                 factname = command.split("-")[0]
 
                 # Do we have a fact for this language?
-                if lang not in list(await self._factHandler.lang_by_fact(factname)):
+                if lang not in list(await self._fact_handler.lang_by_fact(factname)):
                     lang = "en"
 
                 return await ctx.reply(
-                    await self._factHandler.fact_formatted(
+                    await self._fact_handler.fact_formatted(
                         fact=(command.split("-")[0], lang), arguments=args
                     )
                 )
@@ -230,9 +230,9 @@ class CommandGroup:
 
 
         """
-        if name in self._commandList:
+        if name in self._command_list:
             raise CommandAlreadyExists
-        self._commandList[name] = (function, main)
+        self._command_list[name] = (function, main)
 
     async def invoke_command(
         self, command: str, command_context: Context, arguments: List[str]
@@ -291,9 +291,9 @@ class CommandGroup:
 
         """
         if mains is False:
-            return list(self._commandList.keys())
+            return list(self._command_list.keys())
         return [
-            str(cmd) for cmd in self._commandList if self._commandList[cmd][1] is True
+            str(cmd) for cmd in self._command_list if self._command_list[cmd][1] is True
         ]
 
 

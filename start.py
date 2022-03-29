@@ -21,7 +21,7 @@ from os import path, mkdir
 from loguru import logger
 
 from aiohttp import web
-from halpybot import commands  # No, this isn't unused. We need this.
+from halpybot import commands  # noinspection PyUnresolvedReferences
 from halpybot.packages.configmanager import config
 from halpybot.packages.ircclient import client
 from halpybot.server import APIConnector
@@ -48,8 +48,10 @@ FORMATTER = (
 
 
 class InterceptHandler(Handler):
+    """Grab standard logging and sends to loguru"""
+
     def emit(self, record):
-        # Intercepts standard logging messages for the purpose of sending them to loguru
+        """Intercepts standard logging messages for the purpose of sending them to loguru"""
         logger_opt = logger.opt(depth=1, exception=record.exc_info)
         logger_opt.log(getLevelName(record.levelno), record.getMessage())
 

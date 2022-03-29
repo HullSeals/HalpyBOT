@@ -219,9 +219,9 @@ async def cmd_coordslookup(ctx, args: List[str]):
     ycoord = args[1].strip()
     zcoord = args[2].strip()
     try:
-        coordcheck = float(xcoord)
-        coordcheck = float(ycoord)
-        coordcheck = float(zcoord)
+        float(xcoord)
+        float(ycoord)
+        float(zcoord)
     except ValueError:
         return await ctx.reply("All coordinates must be numeric.")
     try:

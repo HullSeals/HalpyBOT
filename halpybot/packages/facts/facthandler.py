@@ -181,7 +181,7 @@ class FactHandler:
         and attaching it to a command handler.
 
         """
-        self._factCache = {}
+        self._fact_cache = {}
 
     async def get(self, name: str, lang: str = "en") -> Optional[Fact]:
         """Get a fact object by name
@@ -196,8 +196,8 @@ class FactHandler:
             (`Fact` or None) Fact object if exists, else None
 
         """
-        if (name, lang) in self._factCache:
-            return self._factCache[name, lang]
+        if (name, lang) in self._fact_cache:
+            return self._fact_cache[name, lang]
         return None
 
     async def fetch_facts(self, preserve_current: bool = False):
@@ -228,7 +228,7 @@ class FactHandler:
             )
             self._flush_cache()
             for (fact_id, fact_name, fact_lang, fact_text, fact_author) in cursor:
-                self._factCache[fact_name, fact_lang] = Fact(
+                self._fact_cache[fact_name, fact_lang] = Fact(
                     int(fact_id), fact_name, fact_lang, fact_text, fact_author
                 )
 
@@ -245,13 +245,13 @@ class FactHandler:
             else:
                 factname = fact
                 lang = "en"
-            self._factCache[factname, lang] = Fact(
+            self._fact_cache[factname, lang] = Fact(
                 None, factname, lang, backupfile[f"{factname}-{lang}"], "OFFLINE"
             )
 
     def _flush_cache(self):
         """Flush the fact cache. Use with care"""
-        self._factCache.clear()
+        self._fact_cache.clear()
 
     async def add_fact(self, name: str, lang: str, text: str, author: str):
         """Add a new fact
@@ -280,7 +280,7 @@ class FactHandler:
             raise InvalidFactException(
                 "All registered facts must have an English version"
             )
-        if (name, lang) in self._factCache:
+        if (name, lang) in self._fact_cache:
             raise InvalidFactException("This fact already exists.")
         with DatabaseConnection() as database_connection:
             cursor = database_connection.cursor()
@@ -306,7 +306,7 @@ class FactHandler:
 
         """
         langlist = []
-        for fact in self._factCache:
+        for fact in self._fact_cache:
             if fact[0] == name:
                 langlist.append(fact[1])
         return langlist
@@ -322,7 +322,7 @@ class FactHandler:
 
         """
         namelist = []
-        for fact in self._factCache:
+        for fact in self._fact_cache:
             if fact[0] in namelist:
                 pass
             else:
@@ -352,9 +352,9 @@ class FactHandler:
             cursor = database_connection.cursor()
             cursor.execute(
                 f"DELETE FROM {config['Facts']['table']} WHERE factID = %s",
-                (self._factCache[name, lang].ID,),
+                (self._fact_cache[name, lang].ID,),
             )
-            del self._factCache[name, lang]
+            del self._fact_cache[name, lang]
 
     def list(self, lang: Optional[str] = None) -> List[tuple]:
         """Get a list of facts
@@ -369,9 +369,9 @@ class FactHandler:
 
         """
         if not lang:
-            return list(self._factCache.keys())
+            return list(self._fact_cache.keys())
         langlist = []
-        for fact in self._factCache:
+        for fact in self._fact_cache:
             if fact[1].lower() == lang.lower():
                 langlist.append(fact[0])
         return langlist
@@ -392,7 +392,7 @@ class FactHandler:
             FactHandlerError: Fact was not found
 
         """
-        reqfact = self._factCache[fact]
+        reqfact = self._fact_cache[fact]
         # Sanity check
         if not reqfact:
             raise FactHandlerError(

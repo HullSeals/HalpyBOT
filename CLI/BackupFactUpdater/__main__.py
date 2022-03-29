@@ -8,16 +8,7 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
-"""
 
-import json
-import os
-import sys
-
-import configparser
-import mysql.connector
-
-"""
 As a word of caution, this script must be run from `halpybot/`, NOT `halpybot/CLI`.
 No one knows why, or how, but for some reason it will not parse the .ini properly
 when executed from CLI/. If you still encounter issues with running it from the main folder,
@@ -26,6 +17,13 @@ make sure everything is added to path and pythonpath.
 UPDATE: Fixed! huzzah!
 UPDATE: Nope -_-
 """
+
+import json
+import os
+import sys
+
+import configparser
+import mysql.connector
 
 hours_wasted_trying_to_understand_why = 10
 
