@@ -234,9 +234,9 @@ class NotificationLock:
             config["Notify"]["timer"]
         ):
             self.locked = True
-            NotificationLock._timer = time.time()
         else:
             self.locked = False
+            NotificationLock._timer = time.time()
 
     def __enter__(self):
         return self
