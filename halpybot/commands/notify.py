@@ -221,10 +221,6 @@ async def format_notification(notify_type, group, sender, message):
     return subject, topic, message
 
 
-async def send_notification():
-    raise NotImplementedError
-
-
 class NotificationLock:
 
     _timer = 0
