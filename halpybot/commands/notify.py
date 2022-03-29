@@ -17,15 +17,11 @@ from ..packages import notify
 from ..packages.checks import Require, Moderator, Admin, Owner, Pup
 from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.configmanager import config
-from ..packages.utils import get_time_seconds
 from ..packages.models import Context
 
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
-
-# Set default value. This was originally Null but pylint didn't like that. Epoch gang!
-TIMER = 0
 
 
 @NotifyInfo.command("groups")
@@ -146,21 +142,25 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply(get_help_text("opsignal"))
 
-    global TIMER
-    # Check if last staff call was < 5 min ago
-    if TIMER != 0 and time.time() < TIMER + int(
-        await get_time_seconds(config["Notify"]["timer"])
-    ):
-        return "Someone already called less than 5 minutes ago. hang on, staff is responding."
-    TIMER = time.time()
+    with NotificationLock() as lock:
+        if not lock.locked:
 
-    subject, topic, message = await format_notification("OpSignal", "staff", ctx.sender, args)
-    try:
-        await notify.send_notification(topic, message, subject)
-    except notify.NotificationFailure:
-        logger.exception("Notification not sent! I hope it wasn't important...")
-        return "Unable to send the notification!"
-    return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+            subject, topic, message = await format_notification(
+                "OpSignal", "staff", ctx.sender, args
+            )
+            try:
+                await notify.send_notification(topic, message, subject)
+            except notify.NotificationFailure:
+                logger.exception("Notification not sent! I hope it wasn't important...")
+                return ctx.reply("Unable to send the notification!")
+            return ctx.reply(
+                f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+            )
+
+        else:
+            return await ctx.reply(
+                "Someone already called less than 5 minutes ago. hang on, staff is responding."
+            )
 
 
 @Commands.command(
@@ -180,21 +180,25 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply(get_help_text("cybersignal"))
 
-    global TIMER
-    # Check if last staff call was < 5 min ago
-    if TIMER != 0 and time.time() < TIMER + int(
-        await get_time_seconds(config["Notify"]["timer"])
-    ):
-        return "Someone already called less than 5 minutes ago. hang on, staff is responding."
-    TIMER = time.time()
+    with NotificationLock() as lock:
+        if not lock.locked:
 
-    subject, topic, message = await format_notification("CyberSignal", "cybers", ctx.sender, args)
-    try:
-        await notify.send_notification(topic, message, subject)
-    except notify.NotificationFailure:
-        logger.exception("Notification not sent! I hope it wasn't important...")
-        return "Unable to send the notification!"
-    return f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+            subject, topic, message = await format_notification(
+                "CyberSignal", "cybers", ctx.sender, args
+            )
+            try:
+                await notify.send_notification(topic, message, subject)
+            except notify.NotificationFailure:
+                logger.exception("Notification not sent! I hope it wasn't important...")
+                return ctx.reply("Unable to send the notification!")
+            return ctx.reply(
+                f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+            )
+
+        else:
+            return await ctx.reply(
+                "Someone already called less than 5 minutes ago. hang on, staff is responding."
+            )
 
 
 async def format_notification(notify_type, group, sender, message):
@@ -215,3 +219,30 @@ async def format_notification(notify_type, group, sender, message):
     message = " ".join(message)
     message = f"{notify_type} used by {sender}: {message}"
     return subject, topic, message
+
+
+async def send_notification():
+    raise NotImplementedError
+
+
+class NotificationLock:
+
+    _timer = 0
+
+    def __init__(self):
+        """
+        Create new context manager for the timed notification lock
+        """
+        self.locked = False
+        # Check if last staff call was < 5 min ago
+        if NotificationLock._timer != 0 and time.time() < NotificationLock._timer + int(
+            config["Notify"]["timer"]
+        ):
+            self.locked = True
+        NotificationLock._timer = time.time()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        del self
