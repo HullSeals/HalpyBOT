@@ -10,7 +10,6 @@ Licensed under the GNU General Public License
 See license.md
 
 """
-import asyncio
 from typing import Type, Union
 from datetime import datetime
 from loguru import logger
@@ -21,7 +20,6 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNot
 from halpybot import __version__, DEFAULT_USER_AGENT
 from ..packages.configmanager import config
 from ..packages.ircclient import client as botclient
-from ..packages.database import DatabaseConnection, NoDatabaseConnection
 
 
 routes = web.RouteTableDef()

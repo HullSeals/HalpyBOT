@@ -13,10 +13,8 @@ See license.md
 import functools
 from typing import List
 from loguru import logger
-
 from ..models import User
 from ..configmanager import config
-from ..database import DatabaseConnection, NoDatabaseConnection
 
 
 class Permission:
