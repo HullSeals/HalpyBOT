@@ -41,7 +41,7 @@ class SystemInfo:
     economy: str
 
 
-@dataclass()
+@dataclass
 class Location:
     """EDSM location object"""
 

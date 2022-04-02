@@ -24,7 +24,7 @@ See license.md
 
 from __future__ import annotations
 from typing import Optional, Set
-from dataclasses import dataclass
+from attr import dataclass
 import pydle
 
 import cattr

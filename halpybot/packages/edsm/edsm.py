@@ -55,7 +55,7 @@ LANDMARKS = []
 CARRIERS = []
 
 
-@dataclass()
+@dataclass
 class EDSMQuery:
     object: Union[GalaxySystem, Commander, None]
     time: time()
