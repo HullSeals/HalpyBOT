@@ -1,8 +1,8 @@
 pydle~=0.9.4
 pure-sasl~=0.6.2
 setuptools~=61.3.0
-mysql-connector~=2.2.9
-mysql~=0.0.3
+mysql-connector-python~=8.0.28
+mysqlclient~=2.1.0
 numpy~=1.22.3
 pytest~=7.1.0
 boto3~=1.21.31
