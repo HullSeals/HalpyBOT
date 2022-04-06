@@ -54,12 +54,12 @@ def test_non_strip():
     assert string == ("This has Non-Ascii to Strip", False)
 
 
-async def test_commands():
+def test_commands():
     """Test the help file exists"""
     assert os.path.exists("data/help/commands.json") is True
 
 
-async def test_commands_content():
+def test_commands_content():
     """Test the help file is formatted properly"""
     assert get_help_text("ping") is not None
 
