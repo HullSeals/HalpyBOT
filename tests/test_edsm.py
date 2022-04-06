@@ -31,7 +31,10 @@ from halpybot.packages.edsm import (
     sys_cleaner,
 )
 
-SAFE_IP = "127.0.0.1:4000"
+# noinspection PyUnresolvedReferences
+from .mock_edsm import mock_api_server_fx
+
+SAFE_IP = "http://127.0.0.1:4000"
 CONFIG_IP = config["EDSM"]["uri"]
 config_write("EDSM", "uri", SAFE_IP)
 CROSSCHECK_IP = config["EDSM"]["uri"]
@@ -43,6 +46,7 @@ if CROSSCHECK_IP == SAFE_IP:
 pytestmark = pytest.mark.skipif(
     GOOD_IP is not True, reason="No safe IP Given! Unsafe to test."
 )
+
 
 @pytest.fixture
 def event_loop():
@@ -117,7 +121,6 @@ async def test_request_nearby_error():
 async def test_cmdr():
     """Test that EDSM returns a valid response for a given CMDR"""
     cmdr = await Commander.get_cmdr("Rixxan", cache_override=True)
-
     assert cmdr.name == "Rixxan"
 
 
@@ -143,7 +146,7 @@ async def test_noncmdr2():
 async def test_location():
     """Test that the Commander system responds with a value"""
     location = await Commander.location("Rixxan")
-    assert location is not None
+    assert location.system == "Pleiades Sector HR-W d1-79"
 
 
 @pytest.mark.asyncio
@@ -227,7 +230,7 @@ async def test_distance_bad_sys():
 async def test_distance_bad_sys_2():
     """Test that distances between only one incorrect point will error properly"""
     with pytest.raises(NoResultsEDSM):
-        await checkdistance("Sagittarius A*", "ThisCMDRStillDoesntExist")
+        await checkdistance("Sagittarius A*", "ThisCMDRDoesntExist")
 
 
 @pytest.mark.asyncio
