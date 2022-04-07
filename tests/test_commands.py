@@ -167,7 +167,7 @@ async def test_help_specific(bot_fx):
         message=f"{config['IRC']['commandprefix']}help ping",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": "Use: ^ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "message": f"Use: {config['IRC']['commandprefix']}ping \nAliases: \nCheck to see if the bot is responding to commands.",
         "target": "#bot-test",
     }
 
@@ -181,7 +181,7 @@ async def test_help_multiple(bot_fx):
         message=f"{config['IRC']['commandprefix']}help ping dssa",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": "Use: ^ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "message": f"Use: {config['IRC']['commandprefix']}ping \nAliases: \nCheck to see if the bot is responding to commands.",
         "target": "#bot-test",
     }
     assert bot_fx.sent_messages[1] == {
