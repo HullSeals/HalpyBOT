@@ -93,3 +93,13 @@
 #         }
 #     }
 #     monkeypatch.setattr(configmanager, "config", config)
+#
+# @pytest.fixture(autouse=True)
+# def _fudged_db_fx(monkeypatch):
+#     """Add our test database values"""
+#     from halpybot.packages import database
+#     monkeypatch.setitem(database.dbconfig, "user", "root")
+#     monkeypatch.setitem(database.dbconfig, "password", "passw0rd!")
+#     monkeypatch.setitem(database.dbconfig, "database", "test")
+#     monkeypatch.setitem(database.dbconfig, "connect_timeout", 10)
+#     monkeypatch.setitem(database.dbconfig, "host", "127.0.0.1")
