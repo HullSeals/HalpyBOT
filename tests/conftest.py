@@ -1,5 +1,3 @@
-# import pytest
-#
 # @pytest.fixture(autouse=True)
 # def _fudged_config_fx(monkeypatch):
 #     from halpybot.packages import configmanager
@@ -103,3 +101,10 @@
 #     monkeypatch.setitem(database.dbconfig, "database", "test")
 #     monkeypatch.setitem(database.dbconfig, "connect_timeout", 10)
 #     monkeypatch.setitem(database.dbconfig, "host", "127.0.0.1")
+import pytest
+from tests.mock_halpy import TestBot
+
+@pytest.fixture()
+def bot_fx():
+    test_bot = TestBot(nickname="HalpyTest[BOT]")
+    return test_bot
