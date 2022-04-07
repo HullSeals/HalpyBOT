@@ -32,15 +32,20 @@ class TestBot(HalpyBOT):
         # We also need a new sent messages holding pen
         self.sent_messages = []
         self.users = {
-            "it_me[BOT]": {
-                "nickname": "it_me[BOT]",
-                "username": "test_bot",
-                "hostname": "bots.hullseals.space",
+            "HalpyTest[BOT]": {
+                "nickname": "HalpyTest[BOT]",
+                "username": "HalpyTest[BOT]",
+                "hostname": "HalpyTest[BOT]@bot.hullseals.space",
                 "away": False,
                 "away_message": None,
                 "account": None,
                 "identified": True,
-                "realname": "Gritty",
+                "realname": "HalpyTest[BOT]",
+                "oper": True,
+                "idle": 0,
+                "server": "Blargh",
+                "server_info": "BlargNet",
+                "secure": True,
             },
             "generic_seal": {
                 "nickname": "generic_seal",
@@ -100,7 +105,7 @@ class TestBot(HalpyBOT):
     def is_channel(cls, channel: str):
         return channel[0] in ("#", "&")
 
-    async def connect(self):
+    async def connect(self, **kwargs):
         """Pydle connect override to prevent the mock accidently connecting to a server"""
         raise RuntimeWarning(
             "Connection to a server disallowed in instances of the mock bot."

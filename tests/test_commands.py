@@ -140,3 +140,21 @@ async def test_help(bot_fx):
     }
     assert bot_fx.sent_messages[1].get("target") == "guest_user"
     assert bot_fx.sent_messages[1].get("message") is not False
+
+
+@pytest.mark.asyncio
+async def test_say_channel(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config['IRC']['commandprefix']}say #bot-test bacon and eggs",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Responding in DMs!",
+        "target": "#bot-test",
+    }
+    assert bot_fx.sent_messages[1] == {
+        "message": "You have to run that command in DMs with me!",
+        "target": "some_user",
+    }
