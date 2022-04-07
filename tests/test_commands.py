@@ -185,7 +185,7 @@ async def test_help_multiple(bot_fx):
         "target": "#bot-test",
     }
     assert bot_fx.sent_messages[1] == {
-        "message": "Use: ^dssa [EDSM Valid Location]\nAliases: \nCheck for the closest DSSA carrier to a given location.",
+        "message": f"Use: {config['IRC']['commandprefix']}dssa [EDSM Valid Location]\nAliases: \nCheck for the closest DSSA carrier to a given location.",
         "target": "#bot-test",
     }
 
