@@ -9,8 +9,6 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-import asyncio
-
 import pytest
 from halpybot.packages.command import Commands
 from halpybot.packages.configmanager import config
@@ -82,5 +80,47 @@ async def test_lookup_4(bot_fx, mock_api_server_fx):
     )
     assert bot_fx.sent_messages[0] == {
         "message": "System SOL exists in EDSM",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillcase(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}drillcase Rixxan, PC, Delkar, 90",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "xxxx DRILL -- DRILL -- DRILL xxxx\nCMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 90\nxxxxxxxx",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillcase_unauth(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_pup",
+        message=f"{config['IRC']['commandprefix']}drillcase Rixxan, PC, Delkar, 90",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "You have to be a drilled seal to use this!",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillcase_unauth_guest(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="guest_user",
+        message=f"{config['IRC']['commandprefix']}drillcase Rixxan, PC, Delkar, 90",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "You have to be a drilled seal to use this!",
         "target": "#bot-test",
     }
