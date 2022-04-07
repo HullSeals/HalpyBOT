@@ -101,12 +101,8 @@ class TestBot(HalpyBOT):
         if name in self.users:
             return self.users[name]
 
-    async def in_channel(self, channel):
-        return channel[0] in '@#!.+'
-
-    @classmethod
-    def is_channel(cls, channel: str):
-        return channel[0] in ("#", "&")
+    def is_channel(self, channel: str):
+        return channel[0] in "#&+."
 
     async def connect(self, **kwargs):
         """Pydle connect override to prevent the mock accidently connecting to a server"""
