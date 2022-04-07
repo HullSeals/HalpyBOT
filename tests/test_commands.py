@@ -14,7 +14,7 @@ from halpybot.packages.command import Commands
 from halpybot.packages.configmanager import config
 
 # noinspection PyUnresolvedReferences
-from .mock_edsm import mock_api_server_fx
+from fixtures.mock_edsm import mock_api_server_fx
 
 
 @pytest.mark.asyncio
