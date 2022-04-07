@@ -124,3 +124,19 @@ async def test_drillcase_unauth_guest(bot_fx):
         "message": "You have to be a drilled seal to use this!",
         "target": "#bot-test",
     }
+
+
+@pytest.mark.asyncio
+async def test_help(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="guest_user",
+        message=f"{config['IRC']['commandprefix']}help",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Responding in DMs!",
+        "target": "#bot-test",
+    }
+    assert bot_fx.sent_messages[1].get("target") == "guest_user"
+    assert bot_fx.sent_messages[1].get("message") is not False
