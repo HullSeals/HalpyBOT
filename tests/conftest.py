@@ -9,6 +9,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 # @pytest.fixture(autouse=True)
 # def _fudged_config_fx(monkeypatch):
 #     from halpybot.packages import configmanager

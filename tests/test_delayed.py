@@ -14,6 +14,7 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 NOTE: These tests interact with a database. It is REQUIRED to manually set an SQL server IP to run these queries on.
       If this IP is not given, the test will skip.
 """
+
 import pytest
 from halpybot.packages.delayedboard import DelayedCase
 from halpybot.packages.configmanager import config

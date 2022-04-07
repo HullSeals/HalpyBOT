@@ -9,6 +9,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 import pytest
 from halpybot.packages.command import Commands
 from halpybot.packages.configmanager import config
@@ -52,7 +53,11 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
     )
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"
     assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
-    assert bot_fx.sent_messages[0].get("message").endswith("Check if a system exists in EDSM")
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .endswith("Check if a system exists in EDSM")
+    )
 
 
 @pytest.mark.asyncio

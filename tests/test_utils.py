@@ -11,6 +11,7 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
+
 import os.path
 import pytest
 from halpybot.packages.utils import get_time_seconds, language_codes, strip_non_ascii
