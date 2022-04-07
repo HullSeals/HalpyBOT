@@ -279,3 +279,5 @@ async def test_clear_config():
         CLEAR = True
 
     assert CLEAR is True
+
+config_write("EDSM", "uri", CONFIG_IP)
