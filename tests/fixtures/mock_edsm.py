@@ -107,13 +107,13 @@ def mock_api_server_fx():
                 "shipType": "Krait MkII",
                 "shipFuel": "null",
                 "dateLastActivity": "2022-03-23 01:01:27",
-                "url": "https:\/\/www.edsm.net\/en\/user\/profile\/id\/58048\/cmdr\/Rixxan",
+                "url": "https://www.edsm.net/en/user/profile/id/58048/cmdr/Rixxan",
             }
         )
         mock.expect_request(
             "/api-logs-v1/get-position",
             query_string="commanderName=Praisehalpydamnwhyisthisnotacmdrnam&showCoordinates=1",
-        ).respond_with_json({"msgnum": 203, "msg": "Commander name\/API Key not found"})
+        ).respond_with_json({"msgnum": 203, "msg": "Commander name/API Key not found"})
         mock.expect_request(
             "/api-v1/system",
             query_string="systemName=DELKAR&showCoordinates=1&showInformation=1",
@@ -142,7 +142,7 @@ def mock_api_server_fx():
         mock.expect_request(
             "/api-logs-v1/get-position",
             query_string="commanderName=Sagittarius+B*&showCoordinates=1",
-        ).respond_with_json({"msgnum": 203, "msg": "Commander name\/API Key not found"})
+        ).respond_with_json({"msgnum": 203, "msg": "Commander name/API Key not found"})
         mock.expect_request(
             "/api-v1/system",
             query_string="systemName=COL+285+SECTOR+AA-A+A30-2&showCoordinates=1&showInformation=1",
@@ -180,7 +180,7 @@ def mock_api_server_fx():
         mock.expect_request(
             "/api-logs-v1/get-position",
             query_string="commanderName=ThisCMDRDoesntExist&showCoordinates=1",
-        ).respond_with_json({"msgnum": 203, "msg": "Commander name\/API Key not found"})
+        ).respond_with_json({"msgnum": 203, "msg": "Commander name/API Key not found"})
         mock.expect_request(
             "/api-v1/system",
             query_string="systemName=THISCMDRDOESNTEXIST&showCoordinates=1&showInformation=1",

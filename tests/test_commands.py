@@ -109,7 +109,11 @@ async def test_drillcase(bot_fx):
     )
     assert bot_fx.sent_messages[0] == {
         "message": "xxxx DRILL -- DRILL -- DRILL xxxx\n"
-                   "CMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 90\nxxxxxxxx",
+        "CMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 90\nxxxxxxxx",
+        "target": "#bot-test",
+    }
+    assert bot_fx.sent_messages[1] == {
+        "message": "System exists in EDSM, 83.11 LY NE of Sol.",
         "target": "#bot-test",
     }
 
@@ -213,7 +217,11 @@ async def test_about(bot_fx):
         message=f"{config['IRC']['commandprefix']}about",
     )
     assert bot_fx.sent_messages[1].get("target") == "guest_user"
-    assert bot_fx.sent_messages[1].get("message").endswith("in the development of HalpyBOT.")
+    assert (
+        bot_fx.sent_messages[1]
+        .get("message")
+        .endswith("in the development of HalpyBOT.")
+    )
 
 
 @pytest.mark.asyncio
@@ -231,4 +239,222 @@ async def test_say_channel(bot_fx):
     assert bot_fx.sent_messages[1] == {
         "message": "You have to run that command in DMs with me!",
         "target": "some_user",
+    }
+
+
+@pytest.mark.asyncio
+async def test_utc(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config['IRC']['commandprefix']}utc",
+    )
+    assert bot_fx.sent_messages[0].get("message").startswith("It is currently")
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_year(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config['IRC']['commandprefix']}year",
+    )
+    assert bot_fx.sent_messages[0].get("message").startswith("It is currently the year")
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_say_direct_unauth(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config['IRC']['commandprefix']}say #bot-test bacon and eggs",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "No.",
+        "target": "some_admin",
+    }
+
+
+@pytest.mark.asyncio
+async def test_say(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_cyber",
+        sender="some_cyber",
+        message=f"{config['IRC']['commandprefix']}say #bot-test bacon and eggs",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "bacon and eggs",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_say_no_args(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_cyber",
+        sender="some_cyber",
+        message=f"{config['IRC']['commandprefix']}say",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": f"Use: {config['IRC']['commandprefix']}say [channel] [text]\nAliases: \nMake the Bot say something",
+        "target": "some_cyber",
+    }
+
+
+@pytest.mark.asyncio
+async def test_whois_hbot(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config['IRC']['commandprefix']}whois halpybot",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
+        "target": "some_admin",
+    }
+
+
+@pytest.mark.asyncio
+async def test_whois_empty(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config['IRC']['commandprefix']}whois",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": f"Use: {config['IRC']['commandprefix']}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
+        "target": "some_admin",
+    }
+
+
+@pytest.mark.asyncio
+async def test_edsmping(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_cyber",
+        message=f"{config['IRC']['commandprefix']}edsmping",
+    )
+    assert bot_fx.sent_messages[0].get("message").startswith("EDSM Latency: ")
+    assert bot_fx.sent_messages[0].get("message").endswith("seconds")
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_drill_empty(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}drillcase",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": f"Use: {config['IRC']['commandprefix']}drillcase [cmdr], [platform], [system], [hull]\nAliases: \nStarts a new Drill Case, separated by Commas",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillkf_empty(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}drillkfcase",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": f"Use: {config['IRC']['commandprefix']}drillkfcase [cmdr], [platform], [system], [planet], [coords], [type]\nAliases: \nStarts a new Drill Kingfisher Case, separated by Commas",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillcb_empty(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}drillcbcase",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": f"Use: {config['IRC']['commandprefix']}drillcbcase [cmdr], [platform], [system], [hull], [cansynth], [o2]\nAliases: \nStarts a new Drill CB Case, separated by Commas",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillkf(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}drillkfcase Rixxan, PC, Delkar, 3 a, 123.456, 123.456, Puck",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "xxxx DRILL -- DRILL -- DRILL xxxx\n"
+        "CMDR: Rixxan -- Platform: PC\n"
+        "System: DELKAR -- Planet: 3 a\n"
+        "Coordinates: 123.456\n"
+        ":Type: 123.456\n"
+        "xxxxxxxx",
+        "target": "#bot-test",
+    }
+    assert bot_fx.sent_messages[1] == {
+        "message": "System exists in EDSM, 83.11 LY NE of Sol.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillkf_unauth(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_pup",
+        message=f"{config['IRC']['commandprefix']}drillkfcase Rixxan, PC, Delkar, 3 a, 123.456, 123.456, Puck",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "You have to be a drilled seal to use this!",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillcb(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}drillcbcase Rixxan, PC, Delkar, 25, No, 12:34",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": 'xxxx DRILL -- DRILL -- DRILL xxxx\nCMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 25\nCan Synth: No -- O2 Timer: 12:34\nxxxxxxxx',
+        'target': '#bot-test'
+    }
+    assert bot_fx.sent_messages[1] == {
+        "message": "System exists in EDSM, 83.11 LY NE of Sol.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_drillcb_unauth(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_pup",
+        message=f"{config['IRC']['commandprefix']}drillcbcase",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "You have to be a drilled seal to use this!",
+        "target": "#bot-test",
     }
