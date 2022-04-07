@@ -15,7 +15,7 @@ from halpybot.packages.command import Commands
 from halpybot.packages.configmanager import config
 
 # noinspection PyUnresolvedReferences
-from fixtures.mock_edsm import mock_api_server_fx
+from .fixtures.mock_edsm import mock_api_server_fx
 
 
 @pytest.mark.asyncio
@@ -97,7 +97,8 @@ async def test_drillcase(bot_fx):
         message=f"{config['IRC']['commandprefix']}drillcase Rixxan, PC, Delkar, 90",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": "xxxx DRILL -- DRILL -- DRILL xxxx\nCMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 90\nxxxxxxxx",
+        "message": "xxxx DRILL -- DRILL -- DRILL xxxx\n"
+                   "CMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 90\nxxxxxxxx",
         "target": "#bot-test",
     }
 

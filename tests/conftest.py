@@ -115,7 +115,7 @@ See license.md
 #     monkeypatch.setitem(database.dbconfig, "host", "127.0.0.1")
 
 import pytest
-from fixtures.mock_halpy import TestBot
+from .fixtures.mock_halpy import TestBot
 
 
 @pytest.fixture()
