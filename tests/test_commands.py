@@ -30,6 +30,17 @@ async def test_serverping(bot_fx):
 
 
 @pytest.mark.asyncio
+async def test_serverping_dm(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="generic_seal",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}ping",
+    )
+    assert bot_fx.sent_messages[0] == {"message": "Pong!", "target": "generic_seal"}
+
+
+@pytest.mark.asyncio
 async def test_lookup(bot_fx, mock_api_server_fx):
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -145,6 +156,64 @@ async def test_help(bot_fx):
     }
     assert bot_fx.sent_messages[1].get("target") == "guest_user"
     assert bot_fx.sent_messages[1].get("message") is not False
+
+
+@pytest.mark.asyncio
+async def test_help_specific(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="guest_user",
+        message=f"{config['IRC']['commandprefix']}help ping",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Use: ^ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_help_multiple(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="guest_user",
+        message=f"{config['IRC']['commandprefix']}help ping dssa",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Use: ^ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "target": "#bot-test",
+    }
+    assert bot_fx.sent_messages[1] == {
+        "message": "Use: ^dssa [EDSM Valid Location]\nAliases: \nCheck for the closest DSSA carrier to a given location.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_help_none(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="guest_user",
+        message=f"{config['IRC']['commandprefix']}help spaghetti",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "The command spaghetti could not be found in the list. Try running help without an argument to get the list of commands",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_about(bot_fx):
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="guest_user",
+        message=f"{config['IRC']['commandprefix']}about",
+    )
+    assert bot_fx.sent_messages[1].get("target") == "guest_user"
+    assert bot_fx.sent_messages[1].get("message").endswith("in the development of HalpyBOT.")
 
 
 @pytest.mark.asyncio

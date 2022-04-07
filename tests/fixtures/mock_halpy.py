@@ -102,6 +102,7 @@ class TestBot(HalpyBOT):
         if name in self.users:
             return self.users[name]
 
+    @classmethod
     def is_channel(self, channel: str):
         return channel[0] in "#&+."
 
