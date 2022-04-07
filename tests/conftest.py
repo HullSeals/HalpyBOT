@@ -1,3 +1,14 @@
+"""
+HalpyBOT v1.6
+
+conftest.py - Fixture Developement Workshop
+
+Copyright (c) 2022 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
 # @pytest.fixture(autouse=True)
 # def _fudged_config_fx(monkeypatch):
 #     from halpybot.packages import configmanager
@@ -101,10 +112,16 @@
 #     monkeypatch.setitem(database.dbconfig, "database", "test")
 #     monkeypatch.setitem(database.dbconfig, "connect_timeout", 10)
 #     monkeypatch.setitem(database.dbconfig, "host", "127.0.0.1")
+
 import pytest
 from tests.mock_halpy import TestBot
 
+
 @pytest.fixture()
 def bot_fx():
+    """Create a fixture that represents the bot"""
+    # noinspection PyUnresolvedReferences
+    from halpybot import commands
+
     test_bot = TestBot(nickname="HalpyTest[BOT]")
     return test_bot

@@ -123,7 +123,9 @@ class GalaxySystem:
                     },
                     timeout=10,
                 ) as response:
-                    print(f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}")
+                    print(
+                        f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}"
+                    )
                     responses = await response.json()
 
         except aiohttp.ClientError:

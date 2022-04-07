@@ -21,7 +21,9 @@ from os import path, mkdir
 from loguru import logger
 
 from aiohttp import web
-from halpybot import commands  # noinspection PyUnresolvedReferences
+
+# noinspection PyUnresolvedReferences
+from halpybot import commands
 from halpybot.packages.configmanager import config
 from halpybot.packages.ircclient import client
 from halpybot.server import APIConnector
