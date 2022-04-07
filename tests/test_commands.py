@@ -50,10 +50,9 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
         sender="generic_seal",
         message=f"{config['IRC']['commandprefix']}lookup",
     )
-    assert bot_fx.sent_messages[0] == {
-        "message": "Use: ^lookup [System Name]\nAliases: syslookup\nCheck if a system exists in EDSM",
-        "target": "#bot-test",
-    }
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+    assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
+    assert bot_fx.sent_messages[0].get("message").endswith("Check if a system exists in EDSM")
 
 
 @pytest.mark.asyncio
