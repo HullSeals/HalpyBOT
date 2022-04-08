@@ -437,8 +437,8 @@ async def test_drillcb(bot_fx):
         message=f"{config['IRC']['commandprefix']}drillcbcase Rixxan, PC, Delkar, 25, No, 12:34",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": 'xxxx DRILL -- DRILL -- DRILL xxxx\nCMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 25\nCan Synth: No -- O2 Timer: 12:34\nxxxxxxxx',
-        'target': '#bot-test'
+        "message": "xxxx DRILL -- DRILL -- DRILL xxxx\nCMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 25\nCan Synth: No -- O2 Timer: 12:34\nxxxxxxxx",
+        "target": "#bot-test",
     }
     assert bot_fx.sent_messages[1] == {
         "message": "System exists in EDSM, 83.11 LY NE of Sol.",

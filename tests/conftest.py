@@ -119,10 +119,13 @@ from .fixtures.mock_halpy import TestBot
 
 
 @pytest.fixture()
-def bot_fx():
+async def bot_fx():
     """Create a fixture that represents the bot"""
     # noinspection PyUnresolvedReferences
     from halpybot import commands
+    from halpybot.packages.facts import Facts
 
+    # noinspection PyProtectedMember
+    await Facts._from_local()  # Allows us to test the Fact module from the pre-packaged JSON file
     test_bot = TestBot(nickname="HalpyTest[BOT]")
     return test_bot
