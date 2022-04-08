@@ -47,6 +47,8 @@ const_key_check = hmac.new(
 
 
 def authenticate():
+    """Validate a response coming in and check it against our config"""
+
     def decorator(function):
         @functools.wraps(function)
         async def guarded(request):

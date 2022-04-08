@@ -77,6 +77,7 @@ class HalpyServer(web.Application):
 
 @web.middleware
 async def compression_middleware(request, handler):
+    """Enable compression to improve our responses"""
     response = await handler(request)
     response.enable_compression()
     return response

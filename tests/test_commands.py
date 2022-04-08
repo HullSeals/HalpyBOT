@@ -20,6 +20,7 @@ from .fixtures.mock_edsm import mock_api_server_fx
 
 @pytest.mark.asyncio
 async def test_serverping(bot_fx):
+    """Check the ping command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -31,6 +32,7 @@ async def test_serverping(bot_fx):
 
 @pytest.mark.asyncio
 async def test_serverping_dm(bot_fx):
+    """Check the PING command in DMs"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="generic_seal",
@@ -42,6 +44,7 @@ async def test_serverping_dm(bot_fx):
 
 @pytest.mark.asyncio
 async def test_lookup(bot_fx, mock_api_server_fx):
+    """Test the lookup command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -56,6 +59,7 @@ async def test_lookup(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_lookup_2(bot_fx, mock_api_server_fx):
+    """Test the lookup command with no arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -73,6 +77,7 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_lookup_3(bot_fx, mock_api_server_fx):
+    """Test the lookup command with an invalid system"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -87,6 +92,7 @@ async def test_lookup_3(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_lookup_4(bot_fx, mock_api_server_fx):
+    """Test the Lookup command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -101,6 +107,7 @@ async def test_lookup_4(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_drillcase(bot_fx):
+    """Test the drillcase command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -120,6 +127,7 @@ async def test_drillcase(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillcase_unauth(bot_fx):
+    """Test the drillcase command with an unauthorized user"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -134,6 +142,7 @@ async def test_drillcase_unauth(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillcase_unauth_guest(bot_fx):
+    """Test the drillcase command as a guest"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -148,6 +157,7 @@ async def test_drillcase_unauth_guest(bot_fx):
 
 @pytest.mark.asyncio
 async def test_help(bot_fx):
+    """Test the help command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -164,6 +174,7 @@ async def test_help(bot_fx):
 
 @pytest.mark.asyncio
 async def test_help_specific(bot_fx):
+    """Test the help command on a specific argument"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -178,6 +189,7 @@ async def test_help_specific(bot_fx):
 
 @pytest.mark.asyncio
 async def test_help_multiple(bot_fx):
+    """Test the HELP command with multiple commands"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -196,6 +208,7 @@ async def test_help_multiple(bot_fx):
 
 @pytest.mark.asyncio
 async def test_help_none(bot_fx):
+    """Test the help command without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -210,6 +223,7 @@ async def test_help_none(bot_fx):
 
 @pytest.mark.asyncio
 async def test_about(bot_fx):
+    """Test the ABOUT command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -226,6 +240,7 @@ async def test_about(bot_fx):
 
 @pytest.mark.asyncio
 async def test_say_channel(bot_fx):
+    """Test the SAY command in a channel"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -244,6 +259,7 @@ async def test_say_channel(bot_fx):
 
 @pytest.mark.asyncio
 async def test_utc(bot_fx):
+    """Test the UTC command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -256,6 +272,7 @@ async def test_utc(bot_fx):
 
 @pytest.mark.asyncio
 async def test_year(bot_fx):
+    """Test the YEAR command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -268,6 +285,7 @@ async def test_year(bot_fx):
 
 @pytest.mark.asyncio
 async def test_say_direct_unauth(bot_fx):
+    """Test the SAY command with an unauthorized user"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_admin",
@@ -282,6 +300,7 @@ async def test_say_direct_unauth(bot_fx):
 
 @pytest.mark.asyncio
 async def test_say(bot_fx):
+    """Test the SAY command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_cyber",
@@ -296,6 +315,7 @@ async def test_say(bot_fx):
 
 @pytest.mark.asyncio
 async def test_say_no_args(bot_fx):
+    """Test the say command without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_cyber",
@@ -310,6 +330,7 @@ async def test_say_no_args(bot_fx):
 
 @pytest.mark.asyncio
 async def test_whois_hbot(bot_fx):
+    """Test the WHOIS command easter egg"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_admin",
@@ -324,6 +345,7 @@ async def test_whois_hbot(bot_fx):
 
 @pytest.mark.asyncio
 async def test_whois_empty(bot_fx):
+    """Test the WHOIS command without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_admin",
@@ -338,6 +360,7 @@ async def test_whois_empty(bot_fx):
 
 @pytest.mark.asyncio
 async def test_edsmping(bot_fx):
+    """Test the EDSM Ping command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -351,6 +374,7 @@ async def test_edsmping(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drill_empty(bot_fx):
+    """Test the drill command without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -365,6 +389,7 @@ async def test_drill_empty(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillkf_empty(bot_fx):
+    """Test what happens if the KF Drill case can be ran without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -379,6 +404,7 @@ async def test_drillkf_empty(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillcb_empty(bot_fx):
+    """Test if the CB drill case can be ran without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -393,6 +419,7 @@ async def test_drillcb_empty(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillkf(bot_fx):
+    """Test the KF drill command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -416,6 +443,7 @@ async def test_drillkf(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillkf_unauth(bot_fx):
+    """Test if the KF drill case can be fired by an unauthorized user"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -430,6 +458,7 @@ async def test_drillkf_unauth(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillcb(bot_fx):
+    """Test if the code black drill command can be run"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -448,6 +477,7 @@ async def test_drillcb(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillcb_unauth(bot_fx):
+    """Test if the drillCB command can be fired by an unauthorized user"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",

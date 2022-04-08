@@ -18,6 +18,7 @@ from halpybot.packages.configmanager import config
 
 @pytest.mark.asyncio
 async def test_pcfr(bot_fx):
+    """Test if the PCFR fact can be sent from the backup file"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",

@@ -28,6 +28,8 @@ pool = pydle.ClientPool()
 
 
 class HalpyBOT(pydle.Client, ListHandler):
+    """Create the instance of HalpyBOT,"""
+
     def __init__(self, *args, **kwargs):
         """Initialize a new Pydle client"""
         super().__init__(*args, **kwargs)
@@ -47,7 +49,7 @@ class HalpyBOT(pydle.Client, ListHandler):
     # If this happens, the bot should promptly text a Cyber and then shutdown. Systemctl will attempt to
     # restart the bot from the top.
     # Issue Ref: https://github.com/Shizmob/pydle/issues/155
-    # TODO: For the love of Halpy Pydle please fix this.
+    # FIXME: For the love of Halpy Pydle please fix this.
     async def handle_forever(self):
         try:
             await super().handle_forever()

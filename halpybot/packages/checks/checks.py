@@ -76,6 +76,8 @@ _levels = {
 
 
 class Require:
+    """Declare decorators to limit the use of commands"""
+
     @staticmethod
     def permission(role: Permission, message: str = None):
         """Require permission for a command

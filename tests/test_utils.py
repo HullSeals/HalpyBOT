@@ -71,9 +71,6 @@ async def test_backup_facts_file():
     assert os.path.exists("data/facts/backup_facts.json") is True
 
 
-# TODO: Test Backup Fact with Fact test module
-
-
 @pytest.mark.asyncio
 async def test_dssa_file():
     """Test the DSSA file exists"""

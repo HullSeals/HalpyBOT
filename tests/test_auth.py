@@ -16,6 +16,7 @@ from halpybot.server.auth import get_hmac
 
 
 def test_hmac():
+    """Test the creation of a new HMAC object"""
     mac = get_hmac("testHMACstring")
     assert (
         mac.hexdigest()

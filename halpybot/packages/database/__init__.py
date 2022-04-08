@@ -12,4 +12,4 @@ See license.md
 
 from .connection import DatabaseConnection, NoDatabaseConnection, latency, dbconfig
 
-__all__ = ["DatabaseConnection", "NoDatabaseConnection", "latency", dbconfig]
+__all__ = ["DatabaseConnection", "NoDatabaseConnection", "latency", "dbconfig"]

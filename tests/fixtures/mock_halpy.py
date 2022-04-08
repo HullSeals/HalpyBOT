@@ -126,14 +126,17 @@ class TestBot(HalpyBOT):
         }
 
     async def message(self, target: str, message: str):
+        """Mock sending a message"""
         self.sent_messages.append({"target": target, "message": message})
 
     async def whois(self, name: str) -> dict:
+        """Mock the return the details of a user"""
         if name in self.users:
             return self.users[name]
 
     @classmethod
     def is_channel(self, channel: str):
+        """Mock the response channel"""
         return channel[0] in "#&+."
 
     async def connect(self, **kwargs):

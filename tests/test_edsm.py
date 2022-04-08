@@ -270,15 +270,4 @@ async def test_distance_check_landmarks_far():
         await checklandmarks("Skaudoae UF-Q b47-1")
 
 
-async def test_clear_config():
-    config_write("EDSM", "uri", CONFIG_IP)
-    CROSSCHECK_IP = config["EDSM"]["uri"]
-    CLEAR = False
-
-    if CROSSCHECK_IP == CONFIG_IP:
-        CLEAR = True
-
-    assert CLEAR is True
-
-
 config_write("EDSM", "uri", CONFIG_IP)
