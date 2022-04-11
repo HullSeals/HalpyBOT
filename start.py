@@ -72,29 +72,33 @@ logger.add(
     rotation="500 MB",
     compression="zip",
     retention=90,
+    filter=lambda record: "task" not in record["extra"]
+    or (record["extra"]["task"] != "API" and record["extra"]["task"] != "API"),
 )
 
 # # Add API connection Logger
-# logger.add(
-#     "logs/connection.log",
-#     level=file_level,
-#     format=FORMATTER,
-#     rotation="500 MB",
-#     compression="zip",
-#     retention=90,
-#     filter=lambda record: record["extra"]["task"] == "API",
-# )
-#
-# # Add unauthorized command Logger
-# logger.add(
-#     "logs/command_access.log",
-#     level=file_level,
-#     format=FORMATTER,
-#     rotation="500 MB",
-#     compression="zip",
-#     retention=90,
-#     filter=lambda record: record["extra"]["task"] == "Command",
-# )
+logger.add(
+    "logs/connection.log",
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+    filter=lambda record: "task" in record["extra"]
+    and record["extra"]["task"] == "API",
+)
+
+# Add unauthorized command Logger
+logger.add(
+    "logs/command_access.log",
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+    filter=lambda record: "task" in record["extra"]
+    and record["extra"]["task"] == "Command",
+)
 
 # Add CLI Logger
 logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
@@ -111,7 +115,7 @@ def _start_bot():
         client.connect(
             hostname=config["IRC"]["server"],
             port=config["IRC"]["port"],
-            tls=config.getboolean("IRC", "useSsl"),
+            tls=config.getboolean("IRC", "usessl"),
             tls_verify=False,
         )
     )
