@@ -93,6 +93,9 @@ class Require:
         def decorator(function):
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
+                # Add Command Logger
+                command_logger = logger.bind(task="Command")
+
                 # Sanity check
                 if not isinstance(role, Permission):
                     raise ValueError("Permission must be of type 'Permission'")
@@ -103,8 +106,7 @@ class Require:
                 vhost = User.process_vhost(whois.hostname)
 
                 if vhost is None:
-                    await ctx.reply(role.msg if message is None else message)
-                    logger.warning(
+                    command_logger.warning(
                         "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
                         sender=ctx.sender,
                         host=whois.hostname,
@@ -112,15 +114,15 @@ class Require:
                         req=required_level,
                         channel=ctx.channel,
                     )
+                    return await ctx.reply(role.msg if message is None else message)
 
                 # Find user level that belongs to vhost
                 user_level = int(_levels[vhost])
                 # If permission is not correct, send deniedMessage
 
                 if user_level < required_level:
-                    await ctx.reply(role.msg if message is None else message)
                     # Log it and send off for the dashboard
-                    logger.warning(
+                    command_logger.warning(
                         "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
                         sender=ctx.sender,
                         host=whois.hostname,
@@ -128,6 +130,7 @@ class Require:
                         req=required_level,
                         channel=ctx.channel,
                     )
+                    return await ctx.reply(role.msg if message is None else message)
 
                 return await function(ctx, args)
 

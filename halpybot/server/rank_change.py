@@ -12,10 +12,8 @@ See license.md
 """
 
 from aiohttp import web
-
 from .server import APIConnector
 from .auth import authenticate
-
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
 from ..packages.ircclient import client as botclient
 

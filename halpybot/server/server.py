@@ -12,6 +12,8 @@ See license.md
 """
 from typing import Type, Union
 from datetime import datetime
+
+import aiohttp.http_exceptions
 from loguru import logger
 import git
 from aiohttp.web import Request, StreamResponse
@@ -31,6 +33,8 @@ class HalpyServer(web.Application):
     ) -> Union[Type[HTTPBadRequest], None, HTTPMethodNotAllowed, HTTPNotFound]:
         """A method to filter out spam requests that would otherwise result
         in a large error message and log them neatly"""
+        # Add Connection Logger
+        connection_logger = logger.bind(task="API")
         # If they don't provide authentication, we log it and return 400
         request_method = request.method
         request_path = request.path
@@ -40,7 +44,7 @@ class HalpyServer(web.Application):
                 request.headers.get("hmac") is None
                 or request.headers.get("keyCheck") is None
             ):
-                logger.info("Request submitted with incomplete auth headers")
+                connection_logger.info("Request submitted with incomplete auth headers")
                 return HTTPBadRequest
 
         no_method = True
@@ -53,18 +57,20 @@ class HalpyServer(web.Application):
                 if route.resource.canonical == request_path:
                     return None
         if no_method:
-            logger.info("API request made for not used method")
+            connection_logger.info("API request made for not used method")
             return HTTPMethodNotAllowed(
                 request_method, list({route.method for route in routes})
             )
-        logger.info("API request made with unused path")
+        connection_logger.info("API request made with unused path")
         return HTTPNotFound()
 
     async def _handle(self, request: Request) -> StreamResponse:
+        # Add Connection Logger
+        connection_logger = logger.bind(task="API")
         try:
             request_error = await self.__filter_request(request)
             if request_error is not None:
-                logger.info(
+                connection_logger.info(
                     "Invalid request submitted by {host} not processed",
                     host=request.host,
                 )

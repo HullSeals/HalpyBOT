@@ -13,7 +13,6 @@ See license.md
 
 from typing import Dict
 from aiohttp import web
-
 from ..packages.announcer import Announcer, AnnouncementError
 from .server import APIConnector
 from .auth import authenticate
