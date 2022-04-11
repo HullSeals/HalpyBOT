@@ -12,8 +12,6 @@ See license.md
 """
 from typing import Type, Union
 from datetime import datetime
-
-import aiohttp.http_exceptions
 from loguru import logger
 import git
 from aiohttp.web import Request, StreamResponse
