@@ -74,27 +74,27 @@ logger.add(
     retention=90,
 )
 
-# Add API connection Logger
-logger.add(
-    "logs/connection.log",
-    level=file_level,
-    format=FORMATTER,
-    rotation="500 MB",
-    compression="zip",
-    retention=90,
-    filter=lambda record: record["extra"]["task"] == "API",
-)
-
-# Add unauthorized command Logger
-logger.add(
-    "logs/command_access.log",
-    level=file_level,
-    format=FORMATTER,
-    rotation="500 MB",
-    compression="zip",
-    retention=90,
-    filter=lambda record: record["extra"]["task"] == "Command",
-)
+# # Add API connection Logger
+# logger.add(
+#     "logs/connection.log",
+#     level=file_level,
+#     format=FORMATTER,
+#     rotation="500 MB",
+#     compression="zip",
+#     retention=90,
+#     filter=lambda record: record["extra"]["task"] == "API",
+# )
+#
+# # Add unauthorized command Logger
+# logger.add(
+#     "logs/command_access.log",
+#     level=file_level,
+#     format=FORMATTER,
+#     rotation="500 MB",
+#     compression="zip",
+#     retention=90,
+#     filter=lambda record: record["extra"]["task"] == "Command",
+# )
 
 # Add CLI Logger
 logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
