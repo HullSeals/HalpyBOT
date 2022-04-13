@@ -129,13 +129,13 @@ class TestBot(HalpyBOT):
         """Mock sending a message"""
         self.sent_messages.append({"target": target, "message": message})
 
-    async def whois(self, name: str) -> dict:
+    async def whois(self, nickname: str) -> dict:
         """Mock the return the details of a user"""
-        if name in self.users:
-            return self.users[name]
+        if nickname in self.users:
+            return self.users[nickname]
 
     @classmethod
-    def is_channel(self, channel: str):
+    def is_channel(cls, channel: str):
         """Mock the response channel"""
         return channel[0] in "#&+."
 
