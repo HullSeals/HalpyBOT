@@ -47,9 +47,14 @@ const_key_check = hmac.new(
 
 
 def authenticate():
+    """Validate a response coming in and check it against our config"""
+
     def decorator(function):
         @functools.wraps(function)
         async def guarded(request):
+            # Add Connection Logger
+            connection_logger = logger.bind(task="API")
+
             data = await request.json()
             clientmac = request.headers.get("hmac")
             key_check = request.headers.get("keyCheck")
@@ -63,15 +68,15 @@ def authenticate():
             check = const_key_check
             # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
             if not hmac.compare_digest(key_check, check.hexdigest()):
-                logger.warning(
+                connection_logger.warning(
                     "Failed authentication. Incorrect key or key verification message"
                 )
                 raise web.HTTPUnauthorized()
             # If the key is correct but HMAC is different, the body has been altered in transit and should be rejected
             if not hmac.compare_digest(clientmac, mac.hexdigest()):
-                logger.warning("Failed authentication. Bad request body")
+                connection_logger.warning("Failed authentication. Bad request body")
                 raise web.HTTPUnprocessableEntity()
-            logger.info("Successfully authenticated API request")
+            connection_logger.info("Successfully authenticated API request")
             return await function(request)
 
         return guarded

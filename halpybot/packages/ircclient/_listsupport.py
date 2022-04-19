@@ -17,6 +17,8 @@ from pydle.features.rfc1459 import RFC1459Support
 
 
 class ListHandler(RFC1459Support):
+    """ListHandler: Process the response to /LIST and save the list of channels"""
+
     def __init__(
         self,
         nickname: str = "HalpyLISTener",

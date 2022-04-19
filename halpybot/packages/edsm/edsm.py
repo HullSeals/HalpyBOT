@@ -115,7 +115,7 @@ class GalaxySystem:
                 headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                    "https://www.edsm.net/api-v1/system",
+                    f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}",
                     params={
                         "systemName": name,
                         "showCoordinates": 1,
@@ -189,7 +189,7 @@ class GalaxySystem:
                 headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                    "https://www.edsm.net/api-v1/sphere-systems",
+                    f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}",
                     params={
                         "x": x_coord,
                         "y": y_coord,
@@ -279,7 +279,7 @@ class Commander:
                 headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                    "https://www.edsm.net/api-logs-v1/get-position",
+                    f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}",
                     params={"commanderName": name, "showCoordinates": 1},
                     timeout=10,
                 ) as response:
@@ -649,7 +649,7 @@ async def get_nearby_system(sys_name: str):
                 headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                    "https://www.edsm.net/api-v1/systems",
+                    f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}",
                     params={"systemName": name_to_check},
                     timeout=10,
                 ) as response:

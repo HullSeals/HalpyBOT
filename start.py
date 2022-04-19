@@ -21,7 +21,9 @@ from os import path, mkdir
 from loguru import logger
 
 from aiohttp import web
-from halpybot import commands  # noinspection PyUnresolvedReferences
+
+# noinspection PyUnresolvedReferences
+from halpybot import commands
 from halpybot.packages.configmanager import config
 from halpybot.packages.ircclient import client
 from halpybot.server import APIConnector
@@ -62,7 +64,7 @@ basicConfig(handlers=[InterceptHandler()], level=0)
 # Remove default logger
 logger.remove()
 
-# Addd File Logger
+# Add File Logger
 logger.add(
     logFile,
     level=file_level,
@@ -70,6 +72,32 @@ logger.add(
     rotation="500 MB",
     compression="zip",
     retention=90,
+    filter=lambda record: "task" not in record["extra"]
+    or (record["extra"]["task"] != "API" and record["extra"]["task"] != "API"),
+)
+
+# # Add API connection Logger
+logger.add(
+    "logs/connection.log",
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+    filter=lambda record: "task" in record["extra"]
+    and record["extra"]["task"] == "API",
+)
+
+# Add unauthorized command Logger
+logger.add(
+    "logs/command_access.log",
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+    filter=lambda record: "task" in record["extra"]
+    and record["extra"]["task"] == "Command",
 )
 
 # Add CLI Logger
@@ -87,7 +115,7 @@ def _start_bot():
         client.connect(
             hostname=config["IRC"]["server"],
             port=config["IRC"]["port"],
-            tls=config.getboolean("IRC", "useSsl"),
+            tls=config.getboolean("IRC", "usessl"),
             tls_verify=False,
         )
     )

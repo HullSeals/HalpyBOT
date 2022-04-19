@@ -11,6 +11,7 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
+
 import pytest
 from halpybot.packages.seals import whois
 from halpybot.packages.configmanager import config, config_write

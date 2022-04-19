@@ -11,11 +11,12 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
+
 import asyncio
 from unittest.mock import patch
 import pytest
 import aiohttp
-
+from halpybot.packages.configmanager import config, config_write
 import halpybot.packages.edsm.edsm
 from halpybot.packages.edsm import (
     GalaxySystem,
@@ -29,6 +30,22 @@ from halpybot.packages.edsm import (
     get_nearby_system,
     EDSMConnectionError,
     sys_cleaner,
+)
+
+# noinspection PyUnresolvedReferences
+from .fixtures.mock_edsm import mock_api_server_fx
+
+SAFE_IP = "http://127.0.0.1:4000"
+CONFIG_IP = config["EDSM"]["uri"]
+config_write("EDSM", "uri", SAFE_IP)
+CROSSCHECK_IP = config["EDSM"]["uri"]
+GOOD_IP = False
+
+if CROSSCHECK_IP == SAFE_IP:
+    GOOD_IP = True
+
+pytestmark = pytest.mark.skipif(
+    GOOD_IP is not True, reason="No safe IP Given! Unsafe to test."
 )
 
 
@@ -130,7 +147,7 @@ async def test_noncmdr2():
 async def test_location():
     """Test that the Commander system responds with a value"""
     location = await Commander.location("Rixxan")
-    assert location is not None
+    assert location.system == "Pleiades Sector HR-W d1-79"
 
 
 @pytest.mark.asyncio
@@ -214,7 +231,7 @@ async def test_distance_bad_sys():
 async def test_distance_bad_sys_2():
     """Test that distances between only one incorrect point will error properly"""
     with pytest.raises(NoResultsEDSM):
-        await checkdistance("Sagittarius A*", "ThisCMDRStillDoesntExist")
+        await checkdistance("Sagittarius A*", "ThisCMDRDoesntExist")
 
 
 @pytest.mark.asyncio
@@ -251,3 +268,6 @@ async def test_distance_check_landmarks_far():
     """Test a distant system doesn't have a landmark within range"""
     with pytest.raises(NoResultsEDSM):
         await checklandmarks("Skaudoae UF-Q b47-1")
+
+
+config_write("EDSM", "uri", CONFIG_IP)

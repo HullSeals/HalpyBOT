@@ -52,7 +52,8 @@ class Location:
 
 @dataclass
 class Commander:
-    # Three Keys We Care About
+    """The Commander keys we care about"""
+
     msgnum: int
     system: str
     coordinates: Coordinates
@@ -61,6 +62,7 @@ class Commander:
 
 @dataclass
 class Galaxy:
-    # The Keys We Care About
+    """Galaxy Keys we care about"""
+
     name: str
     coords: Coordinates
