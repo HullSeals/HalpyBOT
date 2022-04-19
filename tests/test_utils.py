@@ -11,6 +11,7 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
+
 import os.path
 import pytest
 from halpybot.packages.utils import get_time_seconds, language_codes, strip_non_ascii
@@ -54,12 +55,12 @@ def test_non_strip():
     assert string == ("This has Non-Ascii to Strip", False)
 
 
-async def test_commands():
+def test_commands():
     """Test the help file exists"""
     assert os.path.exists("data/help/commands.json") is True
 
 
-async def test_commands_content():
+def test_commands_content():
     """Test the help file is formatted properly"""
     assert get_help_text("ping") is not None
 
@@ -68,9 +69,6 @@ async def test_commands_content():
 async def test_backup_facts_file():
     """Test the backup fact file exists"""
     assert os.path.exists("data/facts/backup_facts.json") is True
-
-
-# TODO: Test Backup Fact with Fact test module
 
 
 @pytest.mark.asyncio

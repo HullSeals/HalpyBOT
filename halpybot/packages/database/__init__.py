@@ -10,6 +10,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .connection import DatabaseConnection, NoDatabaseConnection, latency
+from .connection import DatabaseConnection, NoDatabaseConnection, latency, dbconfig
 
-__all__ = ["DatabaseConnection", "NoDatabaseConnection", "latency"]
+__all__ = ["DatabaseConnection", "NoDatabaseConnection", "latency", "dbconfig"]

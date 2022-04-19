@@ -11,10 +11,12 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
+
 from halpybot.server.auth import get_hmac
 
 
 def test_hmac():
+    """Test the creation of a new HMAC object"""
     mac = get_hmac("testHMACstring")
     assert (
         mac.hexdigest()

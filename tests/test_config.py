@@ -11,6 +11,7 @@ See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
 """
+
 import os
 import pytest
 from halpybot.packages.configmanager import config, config_write
@@ -20,44 +21,6 @@ def test_config_exists():
     """Test that the config file exists. Without it, you aren't getting far."""
     config_file = os.path.exists("config/config.ini")
     assert config_file is True
-
-
-@pytest.mark.asyncio
-async def test_config_value():
-    """Test that critical values are in the config file."""
-    config_values = {  # Essential if you are using NickServ/SASL
-        "config['SASL']['username']",
-        "config['SASL']['password']",
-        # End NickServ/SASL
-        "config['IRC']['server']",
-        "config['IRC']['server']",
-        "config['IRC']['usessl']",
-        "config['IRC']['nickname']",
-        # If this one is blank, hbot will process everything as a command
-        "config['IRC']['commandprefix']",
-        "config['IRC']['operline']",
-        "config['IRC']['operlinepassword']",
-        "config['API Connector']['port']",
-        "config['API Connector']['key']",
-        "config['API Connector']['key_check_constant']",
-        "config['Channels']['channellist']",
-        "config['Database']['user']",
-        "config['Database']['password']",
-        "config['Database']['host']",
-        "config['Database']['database']",
-        "config['Database']['timeout']",
-        "config['Force join command']['joinable']",
-        "config['Offline Mode']['enabled']",
-        "config['EDSM']['maximum landmark distance']",
-        "config['Logging']['cli_level']",
-        "config['Logging']['file_level']",
-        "config['Logging']['log_file']",
-        "config['Facts']['table']",
-        "config['Twitter']['enabled']",
-        "config['System Monitoring']['failure_button']",
-    }
-    for value in config_values:
-        assert value is not None
 
 
 @pytest.mark.asyncio

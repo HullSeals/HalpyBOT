@@ -38,6 +38,8 @@ class NoDatabaseConnection(ConnectionError):
 
 
 class DatabaseConnection(MySQLConnection):
+    """Governing the connection to the database"""
+
     def __init__(self, autocommit: bool = True):
         """Create a new database connection
 
