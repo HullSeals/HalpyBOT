@@ -51,10 +51,6 @@ class EDSMConnectionError(EDSMLookupError):
     """
 
 
-LANDMARKS = []
-CARRIERS = []
-
-
 @dataclass
 class EDSMQuery:
     object: Union[GalaxySystem, Commander, None]
@@ -345,6 +341,16 @@ class Commander:
         )
 
 
+landmark_target = Path() / "data" / "edsm" / "landmarks.json"
+LANDMARKS = json.loads(landmark_target.read_text())
+LANDMARKS = cattr.structure(LANDMARKS, typing.List[GalaxySystem])
+
+
+carrier_target = Path() / "data" / "edsm" / "dssa.json"
+CARRIERS = json.loads(carrier_target.read_text())
+CARRIERS = cattr.structure(CARRIERS, typing.List[GalaxySystem])
+
+
 async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
     """Check distance between two EDSM points
 
@@ -437,18 +443,10 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         NoResultsEDSM: No point was found for `edsm_sys_name`
 
     """
-    global LANDMARKS  # FIXME: Similar to Carriers, fix mutable global
     # Set default values
 
     coords = await get_coordinates(edsm_sys_name, cache_override)
     if coords:
-        # Load JSON file if landmarks cache is empty, else we just get objects from the cache
-
-        target = Path() / "data" / "edsm" / "landmarks.json"
-        if not LANDMARKS:
-            LANDMARKS = json.loads(target.read_text())
-            LANDMARKS = cattr.structure(LANDMARKS, typing.List[GalaxySystem])
-
         maxdist = config["EDSM"]["Maximum landmark distance"]
         distances = {
             calc_distance(
@@ -499,18 +497,9 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
 
     """
-    global CARRIERS  # FIXME: REMOVE MUTABLE GLOBAL (BAD BAD BAD)
-    # Set default values
-
     coords = await get_coordinates(edsm_sys_name, cache_override)
 
     if coords:
-
-        # Load JSON file if dssa cache is empty, else we just get objects from the cache
-        target = Path() / "data" / "edsm" / "dssa.json"
-        if not CARRIERS:
-            CARRIERS = json.loads(target.read_text())
-            CARRIERS = cattr.structure(CARRIERS, typing.List[GalaxySystem])
 
         distances = {
             calc_distance(
