@@ -341,14 +341,31 @@ class Commander:
         )
 
 
-landmark_target = Path() / "data" / "edsm" / "landmarks.json"
-LANDMARKS = json.loads(landmark_target.read_text())
-LANDMARKS = cattr.structure(LANDMARKS, typing.List[GalaxySystem])
+class Edsm:
+    def __init__(self):
+        self._carriers: Optional[typing.List[GalaxySystem]] = None
+        self._landmarks: Optional[typing.List[GalaxySystem]] = None
+
+    @property
+    def landmarks(self):
+        if self._landmarks:
+            return self._landmarks
+        landmark_target = Path() / "data" / "edsm" / "landmarks.json"
+        landmarks = json.loads(landmark_target.read_text())
+        self._landmarks = cattr.structure(landmarks, typing.List[GalaxySystem])
+        return self._landmarks
+
+    @property
+    def carriers(self):
+        if self._carriers:
+            return self._carriers
+        carrier_target = Path() / "data" / "edsm" / "dssa.json"
+        carriers = json.loads(carrier_target.read_text())
+        self._carriers = cattr.structure(carriers, typing.List[GalaxySystem])
+        return self._carriers
 
 
-carrier_target = Path() / "data" / "edsm" / "dssa.json"
-CARRIERS = json.loads(carrier_target.read_text())
-CARRIERS = cattr.structure(CARRIERS, typing.List[GalaxySystem])
+calculators = Edsm()
 
 
 async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
@@ -457,7 +474,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
                 coords.z,
                 item.coords.z,
             ): item
-            for item in LANDMARKS
+            for item in calculators.landmarks
         }
         minimum_key = min(distances)
         minimum = distances[minimum_key]
@@ -510,7 +527,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
                 coords.z,
                 item.coords.z,
             ): item
-            for item in CARRIERS
+            for item in calculators.carriers
         }
 
         minimum_key = min(distances)
