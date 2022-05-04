@@ -18,7 +18,7 @@ from halpybot.packages.configmanager import config, config_write
 
 
 @pytest.mark.asyncio
-async def test_good_whois():
+async def test_egg_whois():
     """Test the WHOIS reply for the fun name"""
     user = await whois("HalpyBOT")
     user = user[: len(user) // 2]
@@ -29,7 +29,22 @@ async def test_good_whois():
 
 
 @pytest.mark.asyncio
+async def test_good_whois():
+    """Test the WHOIS reply for a valid user"""
+    user = await whois("rik079")
+    user = user[: len(user) // 3]
+    assert user == "CMDR rik079 has a Seal ID of 400, registered on 2020-01-15, with r"
+
+
+@pytest.mark.asyncio
 async def test_bad_whois():
+    """Test the WHOIS reply for a valid user"""
+    user = await whois("blargnet")
+    assert user == "No registered user found by that name!"
+
+
+@pytest.mark.asyncio
+async def test_offline_whois():
     """Test that the WHOIS system responds properly in ONLINE mode"""
     prev_value = config["Offline Mode"]["enabled"]
     config_write("Offline Mode", "enabled", "False")

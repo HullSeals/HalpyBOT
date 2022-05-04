@@ -488,3 +488,37 @@ async def test_drillcb_unauth(bot_fx):
         "message": "You have to be a drilled seal to use this!",
         "target": "#bot-test",
     }
+
+
+@pytest.mark.asyncio
+async def test_go_valid(bot_fx):
+    """Test the GO command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}go some_pup",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "some_pup: You're up.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_go_guest(bot_fx):
+    """Test the GO command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}go guest_user",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "generic_seal: guest_user is not identified as a trained seal. Have them check their IRC setup?",
+        "target": "#bot-test",
+    }
+    assert bot_fx.sent_messages[1] == {
+        "message": "guest_user: You're up.",
+        "target": "#bot-test",
+    }
