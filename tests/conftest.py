@@ -115,6 +115,10 @@ See license.md
 #     monkeypatch.setitem(database.dbconfig, "host", "127.0.0.1")
 
 import pytest
+import os
+
+if os.getcwd().endswith("tests"):
+    os.chdir("..")
 
 # noinspection PyUnresolvedReferences
 from halpybot import commands
