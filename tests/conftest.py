@@ -114,8 +114,8 @@ See license.md
 #     monkeypatch.setitem(database.dbconfig, "connect_timeout", 10)
 #     monkeypatch.setitem(database.dbconfig, "host", "127.0.0.1")
 
-import pytest
 import os
+import pytest
 
 if os.getcwd().endswith("tests"):
     os.chdir("..")

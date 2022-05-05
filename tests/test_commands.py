@@ -19,7 +19,7 @@ from .fixtures.mock_edsm import mock_api_server_fx
 
 
 @pytest.mark.asyncio
-async def test_serverping(bot_fx):
+async def test_ping(bot_fx):
     """Check the ping command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -28,6 +28,18 @@ async def test_serverping(bot_fx):
         message=f"{config['IRC']['commandprefix']}ping",
     )
     assert bot_fx.sent_messages[0] == {"message": "Pong!", "target": "#bot-test"}
+
+
+@pytest.mark.asyncio
+async def test_serverping(bot_fx):
+    """Check the serverstatus command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}serverstatus",
+    )
+    assert bot_fx.sent_messages[0].get("message").startswith("The Elite servers are")
 
 
 @pytest.mark.asyncio
@@ -356,6 +368,38 @@ async def test_whois_empty(bot_fx):
         "message": f"Use: {config['IRC']['commandprefix']}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
         "target": "some_admin",
     }
+
+
+@pytest.mark.asyncio
+async def test_whois(bot_fx):
+    """Test the WHOIS command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config['IRC']['commandprefix']}whois Rixxan",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
+
+
+@pytest.mark.asyncio
+async def test_whoami(bot_fx):
+    """Test the WHOAMI command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="Rixxan",
+        sender="Rixxan",
+        message=f"{config['IRC']['commandprefix']}whoami",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
 
 
 @pytest.mark.asyncio
