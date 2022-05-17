@@ -10,12 +10,16 @@ Licensed under the GNU General Public License
 See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
+
+Testing will always DISABLE offline mode. You must have access to a Seal-type DB for testing.
 """
 
 import pytest
 from halpybot.packages.seals import whois
 from halpybot.packages.configmanager import config, config_write
 
+prev_value = config["Offline Mode"]["enabled"]
+config_write("Offline Mode", "enabled", "False")
 
 @pytest.mark.asyncio
 async def test_egg_whois():
@@ -61,3 +65,5 @@ async def test_no_db():
     no_database = await whois("ThisCMDRDoesntExist")
     assert no_database == "Error searching user."
     config_write("Offline Mode", "enabled", prev_value)
+
+config_write("Offline Mode", "enabled", prev_value)
