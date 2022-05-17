@@ -32,6 +32,12 @@ pytestmark = pytest.mark.skipif(
     GOOD_IP is not True, reason="No safe IP Given! Unsafe to test."
 )
 
+pytestmark = pytest.mark.skipif(
+    config["Offline Mode"]["enabled"] == "True",
+    reason="Offline Mode Enabled on database-modifying tests! "
+    "Please disable it to continue",
+)
+
 
 @pytest.mark.asyncio
 async def test_open():

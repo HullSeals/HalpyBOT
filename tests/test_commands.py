@@ -33,6 +33,8 @@ async def test_ping(bot_fx):
 @pytest.mark.asyncio
 async def test_serverping(bot_fx):
     """Check the serverstatus command"""
+    if config["Offline Mode"]["enabled"] == "True":
+        pytest.skip("Offline Mode Enabled")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -57,6 +59,8 @@ async def test_serverping_dm(bot_fx):
 @pytest.mark.asyncio
 async def test_lookup(bot_fx, mock_api_server_fx):
     """Test the lookup command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -72,6 +76,8 @@ async def test_lookup(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_2(bot_fx, mock_api_server_fx):
     """Test the lookup command with no arguments"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -90,6 +96,8 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_3(bot_fx, mock_api_server_fx):
     """Test the lookup command with an invalid system"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -105,6 +113,8 @@ async def test_lookup_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_4(bot_fx, mock_api_server_fx):
     """Test the Lookup command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -120,6 +130,8 @@ async def test_lookup_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_drillcase(bot_fx):
     """Test the drillcase command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -373,6 +385,8 @@ async def test_whois_empty(bot_fx):
 @pytest.mark.asyncio
 async def test_whois(bot_fx):
     """Test the WHOIS command"""
+    if config["Offline Mode"]["enabled"] == "True":
+        pytest.skip("Offline Mode Enabled")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_admin",
@@ -389,6 +403,8 @@ async def test_whois(bot_fx):
 @pytest.mark.asyncio
 async def test_whoami(bot_fx):
     """Test the WHOAMI command"""
+    if config["Offline Mode"]["enabled"] == "True":
+        pytest.skip("Offline Mode Enabled")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="Rixxan",
@@ -405,6 +421,8 @@ async def test_whoami(bot_fx):
 @pytest.mark.asyncio
 async def test_edsmping(bot_fx):
     """Test the EDSM Ping command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -464,6 +482,8 @@ async def test_drillcb_empty(bot_fx):
 @pytest.mark.asyncio
 async def test_drillkf(bot_fx):
     """Test the KF drill command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -503,6 +523,8 @@ async def test_drillkf_unauth(bot_fx):
 @pytest.mark.asyncio
 async def test_drillcb(bot_fx):
     """Test if the code black drill command can be run"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -571,6 +593,8 @@ async def test_go_guest(bot_fx):
 @pytest.mark.asyncio
 async def test_locate(bot_fx, mock_api_server_fx):
     """Test the locate command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -603,6 +627,8 @@ async def test_locate_2(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_locate_3(bot_fx, mock_api_server_fx):
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     """Test the locate command with an invalid name"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -619,6 +645,8 @@ async def test_locate_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_locate_4(bot_fx, mock_api_server_fx):
     """Test the locate command cache override"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -634,6 +662,8 @@ async def test_locate_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance(bot_fx, mock_api_server_fx):
     """Test the distance command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -649,6 +679,8 @@ async def test_distance(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance_2(bot_fx, mock_api_server_fx):
     """Test the distance command with no arguments"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -681,6 +713,8 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_distance_4(bot_fx, mock_api_server_fx):
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     """Test the distance command with cache override"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -697,6 +731,8 @@ async def test_distance_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_coords(bot_fx, mock_api_server_fx):
     """Test the coords command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -744,6 +780,8 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_coords_4(bot_fx, mock_api_server_fx):
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     """Test the coords command with an invalid EDSM value"""
     await Commands.invoke_from_message(
         bot=bot_fx,

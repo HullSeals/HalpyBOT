@@ -15,6 +15,13 @@ NOTE: For these tests, it is advised to run pytest with the -W ignore::Deprecati
 import time
 import pytest
 from halpybot.packages.database import latency
+from halpybot.packages.configmanager import config
+
+pytestmark = pytest.mark.skipif(
+    config["Offline Mode"]["enabled"] == "True",
+    reason="Offline Mode Enabled on database-touching tests! "
+    "Please disable it to continue",
+)
 
 
 @pytest.mark.asyncio

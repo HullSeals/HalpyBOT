@@ -99,6 +99,8 @@ async def test_allfacts_2(bot_fx):
 @pytest.mark.asyncio
 async def test_ufi(bot_fx):
     """Test the UFI Command"""
+    if config["Offline Mode"]["enabled"] == "True":
+        pytest.skip("Offline Mode Enabled")
     prev_value = config["Offline Mode"]["enabled"]
     config_write("Offline Mode", "enabled", "False")
 
@@ -113,4 +115,3 @@ async def test_ufi(bot_fx):
         "target": "some_cyber",
     }
     config_write("Offline Mode", "enabled", prev_value)
-

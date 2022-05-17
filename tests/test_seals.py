@@ -18,8 +18,12 @@ import pytest
 from halpybot.packages.seals import whois
 from halpybot.packages.configmanager import config, config_write
 
-prev_value = config["Offline Mode"]["enabled"]
-config_write("Offline Mode", "enabled", "False")
+pytestmark = pytest.mark.skipif(
+    config["Offline Mode"]["enabled"] == "True",
+    reason="Offline Mode Enabled on database-touching tests! "
+    "Please disable it to continue",
+)
+
 
 @pytest.mark.asyncio
 async def test_egg_whois():
@@ -65,5 +69,3 @@ async def test_no_db():
     no_database = await whois("ThisCMDRDoesntExist")
     assert no_database == "Error searching user."
     config_write("Offline Mode", "enabled", prev_value)
-
-config_write("Offline Mode", "enabled", prev_value)
