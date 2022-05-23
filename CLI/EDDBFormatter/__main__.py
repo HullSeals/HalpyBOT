@@ -114,7 +114,6 @@ def run():
         final_dict = {
             "name": working_dict_1["name"],
             "dist_star": working_dict_1["dist_star"],
-            "station_type": working_dict_1["station_type"],
             "system_name": wd_2["system_name"],
             "x_coord": wd_2["x_coord"],
             "y_coord": wd_2["y_coord"],

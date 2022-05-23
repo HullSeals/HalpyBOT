@@ -67,7 +67,6 @@ class EDDBSystem:
 
     name: str
     dist_star: int
-    station_type: str
     system_name: str
     x_coord: float
     y_coord: float
