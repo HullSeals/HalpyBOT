@@ -58,6 +58,23 @@ class EDSMQuery:
 
 
 @dataclass
+class EDDBSystem:
+    """EDDB system object
+
+    System info received from the EDDB formatter packaged in CLI.
+
+    """
+
+    name: str
+    dist_star: int
+    station_type: str
+    system_name: str
+    x_coord: float
+    y_coord: float
+    z_coord: float
+
+
+@dataclass
 class GalaxySystem:
     """EDSM system object
 
@@ -345,6 +362,7 @@ class Edsm:
     def __init__(self):
         self._carriers: Optional[typing.List[GalaxySystem]] = None
         self._landmarks: Optional[typing.List[GalaxySystem]] = None
+        self._diversions: Optional[typing.List[EDDBSystem]] = None
 
     @property
     def landmarks(self):
@@ -363,6 +381,15 @@ class Edsm:
         carriers = json.loads(carrier_target.read_text())
         self._carriers = cattr.structure(carriers, typing.List[GalaxySystem])
         return self._carriers
+
+    @property
+    def diversions(self):
+        if self._diversions:
+            return self._diversions
+        diversions_target = Path() / "data" / "edsm" / "diversions.json"
+        loaded_diversions = json.loads(diversions_target.read_text())
+        self._diversions = cattr.structure(loaded_diversions, typing.List[EDDBSystem])
+        return self._diversions
 
 
 calculators = Edsm()
@@ -537,6 +564,55 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
             coords.x, minimum.coords.x, coords.z, minimum.coords.z
         )
         return minimum.name, f"{minimum_key:,}", direction
+
+    if not coords:
+        raise NoResultsEDSM(
+            f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+            f" database."
+        )
+
+
+async def diversions(edsm_sys_name, cache_override: bool = False):
+    """Check distance to nearest diversion station
+
+    Last updated 2022-05-23 w/ 7,384 Qualified Stations
+
+    Args:
+        edsm_sys_name (str): System name
+        cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
+
+    Returns:
+        (str): Distance between point and a diversion station, in the format xx,yyy.zz
+
+    Raises:
+        EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
+                by default.
+        NoResultsEDSM: No point was found for `edsm_sys_name`.
+
+
+    """
+    coords = await get_coordinates(edsm_sys_name, cache_override)
+
+    if coords:
+        distances = {
+            calc_distance(
+                coords.x,
+                item.x_coord,
+                coords.y,
+                item.y_coord,
+                coords.z,
+                item.z_coord,
+            ): item
+            for item in calculators.diversions
+        }
+
+        minimum_key = min(distances)
+        minimum = distances[minimum_key]
+
+        direction = await calc_direction(
+            coords.x, minimum.x_coord, coords.z, minimum.z_coord
+        )
+        return minimum.name, minimum.dist_star, minimum.system_name, direction, f"{minimum_key:,}"
 
     if not coords:
         raise NoResultsEDSM(
