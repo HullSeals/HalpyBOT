@@ -21,7 +21,8 @@ from ..packages.edsm import (
     checklandmarks,
     checkdssa,
     sys_cleaner,
-    diversions
+    diversions,
+    NoResultsEDSM
 )
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
@@ -51,6 +52,8 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
         if await GalaxySystem.exists(name=system, cache_override=cache_override):
             return await ctx.reply(f"System {await sys_cleaner(system)} exists in EDSM")
         return await ctx.reply(f"System {await sys_cleaner(system)} not found in EDSM")
+    except NoResultsEDSM:
+        return await ctx.reply(f"No system named {system} was found in the EDSM database.")
 
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system details.")
@@ -78,10 +81,12 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
 
     try:
         location = await Commander.location(name=cmdr, cache_override=cache_override)
+    except NoResultsEDSM:
+        return await ctx.reply(f"No CMDR named {cmdr} was found in the EDSM database.")
     except EDSMConnectionError:
         logger.exception("Failed to query EDSM for commander data.")
         # kill it. kill it with fire. ~ TheUnkn0wn1
-        return ctx.reply("Failed to query EDSM for commander data.")
+        return await ctx.reply("Failed to query EDSM for commander data.")
 
     if location is None:
         return await ctx.reply("CMDR not found or not sharing location on EDSM")
@@ -120,6 +125,8 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
         distance, direction = await checkdistance(
             pointa, pointb, cache_override=cache_override
         )
+    except NoResultsEDSM:
+        return await ctx.reply(f"No system and/or commander was found in the EDSM database for one of the points.")
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system or CMDR details.")
         return await ctx.reply("Failed to query EDSM for system or CMDR details.")
@@ -156,6 +163,8 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
             f"The closest landmark system is {landmark}, {distance} LY {direction} of "
             f"{await sys_cleaner(system)}."
         )
+    except NoResultsEDSM:
+        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
     except EDSMLookupError:
         if (
             str(EDSMLookupError)
@@ -200,6 +209,8 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
             f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
             f"{await sys_cleaner(system)}."
         )
+    except NoResultsEDSM:
+        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for DSSA details.")
         return await ctx.reply("Failed to query EDSM for DSSA details.")
@@ -229,6 +240,8 @@ async def cmd_coordslookup(ctx, args: List[str]):
         system, dist = await GalaxySystem.get_nearby(
             x_coord=xcoord, y_coord=ycoord, z_coord=zcoord
         )
+    except NoResultsEDSM:
+        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for coordinate details.")
         return await ctx.reply("Failed to query EDSM for coordinate details.")
@@ -267,6 +280,8 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
             f"The closest diversion station is {name}, {key} LY {direction} of "
             f"{await sys_cleaner(system)} in {system_name} ({dist_star} LS from entry)"
         )
+    except NoResultsEDSM:
+        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
     except EDSMLookupError:
-        logger.exception("Failed to query EDSM for DSSA details.")
-        return await ctx.reply("Failed to query EDSM for DSSA details.")
+        logger.exception("Failed to query EDSM for coordinate details.")
+        return await ctx.reply("Failed to query EDSM for coordinate details.")
