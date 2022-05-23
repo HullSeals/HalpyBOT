@@ -25,7 +25,7 @@ def run():
     )
     print(
         "WARNING: This operation will remove the existing generated files, and relies on filtered data dumps from "
-        "EDDB to proceed."
+        "EDDB to proceed.\n"
     )
     cont = input(
         "Please make a backup of the previously generated files first. Do you wish to proceed? (Y/n) "
@@ -119,6 +119,8 @@ def run():
         counter += 1
     with open("EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w") as json_file:
         json.dump(write_dict, json_file, indent=2)
+
+    print("Operation Complete! Please validate the file manually before deploying to production.")
 
 
 if __name__ == "__main__":
