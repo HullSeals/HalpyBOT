@@ -101,19 +101,13 @@ def run():
             counter += 1
             continue
         final_dict = {
-            "id": working_dict_1["id"],
             "name": working_dict_1["name"],
-            "system_id": working_dict_1["system_id"],
-            "max_landing": working_dict_1["max_landing"],
             "dist_star": working_dict_1["dist_star"],
-            "has_repair": working_dict_1["has_repair"],
-            "is_planet": working_dict_1["is_planet"],
             "station_type": working_dict_1["station_type"],
             "system_name": wd_2["system_name"],
             "x_coord": wd_2["x_coord"],
             "y_coord": wd_2["y_coord"],
             "z_coord": wd_2["z_coord"],
-            "needs_permit": wd_2["needs_permit"],
         }
         write_dict[counter] = final_dict
         counter += 1
