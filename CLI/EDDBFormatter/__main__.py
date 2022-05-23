@@ -41,10 +41,16 @@ def run():
     if os.path.exists("EDDBFormatter/files/output/filtered_systems_populated.json"):
         os.remove("EDDBFormatter/files/output/filtered_systems_populated.json")
 
-    if os.path.exists("EDDBFormatter/files/output/filtered_combined_stations_with_systems.json"):
-        os.remove("EDDBFormatter/files/output/filtered_combined_stations_with_systems.json")
+    if os.path.exists(
+        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json"
+    ):
+        os.remove(
+            "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json"
+        )
 
-    with open("EDDBFormatter/files/input/formatted_systems_populated.json", "r") as systemfile:
+    with open(
+        "EDDBFormatter/files/input/formatted_systems_populated.json", "r"
+    ) as systemfile:
         system_data = json.load(systemfile)
         system_dict = {}
         counter = 1
@@ -61,7 +67,9 @@ def run():
                 system_dict[key_2["id"]] = temp_dict_2
                 counter += 1
 
-        with open("EDDBFormatter/files/output/filtered_systems_populated.json", "w") as system_file:
+        with open(
+            "EDDBFormatter/files/output/filtered_systems_populated.json", "w"
+        ) as system_file:
             json.dump(system_dict, system_file, indent=2)
 
     with open("EDDBFormatter/files/input/formatted_stations.json", "r") as jsonfile:
@@ -84,10 +92,13 @@ def run():
                 and temp_dict["has_repair"] is True
                 and temp_dict["is_planet"] is False
                 and temp_dict["station_type"] != "Fleet Carrier"
+                and temp_dict["dist_star"] <= 800
             ):
                 station_dict[counter] = temp_dict
                 counter += 1
-        with open("EDDBFormatter/files/output/filtered_stations.json", "w") as json_file:
+        with open(
+            "EDDBFormatter/files/output/filtered_stations.json", "w"
+        ) as json_file:
             json.dump(station_dict, json_file, indent=2)
 
     # I can use station_dict and system_dict now...
@@ -96,7 +107,7 @@ def run():
     for key in tqdm(station_dict, desc="Combining System Files: "):
         working_dict_1 = station_dict[counter]
         try:
-            wd_2 = system_dict[station_dict[counter]['system_id']]
+            wd_2 = system_dict[station_dict[counter]["system_id"]]
         except KeyError:
             counter += 1
             continue
@@ -111,10 +122,14 @@ def run():
         }
         write_dict[counter] = final_dict
         counter += 1
-    with open("EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w") as json_file:
+    with open(
+        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w"
+    ) as json_file:
         json.dump(write_dict, json_file, indent=2)
 
-    print("Operation Complete! Please validate the file manually before deploying to production.")
+    print(
+        "Operation Complete! Please validate the file manually before deploying to production."
+    )
 
 
 if __name__ == "__main__":
