@@ -39,5 +39,5 @@ __all__ = [
     "NoResultsEDSM",
     "calc_distance",
     "calc_direction",
-    "diversions"
+    "diversions",
 ]

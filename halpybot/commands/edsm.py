@@ -22,7 +22,7 @@ from ..packages.edsm import (
     checkdssa,
     sys_cleaner,
     diversions,
-    NoResultsEDSM
+    NoResultsEDSM,
 )
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
@@ -53,7 +53,9 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
             return await ctx.reply(f"System {await sys_cleaner(system)} exists in EDSM")
         return await ctx.reply(f"System {await sys_cleaner(system)} not found in EDSM")
     except NoResultsEDSM:
-        return await ctx.reply(f"No system named {system} was found in the EDSM database.")
+        return await ctx.reply(
+            f"No system named {system} was found in the EDSM database."
+        )
 
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system details.")
@@ -126,7 +128,9 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
             pointa, pointb, cache_override=cache_override
         )
     except NoResultsEDSM:
-        return await ctx.reply(f"No system and/or commander was found in the EDSM database for one of the points.")
+        return await ctx.reply(
+            f"No system and/or commander was found in the EDSM database for one of the points."
+        )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system or CMDR details.")
         return await ctx.reply("Failed to query EDSM for system or CMDR details.")
@@ -164,7 +168,9 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
             f"{await sys_cleaner(system)}."
         )
     except NoResultsEDSM:
-        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
+        return await ctx.reply(
+            f"No system and/or commander named {system} was found in the EDSM database."
+        )
     except EDSMLookupError:
         if (
             str(EDSMLookupError)
@@ -210,7 +216,9 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
             f"{await sys_cleaner(system)}."
         )
     except NoResultsEDSM:
-        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
+        return await ctx.reply(
+            f"No system and/or commander named {system} was found in the EDSM database."
+        )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for DSSA details.")
         return await ctx.reply("Failed to query EDSM for DSSA details.")
@@ -241,7 +249,9 @@ async def cmd_coordslookup(ctx, args: List[str]):
             x_coord=xcoord, y_coord=ycoord, z_coord=zcoord
         )
     except NoResultsEDSM:
-        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
+        return await ctx.reply(
+            f"No system and/or commander named {system} was found in the EDSM database."
+        )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for coordinate details.")
         return await ctx.reply("Failed to query EDSM for coordinate details.")
@@ -281,7 +291,9 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
             f"{await sys_cleaner(system)} in {system_name} ({dist_star} LS from entry)"
         )
     except NoResultsEDSM:
-        return await ctx.reply(f"No system and/or commander named {system} was found in the EDSM database.")
+        return await ctx.reply(
+            f"No system and/or commander named {system} was found in the EDSM database."
+        )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for coordinate details.")
         return await ctx.reply("Failed to query EDSM for coordinate details.")

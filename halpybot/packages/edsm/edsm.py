@@ -612,7 +612,13 @@ async def diversions(edsm_sys_name, cache_override: bool = False):
         direction = await calc_direction(
             coords.x, minimum.x_coord, coords.z, minimum.z_coord
         )
-        return minimum.name, minimum.dist_star, minimum.system_name, direction, f"{minimum_key:,}"
+        return (
+            minimum.name,
+            minimum.dist_star,
+            minimum.system_name,
+            direction,
+            f"{minimum_key:,}",
+        )
 
     if not coords:
         raise NoResultsEDSM(
