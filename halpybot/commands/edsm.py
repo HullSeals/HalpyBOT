@@ -21,6 +21,7 @@ from ..packages.edsm import (
     checklandmarks,
     checkdssa,
     sys_cleaner,
+    diversions
 )
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
@@ -236,3 +237,36 @@ async def cmd_coordslookup(ctx, args: List[str]):
             f"No systems known to EDSM within 100ly of {xcoord}, {ycoord}, {zcoord}."
         )
     return await ctx.reply(f"{system} is {dist} LY from {xcoord}, {ycoord}, {zcoord}.")
+
+
+@Commands.command("diversion")
+async def cmd_diversionlookup(ctx: Context, args: List[str]):
+    """
+    Calculate the closest DSSA Carrier to a known EDSM system.
+
+    Usage: !diversion <--new> [system/cmdr]
+    Aliases: n/a
+    File Last Updated: 2022-05-23 w/ 7,384 Qualified Stations
+    """
+
+    cache_override = False
+
+    if len(args) == 0:
+        return await ctx.reply(get_help_text("dssa"))
+    if args[0] == "--new":
+        cache_override = True
+        del args[0]
+
+    system = ctx.message.strip()
+
+    try:
+        name, dist_star, system_name, direction, key = await diversions(
+            edsm_sys_name=system, cache_override=cache_override
+        )
+        return await ctx.reply(
+            f"The closest diversion station is {name}, {key} LY {direction} of "
+            f"{await sys_cleaner(system)} in {system_name} ({dist_star} LS from entry)"
+        )
+    except EDSMLookupError:
+        logger.exception("Failed to query EDSM for DSSA details.")
+        return await ctx.reply("Failed to query EDSM for DSSA details.")
