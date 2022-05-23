@@ -103,7 +103,7 @@ def run():
 
     # I can use station_dict and system_dict now...
     counter = 1
-    write_dict = {}
+    write_list = []
     for key in tqdm(station_dict, desc="Combining System Files: "):
         working_dict_1 = station_dict[counter]
         try:
@@ -120,12 +120,12 @@ def run():
             "y_coord": wd_2["y_coord"],
             "z_coord": wd_2["z_coord"],
         }
-        write_dict[counter] = final_dict
+        write_list.append(final_dict)
         counter += 1
     with open(
         "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w"
     ) as json_file:
-        json.dump(write_dict, json_file, indent=2)
+        json.dump(write_list, json_file, indent=2)
 
     print(
         "Operation Complete! Please validate the file manually before deploying to production."
