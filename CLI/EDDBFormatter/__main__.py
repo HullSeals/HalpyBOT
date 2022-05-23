@@ -48,36 +48,38 @@ def run():
             "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json"
         )
 
+    # Open the jq-formatted (or renamed) json system json file. (Original Size: 57 MB)
     with open(
         "EDDBFormatter/files/input/formatted_systems_populated.json", "r"
     ) as systemfile:
         system_data = json.load(systemfile)
         system_dict = {}
-        counter = 1
-        for key_2 in tqdm(system_data, desc="Filtering System Data: "):
-            temp_dict_2 = {
-                "id": key_2["id"],
-                "system_name": key_2["name"],
-                "x_coord": key_2["x"],
-                "y_coord": key_2["y"],
-                "z_coord": key_2["z"],
-                "needs_permit": key_2["needs_permit"],
+        for system in tqdm(system_data, desc="Filtering System Data: "):
+            # Filter down to just key system keys
+            temp_system_dict = {
+                "id": system["id"],
+                "system_name": system["name"],
+                "x_coord": system["x"],
+                "y_coord": system["y"],
+                "z_coord": system["z"],
+                "needs_permit": system["needs_permit"],  # Included for filtering only.
             }
-            if temp_dict_2["needs_permit"] is not True:
-                system_dict[key_2["id"]] = temp_dict_2
-                counter += 1
+            if temp_system_dict["needs_permit"] is not True:
+                system_dict[system["id"]] = temp_system_dict
 
+        # Create output filtered system file, in case we want to review it later.
         with open(
             "EDDBFormatter/files/output/filtered_systems_populated.json", "w"
         ) as system_file:
             json.dump(system_dict, system_file, indent=2)
 
+    # Open jq-formatted or renamed station file. (Original Size: 420 MB)
     with open("EDDBFormatter/files/input/formatted_stations.json", "r") as jsonfile:
         data = json.load(jsonfile)
         station_dict = {}
         counter = 1
         for key in tqdm(data, desc="Filtering Station Data: "):
-            temp_dict = {
+            temp_station_dict = {
                 "id": key["id"],
                 "name": key["name"],
                 "system_id": key["system_id"],
@@ -87,30 +89,36 @@ def run():
                 "is_planet": key["is_planetary"],
                 "station_type": key["type"],
             }
+            # To be used as a diversion station, must have L pad, Repair function, not on a planet, not a mobile
+            # platform, and no more than 800 LS from the main star.
             if (
-                temp_dict["max_landing"] == "L"
-                and temp_dict["has_repair"] is True
-                and temp_dict["is_planet"] is False
-                and temp_dict["station_type"] != "Fleet Carrier"
-                and temp_dict["dist_star"] <= 800
+                temp_station_dict["max_landing"] == "L"
+                and temp_station_dict["has_repair"] is True
+                and temp_station_dict["is_planet"] is False
+                and temp_station_dict["station_type"] != "Fleet Carrier"
+                and temp_station_dict["dist_star"] <= 800
             ):
-                station_dict[counter] = temp_dict
+                station_dict[counter] = temp_station_dict
                 counter += 1
+        # Create output filtered station file, in case we want to review it later.
         with open(
             "EDDBFormatter/files/output/filtered_stations.json", "w"
         ) as json_file:
             json.dump(station_dict, json_file, indent=2)
 
-    # I can use station_dict and system_dict now...
+    # Now we need to combine the two dicts to a formatted list file.
     counter = 1
-    write_list = []
+    write_list = (
+        []
+    )  # LIST not a DICT. Otherwise, it won't work well with the dataclass, thanks cattrs.
     for key in tqdm(station_dict, desc="Combining System Files: "):
         working_dict_1 = station_dict[counter]
         try:
             wd_2 = system_dict[station_dict[counter]["system_id"]]
-        except KeyError:
+        except KeyError:  # If a system has no valid stations in it, pass and move on.
             counter += 1
             continue
+            # Drop what we don't want.
         final_dict = {
             "name": working_dict_1["name"],
             "dist_star": working_dict_1["dist_star"],
@@ -119,8 +127,9 @@ def run():
             "y_coord": wd_2["y_coord"],
             "z_coord": wd_2["z_coord"],
         }
-        write_list.append(final_dict)
+        write_list.append(final_dict)  # Append as List, not write as full Dict
         counter += 1
+    # Write it out before we forget what we're doing.
     with open(
         "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w"
     ) as json_file:
