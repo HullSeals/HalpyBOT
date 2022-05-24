@@ -275,20 +275,25 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
     cache_override = False
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("dssa"))
+        return await ctx.reply(get_help_text("diversion"))
     if args[0] == "--new":
         cache_override = True
         del args[0]
 
     system = ctx.message.strip()
+    cleaned_sys = await sys_cleaner(system)
 
     try:
-        name, dist_star, system_name, direction, key = await diversions(
-            edsm_sys_name=system, cache_override=cache_override
+        first, second, third, fourth, fifth = await diversions(
+            edsm_sys_name=cleaned_sys, cache_override=cache_override
         )
         return await ctx.reply(
-            f"The closest diversion station is {name}, {key} LY {direction} of "
-            f"{await sys_cleaner(system)} in {system_name} ({dist_star} LS from entry)"
+            f"Closest Diversion Stations to {cleaned_sys}:\n"
+            f"1st: {first[0]}, {float(first[4]):,} LY {first[3]} in {first[2]} ({first[1]} LS from entry)\n"
+            f"2nd: {second[0]}, {float(second[4]):,} LY {second[3]} in {second[2]} ({second[1]} LS from entry)\n"
+            f"3rd: {third[0]}, {float(third[4]):,} LY {third[3]} in {third[2]} ({third[1]} LS from entry)\n"
+            f"4th: {fourth[0]}, {float(fourth[4]):,} LY {fourth[3]} in {fourth[2]} ({fourth[1]} LS from entry)\n"
+            f"5th: {fifth[0]}, {float(fifth[4]):,} LY {fifth[3]} in {fifth[2]} ({fifth[1]} LS from entry)"
         )
     except NoResultsEDSM:
         return await ctx.reply(
