@@ -265,7 +265,7 @@ async def cmd_coordslookup(ctx, args: List[str]):
 @Commands.command("diversion")
 async def cmd_diversionlookup(ctx: Context, args: List[str]):
     """
-    Calculate the closest DSSA Carrier to a known EDSM system.
+    Calculate the 5 closest FDEV-placed structures with repair capability to a known EDSM location.
 
     Usage: !diversion <--new> [system/cmdr]
     Aliases: n/a
