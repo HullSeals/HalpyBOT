@@ -53,64 +53,63 @@ def run():
         "EDDBFormatter/files/input/formatted_systems_populated.json", "r"
     ) as systemfile:
         system_data = json.load(systemfile)
-        system_dict = {}
-        for system in tqdm(system_data, desc="Filtering System Data: "):
-            # Filter down to just key system keys
-            temp_system_dict = {
-                "id": system["id"],
-                "system_name": system["name"],
-                "x_coord": system["x"],
-                "y_coord": system["y"],
-                "z_coord": system["z"],
-                "needs_permit": system["needs_permit"],  # Included for filtering only.
-            }
-            if not temp_system_dict["needs_permit"]:
-                system_dict[system["id"]] = temp_system_dict
+    system_dict = {}
+    for system in tqdm(system_data, desc="Filtering System Data: "):
+        # Filter down to just key system keys
+        temp_system_dict = {
+            "id": system["id"],
+            "system_name": system["name"],
+            "x_coord": system["x"],
+            "y_coord": system["y"],
+            "z_coord": system["z"],
+            "needs_permit": system["needs_permit"],  # Included for filtering only.
+        }
+        if not temp_system_dict["needs_permit"]:
+            system_dict[system["id"]] = temp_system_dict
 
-        # Create output filtered system file, in case we want to review it later.
-        with open(
-            "EDDBFormatter/files/output/filtered_systems_populated.json", "w"
-        ) as system_file:
-            json.dump(system_dict, system_file, indent=2)
+    # Create output filtered system file, in case we want to review it later.
+    with open(
+        "EDDBFormatter/files/output/filtered_systems_populated.json", "w"
+    ) as system_file:
+        json.dump(system_dict, system_file, indent=2)
 
     # Open jq-formatted or renamed station file. (Original Size: 420 MB)
     with open("EDDBFormatter/files/input/formatted_stations.json", "r") as jsonfile:
         data = json.load(jsonfile)
-        station_dict = {}
-        counter = 1
-        for key in tqdm(data, desc="Filtering Station Data: "):
-            temp_station_dict = {
-                "id": key["id"],
-                "name": key["name"],
-                "system_id": key["system_id"],
-                "max_landing": key["max_landing_pad_size"],
-                "dist_star": key["distance_to_star"],
-                "has_repair": key["has_repair"],
-                "is_planet": key["is_planetary"],
-                "station_type": key["type"],
-            }
-            # To be used as a diversion station, must have L pad, Repair function, not on a planet, not a mobile
-            # platform, and no more than 800 LS from the main star.
-            if (
-                temp_station_dict["max_landing"] == "L"
-                and temp_station_dict["has_repair"] is True
-                and temp_station_dict["is_planet"] is False
-                and temp_station_dict["station_type"] != "Fleet Carrier"
-                and temp_station_dict["dist_star"] <= 800
-            ):
-                station_dict[counter] = temp_station_dict
-                counter += 1
-        # Create output filtered station file, in case we want to review it later.
-        with open(
-            "EDDBFormatter/files/output/filtered_stations.json", "w"
-        ) as json_file:
-            json.dump(station_dict, json_file, indent=2)
+    station_dict = {}
+    counter = 1
+    for key in tqdm(data, desc="Filtering Station Data: "):
+        temp_station_dict = {
+            "id": key["id"],
+            "name": key["name"],
+            "system_id": key["system_id"],
+            "max_landing": key["max_landing_pad_size"],
+            "dist_star": key["distance_to_star"],
+            "has_repair": key["has_repair"],
+            "is_planet": key["is_planetary"],
+            "station_type": key["type"],
+        }
+        # To be used as a diversion station, must have L pad, Repair function, not on a planet, not a mobile
+        # platform, and no more than 800 LS from the main star.
+        if (
+            temp_station_dict["max_landing"] == "L"
+            and temp_station_dict["has_repair"] is True
+            and temp_station_dict["is_planet"] is False
+            and temp_station_dict["station_type"] != "Fleet Carrier"
+            and temp_station_dict["dist_star"] <= 800
+        ):
+            station_dict[counter] = temp_station_dict
+            counter += 1
+    # Create output filtered station file, in case we want to review it later.
+    with open("EDDBFormatter/files/output/filtered_stations.json", "w") as json_file:
+        json.dump(station_dict, json_file, indent=2)
 
     # Now we need to combine the two dicts to a formatted list file.
     counter = 1
     write_list = (
         []
-    )  # LIST not a DICT. Otherwise, it won't work well with the dataclass, thanks cattrs.
+    )  # LIST not a DICT. Otherwise, it won't work well with the dataclass we're actually using in the bot.
+    # (Found that out the hard way...)
     for key in tqdm(station_dict, desc="Combining System Files: "):
         working_dict_1 = station_dict[counter]
         try:
