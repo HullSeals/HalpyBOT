@@ -18,14 +18,12 @@ from tqdm import tqdm
 def run():
     """Run the EDDB Formatter"""
     print(
-        "=" * 20
-        + "\nCopyright (c) 2022 The Hull Seals\nEDDB File Formatter for HalpyBOT\n"
-        + "=" * 20
-        + "\n"
-    )
-    print(
-        "WARNING: This operation will remove the existing generated files, and relies on filtered data dumps from "
-        "EDDB to proceed.\n"
+        f"{'='*20}\n"
+        f"Copyright (c) 2022 The Hull Seals\n"
+        f"EDDB File Formatter for HalpyBOT\n"
+        f"{'='*20}\n"
+        f"WARNING: This operation will remove the existing generated files, and relies on filtered data dumps from "
+        f"EDDB to proceed.\n "
     )
     cont = input(
         "Please make a backup of the previously generated files first. Do you wish to proceed? (Y/n) "
@@ -50,7 +48,7 @@ def run():
 
     # Open the jq-formatted (or renamed) json system json file. (Original Size: 57 MB)
     with open(
-        "EDDBFormatter/files/input/formatted_systems_populated.json", "r"
+        "EDDBFormatter/files/input/formatted_systems_populated.json", "r", encoding="UTF-8"
     ) as systemfile:
         system_data = json.load(systemfile)
     system_dict = {}
@@ -69,12 +67,12 @@ def run():
 
     # Create output filtered system file, in case we want to review it later.
     with open(
-        "EDDBFormatter/files/output/filtered_systems_populated.json", "w"
+        "EDDBFormatter/files/output/filtered_systems_populated.json", "w", encoding="UTF-8"
     ) as system_file:
         json.dump(system_dict, system_file, indent=2)
 
     # Open jq-formatted or renamed station file. (Original Size: 420 MB)
-    with open("EDDBFormatter/files/input/formatted_stations.json", "r") as jsonfile:
+    with open("EDDBFormatter/files/input/formatted_stations.json", "r", encoding="UTF-8") as jsonfile:
         data = json.load(jsonfile)
     station_dict = {}
     counter = 1
@@ -101,7 +99,7 @@ def run():
             station_dict[counter] = temp_station_dict
             counter += 1
     # Create output filtered station file, in case we want to review it later.
-    with open("EDDBFormatter/files/output/filtered_stations.json", "w") as json_file:
+    with open("EDDBFormatter/files/output/filtered_stations.json", "w", encoding="UTF-8") as json_file:
         json.dump(station_dict, json_file, indent=2)
 
     # Now we need to combine the two dicts to a formatted list file.
@@ -128,7 +126,7 @@ def run():
         write_list.append(final_dict)  # Append as List, not write as full Dict
     # Write it out before we forget what we're doing.
     with open(
-        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w"
+        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w", encoding="UTF-8"
     ) as json_file:
         json.dump(write_list, json_file, indent=2)
 
