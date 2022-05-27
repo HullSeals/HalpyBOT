@@ -572,7 +572,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
 
 async def diversions(edsm_sys_name, cache_override: bool = False):
-    """Check distance to nearest diversion station
+    """Check distance to the nearest diversion station
 
     Last updated 2022-05-23 w/ 7,384 Qualified Stations
 
@@ -581,7 +581,7 @@ async def diversions(edsm_sys_name, cache_override: bool = False):
         cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
-        (str): Distance between point and a diversion station, in the format xx,yyy.zz
+        (tuple): Five tuples containing diversion stations and relevant details.
 
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
@@ -604,24 +604,72 @@ async def diversions(edsm_sys_name, cache_override: bool = False):
             ): item
             for item in calculators.diversions
         }
-
-        minimum_key = min(distances)
-        minimum = distances[minimum_key]
-
-        direction = await calc_direction(
-            coords.x, minimum.x_coord, coords.z, minimum.z_coord
+        first = sorted(list(distances.keys()))[0]
+        first_min = distances[first]
+        first_direction = await calc_direction(
+            coords.x, first_min.x_coord, coords.z, first_min.z_coord
         )
-        return (
-            minimum.name,
-            minimum.dist_star,
-            minimum.system_name,
-            direction,
-            f"{minimum_key:,}",
+        first_tup = (
+            first_min.name,
+            first_min.dist_star,
+            first_min.system_name,
+            first_direction,
+            f"{first}",
         )
+        second = sorted(list(distances.keys()))[1]
+        second_min = distances[second]
+        second_direction = await calc_direction(
+            coords.x, second_min.x_coord, coords.z, second_min.z_coord
+        )
+        second_tup = (
+            second_min.name,
+            second_min.dist_star,
+            second_min.system_name,
+            second_direction,
+            f"{second}",
+        )
+        third = sorted(list(distances.keys()))[2]
+        third_min = distances[third]
+        third_direction = await calc_direction(
+            coords.x, third_min.x_coord, coords.z, third_min.z_coord
+        )
+        third_tup = (
+            third_min.name,
+            third_min.dist_star,
+            third_min.system_name,
+            third_direction,
+            f"{third}",
+        )
+        fourth = sorted(list(distances.keys()))[3]
+        fourth_min = distances[fourth]
+        fourth_direction = await calc_direction(
+            coords.x, fourth_min.x_coord, coords.z, fourth_min.z_coord
+        )
+        fourth_tup = (
+            fourth_min.name,
+            fourth_min.dist_star,
+            fourth_min.system_name,
+            fourth_direction,
+            f"{fourth}",
+        )
+        fifth = sorted(list(distances.keys()))[4]
+        fifth_min = distances[fifth]
+        fifth_direction = await calc_direction(
+            coords.x, fifth_min.x_coord, coords.z, fifth_min.z_coord
+        )
+        fifth_tup = (
+            fifth_min.name,
+            fifth_min.dist_star,
+            fifth_min.system_name,
+            fifth_direction,
+            f"{fifth}",
+        )
+
+        return first_tup, second_tup, third_tup, fourth_tup, fifth_tup
 
     if not coords:
         raise NoResultsEDSM(
-            f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+            f"No system and/or commander named {edsm_sys_name} was found in the EDSM"
             f" database."
         )
 
