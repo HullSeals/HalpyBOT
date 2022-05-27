@@ -105,17 +105,16 @@ def run():
         json.dump(station_dict, json_file, indent=2)
 
     # Now we need to combine the two dicts to a formatted list file.
-    counter = 1
-    write_list = (
-        []
-    )  # LIST not a DICT. Otherwise, it won't work well with the dataclass we're actually using in the bot.
+    write_list = []
+    # LIST not a DICT. Otherwise, it won't work well with the dataclass we're actually using in the bot.
     # (Found that out the hard way...)
-    for key in tqdm(station_dict, desc="Combining System Files: "):
+    for counter, key in enumerate(
+        tqdm(station_dict, desc="Combining System Files: "), start=1
+    ):
         working_dict_1 = station_dict[counter]
         try:
             wd_2 = system_dict[station_dict[counter]["system_id"]]
         except KeyError:  # If a system has no valid stations in it, pass and move on.
-            counter += 1
             continue
             # Drop what we don't want.
         final_dict = {
@@ -127,7 +126,6 @@ def run():
             "z_coord": wd_2["z_coord"],
         }
         write_list.append(final_dict)  # Append as List, not write as full Dict
-        counter += 1
     # Write it out before we forget what we're doing.
     with open(
         "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w"
