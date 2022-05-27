@@ -64,7 +64,7 @@ def run():
                 "z_coord": system["z"],
                 "needs_permit": system["needs_permit"],  # Included for filtering only.
             }
-            if temp_system_dict["needs_permit"] is not True:
+            if not temp_system_dict["needs_permit"]:
                 system_dict[system["id"]] = temp_system_dict
 
         # Create output filtered system file, in case we want to review it later.
