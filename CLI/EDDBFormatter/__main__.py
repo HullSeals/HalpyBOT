@@ -97,8 +97,8 @@ def run():
         # platform, and no more than 800 LS from the main star.
         if (
             temp_station_dict["max_landing"] == "L"
-            and temp_station_dict["has_repair"] is True
-            and temp_station_dict["is_planet"] is False
+            and temp_station_dict["has_repair"]
+            and not temp_station_dict["is_planet"]
             and temp_station_dict["station_type"] != "Fleet Carrier"
             and temp_station_dict["dist_star"] <= 800
         ):
