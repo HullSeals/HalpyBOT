@@ -618,12 +618,10 @@ async def diversions(edsm_sys_name, cache_override: bool = False):
                 f"{item}",
             )
         return local_tup[0], local_tup[1], local_tup[2], local_tup[3], local_tup[4]
-
-    if not coords:
-        raise NoResultsEDSM(
-            f"No system and/or commander named {edsm_sys_name} was found in the EDSM"
-            f" database."
-        )
+    raise NoResultsEDSM(
+        f"No system and/or commander named {edsm_sys_name} was found in the EDSM"
+        f" database."
+    )
 
 
 def calc_distance(x_coord_1, x_coord_2, y_coord_1, y_coord_2, z_coord_1, z_coord_2):
