@@ -156,6 +156,7 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
     if args[0] == "--new":
         cache_override = True
         del args[0]
+        ctx.message = " ".join(args)
 
     system = ctx.message.strip()
 
@@ -204,6 +205,7 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
     if args[0] == "--new":
         cache_override = True
         del args[0]
+        ctx.message = " ".join(args)
 
     system = ctx.message.strip()
 
@@ -279,6 +281,7 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
     if args[0] == "--new":
         cache_override = True
         del args[0]
+        ctx.message = " ".join(args)
 
     system = ctx.message.strip()
     cleaned_sys = await sys_cleaner(system)
