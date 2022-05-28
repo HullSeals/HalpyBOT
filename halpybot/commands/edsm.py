@@ -289,11 +289,16 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
         )
         return await ctx.reply(
             f"Closest Diversion Stations to {cleaned_sys}:\n"
-            f"1st: {first[0]}, {float(first[4]):,} LY {first[3]} in {first[2]} ({first[1]} LS from entry)\n"
-            f"2nd: {second[0]}, {float(second[4]):,} LY {second[3]} in {second[2]} ({second[1]} LS from entry)\n"
-            f"3rd: {third[0]}, {float(third[4]):,} LY {third[3]} in {third[2]} ({third[1]} LS from entry)\n"
-            f"4th: {fourth[0]}, {float(fourth[4]):,} LY {fourth[3]} in {fourth[2]} ({fourth[1]} LS from entry)\n"
-            f"5th: {fifth[0]}, {float(fifth[4]):,} LY {fifth[3]} in {fifth[2]} ({fifth[1]} LS from entry)"
+            f"1st: {first.name}, {float(first.item):,} LY {first.local_direction} in {first.system_name} "
+            f"({first.dist_star} LS from entry)\n"
+            f"2nd: {second.name}, {float(second.item):,} LY {second.local_direction} in {second.system_name} "
+            f"({second.dist_star} LS from entry)\n"
+            f"3rd: {third.name}, {float(third.item):,} LY {third.local_direction} in {third.system_name} "
+            f"({third.dist_star} LS from entry)\n"
+            f"4th: {fourth.name}, {float(fourth.item):,} LY {fourth.local_direction} in {fourth.system_name} "
+            f"({fourth.dist_star} LS from entry)\n"
+            f"5th: {fifth.name}, {float(fifth.item):,} LY {fifth.local_direction} in {fifth.system_name} "
+            f"({fifth.dist_star} LS from entry)"
         )
     except NoResultsEDSM:
         return await ctx.reply(
