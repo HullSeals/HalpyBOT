@@ -543,7 +543,6 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
     coords = await get_coordinates(edsm_sys_name, cache_override)
 
     if coords:
-
         distances = {
             calc_distance(
                 coords.x,
@@ -604,68 +603,21 @@ async def diversions(edsm_sys_name, cache_override: bool = False):
             ): item
             for item in calculators.diversions
         }
-        first = sorted(list(distances.keys()))[0]
-        first_min = distances[first]
-        first_direction = await calc_direction(
-            coords.x, first_min.x_coord, coords.z, first_min.z_coord
-        )
-        first_tup = (
-            first_min.name,
-            first_min.dist_star,
-            first_min.system_name,
-            first_direction,
-            f"{first}",
-        )
-        second = sorted(list(distances.keys()))[1]
-        second_min = distances[second]
-        second_direction = await calc_direction(
-            coords.x, second_min.x_coord, coords.z, second_min.z_coord
-        )
-        second_tup = (
-            second_min.name,
-            second_min.dist_star,
-            second_min.system_name,
-            second_direction,
-            f"{second}",
-        )
-        third = sorted(list(distances.keys()))[2]
-        third_min = distances[third]
-        third_direction = await calc_direction(
-            coords.x, third_min.x_coord, coords.z, third_min.z_coord
-        )
-        third_tup = (
-            third_min.name,
-            third_min.dist_star,
-            third_min.system_name,
-            third_direction,
-            f"{third}",
-        )
-        fourth = sorted(list(distances.keys()))[3]
-        fourth_min = distances[fourth]
-        fourth_direction = await calc_direction(
-            coords.x, fourth_min.x_coord, coords.z, fourth_min.z_coord
-        )
-        fourth_tup = (
-            fourth_min.name,
-            fourth_min.dist_star,
-            fourth_min.system_name,
-            fourth_direction,
-            f"{fourth}",
-        )
-        fifth = sorted(list(distances.keys()))[4]
-        fifth_min = distances[fifth]
-        fifth_direction = await calc_direction(
-            coords.x, fifth_min.x_coord, coords.z, fifth_min.z_coord
-        )
-        fifth_tup = (
-            fifth_min.name,
-            fifth_min.dist_star,
-            fifth_min.system_name,
-            fifth_direction,
-            f"{fifth}",
-        )
-
-        return first_tup, second_tup, third_tup, fourth_tup, fifth_tup
+        local_tup = {}
+        for value in range(5):
+            item = sorted(list(distances.keys()))[value]
+            local_min = distances[item]
+            local_direction = await calc_direction(
+                coords.x, local_min.x_coord, coords.z, local_min.z_coord
+            )
+            local_tup[value] = (
+                local_min.name,
+                local_min.dist_star,
+                local_min.system_name,
+                local_direction,
+                f"{item}",
+            )
+        return local_tup[0], local_tup[1], local_tup[2], local_tup[3], local_tup[4]
 
     if not coords:
         raise NoResultsEDSM(

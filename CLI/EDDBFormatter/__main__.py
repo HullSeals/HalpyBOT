@@ -48,7 +48,9 @@ def run():
 
     # Open the jq-formatted (or renamed) json system json file. (Original Size: 57 MB)
     with open(
-        "EDDBFormatter/files/input/formatted_systems_populated.json", "r", encoding="UTF-8"
+        "EDDBFormatter/files/input/formatted_systems_populated.json",
+        "r",
+        encoding="UTF-8",
     ) as systemfile:
         system_data = json.load(systemfile)
     system_dict = {}
@@ -67,12 +69,16 @@ def run():
 
     # Create output filtered system file, in case we want to review it later.
     with open(
-        "EDDBFormatter/files/output/filtered_systems_populated.json", "w", encoding="UTF-8"
+        "EDDBFormatter/files/output/filtered_systems_populated.json",
+        "w",
+        encoding="UTF-8",
     ) as system_file:
         json.dump(system_dict, system_file, indent=2)
 
     # Open jq-formatted or renamed station file. (Original Size: 420 MB)
-    with open("EDDBFormatter/files/input/formatted_stations.json", "r", encoding="UTF-8") as jsonfile:
+    with open(
+        "EDDBFormatter/files/input/formatted_stations.json", "r", encoding="UTF-8"
+    ) as jsonfile:
         data = json.load(jsonfile)
     station_dict = {}
     counter = 1
@@ -99,7 +105,9 @@ def run():
             station_dict[counter] = temp_station_dict
             counter += 1
     # Create output filtered station file, in case we want to review it later.
-    with open("EDDBFormatter/files/output/filtered_stations.json", "w", encoding="UTF-8") as json_file:
+    with open(
+        "EDDBFormatter/files/output/filtered_stations.json", "w", encoding="UTF-8"
+    ) as json_file:
         json.dump(station_dict, json_file, indent=2)
 
     # Now we need to combine the two dicts to a formatted list file.
@@ -126,7 +134,9 @@ def run():
         write_list.append(final_dict)  # Append as List, not write as full Dict
     # Write it out before we forget what we're doing.
     with open(
-        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json", "w", encoding="UTF-8"
+        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json",
+        "w",
+        encoding="UTF-8",
     ) as json_file:
         json.dump(write_list, json_file, indent=2)
 
