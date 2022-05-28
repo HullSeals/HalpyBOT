@@ -129,7 +129,7 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
         )
     except NoResultsEDSM:
         return await ctx.reply(
-            f"No system and/or commander was found in the EDSM database for one of the points."
+            "No system and/or commander was found in the EDSM database for one of the points."
         )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system or CMDR details.")

@@ -25,12 +25,11 @@ from loguru import logger
 import aiohttp
 import numpy as np
 import cattr
-from attr import dataclass
+from attr import dataclass, define, field
 from halpybot import DEFAULT_USER_AGENT
 from ..models import Coordinates, Location
 from ..models import edsm_classes
 from ..configmanager import config
-from attr import define, field
 
 
 class EDSMLookupError(Exception):
@@ -93,7 +92,7 @@ class GalaxySystem:
 
     @classmethod
     async def get_info(
-            cls, name, cache_override: bool = False
+        cls, name, cache_override: bool = False
     ) -> Optional[GalaxySystem]:
         """Get a system object from the EDSM API.
 
@@ -125,16 +124,16 @@ class GalaxySystem:
         # Else, get the system from EDSM
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                        f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}",
-                        params={
-                            "systemName": name,
-                            "showCoordinates": 1,
-                            "showInformation": 1,
-                        },
-                        timeout=10,
+                    f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}",
+                    params={
+                        "systemName": name,
+                        "showCoordinates": 1,
+                        "showInformation": 1,
+                    },
+                    timeout=10,
                 ) as response:
                     responses = await response.json()
 
@@ -199,18 +198,18 @@ class GalaxySystem:
         # Else, get the system from EDSM
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                        f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}",
-                        params={
-                            "x": x_coord,
-                            "y": y_coord,
-                            "z": z_coord,
-                            "radius": 100,
-                            "minRadius": 1,
-                        },
-                        timeout=10,
+                    f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}",
+                    params={
+                        "x": x_coord,
+                        "y": y_coord,
+                        "z": z_coord,
+                        "radius": 100,
+                        "minRadius": 1,
+                    },
+                    timeout=10,
                 ) as response:
                     responses = await response.json()
 
@@ -289,12 +288,12 @@ class Commander:
 
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                        f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}",
-                        params={"commanderName": name, "showCoordinates": 1},
-                        timeout=10,
+                    f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}",
+                    params={"commanderName": name, "showCoordinates": 1},
+                    timeout=10,
                 ) as response:
                     responses = await response.json()
 
@@ -745,12 +744,12 @@ async def get_nearby_system(sys_name: str):
     for _ in range(5):
         try:
             async with aiohttp.ClientSession(
-                    headers={"User-Agent": DEFAULT_USER_AGENT}
+                headers={"User-Agent": DEFAULT_USER_AGENT}
             ) as session:
                 async with await session.get(
-                        f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}",
-                        params={"systemName": name_to_check},
-                        timeout=10,
+                    f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}",
+                    params={"systemName": name_to_check},
+                    timeout=10,
                 ) as response:
                     responces = await response.json()
             if responces:
