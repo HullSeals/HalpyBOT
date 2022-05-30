@@ -131,9 +131,9 @@ async def cmd_override_omw(ctx: Context, args: List[str]):
     elif request in ("disable", "false"):
         config_write("Offline Mode", "warning override", "False")
         request = False
-    if request is True or request is False:
+    if request or not request:
         return await ctx.reply(
-            f"Override has been {'enabled.' if request is True else 'disabled.'} You MUST "
+            f"Override has been {'enabled.' if request else 'disabled.'} You MUST "
             f"inform an on-duty cyberseal of this action immediately."
         )
 

@@ -114,7 +114,7 @@ class GalaxySystem:
         """
         name = await sys_cleaner(name)
         # Check if cached
-        if name in cls._lookupCache and cache_override is False:
+        if name in cls._lookupCache and not cache_override:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name].time
             cachetime = int(config["EDSM"]["timeCached"])
@@ -279,7 +279,7 @@ class Commander:
         """
 
         # Check if cached
-        if name.strip().upper() in cls._lookupCache and cache_override is False:
+        if name.strip().upper() in cls._lookupCache and not cache_override:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name.strip().upper()].time
             cachetime = int(config["EDSM"]["timeCached"])

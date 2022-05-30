@@ -60,7 +60,7 @@ class Context:
             message (str): The message to be sent
 
         """
-        if self.in_channel is True:
+        if self.in_channel:
             await self.bot.reply(
                 self.channel, self.sender, self.in_channel, "Responding in DMs!"
             )
