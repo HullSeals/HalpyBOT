@@ -20,7 +20,7 @@ from halpybot.packages.configmanager import config, config_write
 def test_config_exists():
     """Test that the config file exists. Without it, you aren't getting far."""
     config_file = os.path.exists("config/config.ini")
-    assert config_file is True
+    assert config_file
 
 
 @pytest.mark.asyncio

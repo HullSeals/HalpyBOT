@@ -34,7 +34,7 @@ async def test_seconds_bad():
 
 def test_lang():
     """Test the lang files exist"""
-    assert os.path.exists("data/languages/iso639-1.json") is True
+    assert os.path.exists("data/languages/iso639-1.json")
 
 
 def test_lang_content():
@@ -57,7 +57,7 @@ def test_non_strip():
 
 def test_commands():
     """Test the help file exists"""
-    assert os.path.exists("data/help/commands.json") is True
+    assert os.path.exists("data/help/commands.json")
 
 
 def test_commands_content():
@@ -68,22 +68,22 @@ def test_commands_content():
 @pytest.mark.asyncio
 async def test_backup_facts_file():
     """Test the backup fact file exists"""
-    assert os.path.exists("data/facts/backup_facts.json") is True
+    assert os.path.exists("data/facts/backup_facts.json")
 
 
 @pytest.mark.asyncio
 async def test_dssa_file():
     """Test the DSSA file exists"""
-    assert os.path.exists("data/edsm/dssa.json") is True
+    assert os.path.exists("data/edsm/dssa.json")
 
 
 @pytest.mark.asyncio
 async def test_landmark_file():
     """Test the landmark file exists"""
-    assert os.path.exists("data/edsm/landmarks.json") is True
+    assert os.path.exists("data/edsm/landmarks.json")
 
 
 @pytest.mark.asyncio
 async def test_announcer_file():
     """Test the announcer file exists"""
-    assert os.path.exists("data/announcer/announcer.json") is True
+    assert os.path.exists("data/announcer/announcer.json")

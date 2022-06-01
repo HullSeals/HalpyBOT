@@ -66,9 +66,9 @@ class CommandGroup:
         self._command_list = {}
         self._fact_handler = None
         # Don't allow registration of multiple root groups
-        if CommandGroup._root is not None and is_root is True:
+        if CommandGroup._root is not None and is_root:
             raise CommandHandlerError("Can only have one root group")
-        if is_root is True:
+        if is_root:
             CommandGroup._root = self
             self._group_name = "<ROOT>"
         CommandGroup._grouplist.append(self)
@@ -290,11 +290,9 @@ class CommandGroup:
             (list): All registered command names (mains only if mains = True)
 
         """
-        if mains is False:
+        if not mains:
             return list(self._command_list.keys())
-        return [
-            str(cmd) for cmd in self._command_list if self._command_list[cmd][1] is True
-        ]
+        return [str(cmd) for cmd in self._command_list if self._command_list[cmd][1]]
 
 
 def get_help_text(search_command: str):

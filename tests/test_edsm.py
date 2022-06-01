@@ -37,31 +37,20 @@ from .fixtures.mock_edsm import mock_api_server_fx
 
 SAFE_IP = "http://127.0.0.1:4000"
 CONFIG_IP = config["EDSM"]["uri"]
-config_write("EDSM", "uri", SAFE_IP)
-CROSSCHECK_IP = config["EDSM"]["uri"]
 GOOD_IP = False
 
-if CROSSCHECK_IP == SAFE_IP:
+if CONFIG_IP == SAFE_IP:
     GOOD_IP = True
 
 pytestmark = pytest.mark.skipif(
-    GOOD_IP is not True, reason="No safe IP Given! Unsafe to test."
+    GOOD_IP is not True, reason="Invalid EDSM IP in Config. Please update to continue."
 )
-
-
-@pytest.fixture
-def event_loop():
-    yield asyncio.get_event_loop()
-
-
-def pytest_sessionfinish(session, exitstatus):
-    asyncio.get_event_loop().close()
 
 
 # Test System
 # 1: Existing sys
 @pytest.mark.asyncio
-async def test_sys():
+async def test_sys(mock_api_server_fx):
     """Test that EDSM returns a valid response for a given system"""
     sys = await GalaxySystem.get_info("Sol", cache_override=True)
     assert sys.name == "Sol"
@@ -268,6 +257,3 @@ async def test_distance_check_landmarks_far():
     """Test a distant system doesn't have a landmark within range"""
     with pytest.raises(NoResultsEDSM):
         await checklandmarks("Skaudoae UF-Q b47-1")
-
-
-config_write("EDSM", "uri", CONFIG_IP)

@@ -162,7 +162,7 @@ class Require:
         def decorator(function):
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
-                if ctx.in_channel is False:
+                if not ctx.in_channel:
                     return await ctx.reply(
                         "You have to run this command in a channel! Aborted."
                     )
