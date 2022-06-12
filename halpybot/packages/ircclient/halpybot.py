@@ -140,7 +140,8 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.message(sender, message)
 
     async def on_unknown(self, message):
-        return
+        """Unknown Command"""
+        logger.warning(f"Unknown Command Received: {message}")
 
     async def operserv_login(self):
         """Log in with OperServ

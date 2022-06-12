@@ -123,6 +123,21 @@ class TestBot(HalpyBOT):
                 "server_info": "BlargNet",
                 "secure": True,
             },
+            "Rixxan": {
+                "nickname": "Rixxan",
+                "username": "Rixxan",
+                "hostname": "Rixxan@Rixxan.admin.hullseals.space",
+                "away": False,
+                "away_message": None,
+                "account": None,
+                "identified": True,
+                "realname": "Rixxan",
+                "oper": True,
+                "idle": 0,
+                "server": "Blargh",
+                "server_info": "BlargNet",
+                "secure": True,
+            },
         }
 
     async def message(self, target: str, message: str):

@@ -31,5 +31,9 @@ async def cmd_shutdown(ctx: Context, args: List[str]):
     Aliases: !reboot
     """
     logger.critical("Shutdown has been ordered by {sender}", sender=ctx.sender)
-    await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
+    if len(args) == 0:
+        await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
+    else:
+        args = " ".join(args)
+        await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. ({args})")
     os.kill(os.getpid(), signal.SIGTERM)

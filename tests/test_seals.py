@@ -10,11 +10,19 @@ Licensed under the GNU General Public License
 See license.md
 
 NOTE: For these tests, it is advised to run pytest with the -W ignore::DeprecationWarning due to framework issues.
+
+Testing will always DISABLE offline mode. You must have access to a Seal-type DB for testing.
 """
 
 import pytest
 from halpybot.packages.seals import whois
 from halpybot.packages.configmanager import config, config_write
+
+pytestmark = pytest.mark.skipif(
+    config["Offline Mode"]["enabled"] == "True",
+    reason="Offline Mode Enabled on database-touching tests! "
+    "Please disable it to continue",
+)
 
 
 @pytest.mark.asyncio

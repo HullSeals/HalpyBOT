@@ -19,7 +19,7 @@ from .fixtures.mock_edsm import mock_api_server_fx
 
 
 @pytest.mark.asyncio
-async def test_serverping(bot_fx):
+async def test_ping(bot_fx):
     """Check the ping command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -28,6 +28,20 @@ async def test_serverping(bot_fx):
         message=f"{config['IRC']['commandprefix']}ping",
     )
     assert bot_fx.sent_messages[0] == {"message": "Pong!", "target": "#bot-test"}
+
+
+@pytest.mark.asyncio
+async def test_serverping(bot_fx):
+    """Check the serverstatus command"""
+    if config["Offline Mode"]["enabled"] == "True":
+        pytest.skip("Offline Mode Enabled")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}serverstatus",
+    )
+    assert bot_fx.sent_messages[0].get("message").startswith("The Elite servers are")
 
 
 @pytest.mark.asyncio
@@ -45,6 +59,8 @@ async def test_serverping_dm(bot_fx):
 @pytest.mark.asyncio
 async def test_lookup(bot_fx, mock_api_server_fx):
     """Test the lookup command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -60,6 +76,8 @@ async def test_lookup(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_2(bot_fx, mock_api_server_fx):
     """Test the lookup command with no arguments"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -78,6 +96,8 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_3(bot_fx, mock_api_server_fx):
     """Test the lookup command with an invalid system"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -93,6 +113,8 @@ async def test_lookup_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_4(bot_fx, mock_api_server_fx):
     """Test the Lookup command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -108,6 +130,8 @@ async def test_lookup_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_drillcase(bot_fx):
     """Test the drillcase command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -359,8 +383,46 @@ async def test_whois_empty(bot_fx):
 
 
 @pytest.mark.asyncio
+async def test_whois(bot_fx):
+    """Test the WHOIS command"""
+    if config["Offline Mode"]["enabled"] == "True":
+        pytest.skip("Offline Mode Enabled")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config['IRC']['commandprefix']}whois Rixxan",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
+
+
+@pytest.mark.asyncio
+async def test_whoami(bot_fx):
+    """Test the WHOAMI command"""
+    if config["Offline Mode"]["enabled"] == "True":
+        pytest.skip("Offline Mode Enabled")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="Rixxan",
+        sender="Rixxan",
+        message=f"{config['IRC']['commandprefix']}whoami",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
+
+
+@pytest.mark.asyncio
 async def test_edsmping(bot_fx):
     """Test the EDSM Ping command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -420,6 +482,8 @@ async def test_drillcb_empty(bot_fx):
 @pytest.mark.asyncio
 async def test_drillkf(bot_fx):
     """Test the KF drill command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -459,6 +523,8 @@ async def test_drillkf_unauth(bot_fx):
 @pytest.mark.asyncio
 async def test_drillcb(bot_fx):
     """Test if the code black drill command can be run"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -520,5 +586,210 @@ async def test_go_guest(bot_fx):
     }
     assert bot_fx.sent_messages[1] == {
         "message": "guest_user: You're up.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_locate(bot_fx, mock_api_server_fx):
+    """Test the locate command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}locate Rixxan",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "CMDR Rixxan was last seen in Pleiades Sector HR-W d1-79 on 2022-03-15 20:51:01",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_locate_2(bot_fx, mock_api_server_fx):
+    """Test the locate command with no arguments"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}locate",
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+    assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .endswith("Check if a CMDR exists and shares their location in EDSM")
+    )
+
+
+@pytest.mark.asyncio
+async def test_locate_3(bot_fx, mock_api_server_fx):
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    """Test the locate command with an invalid name"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}locate Praisehalpydamnwhyisthisnotacmdrnam",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "CMDR not found or not sharing location on EDSM",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_locate_4(bot_fx, mock_api_server_fx):
+    """Test the locate command cache override"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}locate --new Rixxan",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "CMDR Rixxan was last seen in Pleiades Sector HR-W d1-79 on 2022-03-15 20:51:01",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_distance(bot_fx, mock_api_server_fx):
+    """Test the distance command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}distance Rixxan : Delkar",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "RIXXAN is 444.35 LY South of DELKAR.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_distance_2(bot_fx, mock_api_server_fx):
+    """Test the distance command with no arguments"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}distance",
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+    assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .endswith("Check the distance between two points in EDSM")
+    )
+
+
+@pytest.mark.asyncio
+async def test_distance_3(bot_fx, mock_api_server_fx):
+    """Test the distance command with an invalid value"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}dist Rixxan: Praisehalpydamnwhyisthisnotacmdrnam",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Failed to query EDSM for system or CMDR details.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_distance_4(bot_fx, mock_api_server_fx):
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    """Test the distance command with cache override"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}dist --new Rixxan: Delkar",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "RIXXAN is 444.35 LY South of DELKAR.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_coords(bot_fx, mock_api_server_fx):
+    """Test the coords command"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}coords 1 2 3",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Hixkar is 98.25 LY from 1, 2, 3.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_coords_2(bot_fx, mock_api_server_fx):
+    """Test the coords command with no arguments"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}coords",
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+    assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .endswith("Check EDSM for a nearby system to a set of coordinates")
+    )
+
+
+@pytest.mark.asyncio
+async def test_distance_3(bot_fx, mock_api_server_fx):
+    """Test the coords command with an invalid value"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}coords 1 2 h",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "All coordinates must be numeric.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_coords_4(bot_fx, mock_api_server_fx):
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    """Test the coords command with an invalid EDSM value"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}coords 1000000000 20000000000 30000000000",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "No systems known to EDSM within 100ly of 1000000000, 20000000000, 30000000000.",
         "target": "#bot-test",
     }

@@ -12,6 +12,7 @@ This bot is in ACTIVE DEVELOPMENT.
 * Python 3.8-3.9
 * Setuptools Python Library
 * pip Package Manager
+* Linux systems may require libmariadbclient-dev or libmysqlclient-dev
 
 ## Usage
 - To install, download the latest [release](https://gitlab.com/hull-seals/code/irc/halpybot/-/tags/) from our repository.
