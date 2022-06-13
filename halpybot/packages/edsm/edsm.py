@@ -51,6 +51,12 @@ class EDSMConnectionError(EDSMLookupError):
     """
 
 
+class NoNearbyEDSM(EDSMLookupError):
+    """
+    No results for the given query were found with the EDSM API within a specified distance
+    """
+
+
 @dataclass
 class EDSMQuery:
     object: Union[GalaxySystem, Commander, None]
@@ -510,7 +516,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
                 coords.x, minimum.coords.x, coords.z, minimum.coords.z
             )
             return minimum.name, f"{minimum_key:,}", direction
-        raise NoResultsEDSM(
+        raise NoNearbyEDSM(
             f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}."
         )
 
