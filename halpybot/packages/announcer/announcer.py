@@ -23,6 +23,7 @@ from ..edsm import (
     EDSMLookupError,
     checkdssa,
     sys_cleaner,
+    NoNearbyEDSM,
 )
 from ..ircclient import client
 from .twitter import TwitterCasesAcc, TwitterConnectionError
@@ -190,17 +191,15 @@ class Announcement:
                     else f"System cleaner found a matching EDSM system. {sys_name} is {distance} LY "
                     f"{direction} of {landmark}."
                 )
+            except NoNearbyEDSM:
+                dssa, distance, direction = await checkdssa(args["System"])
+                return (
+                    "No major landmark found within 10,000 LY of the provided system."
+                    if twitter
+                    else f"\nNo major landmark found within 10,000 LY {args['System']}."
+                    f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
+                )
             except NoResultsEDSM:
-                if (
-                    str(NoResultsEDSM)
-                    == f"No major landmark systems within 10,000 ly of {args['System']}."
-                ):
-                    dssa, distance, direction = await checkdssa(args["System"])
-                    return (
-                        "No major landmark found within 10,000 LY of the provided system."
-                        if twitter
-                        else f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
-                    )
                 found_sys, close_sys = await get_nearby_system(sys_name)
                 if found_sys:
                     try:
@@ -228,8 +227,8 @@ class Announcement:
                 return (
                     "\nDistance to landmark or DSSA unknown. Check case details with Dispatch."
                     if twitter
-                    else "\nSystem Not Found in EDSM. match to sys name format or sys name lookup failed.\n"
-                    "Please check system name with client. "
+                    else "\nSystem Not Found in EDSM.\n"
+                    "Please check system name with client.\n "
                 )
             except EDSMLookupError:
                 return "" if twitter else "\nUnable to query EDSM."

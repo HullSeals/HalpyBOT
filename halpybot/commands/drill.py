@@ -21,6 +21,7 @@ from ..packages.edsm import (
     sys_cleaner,
     NoResultsEDSM,
     get_nearby_system,
+    NoNearbyEDSM,
 )
 from ..packages.announcer.announcer import cardinal_flip
 
@@ -133,16 +134,13 @@ async def lookup(system):
             f"{system} could not be found in EDSM. System closest in name found in EDSM was"
             f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
         )
+    except NoNearbyEDSM:
+        dssa, distance, direction = await checkdssa(system)
+        return (
+            f"{NoResultsEDSM}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
+            f"{system}."
+        )
     except NoResultsEDSM:
-        if (
-            str(NoResultsEDSM)
-            == f"No major landmark systems within 10,000 ly of {system}."
-        ):
-            dssa, distance, direction = await checkdssa(system)
-            return (
-                f"{NoResultsEDSM}\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
-                f"{system}."
-            )
         found_sys, close_sys = await get_nearby_system(sys_name)
         if found_sys:
             try:
@@ -162,9 +160,6 @@ async def lookup(system):
                         f"EDSM was {close_sys}.\n{NoResultsEDSM}\nThe closest DSSA Carrier is in "
                         f"{dssa}, {distance} LY {direction} of {close_sys}. "
                     )
-        return (
-            "System Not Found in EDSM. match to sys name format or sys name lookup failed.\nPlease "
-            "check system name with client "
-        )
+        return "System Not Found in EDSM.\nPlease check system name with client "
     except EDSMLookupError:
         return "Unable to query EDSM"

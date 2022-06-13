@@ -24,6 +24,7 @@ from .edsm import (
     calc_distance,
     calc_direction,
     diversions,
+    NoNearbyEDSM,
 )
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "calc_distance",
     "calc_direction",
     "diversions",
+    "NoNearbyEDSM",
 ]

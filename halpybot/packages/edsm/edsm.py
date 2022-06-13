@@ -51,6 +51,12 @@ class EDSMConnectionError(EDSMLookupError):
     """
 
 
+class NoNearbyEDSM(EDSMLookupError):
+    """
+    No results for the given query were found with the EDSM API within a specified distance
+    """
+
+
 @dataclass
 class EDSMQuery:
     object: Union[GalaxySystem, Commander, None]
@@ -486,9 +492,10 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         NoResultsEDSM: No point was found for `edsm_sys_name`
 
     """
+    system = await sys_cleaner(edsm_sys_name)
     # Set default values
 
-    coords = await get_coordinates(edsm_sys_name, cache_override)
+    coords = await get_coordinates(system, cache_override)
     if coords:
         maxdist = config["EDSM"]["Maximum landmark distance"]
         distances = {
@@ -510,13 +517,11 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
                 coords.x, minimum.coords.x, coords.z, minimum.coords.z
             )
             return minimum.name, f"{minimum_key:,}", direction
-        raise NoResultsEDSM(
-            f"No major landmark systems within 10,000 ly of {await sys_cleaner(edsm_sys_name)}."
-        )
+        raise NoNearbyEDSM(f"No major landmark systems within 10,000 ly of {system}.")
 
     if not coords:
         raise NoResultsEDSM(
-            f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+            f"No system and/or commander named {system} was found in the EDSM"
             f" database."
         )
 
@@ -540,7 +545,8 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
 
     """
-    coords = await get_coordinates(edsm_sys_name, cache_override)
+    system = await sys_cleaner(edsm_sys_name)
+    coords = await get_coordinates(system, cache_override)
 
     if coords:
         distances = {
@@ -565,7 +571,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
 
     if not coords:
         raise NoResultsEDSM(
-            f"No system and/or commander named {await sys_cleaner(edsm_sys_name)} was found in the EDSM"
+            f"No system and/or commander named {system} was found in the EDSM"
             f" database."
         )
 
@@ -820,10 +826,12 @@ async def sys_cleaner(sys_name: str):
             sys_name=sys_name,
         )
         return sys_name.strip()
-
-    logger.debug(
-        "System cleaner produced {sys_name} from {orig_sys}",
-        sys_name=sys_name,
-        orig_sys=orig_sys,
-    )
-    return sys_name.strip()
+    if sys_name == orig_sys:
+        return sys_name.strip()
+    else:
+        logger.debug(
+            "System cleaner produced {sys_name} from {orig_sys}",
+            sys_name=sys_name,
+            orig_sys=orig_sys,
+        )
+        return sys_name.strip()
