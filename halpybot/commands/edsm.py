@@ -47,11 +47,12 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     # For whoever find's this note, you're not crazy. arg[0:] == arg. You get a gold star
     # Gitblame means no gold star for Rik
     system = " ".join(args[0:]).strip()
+    system = await sys_cleaner(system)
 
     try:
         if await GalaxySystem.exists(name=system, cache_override=cache_override):
-            return await ctx.reply(f"System {await sys_cleaner(system)} exists in EDSM")
-        return await ctx.reply(f"System {await sys_cleaner(system)} not found in EDSM")
+            return await ctx.reply(f"System {system} exists in EDSM")
+        return await ctx.reply(f"System {system} not found in EDSM")
     except NoResultsEDSM:
         return await ctx.reply(
             f"No system named {system} was found in the EDSM database."
@@ -159,14 +160,14 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
         ctx.message = " ".join(args)
 
     system = ctx.message.strip()
+    system = await sys_cleaner(system)
 
     try:
         landmark, distance, direction = await checklandmarks(
             edsm_sys_name=system, cache_override=cache_override
         )
         return await ctx.reply(
-            f"The closest landmark system is {landmark}, {distance} LY {direction} of "
-            f"{await sys_cleaner(system)}."
+            f"The closest landmark system is {landmark}, {distance} LY {direction} of {system}."
         )
     except NoResultsEDSM:
         return await ctx.reply(
@@ -182,7 +183,7 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
             )
             return await ctx.reply(
                 f"{EDSMLookupError}\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
-                f"{direction} of {await sys_cleaner(system)}."
+                f"{direction} of {system}."
             )
         logger.exception("Failed to query EDSM for landmark details.")
         return await ctx.reply("Failed to query EDSM for landmark details.")
@@ -208,6 +209,7 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
         ctx.message = " ".join(args)
 
     system = ctx.message.strip()
+    system = await sys_cleaner(system)
 
     try:
         dssa, distance, direction = await checkdssa(
@@ -215,7 +217,7 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
         )
         return await ctx.reply(
             f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
-            f"{await sys_cleaner(system)}."
+            f"{system}."
         )
     except NoResultsEDSM:
         return await ctx.reply(
