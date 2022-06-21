@@ -30,6 +30,7 @@ from halpybot.packages.edsm import (
     get_nearby_system,
     EDSMConnectionError,
     sys_cleaner,
+    NoNearbyEDSM,
 )
 
 # noinspection PyUnresolvedReferences
@@ -255,5 +256,5 @@ async def test_cleaner_2():
 @pytest.mark.asyncio
 async def test_distance_check_landmarks_far():
     """Test a distant system doesn't have a landmark within range"""
-    with pytest.raises(NoResultsEDSM):
+    with pytest.raises(NoNearbyEDSM):
         await checklandmarks("Skaudoae UF-Q b47-1")

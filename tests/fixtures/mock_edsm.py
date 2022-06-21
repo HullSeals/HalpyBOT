@@ -144,6 +144,11 @@ def mock_api_server_fx():
             query_string="commanderName=Sagittarius+B*&showCoordinates=1",
         ).respond_with_json({"msgnum": 203, "msg": "Commander name/API Key not found"})
         mock.expect_request(
+            "/api-logs-v1/get-position",
+            query_string="commanderName=SAGITTARIUS+B*&showCoordinates=1",
+        ).respond_with_json({"msgnum": 203, "msg": "Commander name/API Key not found"})
+
+        mock.expect_request(
             "/api-v1/system",
             query_string="systemName=COL+285+SECTOR+AA-A+A30-2&showCoordinates=1&showInformation=1",
         ).respond_with_json(
