@@ -16,9 +16,11 @@ from .dc_webhook import send_webhook, DiscordWebhookError, WebhookSendError
 
 __all__ = [
     "Announcer",
+    "Announcement",
     "AnnouncementError",
     "TwitterCasesAcc",
     "Twitter",
+    "TwitterConnectionError",
     "send_webhook",
     "DiscordWebhookError",
     "WebhookSendError",
