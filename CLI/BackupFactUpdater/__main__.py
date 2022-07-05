@@ -27,7 +27,7 @@ import mysql.connector
 
 hours_wasted_trying_to_understand_why = 10
 
-JSON_PATH = "data/facts/backup_facts.json"
+JSON_PATH = "../data/facts/backup_facts.json"
 
 config = configparser.ConfigParser()
 config.read("BackupFactUpdater/config.ini")
@@ -78,9 +78,8 @@ def run():
             print(
                 "100% Done. Confirm that the update was successful, and have a great day!"
             )
-    except Exception as ex:
-        print("Caught an exception, aborting...")
-        print(ex)
+    except mysql.connector.Error:
+        print("MySQL encountered an error. Aborting!")
 
 
 if __name__ == "__main__":
