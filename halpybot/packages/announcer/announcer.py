@@ -212,18 +212,14 @@ class Announcement:
                             f"System closest in name found in "
                             f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
                         )
-                    except NoResultsEDSM:
-                        if (
-                            str(NoResultsEDSM)
-                            == f"No major landmark systems within 10,000 ly of {close_sys}."
-                        ):
-                            dssa, distance, direction = await checkdssa(close_sys)
-                            return (
-                                f"Corrected system calculated to be {distance} LY {direction} of {dssa}."
-                                if twitter
-                                else f"\n{NoResultsEDSM}\nThe closest DSSA Carrier is "
-                                f"in {dssa}, {distance} LY {direction} of {close_sys}. "
-                            )
+                    except NoNearbyEDSM:
+                        dssa, distance, direction = await checkdssa(close_sys)
+                        return (
+                            f"Corrected system calculated to be {distance} LY {direction} of {dssa}."
+                            if twitter
+                            else f"\nThe closest DSSA Carrier is "
+                            f"in {dssa}, {distance} LY {direction} of {close_sys}. "
+                        )
                 return (
                     "\nDistance to landmark or DSSA unknown. Check case details with Dispatch."
                     if twitter
