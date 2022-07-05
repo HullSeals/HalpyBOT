@@ -50,7 +50,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     langlist = await Facts.lang_by_fact(name)
     reply = (
         f"Fact: {fact.name}\n"
-        f"Language: {langcodes[lang.lower()] + f' ({fact.language})'}\n"
+        f"Language: {langcodes[lang.lower()]} ({fact.language})'}\n"
         f"All langs: {', '.join(f'{langcodes[lan.lower()]} ({lan.upper()})' for lan in langlist)}\n"
         f"ID: {fact.ID}\n"
         f"Author: {fact.author}\n"
