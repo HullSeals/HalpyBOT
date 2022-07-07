@@ -627,9 +627,9 @@ async def test_locate_2(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_locate_3(bot_fx, mock_api_server_fx):
+    """Test the locate command with an invalid name"""
     if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
-    """Test the locate command with an invalid name"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -713,9 +713,9 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_distance_4(bot_fx, mock_api_server_fx):
+    """Test the distance command with cache override"""
     if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
-    """Test the distance command with cache override"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -780,9 +780,9 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 
 @pytest.mark.asyncio
 async def test_coords_4(bot_fx, mock_api_server_fx):
+    """Test the coords command with an invalid EDSM value"""
     if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
-    """Test the coords command with an invalid EDSM value"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",

@@ -828,10 +828,9 @@ async def sys_cleaner(sys_name: str):
         return sys_name.strip()
     if sys_name == orig_sys:
         return sys_name.strip()
-    else:
-        logger.debug(
-            "System cleaner produced {sys_name} from {orig_sys}",
-            sys_name=sys_name,
-            orig_sys=orig_sys,
-        )
-        return sys_name.strip()
+    logger.debug(
+        "System cleaner produced {sys_name} from {orig_sys}",
+        sys_name=sys_name,
+        orig_sys=orig_sys,
+    )
+    return sys_name.strip()

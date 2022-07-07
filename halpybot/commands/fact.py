@@ -94,7 +94,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         )
     except FactUpdateError:
         logger.exception("Fact added, but cache not updated.")
-        return await ctx.reply("An exception occured. " "Please contact a cyberseal!")
+        return await ctx.reply("An exception occured. Please contact a cyberseal!")
 
     # Raised when fact name is illegal for some reason
     except InvalidFactException:
