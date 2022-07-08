@@ -179,7 +179,8 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
             edsm_sys_name=system, cache_override=cache_override
         )
         return await ctx.reply(
-            f"No major landmark systems within 10,000 LY of {system}.\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
+            f"No major landmark systems within 10,000 LY of {system}.\n"
+            f"The closest DSSA Carrier is in {dssa}, {distance} LY "
             f"{direction} of {system}."
         )
     logger.exception("Failed to query EDSM for landmark details.")
