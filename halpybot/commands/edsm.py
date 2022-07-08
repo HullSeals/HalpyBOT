@@ -23,6 +23,7 @@ from ..packages.edsm import (
     sys_cleaner,
     diversions,
     NoResultsEDSM,
+    NoNearbyEDSM,
 )
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
@@ -173,20 +174,16 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
         return await ctx.reply(
             f"No system and/or commander named {system} was found in the EDSM database."
         )
-    except EDSMLookupError:
-        if (
-            str(EDSMLookupError)
-            == f"No major landmark systems within 10,000 ly of {system}."
-        ):
-            dssa, distance, direction = await checkdssa(
-                edsm_sys_name=system, cache_override=cache_override
-            )
-            return await ctx.reply(
-                f"{EDSMLookupError}\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
-                f"{direction} of {system}."
-            )
-        logger.exception("Failed to query EDSM for landmark details.")
-        return await ctx.reply("Failed to query EDSM for landmark details.")
+    except NoNearbyEDSM:
+        dssa, distance, direction = await checkdssa(
+            edsm_sys_name=system, cache_override=cache_override
+        )
+        return await ctx.reply(
+            f"No major landmark systems within 10,000 LY of {system}.\nThe closest DSSA Carrier is in {dssa}, {distance} LY "
+            f"{direction} of {system}."
+        )
+    logger.exception("Failed to query EDSM for landmark details.")
+    return await ctx.reply("Failed to query EDSM for landmark details.")
 
 
 @Commands.command("dssa")

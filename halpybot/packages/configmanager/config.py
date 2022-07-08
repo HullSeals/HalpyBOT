@@ -45,4 +45,4 @@ def config_write(module: str, key: str, value):
         with open("config/config.ini", "w", encoding="UTF-8") as conf:
             config.write(conf)
     except (FileNotFoundError, PermissionError) as ex:
-        raise ConfigException(str(ex)) from ex
+        raise ConfigException from ex

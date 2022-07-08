@@ -50,7 +50,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
         return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):
         final = round(latencycheck - start, 2)
-        await ctx.reply("Database Latency: " + str(final) + " seconds")
+        await ctx.reply(f"Database Latency: {str(final)} seconds")
     else:
         await ctx.reply(latencycheck)
 
@@ -72,7 +72,7 @@ async def cmd_edsmping(ctx: Context, args: List[str]):
         return await ctx.reply("Failed to query EDSM.")
     finish = time.time()
     final = round(finish - start, 2)
-    await ctx.reply("EDSM Latency: " + str(final) + " seconds")
+    await ctx.reply(f"EDSM Latency: {str(final)} seconds")
 
 
 @Commands.command("serverstatus")
