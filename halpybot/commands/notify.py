@@ -233,9 +233,3 @@ class NotificationLock:
         else:
             self.locked = False
             NotificationLock._timer = time.time()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        del self
