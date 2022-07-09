@@ -43,7 +43,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 
-    if args[1] not in config["Force join command"]["joinable"].lower():
+    if args[1] not in config["Force join command"]["joinable"].casefold():
         return await ctx.reply("I can't move people there.")
 
     if args[1] in channels:
