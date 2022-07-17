@@ -44,6 +44,8 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     if args[0] == "--new":
         cache_override = True
         del args[0]
+        if not args:
+            return await ctx.reply(get_help_text("lookup"))
 
     # For whoever find's this note, you're not crazy. arg[0:] == arg. You get a gold star
     # Gitblame means no gold star for Rik
@@ -79,6 +81,8 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
     if args[0] == "--new":
         cache_override = True
         del args[0]
+        if not args:
+            return await ctx.reply(get_help_text("locatecmdr"))
 
     # No. Only 1 gold star per stupid thing
     cmdr = " ".join(args[0:]).strip()
@@ -113,6 +117,8 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     if args[0] == "--new":
         cache_override = True
         del args[0]
+        if not args:
+            return await ctx.reply(get_help_text("dist"))
 
     try:
         # Parse systems/CMDRs from string
@@ -159,6 +165,8 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
         cache_override = True
         del args[0]
         ctx.message = " ".join(args)
+        if not ctx.message:
+            return await ctx.reply(get_help_text("landmark"))
 
     system = ctx.message.strip()
     system = await sys_cleaner(system)
@@ -205,6 +213,8 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
         cache_override = True
         del args[0]
         ctx.message = " ".join(args)
+        if not ctx.message:
+            return await ctx.reply(get_help_text("dssa"))
 
     system = ctx.message.strip()
     system = await sys_cleaner(system)
@@ -282,7 +292,8 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
         cache_override = True
         del args[0]
         ctx.message = " ".join(args)
-
+        if not ctx.message:
+            return await ctx.reply(get_help_text("diversion"))
     system = ctx.message.strip()
     cleaned_sys = await sys_cleaner(system)
 
