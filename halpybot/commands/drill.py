@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 drill.py - Commands for the training and drilling of Seals
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License

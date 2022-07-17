@@ -1,6 +1,4 @@
 """
-HalpyBOT v1.6
-
 edsm_classes.py - (data)classes for the EDSM module
 
 This module houses the API datamodel, which EXACTLY matches what EDSM
@@ -8,7 +6,7 @@ returns when queried.
 It is STRONGLY recommended to not use these datatypes directly
 in internal code, but to have an adapter in the middle.
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License

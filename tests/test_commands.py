@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 test_commands.py - What are your orders, Captain?
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
