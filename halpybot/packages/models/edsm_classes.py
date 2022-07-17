@@ -1,5 +1,5 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 edsm_classes.py - (data)classes for the EDSM module
 
@@ -8,7 +8,7 @@ returns when queried.
 It is STRONGLY recommended to not use these datatypes directly
 in internal code, but to have an adapter in the middle.
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -22,6 +22,7 @@ from attr import dataclass
 @dataclass
 class Coordinates:
     """EDSM object coordinates dictionary"""
+
     x: float
     y: float
     z: float
@@ -30,6 +31,7 @@ class Coordinates:
 @dataclass
 class SystemInfo:
     """EDSM system information dictionary"""
+
     allegiance: str
     government: str
     faction: str
@@ -39,9 +41,10 @@ class SystemInfo:
     economy: str
 
 
-@dataclass()
+@dataclass
 class Location:
     """EDSM location object"""
+
     system: str
     coordinates: Coordinates
     time: Optional[str]
@@ -49,7 +52,8 @@ class Location:
 
 @dataclass
 class Commander:
-    # Three Keys We Care About
+    """The Commander keys we care about"""
+
     msgnum: int
     system: str
     coordinates: Coordinates
@@ -58,6 +62,7 @@ class Commander:
 
 @dataclass
 class Galaxy:
-    # The Keys We Care About
+    """Galaxy Keys we care about"""
+
     name: str
     coords: Coordinates

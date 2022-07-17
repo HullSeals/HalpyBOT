@@ -1,8 +1,29 @@
-from .facthandler import Fact, FactHandler, FactHandlerError, FactUpdateError, Facts, InvalidFactException
+"""
+HalpyBOT v1.6
 
-__all__ = ["Fact",
-           "FactHandler",
-           "FactHandlerError",
-           "FactUpdateError",
-           "Facts",
-           "InvalidFactException"]
+__init__.py - Initilization for the Fact Manager module
+
+Copyright (c) 2022 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+from .facthandler import (
+    Fact,
+    FactHandler,
+    FactHandlerError,
+    FactUpdateError,
+    Facts,
+    InvalidFactException,
+)
+
+__all__ = [
+    "Fact",
+    "FactHandler",
+    "FactHandlerError",
+    "FactUpdateError",
+    "Facts",
+    "InvalidFactException",
+]

@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 listsupport.py - Handler for LIST IRC commands
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -11,16 +11,31 @@ See license.md
 """
 
 from __future__ import annotations
-from pydle.features.rfc1459 import RFC1459Support
-from typing import List
+from typing import List, Optional
 import asyncio
+from pydle.features.rfc1459 import RFC1459Support
 
 
 class ListHandler(RFC1459Support):
+    """ListHandler: Process the response to /LIST and save the list of channels"""
 
-    def __init__(self, nickname: str = "HalpyLISTener", fallback=[],
-                 username=None, realname=None, eventloop=None, **kwargs):
-        super().__init__(nickname, fallback, username, realname, eventloop, **kwargs)
+    def __init__(
+        self,
+        nickname: str = "HalpyLISTener",
+        fallback: Optional[List] = None,
+        username=None,
+        realname=None,
+        eventloop=None,
+        **kwargs,
+    ):
+        super().__init__(
+            nickname,
+            fallback if fallback is not None else [],
+            username,
+            realname,
+            eventloop,
+            **kwargs,
+        )
         self._pending_query = asyncio.Queue()
         self._channellist = set()
 

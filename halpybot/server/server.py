@@ -1,68 +1,48 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 server.py - Hull Seals API -> HalpyBOT server
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
 
 """
-import git
-import aiohttp.web
-import asyncio
-import logging
-from aiohttp.web import Request, StreamResponse
 from typing import Type, Union
-from aiohttp import web
 from datetime import datetime
-from ..packages.configmanager import config
+from loguru import logger
+import git
+from aiohttp.web import Request, StreamResponse
+from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
+from ..packages.configmanager import config
 from ..packages.ircclient import client as botclient
-from ..packages.database import DatabaseConnection, NoDatabaseConnection, Grafana
 
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 routes = web.RouteTableDef()
 
 
 class HalpyServer(web.Application):
-
-    @staticmethod
-    async def _log_request(request: Request, success: bool):
-        # Log to the online dashboard
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spCreateAPIConnRequest', [request.remote,  # Source
-                                                           (request.headers['User-Agent'] if
-                                                            'User-Agent' in request.headers else "None"),  # Agent
-                                                           request.path,  # Route
-                                                           request.method,  # HTTP Method
-                                                           (str(await request.json()) if request.can_read_body else
-                                                            "None"),  # Body
-                                                           (1 if success else 0),  # HMAC match
-                                                           str(request.version)  # Misc
-                                                           ])
-        except NoDatabaseConnection:
-            # TODO: stash call and run later when reconnected
-            pass
-
-    async def __filter_request(self, request: Request) -> Union[
-            Type[HTTPBadRequest], None, HTTPMethodNotAllowed, HTTPNotFound]:
+    async def __filter_request(
+        self, request: Request
+    ) -> Union[Type[HTTPBadRequest], None, HTTPMethodNotAllowed, HTTPNotFound]:
         """A method to filter out spam requests that would otherwise result
         in a large error message and log them neatly"""
+        # Add Connection Logger
+        connection_logger = logger.bind(task="API")
         # If they don't provide authentication, we log it and return 400
         request_method = request.method
         request_path = request.path
 
         if request_method == "POST":
-            if request.headers.get("hmac") is None or request.headers.get("keyCheck") is None:
-                logger.info("Request submitted with incomplete auth headers")
+            if (
+                request.headers.get("hmac") is None
+                or request.headers.get("keyCheck") is None
+            ):
+                connection_logger.info("Request submitted with incomplete auth headers")
                 return HTTPBadRequest
 
         no_method = True
@@ -75,48 +55,69 @@ class HalpyServer(web.Application):
                 if route.resource.canonical == request_path:
                     return None
         if no_method:
-            logger.info("API request made for not used method")
-            return HTTPMethodNotAllowed(request_method, list({route.method for route in routes}))
-        logger.info("API request made with unused path")
+            connection_logger.info("API request made for not used method")
+            return HTTPMethodNotAllowed(
+                request_method, list({route.method for route in routes})
+            )
+        connection_logger.info("API request made with unused path")
         return HTTPNotFound()
 
     async def _handle(self, request: Request) -> StreamResponse:
-        successful = True
+        # Add Connection Logger
+        connection_logger = logger.bind(task="API")
         try:
             request_error = await self.__filter_request(request)
             if request_error is not None:
-                logger.info(f"Invalid request submitted by {request.host} not processed")
+                connection_logger.info(
+                    "Invalid request submitted by {host} not processed",
+                    host=request.host,
+                )
                 raise request_error
-            else:
-                response = await super()._handle(request)
-                successful = True
-                return response
-        except aiohttp.web.HTTPError as ex:
-            successful = False
+            response = await super()._handle(request)
+            return response
+        except web.HTTPError as ex:
             return ex
-        finally:
-            asyncio.ensure_future(self._log_request(request, successful))
 
 
-@routes.get('/')
+@web.middleware
+async def compression_middleware(request, handler):
+    """Enable compression to improve our responses"""
+    response = await handler(request)
+    response.enable_compression()
+    return response
+
+
+@routes.get("/")
 async def server_root(request):
+    """
+    Get the key information about the Bot
+
+    Args:
+        request (class): An object containing the content of the HTTP request.
+
+    Returns:
+        The formatted JSON response of the bot status
+
+    """
     try:
         repo = git.Repo()
         sha = repo.head.object.hexsha
         sha = sha[0:7]
         sha = f" build {sha}"
-    except git.exc.InvalidGitRepositoryError:
+    except git.InvalidGitRepositoryError:
         sha = ""
     if botclient.nickname == "<unregistered>":
         botclient.nickname = "Not Connected"
-    response = {"app": DEFAULT_USER_AGENT,
-                "version": f"{__version__}{sha}",
-                "bot_nick": botclient.nickname,
-                "irc_connected": "True" if botclient.connected else "False",
-                "offline_mode": config['Offline Mode']['enabled'],
-                "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
-                }
+    response = {
+        "app": DEFAULT_USER_AGENT,
+        "version": f"{__version__}{sha}",
+        "bot_nick": botclient.nickname,
+        "irc_connected": "True" if botclient.connected else "False",
+        "offline_mode": config["Offline Mode"]["enabled"],
+        "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
+    }
     return web.json_response(response)
 
-APIConnector = HalpyServer()
+
+APIConnector = HalpyServer(middlewares=[compression_middleware])
 APIConnector.add_routes(routes)

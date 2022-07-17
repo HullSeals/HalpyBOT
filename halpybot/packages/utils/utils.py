@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 utils.py - miscellaneous utility functions
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -21,7 +21,7 @@ def language_codes():
         (dict): A dictionary {2 letter abbreviation: name}
 
     """
-    with open("data/languages/iso639-1.json") as file:
+    with open("data/languages/iso639-1.json", encoding="UTF-8") as file:
         langs = json.load(file)
         return langs
 
@@ -39,12 +39,9 @@ def strip_non_ascii(string: str):
             - has_stripped (bool): True is characters were removed, else False
 
     """
-    res = re.subn(r'[^\x00-\x7f]', r'', string)
-    if res != (string, 0):
-        # Return new string and True if characters were removed
-        return res[0], True
-    else:
-        return res[0], False
+    res = re.subn(r"[^\x00-\x7f]", r"", string)
+
+    return res[0], bool(res != (string, 0))
 
 
 async def get_time_seconds(time: str):
@@ -60,17 +57,13 @@ async def get_time_seconds(time: str):
         ValueError: String does not match required format
 
     """
-    pattern = re.compile(r'(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)')
+    pattern = re.compile(r"(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)")
     if not re.match(pattern, time):
         raise ValueError("get_time_seconds input does not match hh:mm:ss format")
     res = pattern.search(time)
     counter = 0
-    conversion_table = {
-        "hour": 3600,
-        "minutes": 60,
-        "seconds": 1
-    }
-    for unit in conversion_table.keys():
+    conversion_table = {"hour": 3600, "minutes": 60, "seconds": 1}
+    for unit in conversion_table:
         value = int(res.group(unit))
         counter += value * conversion_table[unit]
     return str(counter)

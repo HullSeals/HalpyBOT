@@ -1,12 +1,12 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 > For the Hull Seals, with a boot to the head
 Rixxan
 
 start.py - HalpyBOT startup script
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -14,59 +14,112 @@ See license.md
 """
 
 import asyncio
-import datetime
-import logging.handlers
+from logging import Handler, basicConfig, getLevelName
+import sys
 import threading
 from os import path, mkdir
+from loguru import logger
 
 from aiohttp import web
-from halpybot import commands  # No, this isn't unused. We need this.
+
+# noinspection PyUnresolvedReferences
+from halpybot import commands
 from halpybot.packages.configmanager import config
-from halpybot.packages.ircclient import pool, client
+from halpybot.packages.ircclient import client
 from halpybot.server import APIConnector
 
-logFile: str = config['Logging']['log_file']
-CLI_level = config['Logging']['cli_level']
-file_level = config['Logging']['file_level']
+# Configure Logging File Name and Levels
+logFile: str = config["Logging"]["log_file"]
+CLI_level = config["Logging"]["cli_level"]
+file_level = config["Logging"]["file_level"]
 
+# Attempt to create log folder and path if it doesn't exist
 try:
     logFolder = path.dirname(logFile)
     if not path.exists(logFolder):
         mkdir(logFolder)
 except PermissionError:
     print("Unable to create log folder. Does this user have appropriate permissions?")
-    exit()
+    sys.exit()
 
-formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s')
+# Set the log format
+FORMATTER = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra} | <cyan>{"
+    "name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level> "
+)
 
-CLI_handler = logging.StreamHandler()
-CLI_handler.setLevel(CLI_level)
 
-# Will rotate log files every monday at midnight and keep at most 12 files,
-# deleting the oldest, meaning logs are retained for 12 weeks (3 months)
-# noinspection PyTypeChecker
-file_handler = logging.handlers.TimedRotatingFileHandler(filename=logFile, when="w0", interval=14,
-                                                         backupCount=12, utc=True, atTime=datetime.time())
-file_handler.setLevel(file_level)
+class InterceptHandler(Handler):
+    """Grab standard logging and sends to loguru"""
 
-CLI_handler.setFormatter(formatter)
-file_handler.setFormatter(formatter)
+    def emit(self, record):
+        """Intercepts standard logging messages for the purpose of sending them to loguru"""
+        logger_opt = logger.opt(depth=1, exception=record.exc_info)
+        logger_opt.log(getLevelName(record.levelno), record.getMessage())
 
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
 
-root.addHandler(CLI_handler)
-root.addHandler(file_handler)
+# Hook logging intercept
+basicConfig(handlers=[InterceptHandler()], level=0)
+
+# Remove default logger
+logger.remove()
+
+# Add File Logger
+logger.add(
+    logFile,
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+    filter=lambda record: "task" not in record["extra"]
+    or (record["extra"]["task"] != "API" and record["extra"]["task"] != "API"),
+)
+
+# # Add API connection Logger
+logger.add(
+    "logs/connection.log",
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+    filter=lambda record: "task" in record["extra"]
+    and record["extra"]["task"] == "API",
+)
+
+# Add unauthorized command Logger
+logger.add(
+    "logs/command_access.log",
+    level=file_level,
+    format=FORMATTER,
+    rotation="500 MB",
+    compression="zip",
+    retention=90,
+    filter=lambda record: "task" in record["extra"]
+    and record["extra"]["task"] == "Command",
+)
+
+# Add CLI Logger
+logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
 
 
 def _start_bot():
     """Starts HalpyBOT with the specified config values."""
     bot_loop = asyncio.new_event_loop()
+    # hacky workaround is hacky
+    client.eventloop = bot_loop
     asyncio.set_event_loop(bot_loop)
 
-    pool.connect(client, config['IRC']['server'], config['IRC']['port'],
-                 tls=config.getboolean('IRC', 'useSsl'), tls_verify=False)
-    pool.handle_forever()
+    bot_loop.run_until_complete(
+        client.connect(
+            hostname=config["IRC"]["server"],
+            port=config["IRC"]["port"],
+            tls=config.getboolean("IRC", "usessl"),
+            tls_verify=False,
+        )
+    )
+    bot_loop.run_forever()
 
 
 def _start_server():
@@ -74,7 +127,7 @@ def _start_server():
     asyncio.set_event_loop(server_loop)
     asyncio.get_event_loop()
 
-    web.run_app(app=APIConnector, port=int(config['API Connector']['port']))
+    web.run_app(app=APIConnector, port=int(config["API Connector"]["port"]))
 
 
 if __name__ == "__main__":

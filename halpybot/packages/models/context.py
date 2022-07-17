@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 context.py - Message context object
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -16,8 +16,15 @@ import pydle
 class Context:
     """Message context object"""
 
-    def __init__(self, bot: pydle.Client, channel: str, sender: str, in_channel: bool, message: str,
-                 command: str):
+    def __init__(
+        self,
+        bot: pydle.Client,
+        channel: str,
+        sender: str,
+        in_channel: bool,
+        message: str,
+        command: str,
+    ):
         """Create message context object
 
         Args:
@@ -53,6 +60,8 @@ class Context:
             message (str): The message to be sent
 
         """
-        if self.in_channel is True:
-            await self.bot.reply(self.channel, self.sender, self.in_channel, "Responding in DMs!")
+        if self.in_channel:
+            await self.bot.reply(
+                self.channel, self.sender, self.in_channel, "Responding in DMs!"
+            )
         await self.bot.reply(self.channel, self.sender, False, message)

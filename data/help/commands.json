@@ -32,6 +32,11 @@
       "arguments": "[EDSM Valid Location]",
       "use": "Check for the closest DSSA carrier to a given location."
     },
+    "diversion": {
+      "aliases": [],
+      "arguments": "[EDSM Valid Location]",
+      "use": "Calculate the 5 closest FDEV-placed structures with repair capability to given location."
+    },
     "coords": {
       "aliases": [
         "coordcheck"

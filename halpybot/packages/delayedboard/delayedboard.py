@@ -1,55 +1,51 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 delayedboard.py - Database interaction for Delayed Board commands
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database import DatabaseConnection, NoDatabaseConnection
+from ..database import DatabaseConnection
 from ..utils import strip_non_ascii
 
 
 class DelayedCase:
-
     @staticmethod
     async def open(status, message, author):
         """Create a new case on the Delayed Board
 
 
-            Args:
-                status (str): 1 for `needs seals`, 2 for `waiting for seals/client to arrive`
-                message (str): Notes for the case
-                author (str): Nickname of user who created the case
+        Args:
+            status (str): 1 for `needs seals`, 2 for `waiting for seals/client to arrive`
+            message (str): Notes for the case
+            author (str): Nickname of user who created the case
 
-            Returns:
-                (list):
+        Returns:
+            (list):
 
-                    0 - ID (int): the ID for the created case
-                    1 - Status (int): `0` if successful, `1` if failed
-                    2 - Error (str): If status 1, error message
+                0 - ID (int): the ID for the created case
+                1 - Status (int): `0` if successful, `1` if failed
+                2 - Error (str): If status 1, error message
 
-            Raises:
-                NoDatabaseConnection: When no connection to the database could be established
+        Raises:
+            NoDatabaseConnection: When no connection to the database could be established
 
-            """
+        """
         message = strip_non_ascii(message)
         in_args = [int(status), str(message[0]), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spCreateDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.callproc("spCreateDelayedCase", in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
-        out_args.append(True if message[1] else False)
+        out_args.append(bool(message[1]))
         return out_args
 
     @staticmethod
@@ -75,14 +71,11 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spReopenDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.callproc("spReopenDelayedCase", in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
         return out_args
 
@@ -109,14 +102,11 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spUpdateStatusDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.callproc("spUpdateStatusDelayedCase", in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
         return out_args
 
@@ -143,16 +133,13 @@ class DelayedCase:
         message = strip_non_ascii(message)
         in_args = [int(case_id), str(message[0]), author, 0, 0, 0]
         out_args = []
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.callproc('spUpdateMsgDelayedCase', in_args)
-                for result in cursor.stored_results():
-                    out_args.append(result.fetchall())
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.callproc("spUpdateMsgDelayedCase", in_args)
+            for result in cursor.stored_results():
+                out_args.append(result.fetchall())
         out_args = list(out_args[0][0])
-        out_args.append(True if message[1] else False)
+        out_args.append(bool(message[1]))
         return out_args
 
     @staticmethod
@@ -168,15 +155,12 @@ class DelayedCase:
         """
         # Set default value
         result = None
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute("SELECT COUNT(ID) "
-                               "FROM casestatus "
-                               "WHERE case_status IN (1, 2);")
-                for res in cursor.fetchall():
-                    result = res[0]
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.execute(
+                "SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2);"
+            )
+            for res in cursor.fetchall():
+                result = res[0]
         # Return the total amount of open delayed cases on the board
         return result

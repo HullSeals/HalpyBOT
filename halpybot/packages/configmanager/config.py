@@ -1,22 +1,21 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 config.py - Configuration manager
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
 """
 
-import logging
 import configparser
+from loguru import logger
 
-logger = logging.getLogger(__name__)
 
 config = configparser.ConfigParser()
-config.read('config/config.ini')
+config.read("config/config.ini")
 
 
 class ConfigException(Exception):
@@ -40,10 +39,10 @@ def config_write(module: str, key: str, value):
         value (str): New value
 
     """
-    logger.info(f"{module}, {key} set to {value}")
+    logger.info("{module}, {key} set to {value}", module=module, key=key, value=value)
     config[module][key] = value
     try:
-        with open('config/config.ini', 'w') as conf:
+        with open("config/config.ini", "w", encoding="UTF-8") as conf:
             config.write(conf)
     except (FileNotFoundError, PermissionError) as ex:
-        raise ConfigException(str(ex))
+        raise ConfigException from ex

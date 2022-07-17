@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 shutdown.py - Will be with you shortly, please hold!
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -13,16 +13,11 @@ See license.md
 
 import os
 import signal
-import logging
 from typing import List
-
+from loguru import logger
 from ..packages.checks import Require, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
-from ..packages.database import Grafana
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 @Commands.command("shutdown", "restart", "sealpukku", "reboot")
@@ -35,6 +30,10 @@ async def cmd_shutdown(ctx: Context, args: List[str]):
     Usage: !shutdown
     Aliases: !reboot
     """
-    logger.critical(f"Shutdown has been ordered by {ctx.sender}")
-    await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
+    logger.critical("Shutdown has been ordered by {sender}", sender=ctx.sender)
+    if len(args) == 0:
+        await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. Stand By.")
+    else:
+        args = " ".join(args)
+        await ctx.bot.quit(f"HalpyBOT restart ordered by {ctx.sender}. ({args})")
     os.kill(os.getpid(), signal.SIGTERM)

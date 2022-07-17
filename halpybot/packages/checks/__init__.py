@@ -1,11 +1,24 @@
-from .checks import (Require, Pup, Drilled, Moderator,
-                     Admin, Cyberseal, Cybermgr, Owner)
+"""
+HalpyBOT v1.6
 
-__all__ = ["Require",
-           "Pup",
-           "Drilled",
-           "Moderator",
-           "Admin",
-           "Cyberseal",
-           "Cybermgr",
-           "Owner"]
+__init__.py - Initilization for the Permission Checks module
+
+Copyright (c) 2022 The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+from .checks import Require, Pup, Drilled, Moderator, Admin, Cyberseal, Cybermgr, Owner
+
+__all__ = [
+    "Require",
+    "Pup",
+    "Drilled",
+    "Moderator",
+    "Admin",
+    "Cyberseal",
+    "Cybermgr",
+    "Owner",
+]

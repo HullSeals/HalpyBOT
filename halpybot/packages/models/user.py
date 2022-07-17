@@ -10,11 +10,11 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 user.py - User dataclass
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -23,9 +23,11 @@ See license.md
 
 
 from __future__ import annotations
-from typing import Union, Optional
-from dataclasses import dataclass
+from typing import Optional, Set
+from attr import dataclass
 import pydle
+
+import cattr
 
 
 @dataclass(frozen=True)
@@ -35,6 +37,7 @@ class User:
     Info about a user from WHOIS
 
     """
+
     oper: bool
     idle: int
     away: bool
@@ -43,12 +46,14 @@ class User:
     hostname: str
     realname: str
     identified: bool
-    channels: Optional[set]
     server: str
     server_info: str
     secure: bool
-    account: Optional[str]
     nickname: str
+    channels: Optional[Set[str]] = None
+    account: Optional[str] = None
+    real_hostname: Optional[str] = None
+    real_ip_address: Optional[str] = None
 
     @classmethod
     async def get_info(cls, bot: pydle.Client, nickname: str) -> Optional[User]:
@@ -64,18 +69,12 @@ class User:
         """
         # fetch the user object from pydle
         data = await bot.whois(nickname)
-        if 'channels' not in data.keys():
-            data['channels'] = None
-        # if we got an object back
-        if data:
-            return cls(**data, nickname=nickname)
-        else:
-            return None
+        if "nickname" not in data:
+            data["nickname"] = nickname
+        return cattr.structure(data, Optional[User])
 
     @classmethod
-    # FIXME this should be Optional[str], but I don't want to touch it now since I don't
-    # have time to test
-    def process_vhost(cls, vhost: Union[str, None]) -> Optional[str]:
+    def process_vhost(cls, vhost: Optional[str]) -> Optional[str]:
         """Get a users vhost-role
 
         Format <role>.hullseals.space
@@ -116,5 +115,7 @@ class User:
 
         """
         user = await bot.whois(nick)
-        channels = user['channels']
-        return [ch.translate({ord(c): None for c in '+%@&~'}).lower() for ch in channels]
+        channels = user["channels"]
+        return [
+            ch.translate({ord(c): None for c in "+%@&~"}).lower() for ch in channels
+        ]

@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 facthandler.py - Database interaction for the fact module
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -39,7 +39,6 @@ class InvalidFactException(FactHandlerError):
 
 
 class Fact:
-
     def __init__(self, ID: Optional[int], name: str, lang: str, text: str, author: str):
         """Create a new fact
 
@@ -52,7 +51,7 @@ class Fact:
             author (str): Fact author
 
         """
-        self._offline = True if ID is None else False
+        self._offline = bool(ID is None)
         self._ID = ID
         self._name = name
         self._lang = lang
@@ -122,13 +121,15 @@ class Fact:
         re_defarg = re.compile(r"({{(?P<defarg>.+)}})(?P<fact>.+)")
         groups = re_defarg.search(text)
         if re.match(re_defarg, text):
-            self._default_argument = groups.group('defarg')
-        repltable = {"<<BOLD>>": "\u0002",
-                     "<<ITALICS>>": "\u001D",
-                     "<<UNDERLINE>>": "\u001f",
-                     " %n% ": "\n"}
+            self._default_argument = groups.group("defarg")
+        repltable = {
+            "<<BOLD>>": "\u0002",
+            "<<ITALICS>>": "\u001D",
+            "<<UNDERLINE>>": "\u001f",
+            " %n% ": "\n",
+        }
         if self._default_argument:
-            text = groups.group('fact')
+            text = groups.group("fact")
         for token, new in repltable.items():
             text = text.replace(token, new)
         return text
@@ -148,20 +149,30 @@ class Fact:
         if self._offline:
             raise FactUpdateError
         try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                args = (self._name, self._lang.lower(), self._raw_text, self._author, self._ID)
-                cursor.execute(f"UPDATE {config['Facts']['table']} "
-                               f"SET factName = %s, factLang = %s, factText = %s, "
-                               f"factEditedBy = %s "
-                               f"WHERE factID = %s", args)
+            with DatabaseConnection() as database_connection:
+                cursor = database_connection.cursor()
+                args = (
+                    self._name,
+                    self._lang.lower(),
+                    self._raw_text,
+                    self._author,
+                    self._ID,
+                )
+                cursor.execute(
+                    f"UPDATE {config['Facts']['table']} "
+                    f"SET factName = %s, factLang = %s, factText = %s, "
+                    f"factEditedBy = %s "
+                    f"WHERE factID = %s",
+                    args,
+                )
         except NoDatabaseConnection:
-            raise FactUpdateError("Fact was probably updated locally but could "
-                                  "not be uploaded to the database.")
+            raise FactUpdateError(
+                "Fact was probably updated locally but could "
+                "not be uploaded to the database."
+            ) from NoDatabaseConnection
 
 
 class FactHandler:
-
     def __init__(self):
         """Create a new fact handler
 
@@ -170,7 +181,7 @@ class FactHandler:
         and attaching it to a command handler.
 
         """
-        self._factCache = {}
+        self._fact_cache = {}
 
     async def get(self, name: str, lang: str = "en") -> Optional[Fact]:
         """Get a fact object by name
@@ -185,10 +196,9 @@ class FactHandler:
             (`Fact` or None) Fact object if exists, else None
 
         """
-        if (name, lang) in self._factCache.keys():
-            return self._factCache[name, lang]
-        else:
-            return None
+        if (name, lang) in self._fact_cache:
+            return self._fact_cache[name, lang]
+        return None
 
     async def fetch_facts(self, preserve_current: bool = False):
         """Refresh fact cache.
@@ -210,35 +220,38 @@ class FactHandler:
 
     async def _from_database(self):
         """Get facts from database and update the cache"""
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute(f"SELECT factID, factName, factLang, factText, factAuthor "
-                               f"FROM {config['Facts']['table']}")
-                self._flush_cache()
-                for (ID, Name, Lang, Text, Author) in cursor:
-                    self._factCache[Name, Lang] = Fact(int(ID), Name, Lang, Text, Author)
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.execute(
+                f"SELECT factID, factName, factLang, factText, factAuthor "
+                f"FROM {config['Facts']['table']}"
+            )
+            self._flush_cache()
+            for (fact_id, fact_name, fact_lang, fact_text, fact_author) in cursor:
+                self._fact_cache[fact_name, fact_lang] = Fact(
+                    int(fact_id), fact_name, fact_lang, fact_text, fact_author
+                )
 
     async def _from_local(self):
         """Get facts from local backup file and update the cache"""
-        with open("data/facts/backup_facts.json") as jsonfile:
+        with open("data/facts/backup_facts.json", encoding="UTF-8") as jsonfile:
             backupfile = json.load(jsonfile)
         self._flush_cache()
         for fact in backupfile.keys():
             # Get lang and fact. This is stupid, just ignore
-            if '-' in fact:
-                factname = str(fact).split('-')[0]
-                lang = str(fact).split('-')[1]
+            if "-" in fact:
+                factname = str(fact).split("-", maxsplit=1)[0]
+                lang = str(fact).split("-", maxsplit=1)[1]
             else:
                 factname = fact
                 lang = "en"
-            self._factCache[factname, lang] = Fact(None, factname, lang, backupfile[f"{factname}-{lang}"], "OFFLINE")
+            self._fact_cache[factname, lang] = Fact(
+                None, factname, lang, backupfile[f"{factname}-{lang}"], "OFFLINE"
+            )
 
     def _flush_cache(self):
         """Flush the fact cache. Use with care"""
-        self._factCache.clear()
+        self._fact_cache.clear()
 
     async def add_fact(self, name: str, lang: str, text: str, author: str):
         """Add a new fact
@@ -260,26 +273,25 @@ class FactHandler:
             FactUpdateError: Fact was added, but cache could not be updated.
 
         """
-        if name in Commands.command_list.keys():
+        if name in Commands.command_list:
             raise InvalidFactException("This fact is already an existing command")
         # Check if we have an English fact:
-        if not await self.get(name) and lang.lower() != 'en':
-            raise InvalidFactException("All registered facts must have an English version")
-        if (name, lang) in self._factCache:
+        if not await self.get(name) and lang.lower() != "en":
+            raise InvalidFactException(
+                "All registered facts must have an English version"
+            )
+        if (name, lang) in self._fact_cache:
             raise InvalidFactException("This fact already exists.")
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute(f"INSERT INTO {config['Facts']['table']} "
-                               f"(factName, factLang, factText, factAuthor) "
-                               f"VALUES (%s, %s, %s, %s);", (name, lang, text, author))
-        except NoDatabaseConnection:
-            raise
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.execute(
+                f"INSERT INTO {config['Facts']['table']} "
+                f"(factName, factLang, factText, factAuthor) "
+                f"VALUES (%s, %s, %s, %s);",
+                (name, lang, text, author),
+            )
         # Reset the fact handler
-        try:
-            await self.fetch_facts(preserve_current=True)
-        except FactUpdateError:
-            raise
+        await self.fetch_facts(preserve_current=True)
 
     async def lang_by_fact(self, name: str):
         """Get a list of languages a fact exists in
@@ -294,7 +306,7 @@ class FactHandler:
 
         """
         langlist = []
-        for fact in self._factCache.keys():
+        for fact in self._fact_cache:
             if fact[0] == name:
                 langlist.append(fact[1])
         return langlist
@@ -310,7 +322,7 @@ class FactHandler:
 
         """
         namelist = []
-        for fact in self._factCache.keys():
+        for fact in self._fact_cache:
             if fact[0] in namelist:
                 pass
             else:
@@ -331,17 +343,18 @@ class FactHandler:
             NoDatabaseConnection: Raised when entering offline mode
 
         """
-        if lang.lower() == 'en' and len(await self.lang_by_fact(name)) > 1:
-            raise FactHandlerError("Cannot delete English fact if other languages "
-                                   "are registered for that fact name.")
-        try:
-            with DatabaseConnection() as db:
-                cursor = db.cursor()
-                cursor.execute(f"DELETE FROM {config['Facts']['table']} "
-                               f"WHERE factID = %s", (self._factCache[name, lang].ID,))
-                del self._factCache[name, lang]
-        except NoDatabaseConnection:
-            raise
+        if lang.lower() == "en" and len(await self.lang_by_fact(name)) > 1:
+            raise FactHandlerError(
+                "Cannot delete English fact if other languages "
+                "are registered for that fact name."
+            )
+        with DatabaseConnection() as database_connection:
+            cursor = database_connection.cursor()
+            cursor.execute(
+                f"DELETE FROM {config['Facts']['table']} WHERE factID = %s",
+                (self._fact_cache[name, lang].ID,),
+            )
+            del self._fact_cache[name, lang]
 
     def list(self, lang: Optional[str] = None) -> List[tuple]:
         """Get a list of facts
@@ -356,13 +369,12 @@ class FactHandler:
 
         """
         if not lang:
-            return list(self._factCache.keys())
-        else:
-            langlist = []
-            for fact in self._factCache.keys():
-                if fact[1].lower() == lang.lower():
-                    langlist.append(fact[0])
-            return langlist
+            return list(self._fact_cache.keys())
+        langlist = []
+        for fact in self._fact_cache:
+            if fact[1].lower() == lang.lower():
+                langlist.append(fact[0])
+        return langlist
 
     async def fact_formatted(self, fact: tuple, arguments: List[str]):
         """Format a ready-to-be-sent fact
@@ -380,23 +392,23 @@ class FactHandler:
             FactHandlerError: Fact was not found
 
         """
-        reqfact = self._factCache[fact]
+        reqfact = self._fact_cache[fact]
         # Sanity check
         if not reqfact:
-            raise FactHandlerError("Fact could not be found, even though it "
-                                   "should exist")
+            raise FactHandlerError(
+                "Fact could not be found, even though it should exist"
+            )
 
         # If we have no args but a default one, send it
         if not arguments and reqfact.default_argument:
             return str(reqfact.default_argument) + str(reqfact.text)
 
         # If we have arguments add them
-        elif arguments:
-            return str(' '.join(arguments).strip() + ': ' + reqfact.text)
+        if arguments:
+            return str(" ".join(arguments).strip() + ": " + reqfact.text)
 
         # Else (no args, no default arg)
-        else:
-            return str(reqfact.text)
+        return str(reqfact.text)
 
 
 Facts = FactHandler()

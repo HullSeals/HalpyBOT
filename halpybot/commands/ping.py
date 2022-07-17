@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 ping.py - Ping the bot, database, and external services
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -12,17 +12,14 @@ See license.md
 
 import time
 from typing import List
+from loguru import logger
 import aiohttp
-import logging
+from halpybot import DEFAULT_USER_AGENT
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
-from ..packages.database import latency, NoDatabaseConnection, Grafana
+from ..packages.database import latency, NoDatabaseConnection
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
-from halpybot import DEFAULT_USER_AGENT
-
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
 
 
 @Commands.command("ping")
@@ -53,7 +50,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
         return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):
         final = round(latencycheck - start, 2)
-        await ctx.reply("Database Latency: " + str(final) + " seconds")
+        await ctx.reply(f"Database Latency: {str(final)} seconds")
     else:
         await ctx.reply(latencycheck)
 
@@ -70,11 +67,12 @@ async def cmd_edsmping(ctx: Context, args: List[str]):
     start = time.time()
     try:
         await GalaxySystem.exists(name="Sol", cache_override=True)
-    except EDSMLookupError as er:
-        return await ctx.reply(str(er))
+    except EDSMLookupError:
+        logger.exception("Failed to query EDSM.")
+        return await ctx.reply("Failed to query EDSM.")
     finish = time.time()
     final = round(finish - start, 2)
-    await ctx.reply("EDSM Latency: " + str(final) + " seconds")
+    await ctx.reply(f"EDSM Latency: {str(final)} seconds")
 
 
 @Commands.command("serverstatus")
@@ -87,16 +85,22 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     """
     try:
         async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
+            headers={"User-Agent": DEFAULT_USER_AGENT}
         ) as session:
-            async with await session.get("https://hosting.zaonce.net/launcher-status/status.json") as response:
+            async with await session.get(
+                "https://hosting.zaonce.net/launcher-status/status.json"
+            ) as response:
                 responses = await response.json()
-    except aiohttp.ClientError as er:
-        logger.error(f"Error in Elite Server Status lookup: {er}", exc_info=True)
-        raise EDSMConnectionError("Unable to verify Elite Status, having issues connecting to the Elite API.")
+    except aiohttp.ClientError as e:
+        logger.exception("Error in Elite Server Status lookup.")
+        raise EDSMConnectionError(
+            "Unable to verify Elite Status, having issues connecting to the Elite API."
+        ) from e
     if len(responses) == 0:
         await ctx.reply("ERROR! Elite returned an empty reply.")
     else:
         message = responses["text"]
         code = responses["status"]
-        await ctx.reply(f"The Elite servers are {message} (Status Code {code}) according to Frontier.")
+        await ctx.reply(
+            f"The Elite servers are {message} (Status Code {code}) according to Frontier."
+        )

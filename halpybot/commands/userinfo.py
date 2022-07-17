@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 userinfo.py - Seal whox lookup commands
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -33,11 +33,12 @@ async def cmd_whois(ctx: Context, args: List[str]):
         return await ctx.redirect(get_help_text("whois"))
     cmdr = args[0]
     if cmdr.lower() == "halpybot":
-        return await ctx.redirect("That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, "
-                                  "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
-                                  "and has been involved with countless rescues.")
-    else:
-        return await ctx.redirect(await whois(cmdr))
+        return await ctx.redirect(
+            "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, "
+            "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
+            "and has been involved with countless rescues."
+        )
+    return await ctx.redirect(await whois(cmdr))
 
 
 @Commands.command("whoami")

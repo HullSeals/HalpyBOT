@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 commandhandler.py - Handle bot commands and facts
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -12,13 +12,14 @@ See license.md
 
 from __future__ import annotations
 from typing import List
-import pydle
 import json
-
+import pydle
+from loguru import logger
 from ..configmanager import config
 from ..models import Context
 
-with open("data/help/commands.json", "r") as jsonfile:
+
+with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
     json_dict = json.load(jsonfile)
 
 
@@ -62,12 +63,12 @@ class CommandGroup:
         """
         self._is_root = is_root
         self._group_name = ""
-        self._commandList = {}
-        self._factHandler = None
+        self._command_list = {}
+        self._fact_handler = None
         # Don't allow registration of multiple root groups
-        if CommandGroup._root is not None and is_root is True:
+        if CommandGroup._root is not None and is_root:
             raise CommandHandlerError("Can only have one root group")
-        if is_root is True:
+        if is_root:
             CommandGroup._root = self
             self._group_name = "<ROOT>"
         CommandGroup._grouplist.append(self)
@@ -75,11 +76,11 @@ class CommandGroup:
     @property
     def facthandler(self):
         """Fact handler object"""
-        return self._factHandler
+        return self._fact_handler
 
     @facthandler.setter
     def facthandler(self, handler):
-        self._factHandler = handler
+        self._fact_handler = handler
 
     @classmethod
     def get_group(cls, name: str):
@@ -100,14 +101,16 @@ class CommandGroup:
     @property
     def command_list(self):
         """dict: list of commands in this group"""
-        return self._commandList
+        return self._command_list
 
     @property
     def name(self):
         """str: name of the command group"""
         return self._group_name
 
-    async def invoke_from_message(self, bot: pydle.Client, channel: str, sender: str, message: str):
+    async def invoke_from_message(
+        self, bot: pydle.Client, channel: str, sender: str, message: str
+    ):
         """Invoke a command or fact from a message
 
         For example, `message="!delaycase 1 test"` will result in cmd_DelayCase being called,
@@ -120,40 +123,46 @@ class CommandGroup:
             message (str): content of the message
 
         """
-        if message.startswith(config['IRC']['commandPrefix']):
+        if message.startswith(config["IRC"]["commandPrefix"]):
             # Start off with assigning all variables we need
             parts = message[1:].split(" ")
             command = parts[0].lower()
             args = parts[1:]
             args = [x for x in args if x]
             in_channel = bot.is_channel(channel)
-            ctx = Context(bot, channel, sender, in_channel, ' '.join(args[0:]), command)
+            ctx = Context(bot, channel, sender, in_channel, " ".join(args[0:]), command)
             # Determines the language of an eventual fact
-            lang = command.split('-')[1] if '-' in command else 'en'
+            lang = command.split("-")[1] if "-" in command else "en"
 
             # See if it's a command, and execute
-            if command in Commands._commandList:
+            if command in Commands._command_list:
                 try:
-                    return await self.invoke_command(command=command, command_context=ctx, arguments=args)
-                except CommandException as er:
-                    await ctx.reply(f"Unable to execute command: {str(er)}")
+                    return await self.invoke_command(
+                        command=command, command_context=ctx, arguments=args
+                    )
+                except CommandException:
+                    logger.exception("Failed to invoke the command!")
+                    await ctx.reply("Unable to execute command.")
 
             # Possible fact
 
             # Ignore if we have no fact handler attached
-            if not self._factHandler:
+            if not self._fact_handler:
                 return
 
             # Are we requesting a specific language?
-            elif command.split('-')[0] in await self._factHandler.get_fact_names():
-                factname = command.split('-')[0]
+            if command.split("-")[0] in await self._fact_handler.get_fact_names():
+                factname = command.split("-")[0]
 
                 # Do we have a fact for this language?
-                if lang not in list(await self._factHandler.lang_by_fact(factname)):
-                    lang = 'en'
+                if lang not in list(await self._fact_handler.lang_by_fact(factname)):
+                    lang = "en"
 
-                return await ctx.reply(await self._factHandler.fact_formatted(fact=(command.split('-')[0], lang),
-                                                                              arguments=args))
+                return await ctx.reply(
+                    await self._fact_handler.fact_formatted(
+                        fact=(command.split("-")[0], lang), arguments=args
+                    )
+                )
 
     def add_group(self, *names):
         """Attach group to root
@@ -173,7 +182,7 @@ class CommandGroup:
         if self._is_root:
             raise CommandHandlerError("Can not add root group to any other group")
         for name in names:
-            CommandGroup._root._register(name, self, True if name == names[0] else False)
+            CommandGroup._root._register(name, self, bool(name == names[0]))
         # Set main name
         self._group_name = names[0]
 
@@ -197,7 +206,7 @@ class CommandGroup:
         def decorator(function):
             # Register every provided name
             for name in names:
-                self._register(name, function, True if name == names[0] else False)
+                self._register(name, function, bool(name == names[0]))
             # Set command attribute, so we can check if a function is an IRC-facing command or not
             setattr(function, "is_command", True)
             return function
@@ -221,11 +230,13 @@ class CommandGroup:
 
 
         """
-        if name in self._commandList.keys():
+        if name in self._command_list:
             raise CommandAlreadyExists
-        self._commandList[name] = (function, main)
+        self._command_list[name] = (function, main)
 
-    async def invoke_command(self, command: str, command_context: Context, arguments: List[str]):
+    async def invoke_command(
+        self, command: str, command_context: Context, arguments: List[str]
+    ):
         """Call a command
 
         If the command is part of a group attached to root, `Command` is the group, and
@@ -252,17 +263,22 @@ class CommandGroup:
             subgroup = CommandGroup.get_group(name=cmd._group_name)
             # If no subcommand is provided, send a provisional help response
             if len(arguments) < 1:
-                return await command_context.reply(f"Subcommands of {config['IRC']['commandPrefix']}"
-                                                   f"{cmd._group_name}: "
-                                                   f"{', '.join(sub for sub in subgroup.get_commands(True))}")
+                return await command_context.reply(
+                    f"Subcommands of {config['IRC']['commandPrefix']}"
+                    f"{cmd._group_name}: "
+                    f"{', '.join(sub for sub in subgroup.get_commands(True))}"
+                )
             # Recursion, yay!
-            await cmd.invoke_command(command=arguments[0],
-                                     command_context=command_context, arguments=arguments[1:])
+            await cmd.invoke_command(
+                command=arguments[0],
+                command_context=command_context,
+                arguments=arguments[1:],
+            )
         else:
             try:
                 await cmd(command_context, arguments)
-            except Exception as er:
-                raise CommandException(er)
+            except Exception as command_exception:
+                raise CommandException from command_exception
 
     def get_commands(self, mains: bool = False):
         """Get a list of registered commands in a group
@@ -274,13 +290,21 @@ class CommandGroup:
             (list): All registered command names (mains only if mains = True)
 
         """
-        if mains is False:
-            return list(self._commandList.keys())
-        else:
-            return [str(cmd) for cmd in self._commandList if self._commandList[cmd][1] is True]
+        if not mains:
+            return list(self._command_list.keys())
+        return [str(cmd) for cmd in self._command_list if self._command_list[cmd][1]]
 
 
 def get_help_text(search_command: str):
+    """
+    Retrieve the help text for usage and arguments of a command.
+
+    Args:
+        search_command (str): The command being looked up in the dictionary
+
+    Returns:
+        (str or None): Help instructions for a given command, None if unsuccessful.
+    """
     search_command = search_command.lower()
     for command_dict in json_dict.values():
         for command, details in command_dict.items():
@@ -289,8 +313,10 @@ def get_help_text(search_command: str):
                 arguments = details["arguments"]
                 aliases = details["aliases"]
                 usage = details["use"]
-                return f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n" \
-                       f"{usage}"
+                return (
+                    f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n"
+                    f"{usage}"
+                )
     return None
 
 

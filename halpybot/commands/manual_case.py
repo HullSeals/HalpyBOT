@@ -1,9 +1,9 @@
 """
-HalpyBOT v1.5.3
+HalpyBOT v1.6
 
 manual_case.py - Manual case creation module
 
-Copyright (c) 2021 The Hull Seals,
+Copyright (c) 2022 The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -11,18 +11,16 @@ See license.md
 """
 
 from typing import List
-import logging
-import aiohttp
 import datetime
-from halpybot import DEFAULT_USER_AGENT
+from loguru import logger
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context, User
 from ..packages.configmanager import config
-from ..packages.database import Grafana
+from ..packages.announcer import send_webhook, WebhookSendError
 
-logger = logging.getLogger(__name__)
-logger.addHandler(Grafana)
+webhook_id = config["Discord Notifications"]["webhook_id"]
+webhook_token = config["Discord Notifications"]["webhook_token"]
 
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
@@ -35,7 +33,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     Usage: !manualcase [IRC name] [case info]
     Aliases: mancase, manualfish, manfish
     """
-    if len(args) == 0 or len(args) == 1:
+    if len(args) <= 1:
         return await ctx.reply(get_help_text("mancase"))
 
     # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
@@ -47,11 +45,13 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
         return await ctx.reply(get_help_text("mancase"))
 
     info = ctx.message
-    logger.info(f"Manual case by {ctx.sender} in {ctx.channel}")
+    logger.info(
+        "Manual case by {sender} in {channel}", sender=ctx.sender, channel=ctx.channel
+    )
     for channel in config["Manual Case"]["send_to"].split():
-        await ctx.bot.message(channel, f"xxxx MANCASE -- NEWCASE xxxx\n"
-                                       f"{info}\n"
-                                       f"xxxxxxxx")
+        await ctx.bot.message(
+            channel, f"xxxx MANCASE -- NEWCASE xxxx\n{info}\nxxxxxxxx"
+        )
 
     # Send to Discord
     cn_message = {
@@ -70,30 +70,25 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
                     "icon_url": "https://hullseals.space/images/emblem_mid.png",
                 },
                 "fields": [
-                    {
-                        "name": "IRC Name:",
-                        "value": str(args[0]),
-                        "inline": False
-                    },
-
+                    {"name": "IRC Name:", "value": str(args[0]), "inline": False},
                     {
                         "name": "Case Info:",
-                        "value": ' '.join(args[1:]),
-                        "inline": False
-                    }
-                ]
+                        "value": " ".join(args[1:]),
+                        "inline": False,
+                    },
+                ],
             }
-        ]
+        ],
     }
 
     try:
-        async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-        ) as session:
-            await session.post(config['Discord Notifications']['url'], json=cn_message)
-    except aiohttp.ClientError as err:
-        await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
-        logger.error(f"Unable to notify Discord: {err}")
+        await send_webhook(
+            hook_id=webhook_id, hook_token=webhook_token, body=cn_message
+        )
+    except WebhookSendError:
+        await ctx.reply(
+            "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
+        )
 
 
 @Commands.command("tsping", "wssping")
@@ -126,23 +121,19 @@ async def cmd_tsping(ctx: Context, args: List[str]):
                     "icon_url": "https://hullseals.space/images/emblem_mid.png",
                 },
                 "fields": [
-                    {
-                        "name": "Additional information",
-                        "value": info,
-                        "inline": False
-                    }
-                ]
+                    {"name": "Additional information", "value": info, "inline": False}
+                ],
             }
-        ]
+        ],
     }
 
     try:
-        async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-        ) as session:
-            await session.post(config['Discord Notifications']['url'], json=cn_message)
-    except aiohttp.ClientError as err:
-        await ctx.reply("WARNING: Unable to send notification to Discord. Contact a cyberseal!")
-        logger.error(f"Unable to notify Discord: {err}")
+        await send_webhook(
+            hook_id=webhook_id, hook_token=webhook_token, body=cn_message
+        )
+    except WebhookSendError:
+        await ctx.reply(
+            "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
+        )
     else:
         return await ctx.reply("Trained Seals ping sent out successfully.")
