@@ -100,11 +100,9 @@ have to start with a docstring of the following format:
 
 ```python
 """
-HalpyBOT v[VERSION]
-
 file_name.py - One-sentence description of what this file does.
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
