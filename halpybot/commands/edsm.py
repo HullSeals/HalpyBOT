@@ -189,8 +189,6 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
             f"The closest DSSA Carrier is in {dssa}, {distance} LY "
             f"{direction} of {system}."
         )
-    logger.exception("Failed to query EDSM for landmark details.")
-    return await ctx.reply("Failed to query EDSM for landmark details.")
 
 
 @Commands.command("dssa")

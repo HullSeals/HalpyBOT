@@ -10,7 +10,6 @@ See license.md
 
 import time
 import mysql.connector
-from mysql.connector import MySQLConnection
 from loguru import logger
 from ..configmanager import config_write, config
 
@@ -35,7 +34,7 @@ class NoDatabaseConnection(ConnectionError):
     """
 
 
-class DatabaseConnection(MySQLConnection):
+class DatabaseConnection(mysql.connector.MySQLConnection):
     """Governing the connection to the database"""
 
     def __init__(self, autocommit: bool = True):

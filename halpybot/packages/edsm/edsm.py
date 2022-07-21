@@ -18,7 +18,6 @@ import asyncio
 from pathlib import Path
 import json
 from time import time
-from typing import Optional, Union, List
 from loguru import logger
 import aiohttp
 import numpy as np
@@ -57,7 +56,7 @@ class NoNearbyEDSM(EDSMLookupError):
 
 @dataclass
 class EDSMQuery:
-    object: Union[GalaxySystem, Commander, None]
+    object: typing.Union[GalaxySystem, Commander, None]
     time: time()
 
 
@@ -97,7 +96,7 @@ class GalaxySystem:
     @classmethod
     async def get_info(
         cls, name, cache_override: bool = False
-    ) -> Optional[GalaxySystem]:
+    ) -> typing.Optional[GalaxySystem]:
         """Get a system object from the EDSM API.
 
         If the same object was requested less than
@@ -247,7 +246,7 @@ class Commander:
     name: str
     system: str
     coordinates: Coordinates
-    date: Optional[str]
+    date: typing.Optional[str]
 
     _lookupCache = {}
 
@@ -262,7 +261,7 @@ class Commander:
         )
 
     @classmethod
-    async def get_cmdr(cls, name, cache_override: bool = False) -> Optional[Commander]:
+    async def get_cmdr(cls, name, cache_override: bool = False) -> typing.Optional[Commander]:
         """Get info about a CMDR from EDSM
 
         If the same object was requested less than
@@ -323,7 +322,7 @@ class Commander:
         return cmdrobj
 
     @classmethod
-    async def location(cls, name, cache_override: bool = False) -> Optional[Location]:
+    async def location(cls, name, cache_override: bool = False) -> typing.Optional[Location]:
         """Get a CMDRs location
 
         Get a Location object for an EDSM commander.
@@ -363,9 +362,9 @@ class Commander:
 
 class Edsm:
     def __init__(self):
-        self._carriers: Optional[typing.List[GalaxySystem]] = None
-        self._landmarks: Optional[typing.List[GalaxySystem]] = None
-        self._diversions: Optional[typing.List[EDDBSystem]] = None
+        self._carriers: typing.Optional[typing.List[GalaxySystem]] = None
+        self._landmarks: typing.Optional[typing.List[GalaxySystem]] = None
+        self._diversions: typing.Optional[typing.List[EDDBSystem]] = None
 
     @property
     def landmarks(self):
@@ -583,7 +582,7 @@ class Diversion:
     item: float = field(converter=float)
 
 
-Diversions = List[Diversion]
+Diversions = typing.List[Diversion]
 
 
 async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
