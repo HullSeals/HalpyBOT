@@ -108,6 +108,19 @@ def mock_api_server_fx():
         )
         mock.expect_request(
             "/api-logs-v1/get-position",
+            query_string="commanderName=Abildgaard+Jadrake&showCoordinates=1",
+        ).respond_with_json(
+            {
+                "msgnum": 100,
+                "msg": "OK",
+                "system": None,
+                "firstDiscover": None,
+                "date": None,
+            }
+        )
+
+        mock.expect_request(
+            "/api-logs-v1/get-position",
             query_string="commanderName=Praisehalpydamnwhyisthisnotacmdrnam&showCoordinates=1",
         ).respond_with_json({"msgnum": 203, "msg": "Commander name/API Key not found"})
         mock.expect_request(

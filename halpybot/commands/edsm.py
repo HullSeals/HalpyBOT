@@ -22,6 +22,7 @@ from ..packages.edsm import (
     diversions,
     NoResultsEDSM,
     NoNearbyEDSM,
+    EDSMReturnError,
 )
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
@@ -58,7 +59,10 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
         return await ctx.reply(
             f"No system named {system} was found in the EDSM database."
         )
-
+    except EDSMReturnError:
+        return await ctx.reply(
+            f"Received a reply from EDSM about {system}, but could not process the return."
+        )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system details.")
         return await ctx.reply("Failed to query EDSM for system details.")
@@ -89,6 +93,10 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
         location = await Commander.location(name=cmdr, cache_override=cache_override)
     except NoResultsEDSM:
         return await ctx.reply(f"No CMDR named {cmdr} was found in the EDSM database.")
+    except EDSMReturnError:
+        return await ctx.reply(
+            f"Received a reply from EDSM about {cmdr}, but could not process the return."
+        )
     except EDSMConnectionError:
         logger.exception("Failed to query EDSM for commander data.")
         # kill it. kill it with fire. ~ TheUnkn0wn1
@@ -136,6 +144,10 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     except NoResultsEDSM:
         return await ctx.reply(
             "No system and/or commander was found in the EDSM database for one of the points."
+        )
+    except EDSMReturnError:
+        return await ctx.reply(
+            f"Received a reply from EDSM, but could not process the return."
         )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system or CMDR details.")
@@ -189,6 +201,10 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
             f"The closest DSSA Carrier is in {dssa}, {distance} LY "
             f"{direction} of {system}."
         )
+    except EDSMReturnError:
+        return await ctx.reply(
+            f"Received a reply from EDSM about {system}, but could not process the return."
+        )
 
 
 @Commands.command("dssa")
@@ -227,6 +243,10 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
         return await ctx.reply(
             f"No system and/or commander named {system} was found in the EDSM database."
         )
+    except EDSMReturnError:
+        return await ctx.reply(
+            f"Received a reply from EDSM about {system}, but could not process the return."
+        )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for DSSA details.")
         return await ctx.reply("Failed to query EDSM for DSSA details.")
@@ -259,6 +279,10 @@ async def cmd_coordslookup(ctx, args: List[str]):
     except NoResultsEDSM:
         return await ctx.reply(
             f"No system and/or commander named {system} was found in the EDSM database."
+        )
+    except EDSMReturnError:
+        return await ctx.reply(
+            f"Received a reply from EDSM about {system}, but could not process the return."
         )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for coordinate details.")
@@ -313,6 +337,10 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
     except NoResultsEDSM:
         return await ctx.reply(
             f"No system and/or commander named {system} was found in the EDSM database."
+        )
+    except EDSMReturnError:
+        return await ctx.reply(
+            f"Received a reply from EDSM about {system}, but could not process the return."
         )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for coordinate details.")

@@ -27,6 +27,7 @@ from halpybot.packages.edsm import (
     EDSMConnectionError,
     sys_cleaner,
     NoNearbyEDSM,
+    EDSMReturnError,
 )
 
 # noinspection PyUnresolvedReferences
@@ -134,6 +135,16 @@ async def test_location():
     """Test that the Commander system responds with a value"""
     location = await Commander.location("Rixxan")
     assert location.system == "Pleiades Sector HR-W d1-79"
+
+
+@pytest.mark.asyncio
+async def test_location_malformed():
+    """Test that the Commander system can process a malformed EDSM return"""
+    # location = await Commander.location("Abildgaard Jadrake")
+    # assert location.system == "Pleiades Sector HR-W d1-79"
+
+    with pytest.raises(EDSMReturnError):
+        await Commander.location("Abildgaard Jadrake")
 
 
 @pytest.mark.asyncio

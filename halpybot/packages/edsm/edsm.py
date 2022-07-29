@@ -18,6 +18,7 @@ import asyncio
 from pathlib import Path
 import json
 from time import time
+from cattrs.errors import ClassValidationError
 from loguru import logger
 import aiohttp
 import numpy as np
@@ -51,6 +52,12 @@ class EDSMConnectionError(EDSMLookupError):
 class NoNearbyEDSM(EDSMLookupError):
     """
     No results for the given query were found with the EDSM API within a specified distance
+    """
+
+
+class EDSMReturnError(EDSMLookupError):
+    """
+    EDSM returned a reply, however the reply did not include key data needed to continue.
     """
 
 
@@ -149,7 +156,10 @@ class GalaxySystem:
         # Return None if system doesn't exist
         if len(responses) == 0:
             return None
-        api: edsm_classes.Galaxy = cattr.structure(responses, edsm_classes.Galaxy)
+        try:
+            api: edsm_classes.Galaxy = cattr.structure(responses, edsm_classes.Galaxy)
+        except ClassValidationError:
+            raise EDSMReturnError
 
         # Store in cache and return
         sysobj = GalaxySystem.from_api(api=api)
@@ -261,7 +271,9 @@ class Commander:
         )
 
     @classmethod
-    async def get_cmdr(cls, name, cache_override: bool = False) -> typing.Optional[Commander]:
+    async def get_cmdr(
+        cls, name, cache_override: bool = False
+    ) -> typing.Optional[Commander]:
         """Get info about a CMDR from EDSM
 
         If the same object was requested less than
@@ -310,7 +322,12 @@ class Commander:
             return None
         if responses["msgnum"] == 201:
             raise EDSMConnectionError
-        api: edsm_classes.Commander = cattr.structure(responses, edsm_classes.Commander)
+        try:
+            api: edsm_classes.Commander = cattr.structure(
+                responses, edsm_classes.Commander
+            )
+        except ClassValidationError:
+            raise EDSMReturnError
 
         if api.system is None:
             raise EDSMConnectionError("Error! CMDR Exists, but unable to get info.")
@@ -322,7 +339,9 @@ class Commander:
         return cmdrobj
 
     @classmethod
-    async def location(cls, name, cache_override: bool = False) -> typing.Optional[Location]:
+    async def location(
+        cls, name, cache_override: bool = False
+    ) -> typing.Optional[Location]:
         """Get a CMDRs location
 
         Get a Location object for an EDSM commander.
