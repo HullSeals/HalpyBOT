@@ -158,8 +158,8 @@ class GalaxySystem:
             return None
         try:
             api: edsm_classes.Galaxy = cattr.structure(responses, edsm_classes.Galaxy)
-        except ClassValidationError:
-            raise EDSMReturnError
+        except ClassValidationError as exc:
+            raise EDSMReturnError from exc
 
         # Store in cache and return
         sysobj = GalaxySystem.from_api(api=api)
@@ -326,8 +326,8 @@ class Commander:
             api: edsm_classes.Commander = cattr.structure(
                 responses, edsm_classes.Commander
             )
-        except ClassValidationError:
-            raise EDSMReturnError
+        except ClassValidationError as exc:
+            raise EDSMReturnError from exc
 
         if api.system is None:
             raise EDSMConnectionError("Error! CMDR Exists, but unable to get info.")

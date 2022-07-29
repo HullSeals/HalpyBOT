@@ -147,7 +147,7 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
         )
     except EDSMReturnError:
         return await ctx.reply(
-            f"Received a reply from EDSM, but could not process the return."
+            "Received a reply from EDSM, but could not process the return."
         )
     except EDSMLookupError:
         logger.exception("Failed to query EDSM for system or CMDR details.")
