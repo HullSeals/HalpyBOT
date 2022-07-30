@@ -182,6 +182,11 @@
       "aliases": [],
       "arguments": "[channel] [text]",
       "use": "Make the Bot say something"
+    },
+    "shorten": {
+      "aliases": [],
+      "arguments": "--forceHTTP [url]",
+      "use": "Shorten a provided URL"
     }
   },
   "Delay": {
