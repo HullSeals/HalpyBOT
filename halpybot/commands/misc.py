@@ -32,6 +32,7 @@ async def cmd_shorten(ctx: Context, args: List[str]):
         del args[0]
         if not args:
             return await ctx.reply(get_help_text("lookup"))
+    logger.info(f"{ctx.sender} requested shortening of {args[0]}")
     if force_http:
         surl = await shorten(args[0], force_http=True)
     else:
