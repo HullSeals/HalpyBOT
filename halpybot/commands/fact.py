@@ -40,7 +40,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     """
     if not args or len(args) != 1:
         return await ctx.reply(get_help_text("factinfo"))
-    name = args[0].split("-")[0]
+    name = args[0].split("-")[0].casefold()
     lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
     fact: Optional[Fact] = await Facts.get(name, lang)
     if fact is None:
@@ -70,7 +70,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
     if not args or len(args) < 2:
         return await ctx.reply(get_help_text("addfact"))
     lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
-    name = args[0].split("-")[0]
+    name = args[0].split("-")[0].casefold()
 
     if lang not in langcodes:
         return await ctx.reply(
@@ -112,7 +112,7 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
     if not args or len(args) != 1:
         return await ctx.reply(get_help_text("deletefact"))
 
-    name = args[0].split("-")[0]
+    name = args[0].split("-")[0].casefold()
     lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
 
     if await Facts.get(name, lang) is None:
@@ -177,7 +177,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
     if not args or len(args) < 2:
         return await ctx.reply(get_help_text("deletefact"))
 
-    name = args[0].split("-")[0]
+    name = args[0].split("-")[0].casefold()
     lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
 
     fact = await Facts.get(name, lang)
