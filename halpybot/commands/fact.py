@@ -86,6 +86,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         return await ctx.reply("Fact has been added.")
 
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Unable to add fact: No database connection available. Entering Offline Mode, "
             "contact a cyberseal."

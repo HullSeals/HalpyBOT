@@ -8,7 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
-
+from loguru import logger
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context
@@ -156,4 +156,5 @@ async def lookup(system):
                 )
         return "System Not Found in EDSM.\nPlease check system name with client "
     except EDSMLookupError:
+        logger.exception("Something went wrong with EDSM.")
         return "Unable to query EDSM"

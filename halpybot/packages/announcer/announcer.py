@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 from typing import List, Dict, Optional
 import pydle
+from loguru import logger
 
 from ..edsm import (
     checklandmarks,
@@ -100,6 +101,7 @@ class Announcer:
                 except TwitterConnectionError:
                     return
         except Exception as announcement_exception:
+            logger.exception("Unable to send announcement!")
             raise AnnouncementError(Exception) from announcement_exception
 
 

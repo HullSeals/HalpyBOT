@@ -37,7 +37,7 @@ try:
     if not path.exists(logFolder):
         mkdir(logFolder)
 except PermissionError:
-    print("Unable to create log folder. Does this user have appropriate permissions?")
+    logger.exception("Unable to create log folder. Does this user have appropriate permissions?")
     sys.exit()
 
 # Set the log format

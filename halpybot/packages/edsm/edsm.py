@@ -159,6 +159,7 @@ class GalaxySystem:
         try:
             api: edsm_classes.Galaxy = cattr.structure(responses, edsm_classes.Galaxy)
         except ClassValidationError as exc:
+            logger.exception("Error validating class. Invalid attributes.")
             raise EDSMReturnError from exc
 
         # Store in cache and return
@@ -327,6 +328,7 @@ class Commander:
                 responses, edsm_classes.Commander
             )
         except ClassValidationError as exc:
+            logger.exception("Error validating class. Invalid attributes.")
             raise EDSMReturnError from exc
 
         if api.system is None:
