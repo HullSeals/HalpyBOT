@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import List, Optional
 import json
 import re
-
+from loguru import logger
 from ..database import DatabaseConnection, NoDatabaseConnection
 from ..configmanager import config
 from ..command import Commands
@@ -164,6 +164,7 @@ class Fact:
                     args,
                 )
         except NoDatabaseConnection:
+            logger.exception("No database connection. Unable to update fact.")
             raise FactUpdateError(
                 "Fact was probably updated locally but could "
                 "not be uploaded to the database."
@@ -212,6 +213,7 @@ class FactHandler:
         try:
             await self._from_database()
         except NoDatabaseConnection:
+            logger.exception("No database connection. Unable to retreive facts.")
             if not preserve_current:
                 await self._from_local()
             raise
