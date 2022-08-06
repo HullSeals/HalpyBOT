@@ -99,9 +99,9 @@ class Announcer:
                 try:
                     await TwitterCasesAcc.tweet_case(ann, args)
                 except TwitterConnectionError:
+                    logger.exception("Unable to send case details to Twitter.")
                     return
         except Exception as announcement_exception:
-            logger.exception("Unable to send announcement!")
             raise AnnouncementError(Exception) from announcement_exception
 
 
