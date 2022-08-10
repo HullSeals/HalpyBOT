@@ -79,7 +79,7 @@ class DSSACarrier:
         """
         if not isinstance(other, DSSACarrier):
             return False
-        return self.name.lower() == other.name.lower()
+        return self.name.casefold() == other.name.casefold()
 
     def __repr__(self):
         """Return a string representation of the carrier

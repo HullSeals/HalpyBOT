@@ -151,7 +151,7 @@ class Fact:
                 cursor = database_connection.cursor()
                 args = (
                     self._name,
-                    self._lang.lower(),
+                    self._lang.casefold(),
                     self._raw_text,
                     self._author,
                     self._ID,
@@ -276,7 +276,7 @@ class FactHandler:
         if name in Commands.command_list:
             raise InvalidFactException("This fact is already an existing command")
         # Check if we have an English fact:
-        if not await self.get(name) and lang.lower() != "en":
+        if not await self.get(name) and lang.casefold() != "en":
             raise InvalidFactException(
                 "All registered facts must have an English version"
             )
@@ -343,7 +343,7 @@ class FactHandler:
             NoDatabaseConnection: Raised when entering offline mode
 
         """
-        if lang.lower() == "en" and len(await self.lang_by_fact(name)) > 1:
+        if lang.casefold() == "en" and len(await self.lang_by_fact(name)) > 1:
             raise FactHandlerError(
                 "Cannot delete English fact if other languages "
                 "are registered for that fact name."
@@ -372,7 +372,7 @@ class FactHandler:
             return list(self._fact_cache.keys())
         langlist = []
         for fact in self._fact_cache:
-            if fact[1].lower() == lang.lower():
+            if fact[1].casefold() == lang.casefold():
                 langlist.append(fact[0])
         return langlist
 

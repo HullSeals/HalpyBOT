@@ -48,8 +48,8 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     langlist = await Facts.lang_by_fact(name)
     reply = (
         f"Fact: {fact.name}\n"
-        f"Language: {langcodes[lang.lower()]} ({fact.language})\n"
-        f"All langs: {', '.join(f'{langcodes[lan.lower()]} ({lan.upper()})' for lan in langlist)}\n"
+        f"Language: {langcodes[lang.casefold()]} ({fact.language})\n"
+        f"All langs: {', '.join(f'{langcodes[lan.casefold()]} ({lan.upper()})' for lan in langlist)}\n"
         f"ID: {fact.ID}\n"
         f"Author: {fact.author}\n"
         f"Text: {fact.raw_text}"
@@ -148,7 +148,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
     if not args:
         lang = "en"
     else:
-        lang = args[0].lower()
+        lang = args[0].casefold()
 
     # Input validation
     if lang not in langcodes:
@@ -159,9 +159,9 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
     factlist = Facts.list(lang)
 
     if len(factlist) == 0:
-        return await ctx.redirect(f"No {langcodes[lang.lower()]} facts found.")
+        return await ctx.redirect(f"No {langcodes[lang.casefold()]} facts found.")
     return await ctx.redirect(
-        f"All {langcodes[lang.lower()]} facts:\n"
+        f"All {langcodes[lang.casefold()]} facts:\n"
         f"{', '.join(fact for fact in factlist)}"
     )
 
@@ -176,7 +176,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
     Aliases: updatefact
     """
     if not args or len(args) < 2:
-        return await ctx.reply(get_help_text("deletefact"))
+        return await ctx.reply(get_help_text("editfact"))
 
     name = args[0].split("-")[0].casefold()
     lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
