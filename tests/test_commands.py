@@ -606,6 +606,23 @@ async def test_locate(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
+async def test_locate_malformed_response(bot_fx, mock_api_server_fx):
+    """Test the locate command when EDSM gives a malformed or incomplete response"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}locate Abildgaard Jadrake",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Received a reply from EDSM about Abildgaard Jadrake, but could not process the return.",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
 async def test_locate_2(bot_fx, mock_api_server_fx):
     """Test the locate command with no arguments"""
     await Commands.invoke_from_message(
