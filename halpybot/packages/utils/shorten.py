@@ -31,13 +31,12 @@ class YOURLSBadResponse(YOURLSError):
     """
 
 
-async def shorten(url, force_http=False):
+async def shorten(url):
     """
     Shorten a given URL via a YOURLS passwordless API call
 
     Args:
         url (str): The URL to shorten
-        force_http (bool): Force YOURLS to reformat the url with http if not provided.
 
     Returns:
         surl (str): The shortened URL
@@ -45,10 +44,8 @@ async def shorten(url, force_http=False):
     Raises:
         YOURLSNoResponse: YOURLS did not respond by the timeout.
     """
-    if not url.lower().startswith("http") and not force_http:
+    if not url.lower().startswith("http"):
         url = "https://" + url
-    if not url.lower().startswith("http") and force_http:
-        url = "http://" + url
 
     try:
         async with aiohttp.ClientSession(

@@ -185,7 +185,7 @@
     },
     "shorten": {
       "aliases": [],
-      "arguments": "--forceHTTP [url]",
+      "arguments": "[url]",
       "use": "Shorten a provided URL"
     }
   },
