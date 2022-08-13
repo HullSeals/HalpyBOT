@@ -3,7 +3,7 @@ HalpyBOT CLI
 
 scraper.py - Spreadsheet scraper function, powered by BeautifulSoup
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -63,7 +63,7 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
     for index, row in enumerate(rows):
         if row == [""] * 20:  # This would be an empty row, ignore it
             continue
-        if row[2].lower() != "carrier operational":  # 2 - Carrier status
+        if row[2].casefold() != "carrier operational":  # 2 - Carrier status
             continue
         if row[9] == "":  # 9 - Carrier name
             anomalies.append(f"{index + 1} - Name field has no value")

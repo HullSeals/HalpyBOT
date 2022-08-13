@@ -1,12 +1,10 @@
 """
-HalpyBOT v1.6
-
 > For the Hull Seals, with a boot to the head
 Rixxan
 
 start.py - HalpyBOT startup script
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -39,7 +37,7 @@ try:
     if not path.exists(logFolder):
         mkdir(logFolder)
 except PermissionError:
-    print("Unable to create log folder. Does this user have appropriate permissions?")
+    logger.exception("Unable to create log folder. Does this user have appropriate permissions?")
     sys.exit()
 
 # Set the log format

@@ -10,11 +10,9 @@ BSD 3-Clause License
 Copyright (c) 2018, The Fuel Rats Mischief
 All rights reserved.
 
-HalpyBOT v1.6
-
 user.py - User dataclass
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -90,7 +88,7 @@ class User:
         if vhost is None:
             return None
         # RixxanCheck(TM)
-        if vhost.lower().endswith("rixxan.admin.hullseals.space"):
+        if vhost.casefold().endswith("rixxan.admin.hullseals.space"):
             return "rixxan.admin.hullseals.space"
         # sanity / security check
         if not vhost.endswith(".hullseals.space"):
@@ -117,5 +115,5 @@ class User:
         user = await bot.whois(nick)
         channels = user["channels"]
         return [
-            ch.translate({ord(c): None for c in "+%@&~"}).lower() for ch in channels
+            ch.translate({ord(c): None for c in "+%@&~"}).casefold() for ch in channels
         ]

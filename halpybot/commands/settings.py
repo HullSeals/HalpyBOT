@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 settings.py - bot settings commands
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -87,9 +85,9 @@ async def cmd_offline(ctx: Context, args: List[str]):
             f"{get_help_text('settings offline')}\nCurrent "
             f"offline setting: {config['Offline Mode']['enabled']}"
         )
-    if args[0].lower() == "true" and config["Offline Mode"]["enabled"] != "True":
+    if args[0].casefold() == "true" and config["Offline Mode"]["enabled"] != "True":
         set_to = "True"
-    elif args[0].lower() == "false" and config["Offline Mode"]["enabled"] != "False":
+    elif args[0].casefold() == "false" and config["Offline Mode"]["enabled"] != "False":
         set_to = "False"
         config_write("Offline Mode", "warning override", "False")
     else:
@@ -123,7 +121,7 @@ async def cmd_override_omw(ctx: Context, args: List[str]):
             f"{get_help_text('settings warning_override')}\n"
             f"Current warning override setting: {config['Offline Mode']['warning override']}"
         )
-    request = args[0].lower()
+    request = args[0].casefold()
 
     if request in ("enable", "true"):
         config_write("Offline Mode", "warning override", "True")

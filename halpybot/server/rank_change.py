@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 rank_change.py - Handler for Seal vhost changes requested by the API
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -12,6 +10,7 @@ See license.md
 """
 
 from aiohttp import web
+from loguru import logger
 from .server import APIConnector
 from .auth import authenticate
 from ..packages.database import DatabaseConnection, NoDatabaseConnection
@@ -52,6 +51,7 @@ async def tail(request):
                 await botclient.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:
+        logger.exception("No database connection, unable to TAIL.")
         raise web.HTTPServiceUnavailable from NoDatabaseConnection
 
 

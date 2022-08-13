@@ -3,7 +3,7 @@ HalpyBOT CLI
 
 carrier.py - DSSA carrier object
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -79,7 +79,7 @@ class DSSACarrier:
         """
         if not isinstance(other, DSSACarrier):
             return False
-        return self.name.lower() == other.name.lower()
+        return self.name.casefold() == other.name.casefold()
 
     def __repr__(self):
         """Return a string representation of the carrier

@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 connection.py - Database connection initialization script
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -12,7 +10,6 @@ See license.md
 
 import time
 import mysql.connector
-from mysql.connector import MySQLConnection
 from loguru import logger
 from ..configmanager import config_write, config
 
@@ -37,7 +34,7 @@ class NoDatabaseConnection(ConnectionError):
     """
 
 
-class DatabaseConnection(MySQLConnection):
+class DatabaseConnection(mysql.connector.MySQLConnection):
     """Governing the connection to the database"""
 
     def __init__(self, autocommit: bool = True):

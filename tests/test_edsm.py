@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 test_edsm.py - Elite: Dangerous Star Map API interface module tests
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -29,6 +27,7 @@ from halpybot.packages.edsm import (
     EDSMConnectionError,
     sys_cleaner,
     NoNearbyEDSM,
+    EDSMReturnError,
 )
 
 # noinspection PyUnresolvedReferences
@@ -136,6 +135,13 @@ async def test_location():
     """Test that the Commander system responds with a value"""
     location = await Commander.location("Rixxan")
     assert location.system == "Pleiades Sector HR-W d1-79"
+
+
+@pytest.mark.asyncio
+async def test_location_malformed():
+    """Test that the Commander system can process a malformed EDSM return"""
+    with pytest.raises(EDSMReturnError):
+        await Commander.location("Abildgaard Jadrake")
 
 
 @pytest.mark.asyncio
