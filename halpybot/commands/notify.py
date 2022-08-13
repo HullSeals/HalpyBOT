@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 notify.py - AWS SNS Interface
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -67,7 +65,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply(get_help_text("notifyinfo details"))
 
-    group = args[0].lower().strip()
+    group = args[0].casefold().strip()
 
     if group in ["staff", "moderators", "hull-seals-staff"]:
         group = "staff"
@@ -105,7 +103,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
     if len(args) <= 1:
         return await ctx.reply(get_help_text("addsub"))
 
-    group = args[0].lower().strip()
+    group = args[0].casefold().strip()
 
     if group in ["staff", "moderators", "hull-seals-staff"]:
         group = "staff"

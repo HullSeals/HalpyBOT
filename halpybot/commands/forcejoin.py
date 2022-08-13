@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 forcejoin.py - SAJOIN command module
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -33,7 +31,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
         return await ctx.reply(get_help_text("forcejoin"))
 
     # Convert channel name to lower case to avoid issues with the already-in-channel check
-    args[1] = args[1].lower()
+    args[1] = args[1].casefold()
 
     botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
 
@@ -61,7 +59,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     # Now we manually confirm that the SAJOIN was successful
     channels = await User.get_channels(ctx.bot, args[0])
 
-    if args[1].lower() in channels:
+    if args[1].casefold() in channels:
         return await ctx.reply(f"{str(args[0])} forced to join {str(args[1])}")
     return await ctx.reply("Oh noes! something went wrong, contact a cyberseal!")
 

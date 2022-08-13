@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 test_commands.py - What are your orders, Captain?
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -603,6 +601,23 @@ async def test_locate(bot_fx, mock_api_server_fx):
     )
     assert bot_fx.sent_messages[0] == {
         "message": "CMDR Rixxan was last seen in Pleiades Sector HR-W d1-79 on 2022-03-15 20:51:01",
+        "target": "#bot-test",
+    }
+
+
+@pytest.mark.asyncio
+async def test_locate_malformed_response(bot_fx, mock_api_server_fx):
+    """Test the locate command when EDSM gives a malformed or incomplete response"""
+    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+        pytest.skip("Invalid EDSM IP Given")
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="generic_seal",
+        message=f"{config['IRC']['commandprefix']}locate Abildgaard Jadrake",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "Received a reply from EDSM about Abildgaard Jadrake, but could not process the return.",
         "target": "#bot-test",
     }
 

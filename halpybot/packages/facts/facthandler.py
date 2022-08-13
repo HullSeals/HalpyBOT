@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 facthandler.py - Database interaction for the fact module
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -14,7 +12,7 @@ from __future__ import annotations
 from typing import List, Optional
 import json
 import re
-
+from loguru import logger
 from ..database import DatabaseConnection, NoDatabaseConnection
 from ..configmanager import config
 from ..command import Commands
@@ -153,7 +151,7 @@ class Fact:
                 cursor = database_connection.cursor()
                 args = (
                     self._name,
-                    self._lang.lower(),
+                    self._lang.casefold(),
                     self._raw_text,
                     self._author,
                     self._ID,
@@ -166,6 +164,7 @@ class Fact:
                     args,
                 )
         except NoDatabaseConnection:
+            logger.exception("No database connection. Unable to update fact.")
             raise FactUpdateError(
                 "Fact was probably updated locally but could "
                 "not be uploaded to the database."
@@ -214,6 +213,7 @@ class FactHandler:
         try:
             await self._from_database()
         except NoDatabaseConnection:
+            logger.exception("No database connection. Unable to retreive facts.")
             if not preserve_current:
                 await self._from_local()
             raise
@@ -276,7 +276,7 @@ class FactHandler:
         if name in Commands.command_list:
             raise InvalidFactException("This fact is already an existing command")
         # Check if we have an English fact:
-        if not await self.get(name) and lang.lower() != "en":
+        if not await self.get(name) and lang.casefold() != "en":
             raise InvalidFactException(
                 "All registered facts must have an English version"
             )
@@ -343,7 +343,7 @@ class FactHandler:
             NoDatabaseConnection: Raised when entering offline mode
 
         """
-        if lang.lower() == "en" and len(await self.lang_by_fact(name)) > 1:
+        if lang.casefold() == "en" and len(await self.lang_by_fact(name)) > 1:
             raise FactHandlerError(
                 "Cannot delete English fact if other languages "
                 "are registered for that fact name."
@@ -372,7 +372,7 @@ class FactHandler:
             return list(self._fact_cache.keys())
         langlist = []
         for fact in self._fact_cache:
-            if fact[1].lower() == lang.lower():
+            if fact[1].casefold() == lang.casefold():
                 langlist.append(fact[0])
         return langlist
 

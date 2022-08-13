@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 __init__.py - Initilization for Elite: Dangerous Star Map API interface module
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -25,6 +23,7 @@ from .edsm import (
     calc_direction,
     diversions,
     NoNearbyEDSM,
+    EDSMReturnError,
 )
 
 __all__ = [
@@ -42,4 +41,5 @@ __all__ = [
     "calc_direction",
     "diversions",
     "NoNearbyEDSM",
+    "EDSMReturnError",
 ]

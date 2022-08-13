@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 delayedboard.py - Delayed Case Board commands
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -49,6 +47,7 @@ async def cmd_create_delayed_case(ctx: Context, args: List[str]):
     try:
         results = await DelayedCase.open(case_status, message, ctx.sender)
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Cannot create case: running in OFFLINE MODE. "
             "Contact a cyberseal immediately!"
@@ -93,6 +92,7 @@ async def cmd_reopen_delayed_case(ctx: Context, args: List[str]):
     try:
         results = await DelayedCase.reopen(case_id, casestat, ctx.sender)
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Cannot reopen case: running in OFFLINE MODE. "
             "Contact a cyberseal immediately!"
@@ -127,6 +127,7 @@ async def cmd_close_delayed_case(ctx: Context, args: List[str]):
             case_id, 3, ctx.sender
         )  # set casestat to 3 to close case
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Cannot update case: running in OFFLINE MODE. "
             "Contact a cyberseal immediately!"
@@ -163,6 +164,7 @@ async def cmd_update_delayed_status(ctx: Context, args: List[str]):
     try:
         results = await DelayedCase.status(case_id, casestat, ctx.sender)
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Cannot update case: running in OFFLINE MODE. "
             "Contact a cyberseal immediately!"
@@ -207,6 +209,7 @@ async def cmd_update_delayed_notes(ctx: Context, args: List[str]):
     try:
         results = await DelayedCase.notes(case_id, message, ctx.sender)
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Cannot update case: running in OFFLINE MODE. "
             "Contact a cyberseal immediately!"
@@ -235,6 +238,7 @@ async def cmd_check_delayed_cases(ctx: Context, args: List[str]):
     try:
         count = await DelayedCase.check()
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Cannot connect to board: running in OFFLINE MODE. "
             "Contact a cyberseal immediately!"
@@ -287,6 +291,7 @@ async def cmd_update_delayed_case(ctx: Context, args: List[str]):
         notesout = await DelayedCase.notes(case_id, message, ctx.sender)
 
     except NoDatabaseConnection:
+        logger.exception("Offline Mode Set, No Database Connection")
         return await ctx.reply(
             "Cannot update case: running in OFFLINE MODE. "
             "Contact a cyberseal immediately!"

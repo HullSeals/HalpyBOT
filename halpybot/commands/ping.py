@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 ping.py - Ping the bot, database, and external services
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -97,10 +95,9 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
             "Unable to verify Elite Status, having issues connecting to the Elite API."
         ) from e
     if len(responses) == 0:
-        await ctx.reply("ERROR! Elite returned an empty reply.")
-    else:
-        message = responses["text"]
-        code = responses["status"]
-        await ctx.reply(
-            f"The Elite servers are {message} (Status Code {code}) according to Frontier."
-        )
+        return await ctx.reply("ERROR! Elite returned an empty reply.")
+    message = responses["text"]
+    code = responses["status"]
+    await ctx.reply(
+        f"The Elite servers are {message} (Status Code {code}) according to Frontier."
+    )

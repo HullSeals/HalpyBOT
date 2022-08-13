@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 manual_case.py - Manual case creation module
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -86,6 +84,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
             hook_id=webhook_id, hook_token=webhook_token, body=cn_message
         )
     except WebhookSendError:
+        logger.exception("Webhook could not be sent.")
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
@@ -132,6 +131,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
             hook_id=webhook_id, hook_token=webhook_token, body=cn_message
         )
     except WebhookSendError:
+        logger.exception("Webhook could not be sent.")
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )

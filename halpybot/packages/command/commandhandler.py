@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 commandhandler.py - Handle bot commands and facts
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -94,7 +92,7 @@ class CommandGroup:
 
         """
         for group in cls._grouplist:
-            if name.lower() == group.name:
+            if name.casefold() == group.name:
                 return group
         return None
 
@@ -126,7 +124,7 @@ class CommandGroup:
         if message.startswith(config["IRC"]["commandPrefix"]):
             # Start off with assigning all variables we need
             parts = message[1:].split(" ")
-            command = parts[0].lower()
+            command = parts[0].casefold()
             args = parts[1:]
             args = [x for x in args if x]
             in_channel = bot.is_channel(channel)
@@ -254,7 +252,7 @@ class CommandGroup:
                 in the command execution itself.
 
         """
-        command = command.lower()
+        command = command.casefold()
         # Sanity check
         if command not in self.command_list:
             raise CommandHandlerError("(sub)command not found.")
@@ -305,10 +303,10 @@ def get_help_text(search_command: str):
     Returns:
         (str or None): Help instructions for a given command, None if unsuccessful.
     """
-    search_command = search_command.lower()
+    search_command = search_command.casefold()
     for command_dict in json_dict.values():
         for command, details in command_dict.items():
-            command = command.lower()
+            command = command.casefold()
             if command == search_command or search_command in details["aliases"]:
                 arguments = details["arguments"]
                 aliases = details["aliases"]

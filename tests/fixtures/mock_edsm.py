@@ -1,10 +1,8 @@
 """
-HalpyBOT v1.6
-
 mock_edsm.py - Elite: Dangerous Star Map API interface mock instance
 Taking the call so we don't have to ping EDSM. Yay voicemail!
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -108,6 +106,19 @@ def mock_api_server_fx():
                 "url": "https://www.edsm.net/en/user/profile/id/58048/cmdr/Rixxan",
             }
         )
+        mock.expect_request(
+            "/api-logs-v1/get-position",
+            query_string="commanderName=Abildgaard+Jadrake&showCoordinates=1",
+        ).respond_with_json(
+            {
+                "msgnum": 100,
+                "msg": "OK",
+                "system": None,
+                "firstDiscover": None,
+                "date": None,
+            }
+        )
+
         mock.expect_request(
             "/api-logs-v1/get-position",
             query_string="commanderName=Praisehalpydamnwhyisthisnotacmdrnam&showCoordinates=1",

@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 halpybot.py - Pydle client module for HalpyBOT
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -54,6 +52,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         try:
             await super().handle_forever()
         except ConnectionResetError as cre:
+            logger.exception("HalpyBOT has crashed with a CRE.")
             await crash_notif("Connection Reset Error", cre)
 
     # Sometimes, the bot will fail in its attempts to reconnect with a CAE
@@ -61,6 +60,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         try:
             await super()._disconnect(expected)
         except ConnectionAbortedError as cae:
+            logger.exception("HalpyBOT has crashed with a CAE.")
             await crash_notif("Connection Aborted Error", cae)
 
     # Handle the clean disconnect but fail to reconnect of the bot

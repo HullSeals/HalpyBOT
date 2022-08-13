@@ -1,9 +1,7 @@
 """
-HalpyBOT v1.6
-
 __init__.py - Initilization for HalpyBOT Commands
 
-Copyright (c) 2022 The Hull Seals,
+Copyright (c) The Hull Seals,
 All rights reserved.
 
 Licensed under the GNU General Public License
@@ -25,6 +23,7 @@ from . import userinfo
 from . import bot_help
 from . import caseutils
 from . import drill
+from . import misc
 
 __all__ = [
     "delayedboard",
@@ -42,4 +41,5 @@ __all__ = [
     "bot_help",
     "caseutils",
     "drill",
+    "misc",
 ]
