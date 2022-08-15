@@ -12,12 +12,12 @@ import time
 from typing import List
 from loguru import logger
 import aiohttp
-from halpybot import DEFAULT_USER_AGENT
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import latency, NoDatabaseConnection
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
+from ..packages.utils import web_get
 
 
 @Commands.command("ping")
@@ -82,13 +82,8 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     try:
-        async with aiohttp.ClientSession(
-            headers={"User-Agent": DEFAULT_USER_AGENT}
-        ) as session:
-            async with await session.get(
-                "https://hosting.zaonce.net/launcher-status/status.json"
-            ) as response:
-                responses = await response.json()
+        uri = "https://hosting.zaonce.net/launcher-status/status.json"
+        responses = await web_get(uri)
     except aiohttp.ClientError as e:
         logger.exception("Error in Elite Server Status lookup.")
         raise EDSMConnectionError(
