@@ -28,7 +28,7 @@ async def test_egg_whois():
     user = user[: len(user) // 2]
     assert (
         user
-        == "CMDR HalpyBOT has a Seal ID of 235, registered on 2019-12-20, is a DW2 Veteran and Founder Seal"
+        == "CMDR HalpyBOT has a Seal ID of 235, registered on 2019-12-20, is a DW2 Veteran and Founder Seal "
     )
 
 

@@ -84,11 +84,11 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     try:
         uri = "https://hosting.zaonce.net/launcher-status/status.json"
         responses = await web_get(uri)
-    except aiohttp.ClientError as e:
+    except aiohttp.ClientError as server_stat_error:
         logger.exception("Error in Elite Server Status lookup.")
         raise EDSMConnectionError(
             "Unable to verify Elite Status, having issues connecting to the Elite API."
-        ) from e
+        ) from server_stat_error
     if len(responses) == 0:
         return await ctx.reply("ERROR! Elite returned an empty reply.")
     message = responses["text"]
