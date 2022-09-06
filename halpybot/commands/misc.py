@@ -28,5 +28,4 @@ async def cmd_shorten(ctx: Context, args: List[str]):
         return await ctx.reply(get_help_text("shorten"))
     logger.info(f"{ctx.sender} requested shortening of {args[0]}")
     surl = await shorten(args[0])
-    return await ctx.reply(f"{ctx.sender}: Here's your short URL: {surl}.")
-
+    return await ctx.reply(f"{ctx.sender}: Here's your short URL: {surl}")
