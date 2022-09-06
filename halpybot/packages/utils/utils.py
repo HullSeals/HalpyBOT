@@ -10,6 +10,8 @@ See license.md
 
 import re
 import json
+import aiohttp
+from halpybot import DEFAULT_USER_AGENT
 
 
 def language_codes():
@@ -65,3 +67,16 @@ async def get_time_seconds(time: str):
         value = int(res.group(unit))
         counter += value * conversion_table[unit]
     return str(counter)
+
+
+async def web_get(uri: str, params=None, timeout=10):
+    async with aiohttp.ClientSession(
+        headers={"User-Agent": DEFAULT_USER_AGENT}
+    ) as session:
+        async with await session.get(
+            uri,
+            params=params,
+            timeout=timeout,
+        ) as response:
+            responses = await response.json()
+        return responses
