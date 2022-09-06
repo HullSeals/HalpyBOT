@@ -9,8 +9,8 @@ See license.md
 """
 import aiohttp
 from loguru import logger
-from halpybot import DEFAULT_USER_AGENT
 from ..configmanager import config
+from .utils import web_get
 
 
 class YOURLSError(Exception):
@@ -48,20 +48,14 @@ async def shorten(url):
         url = "https://" + url
 
     try:
-        async with aiohttp.ClientSession(
-            headers={"User-Agent": DEFAULT_USER_AGENT}
-        ) as session:
-            async with await session.get(
-                f"{config['YOURLS']['uri']}/yourls-api.php",
-                params={
-                    "signature": config["YOURLS"]["pwd"],
-                    "action": "shorturl",
-                    "format": "json",
-                    "url": url,
-                },
-                timeout=10,
-            ) as response:
-                responses = await response.json()
+        tgt_uri = f"{config['YOURLS']['uri']}/yourls-api.php"
+        params = {
+            "signature": config["YOURLS"]["pwd"],
+            "action": "shorturl",
+            "format": "json",
+            "url": url,
+        }
+        responses = await web_get(tgt_uri, params)
     except aiohttp.ClientError as ex:
         logger.exception("YOURLS Did Not Respond")
         raise YOURLSNoResponse from ex

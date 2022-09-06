@@ -264,7 +264,7 @@ async def cmd_coordslookup(ctx, args: List[str]):
     Usage: !coords [x] [y] [z]
     Aliases: coords
     """
-
+    system = None
     if len(args) <= 2:  # Minimum Number of Args is 3.
         return await ctx.reply(get_help_text("coords"))
     xcoord = args[0].strip()
