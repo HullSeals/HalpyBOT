@@ -9,10 +9,23 @@ See license.md
 """
 
 import time
+
+import sqlalchemy.engine
+from sqlalchemy import create_engine, text, engine, exc
 import mysql.connector
 from loguru import logger
 from ..configmanager import config_write, config
 
+dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@127.0.0.1/{config["Database"]["database"]}'
+# dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@{config["Database"]["host"]}/{config["Database"]["database"]}'
+
+engine = create_engine(
+    dbconfig,
+    echo=True,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+    connect_args={"connect_timeout": int(config["Database"]["timeout"])},
+)
 
 dbconfig = {
     "user": config["Database"]["user"],
@@ -74,10 +87,12 @@ async def latency():
         Database connection latency
 
     """
-    get_query = "SELECT 'latency';"
-    database_connection = DatabaseConnection()
-    cursor = database_connection.cursor()
-    cursor.execute(get_query)
-    database_connection.close()
+    try:
+        with engine.connect() as conn:
+            get_query = "SELECT 'latency';"
+            result = conn.execute(text(get_query))
+    except exc.OperationalError:
+        raise NoDatabaseConnection
+    print(result)
     end = time.time()
     return end

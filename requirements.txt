@@ -1,7 +1,7 @@
 pydle~=1.0.0
 pure-sasl~=0.6.2
 setuptools~=65.3.0
-mysql-connector-python==8.0.29
+SQLAlchemy~=1.4.40
 mysqlclient~=2.1.1
 numpy~=1.23.2
 pytest~=7.1.3
