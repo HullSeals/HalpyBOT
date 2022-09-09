@@ -50,22 +50,24 @@ async def latency():
         Database connection latency
     """
     with engine.connect() as conn:
-        get_query = "SELECT 'latency';"
-        conn.execute(text(get_query))
+        conn.execute(text("SELECT 'latency'"))
     end = time.time()
     return end
 
 
 async def box_of_angry_bees():
+    """
+    Test the database connection. Set offline mode if an error occurs.
+    """
     if config.getboolean("Offline Mode", "Enabled"):
         raise NoDatabaseConnection
-    for attempt in range(3):
+    for attempt in range(1, 4):
         logger.info("Attempting DB Connection")
         try:
             with engine.connect() as conn:
-                result = conn.execute(text("SELECT '1';"))
+                conn.execute(text("SELECT '1'"))
                 logger.info(f"Succeeded on attempt {attempt}")
-                return result
+                return
         except exc.OperationalError:
             pass
     config_write("Offline Mode", "enabled", "True")

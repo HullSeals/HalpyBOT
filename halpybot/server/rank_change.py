@@ -11,6 +11,7 @@ See license.md
 
 from aiohttp import web
 from loguru import logger
+from sqlalchemy import text
 from .server import APIConnector
 from .auth import authenticate
 from ..packages.database import engine, NoDatabaseConnection
@@ -42,8 +43,11 @@ async def tail(request):
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
         with engine.connect() as database_connection:
-            result = database_connection.exec_driver_sql(
-                "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,)
+            result = database_connection.execute(
+                text(
+                    "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;",
+                    (subject,),
+                )
             )
             for i in result:
                 logger.info(i)

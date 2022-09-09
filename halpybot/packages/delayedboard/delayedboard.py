@@ -8,6 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+from sqlalchemy import text
 from ..database import engine
 from ..utils import strip_non_ascii
 
@@ -177,10 +178,10 @@ class DelayedCase:
         """
         # Set default value
         with engine.connect() as database_connection:
-            result = database_connection.exec_driver_sql(
-                "SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2);"
+            result = database_connection.execute(
+                text("SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2)")
             )
-            for res in result.fetchall():
-                result = res[0]
+            for row in result:
+                result = row[0]
         # Return the total amount of open delayed cases on the board
         return result
