@@ -8,6 +8,16 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .connection import DatabaseConnection, NoDatabaseConnection, dbconfig, gateway_select_query
+from .connection import (
+    NoDatabaseConnection,
+    dbconfig,
+    box_of_angry_bees,
+    latency,
+)
 
-__all__ = ["DatabaseConnection", "NoDatabaseConnection", "dbconfig", "gateway_select_query"]
+__all__ = [
+    "NoDatabaseConnection",
+    "dbconfig",
+    "box_of_angry_bees",
+    "latency",
+]

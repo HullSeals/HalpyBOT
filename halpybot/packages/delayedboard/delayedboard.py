@@ -8,7 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database import DatabaseConnection
+from ..database import DatabaseConnection  # FIXME: SQLALCHEMY
 from ..utils import strip_non_ascii
 
 

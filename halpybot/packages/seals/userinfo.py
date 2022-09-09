@@ -8,7 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database import DatabaseConnection, NoDatabaseConnection
+from ..database import DatabaseConnection, NoDatabaseConnection  # FIXME: SQLALCHEMY
 
 
 async def whois(subject):

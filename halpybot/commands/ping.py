@@ -14,8 +14,8 @@ from loguru import logger
 import aiohttp
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
-from ..packages.database import gateway_select_query, NoDatabaseConnection
-from ..packages.database.connection import gateway_select_query
+from ..packages.database import box_of_angry_bees, NoDatabaseConnection
+from ..packages.database.connection import latency
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
 from ..packages.utils import web_get
@@ -35,6 +35,7 @@ async def cmd_ping(ctx: Context, args: List[str]):
 
 @Commands.command("dbping")
 @Require.permission(Cyberseal)
+@Require.database()
 async def cmd_dbping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the Database.
@@ -44,10 +45,9 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     """
     start = time.time()
     try:
-        await gateway_select_query("SELECT 'latency';")
+        latencycheck = await latency()
     except NoDatabaseConnection:
         return await ctx.reply("Unable: No connection.")
-    latencycheck = time.time()
     if isinstance(latencycheck, float):
         final = round(latencycheck - start, 2)
         await ctx.reply(f"Database Latency: {str(final)} seconds")

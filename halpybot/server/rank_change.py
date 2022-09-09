@@ -13,7 +13,7 @@ from aiohttp import web
 from loguru import logger
 from .server import APIConnector
 from .auth import authenticate
-from ..packages.database import DatabaseConnection, NoDatabaseConnection
+from ..packages.database import DatabaseConnection, NoDatabaseConnection  # FIXME: SQLALCHEMY
 from ..packages.ircclient import client as botclient
 
 routes = web.RouteTableDef()
