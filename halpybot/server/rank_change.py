@@ -13,7 +13,7 @@ from aiohttp import web
 from loguru import logger
 from .server import APIConnector
 from .auth import authenticate
-from ..packages.database import DatabaseConnection, NoDatabaseConnection  # FIXME: SQLALCHEMY
+from ..packages.database import engine, NoDatabaseConnection
 from ..packages.ircclient import client as botclient
 
 routes = web.RouteTableDef()
@@ -41,13 +41,12 @@ async def tail(request):
     subject = request["subject"]
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.execute(
+        with engine.connect() as database_connection:
+            result = database_connection.exec_driver_sql(
                 "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,)
             )
-            result = cursor.fetchall()
             for i in result:
+                logger.info(i)
                 await botclient.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:
