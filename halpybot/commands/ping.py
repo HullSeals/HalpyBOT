@@ -14,7 +14,8 @@ from loguru import logger
 import aiohttp
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
-from ..packages.database import latency, NoDatabaseConnection
+from ..packages.database import gateway_select_query, NoDatabaseConnection
+from ..packages.database.connection import gateway_select_query
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context
 from ..packages.utils import web_get
@@ -43,9 +44,10 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     """
     start = time.time()
     try:
-        latencycheck = await latency()
+        await gateway_select_query("SELECT 'latency';")
     except NoDatabaseConnection:
         return await ctx.reply("Unable: No connection.")
+    latencycheck = time.time()
     if isinstance(latencycheck, float):
         final = round(latencycheck - start, 2)
         await ctx.reply(f"Database Latency: {str(final)} seconds")

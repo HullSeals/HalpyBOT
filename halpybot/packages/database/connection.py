@@ -8,16 +8,13 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import time
-
-import sqlalchemy.engine
 from sqlalchemy import create_engine, text, engine, exc
 import mysql.connector
 from loguru import logger
 from ..configmanager import config_write, config
 
-dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@127.0.0.1/{config["Database"]["database"]}'
-# dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@{config["Database"]["host"]}/{config["Database"]["database"]}'
+# dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@127.0.0.1/{config["Database"]["database"]}'
+dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@{config["Database"]["host"]}/{config["Database"]["database"]}'
 
 engine = create_engine(
     dbconfig,
@@ -80,19 +77,17 @@ class DatabaseConnection(mysql.connector.MySQLConnection):
                 continue
 
 
-async def latency():
-    """Ping the database and get latency
-
-    Returns:
-        Database connection latency
-
-    """
-    try:
-        with engine.connect() as conn:
-            get_query = "SELECT 'latency';"
-            result = conn.execute(text(get_query))
-    except exc.OperationalError:
+async def gateway_select_query(get_query):
+    if config.getboolean("Offline Mode", "Enabled"):
         raise NoDatabaseConnection
-    print(result)
-    end = time.time()
-    return end
+    for attempt in range(3):
+        logger.critical("Attempting...")
+        try:
+            with engine.connect() as conn:
+                result = conn.execute(text(get_query))
+                return result
+        except exc.OperationalError:
+            pass
+    else:
+        config_write("Offline Mode", "enabled", "True")
+        raise NoDatabaseConnection
