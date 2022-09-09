@@ -13,6 +13,7 @@ from .connection import (
     dbconfig,
     box_of_angry_bees,
     latency,
+    engine,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "dbconfig",
     "box_of_angry_bees",
     "latency",
+    "engine",
 ]

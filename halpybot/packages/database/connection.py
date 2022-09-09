@@ -61,7 +61,7 @@ async def box_of_angry_bees():
     if config.getboolean("Offline Mode", "Enabled"):
         raise NoDatabaseConnection
     for attempt in range(3):
-        logger.critical("Attempting...")
+        logger.info("Attempting DB Connection")
         try:
             with engine.connect() as conn:
                 result = conn.execute(text("SELECT '1';"))

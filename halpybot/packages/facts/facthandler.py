@@ -13,7 +13,7 @@ from typing import List, Optional
 import json
 import re
 from loguru import logger
-from ..database import DatabaseConnection, NoDatabaseConnection  # FIXME: SQLALCHEMY
+from ..database import engine, NoDatabaseConnection
 from ..configmanager import config
 from ..command import Commands
 
@@ -147,8 +147,7 @@ class Fact:
         if self._offline:
             raise FactUpdateError
         try:
-            with DatabaseConnection() as database_connection:
-                cursor = database_connection.cursor()
+            with engine.connect() as database_connection:
                 args = (
                     self._name,
                     self._lang.casefold(),
@@ -156,7 +155,7 @@ class Fact:
                     self._author,
                     self._ID,
                 )
-                cursor.execute(
+                database_connection.exec_driver_sql(
                     f"UPDATE {config['Facts']['table']} "
                     f"SET factName = %s, factLang = %s, factText = %s, "
                     f"factEditedBy = %s "
@@ -220,14 +219,13 @@ class FactHandler:
 
     async def _from_database(self):
         """Get facts from database and update the cache"""
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.execute(
+        with engine.connect() as database_connection:
+            result = database_connection.exec_driver_sql(
                 f"SELECT factID, factName, factLang, factText, factAuthor "
                 f"FROM {config['Facts']['table']}"
             )
             self._flush_cache()
-            for (fact_id, fact_name, fact_lang, fact_text, fact_author) in cursor:
+            for (fact_id, fact_name, fact_lang, fact_text, fact_author) in result:
                 self._fact_cache[fact_name, fact_lang] = Fact(
                     int(fact_id), fact_name, fact_lang, fact_text, fact_author
                 )
@@ -282,9 +280,8 @@ class FactHandler:
             )
         if (name, lang) in self._fact_cache:
             raise InvalidFactException("This fact already exists.")
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.execute(
+        with engine.connect() as database_connection:
+            database_connection.exec_driver_sql(
                 f"INSERT INTO {config['Facts']['table']} "
                 f"(factName, factLang, factText, factAuthor) "
                 f"VALUES (%s, %s, %s, %s);",
@@ -348,9 +345,8 @@ class FactHandler:
                 "Cannot delete English fact if other languages "
                 "are registered for that fact name."
             )
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.execute(
+        with engine.connect() as database_connection:
+            database_connection.exec_driver_sql(
                 f"DELETE FROM {config['Facts']['table']} WHERE factID = %s",
                 (self._fact_cache[name, lang].ID,),
             )

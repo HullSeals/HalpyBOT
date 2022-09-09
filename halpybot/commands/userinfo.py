@@ -20,6 +20,7 @@ from ..packages.models import Context
 
 @Commands.command("whois")
 @Require.permission(Pup)
+@Require.database()
 async def cmd_whois(ctx: Context, args: List[str]):
     """
     List user information of a given user
@@ -41,6 +42,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
 
 @Commands.command("whoami")
 @Require.permission(Pup)
+@Require.database()
 async def cmd_whoami(ctx: Context, args: List[str]):
     """
     List user information of a given user
