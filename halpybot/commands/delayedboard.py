@@ -20,6 +20,7 @@ from ..packages.models import Context
 @Commands.command("delaycase")
 @Require.permission(Drilled)
 @Require.channel()
+@Require.database()
 async def cmd_create_delayed_case(ctx: Context, args: List[str]):
     """
     Create a new case on the Delayed-board
@@ -69,6 +70,7 @@ async def cmd_create_delayed_case(ctx: Context, args: List[str]):
 @Commands.command("reopen")
 @Require.permission(Moderator)
 @Require.channel()
+@Require.database()
 async def cmd_reopen_delayed_case(ctx: Context, args: List[str]):
     """
     Reopen a case on the Delayed-board
@@ -107,6 +109,7 @@ async def cmd_reopen_delayed_case(ctx: Context, args: List[str]):
 @Commands.command("endcase", "close")
 @Require.permission(Drilled)
 @Require.channel()
+@Require.database()
 async def cmd_close_delayed_case(ctx: Context, args: List[str]):
     """
     Close a case on the delayed board
@@ -142,6 +145,7 @@ async def cmd_close_delayed_case(ctx: Context, args: List[str]):
 @Commands.command("updatestatus")
 @Require.permission(Drilled)
 @Require.channel()
+@Require.database()
 async def cmd_update_delayed_status(ctx: Context, args: List[str]):
     """
     Update the status of a case on the delayed board
@@ -179,6 +183,7 @@ async def cmd_update_delayed_status(ctx: Context, args: List[str]):
 @Commands.command("updatenotes")
 @Require.permission(Drilled)
 @Require.channel()
+@Require.database()
 async def cmd_update_delayed_notes(ctx: Context, args: List[str]):
     """
     Update the notes of a case on the delayed board
@@ -227,6 +232,7 @@ async def cmd_update_delayed_notes(ctx: Context, args: List[str]):
 
 
 @Commands.command("delaystatus", "checkstatus")
+@Require.database()
 async def cmd_check_delayed_cases(ctx: Context, args: List[str]):
     """
     Check the Delayed Board for cases
@@ -254,6 +260,7 @@ async def cmd_check_delayed_cases(ctx: Context, args: List[str]):
 @Commands.command("updatecase")
 @Require.permission(Drilled)
 @Require.channel()
+@Require.database()
 async def cmd_update_delayed_case(ctx: Context, args: List[str]):
     """
     Update details of a case on the Delayed Board
