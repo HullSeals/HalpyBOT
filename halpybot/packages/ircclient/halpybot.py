@@ -19,8 +19,7 @@ from ..configmanager import config_write, config
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import Facts
-from ..database import NoDatabaseConnection
-
+from ..database import NoDatabaseConnection, box_of_angry_bees
 
 pool = pydle.ClientPool()
 
@@ -86,6 +85,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         if config.getboolean("System Monitoring", "failure_button"):
             config_write("System Monitoring", "failure_button", "False")
         try:
+            await box_of_angry_bees()
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
         except NoDatabaseConnection:
             logger.error(

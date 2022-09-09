@@ -14,7 +14,7 @@ from loguru import logger
 import aiohttp
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
-from ..packages.database import box_of_angry_bees, NoDatabaseConnection
+from ..packages.database import NoDatabaseConnection
 from ..packages.database.connection import latency
 from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
 from ..packages.models import Context

@@ -30,7 +30,6 @@ async def whois(subject):
         None,
         None,
     )
-    result = None
     connection = engine.raw_connection()
     try:
         args = (subject, 0, 0, 0, 0, 0, 0)

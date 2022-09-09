@@ -9,7 +9,7 @@ See license.md
 """
 
 import time
-from sqlalchemy import create_engine, text, engine, exc
+from sqlalchemy import create_engine, text, exc
 from loguru import logger
 from ..configmanager import config_write, config
 
@@ -51,8 +51,7 @@ async def latency():
     """
     with engine.connect() as conn:
         get_query = "SELECT 'latency';"
-        result = conn.execute(text(get_query))
-    print(result)
+        conn.execute(text(get_query))
     end = time.time()
     return end
 
@@ -65,12 +64,13 @@ async def box_of_angry_bees():
         try:
             with engine.connect() as conn:
                 result = conn.execute(text("SELECT '1';"))
+                logger.info(f"Succeeded on attempt {attempt}")
                 return result
         except exc.OperationalError:
             pass
-    else:
-        config_write("Offline Mode", "enabled", "True")
-        raise NoDatabaseConnection
+    config_write("Offline Mode", "enabled", "True")
+    logger.info(f"Failed on attempt {attempt}")
+    raise NoDatabaseConnection
 
 
 # TODO:

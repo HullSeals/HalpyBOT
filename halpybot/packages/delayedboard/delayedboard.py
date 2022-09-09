@@ -176,7 +176,6 @@ class DelayedCase:
 
         """
         # Set default value
-        result = None
         with engine.connect() as database_connection:
             result = database_connection.exec_driver_sql(
                 "SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2);"
