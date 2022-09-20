@@ -8,11 +8,10 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import asyncio
 from unittest.mock import patch
 import pytest
 import aiohttp
-from halpybot.packages.configmanager import config, config_write
+from halpybot.packages.configmanager import config
 import halpybot.packages.edsm.edsm
 from halpybot.packages.edsm import (
     GalaxySystem,

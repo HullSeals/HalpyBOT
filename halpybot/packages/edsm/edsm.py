@@ -24,10 +24,10 @@ import aiohttp
 import numpy as np
 import cattr
 from attr import dataclass, define, field
-from halpybot import DEFAULT_USER_AGENT
 from ..models import Coordinates, Location
 from ..models import edsm_classes
 from ..configmanager import config
+from ..utils import web_get
 
 
 class EDSMLookupError(Exception):
@@ -133,19 +133,13 @@ class GalaxySystem:
 
         # Else, get the system from EDSM
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}",
-                    params={
-                        "systemName": name,
-                        "showCoordinates": 1,
-                        "showInformation": 1,
-                    },
-                    timeout=10,
-                ) as response:
-                    responses = await response.json()
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}"
+            params = {
+                "systemName": name,
+                "showCoordinates": 1,
+                "showInformation": 1,
+            }
+            responses = await web_get(uri, params)
 
         except aiohttp.ClientError:
             logger.exception("EDSM: Error in `system get_info()` lookup.")
@@ -211,22 +205,15 @@ class GalaxySystem:
         """
         # Else, get the system from EDSM
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}",
-                    params={
-                        "x": x_coord,
-                        "y": y_coord,
-                        "z": z_coord,
-                        "radius": 100,
-                        "minRadius": 1,
-                    },
-                    timeout=10,
-                ) as response:
-                    responses = await response.json()
-
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}"
+            params = {
+                "x": x_coord,
+                "y": y_coord,
+                "z": z_coord,
+                "radius": 100,
+                "minRadius": 1,
+            }
+            responses = await web_get(uri, params)
         except aiohttp.ClientError:
             logger.exception("EDSM: Error in `system get_info()` lookup.")
             raise EDSMConnectionError(
@@ -303,16 +290,9 @@ class Commander:
                 return cls._lookupCache[name.strip().upper()].object
 
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}",
-                    params={"commanderName": name, "showCoordinates": 1},
-                    timeout=10,
-                ) as response:
-                    responses = await response.json()
-
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}"
+            params = {"commanderName": name, "showCoordinates": 1}
+            responses = await web_get(uri, params)
         except (aiohttp.ClientError, KeyError) as get_cmdr_error:
             logger.exception("EDSM: Error in Commander `get_cmdr()` lookup.")
             raise EDSMConnectionError(
@@ -767,17 +747,11 @@ async def get_nearby_system(sys_name: str):
     name_to_check = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}",
-                    params={"systemName": name_to_check},
-                    timeout=10,
-                ) as response:
-                    responces = await response.json()
-            if responces:
-                sys = responces[0]["name"]
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}"
+            params = {"systemName": name_to_check}
+            responses = await web_get(uri, params)
+            if responses:
+                sys = responses[0]["name"]
                 return True, sys
 
             # Cheeky bottom test to not include spaces in the repeat queries and not include it in the 5 request cap
