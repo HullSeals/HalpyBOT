@@ -13,8 +13,10 @@ from sqlalchemy import create_engine, text, exc
 from loguru import logger
 from ..configmanager import config_write, config
 
-# dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@127.0.0.1/{config["Database"]["database"]}'
-dbconfig = f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@{config["Database"]["host"]}/{config["Database"]["database"]}'
+dbconfig = (
+    f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@'
+    f'{config["Database"]["host"]}/{config["Database"]["database"]}'
+)
 
 engine = create_engine(
     dbconfig,
@@ -61,6 +63,7 @@ async def box_of_angry_bees():
     """
     if config.getboolean("Offline Mode", "Enabled"):
         raise NoDatabaseConnection
+    attempt = 0
     for attempt in range(1, 4):
         logger.info("Attempting DB Connection")
         try:
@@ -73,11 +76,3 @@ async def box_of_angry_bees():
     config_write("Offline Mode", "enabled", "True")
     logger.info(f"Failed on attempt {attempt}")
     raise NoDatabaseConnection
-
-
-# TODO:
-#  1) Apply new SQLAlchemy DB Logic && REQUIRE.DATABASE to all commands
-# 2) Make Async
-# 3) Remove All Old Logic
-# 4) Should we use sqlalchemy Session Manager here? How Best Apply New Logic?
-# 5) ORM mapping logic? (TBD need based complexity)

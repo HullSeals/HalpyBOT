@@ -1,5 +1,5 @@
 """
-test_delayed.py - DDatabase interaction for Delayed Board module tests
+test_delayed.py - Database interaction for Delayed Board module tests
 
 Copyright (c) The Hull Seals,
 All rights reserved.
