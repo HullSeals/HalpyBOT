@@ -29,6 +29,26 @@ from ..packages.configmanager import config
 langcodes = language_codes()
 
 
+async def splitter(fact_payload):
+    """
+    Turn the arguments about a fact into actionable information
+
+    Args:
+        fact_payload: Arguments of the user entry
+
+    Returns:
+        name (str): The name of a fact.
+        lang (str): The language of the fact. Defaults to en.
+    """
+    name = fact_payload[0].split("-", maxsplit=1)[0].casefold()
+    lang = (
+        fact_payload[0].split("-", maxsplit=1)[1]
+        if len(fact_payload[0].split("-", maxsplit=1)) == 2
+        else "en"
+    )
+    return name, lang
+
+
 @Commands.command("factinfo")
 @Require.permission(Moderator)
 async def cmd_getfactdata(ctx: Context, args: List[str]):
@@ -40,8 +60,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     """
     if not args or len(args) != 1:
         return await ctx.reply(get_help_text("factinfo"))
-    name = args[0].split("-")[0].casefold()
-    lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
+    name, lang = await splitter(args)
     fact: Optional[Fact] = await Facts.get(name, lang)
     if fact is None:
         return await ctx.redirect("Fact not found.")
@@ -70,9 +89,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
 
     if not args or len(args) < 2:
         return await ctx.reply(get_help_text("addfact"))
-    lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
-    name = args[0].split("-")[0].casefold()
-
+    name, lang = await splitter(args)
     if lang not in langcodes:
         return await ctx.reply(
             "Cannot comply: Language code must be ISO-639-1 compliant."
@@ -114,10 +131,7 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
     """
     if not args or len(args) != 1:
         return await ctx.reply(get_help_text("deletefact"))
-
-    name = args[0].split("-")[0].casefold()
-    lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
-
+    name, lang = await splitter(args)
     if await Facts.get(name, lang) is None:
         return await ctx.reply("That fact does not exist.")
 
@@ -181,8 +195,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
     if not args or len(args) < 2:
         return await ctx.reply(get_help_text("editfact"))
 
-    name = args[0].split("-")[0].casefold()
-    lang = args[0].split("-")[1] if len(args[0].split("-")) == 2 else "en"
+    name, lang = await splitter(args)
 
     fact = await Facts.get(name, lang)
     if fact is None:
