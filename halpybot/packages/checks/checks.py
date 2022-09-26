@@ -13,7 +13,7 @@ from typing import List
 from loguru import logger
 from ..models import User
 from ..configmanager import config
-from ..database import box_of_angry_bees, NoDatabaseConnection
+from ..database import test_database_connection, NoDatabaseConnection
 
 
 class Permission:
@@ -199,7 +199,7 @@ class Require:
                     logger.critical(config["Offline Mode"]["enabled"])
                     return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
                 try:
-                    await box_of_angry_bees()
+                    await test_database_connection()
                 except NoDatabaseConnection:
                     return await ctx.reply(
                         "Cannot comply: Database Error Detected. Entering OFFLINE mode."

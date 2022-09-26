@@ -11,7 +11,7 @@ See license.md
 from .connection import (
     NoDatabaseConnection,
     dbconfig,
-    box_of_angry_bees,
+    test_database_connection,
     latency,
     engine,
 )
@@ -19,7 +19,7 @@ from .connection import (
 __all__ = [
     "NoDatabaseConnection",
     "dbconfig",
-    "box_of_angry_bees",
+    "test_database_connection",
     "latency",
     "engine",
 ]

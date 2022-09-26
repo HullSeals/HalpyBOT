@@ -57,9 +57,10 @@ async def latency():
     return end
 
 
-async def box_of_angry_bees():
+async def test_database_connection():
     """
     Test the database connection. Set offline mode if an error occurs.
+    A.K.A. The artist formerly known as "Box of Angry Bees"
     """
     if config.getboolean("Offline Mode", "Enabled"):
         raise NoDatabaseConnection
