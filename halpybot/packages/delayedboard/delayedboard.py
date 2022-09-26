@@ -8,7 +8,8 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database import DatabaseConnection
+from sqlalchemy import text
+from ..database import engine
 from ..utils import strip_non_ascii
 
 
@@ -37,12 +38,18 @@ class DelayedCase:
         message = strip_non_ascii(message)
         in_args = [int(status), str(message[0]), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.callproc("spCreateDelayedCase", in_args)
-            for result in cursor.stored_results():
-                out_args.append(result.fetchall())
-        out_args = list(out_args[0][0])
+        connection = engine.raw_connection()
+        try:
+            cursor_obj = connection.cursor()
+            cursor_obj.callproc("spCreateDelayedCase", in_args)
+            results = list(cursor_obj.fetchall())
+            cursor_obj.close()
+            connection.commit()
+        finally:
+            connection.close()
+        for result in results:
+            out_args = result
+        out_args = list(out_args)
         out_args.append(bool(message[1]))
         return out_args
 
@@ -69,12 +76,18 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.callproc("spReopenDelayedCase", in_args)
-            for result in cursor.stored_results():
-                out_args.append(result.fetchall())
-        out_args = list(out_args[0][0])
+        connection = engine.raw_connection()
+        try:
+            cursor_obj = connection.cursor()
+            cursor_obj.callproc("spReopenDelayedCase", in_args)
+            results = list(cursor_obj.fetchall())
+            cursor_obj.close()
+            connection.commit()
+        finally:
+            connection.close()
+        for result in results:
+            out_args = result
+        out_args = list(out_args)
         return out_args
 
     @staticmethod
@@ -100,12 +113,18 @@ class DelayedCase:
         """
         in_args = [int(case_id), int(casestat), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.callproc("spUpdateStatusDelayedCase", in_args)
-            for result in cursor.stored_results():
-                out_args.append(result.fetchall())
-        out_args = list(out_args[0][0])
+        connection = engine.raw_connection()
+        try:
+            cursor_obj = connection.cursor()
+            cursor_obj.callproc("spUpdateStatusDelayedCase", in_args)
+            results = list(cursor_obj.fetchall())
+            cursor_obj.close()
+            connection.commit()
+        finally:
+            connection.close()
+        for result in results:
+            out_args = result
+        out_args = list(out_args)
         return out_args
 
     @staticmethod
@@ -131,12 +150,18 @@ class DelayedCase:
         message = strip_non_ascii(message)
         in_args = [int(case_id), str(message[0]), author, 0, 0, 0]
         out_args = []
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.callproc("spUpdateMsgDelayedCase", in_args)
-            for result in cursor.stored_results():
-                out_args.append(result.fetchall())
-        out_args = list(out_args[0][0])
+        connection = engine.raw_connection()
+        try:
+            cursor_obj = connection.cursor()
+            cursor_obj.callproc("spUpdateMsgDelayedCase", in_args)
+            results = list(cursor_obj.fetchall())
+            cursor_obj.close()
+            connection.commit()
+        finally:
+            connection.close()
+        for result in results:
+            out_args = result
+        out_args = list(out_args)
         out_args.append(bool(message[1]))
         return out_args
 
@@ -152,13 +177,11 @@ class DelayedCase:
 
         """
         # Set default value
-        result = None
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.execute(
-                "SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2);"
+        with engine.connect() as database_connection:
+            result = database_connection.execute(
+                text("SELECT COUNT(ID) FROM casestatus WHERE case_status IN (1, 2)")
             )
-            for res in cursor.fetchall():
-                result = res[0]
+            for row in result:
+                result = row[0]
         # Return the total amount of open delayed cases on the board
         return result
