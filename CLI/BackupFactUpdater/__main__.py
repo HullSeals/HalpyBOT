@@ -23,7 +23,7 @@ import os
 import sys
 
 import configparser
-import mysql.connector
+from sqlalchemy import create_engine, text, exc
 
 hours_wasted_trying_to_understand_why = 10
 
@@ -32,18 +32,16 @@ JSON_PATH = "../data/facts/backup_facts.json"
 config = configparser.ConfigParser()
 config.read("BackupFactUpdater/config.ini")
 
+dbconfig = (
+    f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@'
+    f'{config["Database"]["host"]}/{config["Database"]["database"]}'
+)
 
-# noinspection PyBroadException
+engine = create_engine(dbconfig)
+
+
 def run():
     """Run the Backup Fact Updater"""
-    dbconfig = {
-        "user": config.get("Database", "user"),
-        "password": config.get("Database", "password"),
-        "host": config.get("Database", "host"),
-        "database": config.get("Database", "database"),
-        "connect_timeout": int(config.get("Database", "timeout")),
-    }
-
     print("=============\nHalpyBOT fact file updater\n=============")
     print("\n")
     print(
@@ -64,21 +62,23 @@ def run():
         with open(JSON_PATH, "r", encoding="UTF-8") as jsonfile:
             print("20% Opening backup file...")
             resdict = json.load(jsonfile)
-        database_connection = mysql.connector.connect(**dbconfig)
         print("40% Connection started...")
-        cursor = database_connection.cursor()
-        cursor.execute(f"SELECT factName, factLang, factText FROM {table}")
-        print("60% Got data, parsing...")
-        for (name, lang, text) in cursor:
-            resdict[f"{name}-{lang}"] = text
-        database_connection.close()
+        with engine.connect() as conn:
+            result = conn.execute(
+                text(
+                    f"SELECT factName, factLang, factText FROM {table}",
+                )
+            )
+            print("60% Got data, parsing...")
+            for (name, lang, facttext) in result:
+                resdict[f"{name}-{lang}"] = facttext
         print("80% Writing to file...")
         with open(JSON_PATH, "w+", encoding="UTF-8") as jsonfile:
             json.dump(resdict, jsonfile, indent=4)
             print(
                 "100% Done. Confirm that the update was successful, and have a great day!"
             )
-    except mysql.connector.Error:
+    except exc.OperationalError:
         print("MySQL encountered an error. Aborting!")
 
 

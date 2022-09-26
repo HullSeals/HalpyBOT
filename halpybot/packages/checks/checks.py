@@ -13,6 +13,7 @@ from typing import List
 from loguru import logger
 from ..models import User
 from ..configmanager import config
+from ..database import test_database_connection, NoDatabaseConnection
 
 
 class Permission:
@@ -180,6 +181,28 @@ class Require:
                 if not config["Notify"]["secret"] or not config["Notify"]["access"]:
                     return await ctx.reply(
                         "Cannot comply: AWS Config data is required for this module."
+                    )
+                return await function(ctx, args)
+
+            return guarded
+
+        return decorator
+
+    @staticmethod
+    def database():
+        """Require a valid database connection and not in offline mode"""
+
+        def decorator(function):
+            @functools.wraps(function)
+            async def guarded(ctx, args: List[str]):
+                if config.getboolean("Offline Mode", "enabled"):
+                    logger.critical(config["Offline Mode"]["enabled"])
+                    return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
+                try:
+                    await test_database_connection()
+                except NoDatabaseConnection:
+                    return await ctx.reply(
+                        "Cannot comply: Database Error Detected. Entering OFFLINE mode."
                     )
                 return await function(ctx, args)
 

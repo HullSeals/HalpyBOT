@@ -8,7 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database import DatabaseConnection, NoDatabaseConnection
+from ..database import engine, NoDatabaseConnection
 
 
 async def whois(subject):
@@ -30,26 +30,26 @@ async def whois(subject):
         None,
         None,
     )
+    connection = engine.raw_connection()
     try:
-
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            args = (subject, 0, 0, 0, 0, 0, 0)
-            # Instead of inline code, we call a stored procedure to put some of this work on the database.
-            cursor.callproc("spWhoIs", args)
-            for res in cursor.stored_results():
-                result = res.fetchall()
-            for res in result:
-                u_id, u_cases, u_name, u_regdate, u_distant_worlds = res
-                if u_distant_worlds == 1:
-                    u_distant_worlds_2 = (
-                        ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
-                    )
-                else:
-                    u_distant_worlds_2 = ", with registered CMDRs of"
-
+        args = (subject, 0, 0, 0, 0, 0, 0)
+        cursor_obj = connection.cursor()
+        cursor_obj.callproc("spWhoIs", args)
+        result = list(cursor_obj.fetchall())
+        cursor_obj.close()
+        connection.commit()
     except NoDatabaseConnection:
         return "Error searching user."
+    finally:
+        connection.close()
+    for res in result:
+        u_id, u_cases, u_name, u_regdate, u_distant_worlds = res
+        if u_distant_worlds == 1:
+            u_distant_worlds_2 = (
+                ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
+            )
+        else:
+            u_distant_worlds_2 = ", with registered CMDRs of"
 
     if u_id is None:
         return "No registered user found by that name!"
