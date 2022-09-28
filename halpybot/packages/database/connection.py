@@ -20,7 +20,6 @@ dbconfig = (
 
 engine = create_engine(
     dbconfig,
-    echo=True,
     pool_pre_ping=True,
     pool_recycle=3600,
     connect_args={"connect_timeout": int(config["Database"]["timeout"])},

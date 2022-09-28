@@ -49,7 +49,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     except NoDatabaseConnection:
         return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):
-        final = round(latencycheck - start, 2)
+        final = round(latencycheck - start, 3)
         await ctx.reply(f"Database Latency: {str(final)} seconds")
     else:
         await ctx.reply(latencycheck)
