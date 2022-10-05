@@ -89,7 +89,6 @@ async def cmd_offline(ctx: Context, args: List[str]):
         set_to = "True"
     elif args[0].casefold() == "false" and config["Offline Mode"]["enabled"] != "False":
         set_to = "False"
-        config_write("Offline Mode", "warning override", "False")
     else:
         return await ctx.reply(
             "Error! Invalid parameters given or already in mode. Status not changed."
@@ -104,36 +103,6 @@ async def cmd_offline(ctx: Context, args: List[str]):
     # Write changes to config file
     config_write("Offline Mode", "enabled", f"{set_to}")
     await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")
-
-
-@Settings.command("warning_override")
-@Require.permission(Moderator)
-async def cmd_override_omw(ctx: Context, args: List[str]):
-    """
-    Enable override for offline mode notifications
-
-    Usage: !settings warning_override [Enable/True | Disable/False]
-    Aliases: n/a
-    """
-
-    if len(args) <= 1:
-        return await ctx.reply(
-            f"{get_help_text('settings warning_override')}\n"
-            f"Current warning override setting: {config['Offline Mode']['warning override']}"
-        )
-    request = args[0].casefold()
-
-    if request in ("enable", "true"):
-        config_write("Offline Mode", "warning override", "True")
-        request = True
-    elif request in ("disable", "false"):
-        config_write("Offline Mode", "warning override", "False")
-        request = False
-    if request or not request:
-        return await ctx.reply(
-            f"Override has been {'enabled.' if request else 'disabled.'} You MUST "
-            f"inform an on-duty cyberseal of this action immediately."
-        )
 
 
 @Commands.command("joinchannel")

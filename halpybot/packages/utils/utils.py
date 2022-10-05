@@ -11,6 +11,7 @@ See license.md
 import re
 import json
 import aiohttp
+import asyncio
 from halpybot import DEFAULT_USER_AGENT
 
 
@@ -80,3 +81,13 @@ async def web_get(uri: str, params=None, timeout=10):
         ) as response:
             responses = await response.json()
         return responses
+
+
+def timed_tasks(period):
+    def scheduler(fcn):
+        async def wrapper(*args, **kwargs):
+            asyncio.create_task(fcn(*args, **kwargs))
+
+        return wrapper
+
+    return scheduler
