@@ -33,11 +33,6 @@ dbconfig = {
     "connect_timeout": int(config["Database"]["timeout"]),
 }
 
-om_channels = [
-    entry.strip()
-    for entry in config.get("Offline Mode", "announce_channels").split(",")
-]
-
 
 class NoDatabaseConnection(ConnectionError):
     """
