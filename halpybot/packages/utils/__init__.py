@@ -8,7 +8,13 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .utils import get_time_seconds, strip_non_ascii, language_codes, web_get, timed_tasks
+from .utils import (
+    get_time_seconds,
+    strip_non_ascii,
+    language_codes,
+    web_get,
+    timed_tasks,
+)
 from .shorten import shorten
 
 __all__ = [

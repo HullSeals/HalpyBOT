@@ -87,5 +87,7 @@ def timed_tasks(period):
     def scheduler(fcn):
         async def wrapper(*args, **kwargs):
             asyncio.create_task(fcn(*args, **kwargs))
+
         return wrapper
+
     return scheduler
