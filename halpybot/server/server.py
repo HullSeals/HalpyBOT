@@ -72,6 +72,7 @@ class HalpyServer(web.Application):
                 )
                 raise request_error
             response = await super()._handle(request)
+            response.headers.add("Server", "HalpyBOT")
             return response
         except web.HTTPError as ex:
             return ex
