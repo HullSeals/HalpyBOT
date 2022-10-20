@@ -12,7 +12,10 @@ import re
 import json
 import aiohttp
 import asyncio
+from loguru import logger
 from halpybot import DEFAULT_USER_AGENT
+from halpybot.packages.database import NoDatabaseConnection
+from halpybot.packages.facts import Facts
 
 
 def language_codes():
@@ -91,3 +94,50 @@ def timed_tasks(period):
         return wrapper
 
     return scheduler
+
+
+async def task_starter():
+    await _five_minute_task()
+    await _ten_minute_task()
+    await _one_hour_task()
+    await _one_day_task()
+    await _one_week_task()
+
+
+@timed_tasks(300)
+async def _five_minute_task(*args, **kwargs):
+    while True:
+        print("Five minute task running")
+        await asyncio.sleep(300)
+
+
+@timed_tasks(600)
+async def _ten_minute_task(*args, **kwargs):
+    while True:
+        print("Ten minute task running")
+        await asyncio.sleep(600)
+
+
+@timed_tasks(3600)
+async def _one_hour_task(*args, **kwargs):
+    while True:
+        print("One hour task running")
+        await asyncio.sleep(360)
+
+
+@timed_tasks(86400)
+async def _one_day_task(*args, **kwargs):
+    while True:
+        print("One day task running")
+        try:
+            await Facts.fetch_facts(preserve_current=True)
+        except NoDatabaseConnection:
+            logger.exception("No Database Connection.")
+        await asyncio.sleep(86400)
+
+
+@timed_tasks(604800)
+async def _one_week_task(*args, **kwargs):
+    while True:
+        print("One week task running")
+        await asyncio.sleep(604800)
