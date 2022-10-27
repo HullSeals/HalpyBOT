@@ -14,8 +14,11 @@ import asyncio
 import aiohttp
 from loguru import logger
 from halpybot import DEFAULT_USER_AGENT
+from halpybot.commands.notify import format_notification, notify
 from halpybot.packages.database import NoDatabaseConnection
 from halpybot.packages.facts import Facts
+from halpybot.packages.configmanager import config, config_write
+from halpybot.packages.models import User
 
 
 def language_codes():
@@ -98,46 +101,65 @@ def timed_tasks():
 
 async def task_starter():
     await _five_minute_task()
-    await _ten_minute_task()
-    await _one_hour_task()
-    await _one_day_task()
+    # await _ten_minute_task()
+    # await _one_hour_task()
+    # await _one_day_task()
     await _one_week_task()
 
 
 @timed_tasks()
 async def _five_minute_task(*args, **kwargs):
+    from halpybot.packages.ircclient import client as botclient
+
     while True:
         print("Five minute task running")
         await asyncio.sleep(300)
+        if config["Offline Mode"]["enabled"] == "True":
+            user = await User.get_info(botclient, botclient.nickname)
+            if user.oper:
+                await botclient.message(
+                    "#opers", "WARNING: Offline Mode Enabled. Please investigate."
+                )
+            await botclient.message(
+                config["System Monitoring"]["message_channel"],
+                "WARNING: Offline Mode Enabled. Please investigate.",
+            )
 
 
-@timed_tasks()
-async def _ten_minute_task(*args, **kwargs):
-    while True:
-        print("Ten minute task running")
-        await asyncio.sleep(600)
-
-
-@timed_tasks()
-async def _one_hour_task(*args, **kwargs):
-    while True:
-        print("One hour task running")
-        await asyncio.sleep(360)
-
-
-@timed_tasks()
-async def _one_day_task(*args, **kwargs):
-    while True:
-        print("One day task running")
-        try:
-            await Facts.fetch_facts(preserve_current=True)
-        except NoDatabaseConnection:
-            logger.exception("No Database Connection.")
-        await asyncio.sleep(86400)
+# Reserved for Future Content
+# @timed_tasks()
+# async def _ten_minute_task(*args, **kwargs):
+#     while True:
+#         await asyncio.sleep(600)
+#
+#
+# @timed_tasks()
+# async def _one_hour_task(*args, **kwargs):
+#     while True:
+#         await asyncio.sleep(360)
+#
+#
+# @timed_tasks()
+# async def _one_day_task(*args, **kwargs):
+#     while True:
+#         await asyncio.sleep(86400)
 
 
 @timed_tasks()
 async def _one_week_task(*args, **kwargs):
     while True:
-        print("One week task running")
         await asyncio.sleep(604800)
+        if config["Offline Mode"]["enabled"] != "True":
+            try:
+                await Facts.fetch_facts(preserve_current=True)
+            except NoDatabaseConnection:
+                config_write("Offline Mode", "enabled", "True")
+                subject, topic, message = await format_notification(
+                    "CyberSignal", "cybers", "HalpyBOT Monitoring System", "UFI Failure"
+                )
+                try:
+                    await notify.send_notification(topic, message, subject)
+                except notify.NotificationFailure:
+                    logger.exception(
+                        "Notification not sent! I hope it wasn't important..."
+                    )
