@@ -10,8 +10,8 @@ See license.md
 
 import re
 import json
-import aiohttp
 import asyncio
+import aiohttp
 from loguru import logger
 from halpybot import DEFAULT_USER_AGENT
 from halpybot.packages.database import NoDatabaseConnection
@@ -86,7 +86,7 @@ async def web_get(uri: str, params=None, timeout=10):
         return responses
 
 
-def timed_tasks(period):
+def timed_tasks():
     def scheduler(fcn):
         async def wrapper(*args, **kwargs):
             asyncio.create_task(fcn(*args, **kwargs))
@@ -104,28 +104,28 @@ async def task_starter():
     await _one_week_task()
 
 
-@timed_tasks(300)
+@timed_tasks()
 async def _five_minute_task(*args, **kwargs):
     while True:
         print("Five minute task running")
         await asyncio.sleep(300)
 
 
-@timed_tasks(600)
+@timed_tasks()
 async def _ten_minute_task(*args, **kwargs):
     while True:
         print("Ten minute task running")
         await asyncio.sleep(600)
 
 
-@timed_tasks(3600)
+@timed_tasks()
 async def _one_hour_task(*args, **kwargs):
     while True:
         print("One hour task running")
         await asyncio.sleep(360)
 
 
-@timed_tasks(86400)
+@timed_tasks()
 async def _one_day_task(*args, **kwargs):
     while True:
         print("One day task running")
@@ -136,7 +136,7 @@ async def _one_day_task(*args, **kwargs):
         await asyncio.sleep(86400)
 
 
-@timed_tasks(604800)
+@timed_tasks()
 async def _one_week_task(*args, **kwargs):
     while True:
         print("One week task running")
