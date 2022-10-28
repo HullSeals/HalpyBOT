@@ -15,7 +15,7 @@ import aiohttp
 from loguru import logger
 from halpybot import DEFAULT_USER_AGENT
 from halpybot.commands.notify import format_notification, notify
-from halpybot.packages.database import NoDatabaseConnection
+from halpybot.packages.database import NoDatabaseConnection, test_database_connection
 from halpybot.packages.facts import Facts
 from halpybot.packages.configmanager import config, config_write
 from halpybot.packages.models import User
@@ -102,7 +102,7 @@ def timed_tasks():
 async def task_starter(botclient):
     await _five_minute_task(botclient)
     # await _ten_minute_task()
-    # await _one_hour_task()
+    await _one_hour_task(botclient)
     # await _one_day_task()
     await _one_week_task()
 
@@ -110,7 +110,6 @@ async def task_starter(botclient):
 @timed_tasks()
 async def _five_minute_task(botclient, *args, **kwargs):
     while True:
-        print("Five minute task running")
         await asyncio.sleep(300)
         if config["Offline Mode"]["enabled"] == "True":
             user = await User.get_info(botclient, botclient.nickname)
@@ -130,13 +129,22 @@ async def _five_minute_task(botclient, *args, **kwargs):
 #     while True:
 #         await asyncio.sleep(600)
 #
-#
-# @timed_tasks()
-# async def _one_hour_task(*args, **kwargs):
-#     while True:
-#         await asyncio.sleep(360)
-#
-#
+
+
+@timed_tasks()
+async def _one_hour_task(botclient, *args, **kwargs):
+    while True:
+        await asyncio.sleep(360)
+        try:
+            await test_database_connection()
+        except NoDatabaseConnection:
+            await botclient.message(
+                config["System Monitoring"]["message_channel"],
+                "WARNING: Offline Mode Enabled. DB Ping Failure.",
+            )
+
+
+# Reserved for Future Content
 # @timed_tasks()
 # async def _one_day_task(*args, **kwargs):
 #     while True:
