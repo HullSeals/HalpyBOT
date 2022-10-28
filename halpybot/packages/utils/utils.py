@@ -19,7 +19,6 @@ from halpybot.packages.database import NoDatabaseConnection
 from halpybot.packages.facts import Facts
 from halpybot.packages.configmanager import config, config_write
 from halpybot.packages.models import User
-from halpybot.packages.ircclient import client as botclient
 
 
 def language_codes():
@@ -100,8 +99,8 @@ def timed_tasks():
     return scheduler
 
 
-async def task_starter():
-    await _five_minute_task()
+async def task_starter(botclient):
+    await _five_minute_task(botclient)
     # await _ten_minute_task()
     # await _one_hour_task()
     # await _one_day_task()
@@ -109,7 +108,7 @@ async def task_starter():
 
 
 @timed_tasks()
-async def _five_minute_task(*args, **kwargs):
+async def _five_minute_task(botclient, *args, **kwargs):
     while True:
         print("Five minute task running")
         await asyncio.sleep(300)

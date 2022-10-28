@@ -94,7 +94,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             )
         for channel in config["Channels"]["channellist"].split():
             await self.join(channel, force=True)
-        await utils.task_starter()
+        await utils.task_starter(client)
 
     async def on_message(self, target, by, message):
         """Handle an IRC message
