@@ -161,7 +161,7 @@ async def _one_week_task(*args, **kwargs):
             except NoDatabaseConnection:
                 config_write("Offline Mode", "enabled", "True")
                 subject, topic, message = await format_notification(
-                    "CyberSignal", "cybers", "HalpyBOT Monitoring System", "UFI Failure"
+                    "CyberSignal", "cybers", "HalpyBOT Monitoring System", ["UFI Failure"]
                 )
                 try:
                     await notify.send_notification(topic, message, subject)
