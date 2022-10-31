@@ -89,25 +89,19 @@ async def web_get(uri: str, params=None, timeout=10):
         return responses
 
 
-def timed_tasks():
-    def scheduler(fcn):
-        async def wrapper(*args, **kwargs):
-            asyncio.create_task(fcn(*args, **kwargs))
-
-        return wrapper
-
-    return scheduler
-
-
 async def task_starter(botclient):
-    await _five_minute_task(botclient)
-    # await _ten_minute_task()
-    await _one_hour_task(botclient)
-    # await _one_day_task()
-    await _one_week_task()
+    [
+        asyncio.create_task(task)
+        for task in (
+            _five_minute_task(botclient),
+            # _ten_minute_task(),
+            _one_hour_task(botclient),
+            # _one_day_task(),
+            _one_week_task(),
+        )
+    ]
 
 
-@timed_tasks()
 async def _five_minute_task(botclient, *args, **kwargs):
     while True:
         await asyncio.sleep(300)
@@ -124,14 +118,12 @@ async def _five_minute_task(botclient, *args, **kwargs):
 
 
 # Reserved for Future Content
-# @timed_tasks()
 # async def _ten_minute_task(*args, **kwargs):
 #     while True:
 #         await asyncio.sleep(600)
 #
 
 
-@timed_tasks()
 async def _one_hour_task(botclient, *args, **kwargs):
     while True:
         await asyncio.sleep(360)
@@ -145,13 +137,11 @@ async def _one_hour_task(botclient, *args, **kwargs):
 
 
 # Reserved for Future Content
-# @timed_tasks()
 # async def _one_day_task(*args, **kwargs):
 #     while True:
 #         await asyncio.sleep(86400)
 
 
-@timed_tasks()
 async def _one_week_task(*args, **kwargs):
     while True:
         await asyncio.sleep(604800)
@@ -161,7 +151,10 @@ async def _one_week_task(*args, **kwargs):
             except NoDatabaseConnection:
                 config_write("Offline Mode", "enabled", "True")
                 subject, topic, message = await format_notification(
-                    "CyberSignal", "cybers", "HalpyBOT Monitoring System", ["UFI Failure"]
+                    "CyberSignal",
+                    "cybers",
+                    "HalpyBOT Monitoring System",
+                    ["UFI Failure"],
                 )
                 try:
                     await notify.send_notification(topic, message, subject)
