@@ -13,6 +13,7 @@ import os
 import signal
 from typing import Optional
 import pydle
+import halpybot.packages.utils as utils
 from loguru import logger
 from .. import notify
 from ..configmanager import config_write, config
@@ -93,6 +94,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             )
         for channel in config["Channels"]["channellist"].split():
             await self.join(channel, force=True)
+        await utils.task_starter(client)
 
     async def on_message(self, target, by, message):
         """Handle an IRC message
