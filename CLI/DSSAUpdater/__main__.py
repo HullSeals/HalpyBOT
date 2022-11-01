@@ -12,18 +12,13 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-import os.path
+import pathlib
 import sys
 from datetime import datetime
 import json
-import configparser
 import pyperclip
 from tqdm import tqdm
-
 from src import DSSACarrier, scrape_spreadsheet
-
-config = configparser.ConfigParser()
-config.read("DSSAUpdater/config.ini")
 
 SHEET_LINK = (
     "https://docs.google.com/spreadsheets/d/e/2PACX-"
@@ -37,6 +32,10 @@ timestamp = datetime.now().strftime("%m%d%Y-%H%M%S")
 
 def run():
     """Run the DSSA Updater"""
+    rootpath = pathlib.PurePath(__file__).parent
+    rootpath = str(rootpath).replace("\\", "/")
+    filepath = rootpath + "/files"
+
     print(
         "=" * 20
         + "\nCopyright (c) 2022 The Hull Seals\nDSSA file updater for HalpyBOT\n"
@@ -44,7 +43,7 @@ def run():
         + "\n"
     )
     print(
-        f"JSON and CSV files will be placed in folder: {config['Standalone']['path']}"
+        f"JSON and CSV files will be placed in folder: {filepath}"
     )
 
     carriers_good = []
@@ -54,7 +53,7 @@ def run():
     # Get data from the scraper
     try:
         carrierdata, issues = scrape_spreadsheet(
-            path=config["Standalone"]["path"], sheetlink=SHEET_LINK, timestamp=timestamp
+            path=filepath, sheetlink=SHEET_LINK, timestamp=timestamp
         )
     except FileNotFoundError:
         print(
@@ -73,7 +72,8 @@ def run():
     )
     if edsm_confirm.upper() != "Y":
         print(
-            "Aborted. Carrrier info- and CSV files have already been created, don't forget to delete them!"
+            "Aborted. Carrrier info & CSV files have already been created. "
+            "Don't forget to delete them!"
         )
         print("---")
         sys.exit()
@@ -100,7 +100,8 @@ def run():
                 )
     except KeyboardInterrupt:
         print(
-            "\nAborted. Carrrier info- and CSV files have already been created, don't forget to delete them!"
+            "\nAborted. Carrrier info & CSV files have already been created. "
+            "Don't forget to delete them!"
         )
         print("---")
         sys.exit()
@@ -112,7 +113,7 @@ def run():
         carriers_good + carriers_bad
     )  # This ensures that the carriers with no coordinates will be printed last
     with open(
-        f"{config['Standalone']['path']}/COORDINATES_{timestamp}.json",
+        f"{filepath}/COORDINATES_{timestamp}.json",
         "w+",
         encoding="UTF-8",
     ) as jsonfile:
@@ -137,10 +138,6 @@ def run():
 
 
 if __name__ == "__main__":
-    # Tool may not be run from any other folder than CLI/ see CLI/BackupFactUpdater/__main__.py
-    if not os.getcwd().endswith("CLI"):
-        print("Please run this tool from the /CLI folder, with `python3 DSSAUpdater`")
-        sys.exit()
     try:
         run()
     except KeyboardInterrupt:
