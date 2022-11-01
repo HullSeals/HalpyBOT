@@ -13,10 +13,13 @@ import os.path
 import json
 import sys
 from tqdm import tqdm
+import pathlib
 
 
 def run():
     """Run the EDDB Formatter"""
+    rootpath = pathlib.PurePath(__file__).parent
+    rootpath = str(rootpath).replace("\\", "/")
     print(
         f"{'='*20}\n"
         f"Copyright (c) 2022 The Hull Seals\n"
@@ -33,22 +36,22 @@ def run():
         sys.exit()
 
     # Remove Old Files
-    if os.path.exists("EDDBFormatter/files/output/filtered_stations.json"):
-        os.remove("EDDBFormatter/files/output/filtered_stations.json")
+    if os.path.exists(f"{rootpath}/files/output/filtered_stations.json"):
+        os.remove(f"{rootpath}/files/output/filtered_stations.json")
 
-    if os.path.exists("EDDBFormatter/files/output/filtered_systems_populated.json"):
-        os.remove("EDDBFormatter/files/output/filtered_systems_populated.json")
+    if os.path.exists(f"{rootpath}/files/output/filtered_systems_populated.json"):
+        os.remove(f"{rootpath}/files/output/filtered_systems_populated.json")
 
     if os.path.exists(
-        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json"
+        f"{rootpath}/files/output/filtered_combined_stations_with_systems.json"
     ):
         os.remove(
-            "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json"
+            f"{rootpath}/files/output/filtered_combined_stations_with_systems.json"
         )
 
     # Open the jq-formatted (or renamed) json system json file. (Original Size: 57 MB)
     with open(
-        "EDDBFormatter/files/input/formatted_systems_populated.json",
+        f"{rootpath}/files/input/formatted_systems_populated.json",
         "r",
         encoding="UTF-8",
     ) as systemfile:
@@ -69,7 +72,7 @@ def run():
 
     # Create output filtered system file, in case we want to review it later.
     with open(
-        "EDDBFormatter/files/output/filtered_systems_populated.json",
+        f"{rootpath}/files/output/filtered_systems_populated.json",
         "w",
         encoding="UTF-8",
     ) as system_file:
@@ -77,7 +80,7 @@ def run():
 
     # Open jq-formatted or renamed station file. (Original Size: 420 MB)
     with open(
-        "EDDBFormatter/files/input/formatted_stations.json", "r", encoding="UTF-8"
+        f"{rootpath}/files/input/formatted_stations.json", "r", encoding="UTF-8"
     ) as jsonfile:
         data = json.load(jsonfile)
     station_dict = {}
@@ -106,7 +109,7 @@ def run():
             counter += 1
     # Create output filtered station file, in case we want to review it later.
     with open(
-        "EDDBFormatter/files/output/filtered_stations.json", "w", encoding="UTF-8"
+        f"{rootpath}/files/output/filtered_stations.json", "w", encoding="UTF-8"
     ) as json_file:
         json.dump(station_dict, json_file, indent=2)
 
@@ -134,7 +137,7 @@ def run():
         write_list.append(final_dict)  # Append as List, not write as full Dict
     # Write it out before we forget what we're doing.
     with open(
-        "EDDBFormatter/files/output/filtered_combined_stations_with_systems.json",
+        f"{rootpath}/files/output/filtered_combined_stations_with_systems.json",
         "w",
         encoding="UTF-8",
     ) as json_file:
@@ -146,10 +149,6 @@ def run():
 
 
 if __name__ == "__main__":
-    # Tool may not be run from any other folder than CLI/ see CLI/BackupFactUpdater/__main__.py
-    if not os.getcwd().endswith("CLI"):
-        print("Please run this tool from the /CLI folder, with `python3 EDDBFormatter`")
-        sys.exit()
     try:
         run()
     except KeyboardInterrupt:

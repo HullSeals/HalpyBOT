@@ -22,7 +22,6 @@ def run():
     """Run the Backup Fact Updater"""
     rootpath = pathlib.PurePath(__file__).parent.parent.parent
     rootpath = str(rootpath).replace("\\", "/")
-    print(rootpath)
     json_path = rf"{rootpath}/data/facts/backup_facts.json"
     config = configparser.ConfigParser()
     config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
