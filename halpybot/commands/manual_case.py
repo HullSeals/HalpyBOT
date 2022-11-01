@@ -84,6 +84,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
             hook_id=webhook_id, hook_token=webhook_token, body=cn_message
         )
     except WebhookSendError:
+        logger.exception("Webhook could not be sent.")
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )
@@ -130,6 +131,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
             hook_id=webhook_id, hook_token=webhook_token, body=cn_message
         )
     except WebhookSendError:
+        logger.exception("Webhook could not be sent.")
         await ctx.reply(
             "WARNING: Unable to send notification to Discord. Contact a cyberseal!"
         )

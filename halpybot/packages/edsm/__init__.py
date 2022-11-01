@@ -23,6 +23,7 @@ from .edsm import (
     calc_direction,
     diversions,
     NoNearbyEDSM,
+    EDSMReturnError,
 )
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "calc_direction",
     "diversions",
     "NoNearbyEDSM",
+    "EDSMReturnError",
 ]

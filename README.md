@@ -1,4 +1,4 @@
-# HalpyBOT 1.6
+# HalpyBOT 1.6.1
 This is the repository for HalpyBOT, the Hull Seals IRC Chatbot Assistant.
 
 # Description

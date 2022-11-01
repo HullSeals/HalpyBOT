@@ -1,5 +1,5 @@
 {
-  "hbot": "1.4",
+  "hbot": "1.6.2",
   "AnnouncerType": [
 
     {"ID": "PPWK",
@@ -7,7 +7,7 @@
     "Description": "Used to inform users of completed paperwork",
     "Channels": ["#seal-bob", "#Repair-Requests"],
     "EDSM": false,
-    "Content":  ["Paperwork for case {CMDR} completed by {Seal}"]
+    "Content":  ["Paperwork for case {CMDR} completed by {Seal}. ({Number})"]
     },
 
     {"ID": "CODEBLACK",

@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 from typing import List, Dict, Optional
 import pydle
+from loguru import logger
 
 from ..edsm import (
     checklandmarks,
@@ -98,6 +99,7 @@ class Announcer:
                 try:
                     await TwitterCasesAcc.tweet_case(ann, args)
                 except TwitterConnectionError:
+                    logger.exception("Unable to send case details to Twitter.")
                     return
         except Exception as announcement_exception:
             raise AnnouncementError(Exception) from announcement_exception

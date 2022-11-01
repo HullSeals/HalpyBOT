@@ -18,15 +18,16 @@ import asyncio
 from pathlib import Path
 import json
 from time import time
+from cattrs.errors import ClassValidationError
 from loguru import logger
 import aiohttp
 import numpy as np
 import cattr
 from attr import dataclass, define, field
-from halpybot import DEFAULT_USER_AGENT
 from ..models import Coordinates, Location
 from ..models import edsm_classes
 from ..configmanager import config
+from ..utils import web_get
 
 
 class EDSMLookupError(Exception):
@@ -51,6 +52,12 @@ class EDSMConnectionError(EDSMLookupError):
 class NoNearbyEDSM(EDSMLookupError):
     """
     No results for the given query were found with the EDSM API within a specified distance
+    """
+
+
+class EDSMReturnError(EDSMLookupError):
+    """
+    EDSM returned a reply, however the reply did not include key data needed to continue.
     """
 
 
@@ -126,19 +133,13 @@ class GalaxySystem:
 
         # Else, get the system from EDSM
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}",
-                    params={
-                        "systemName": name,
-                        "showCoordinates": 1,
-                        "showInformation": 1,
-                    },
-                    timeout=10,
-                ) as response:
-                    responses = await response.json()
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}"
+            params = {
+                "systemName": name,
+                "showCoordinates": 1,
+                "showInformation": 1,
+            }
+            responses = await web_get(uri, params)
 
         except aiohttp.ClientError:
             logger.exception("EDSM: Error in `system get_info()` lookup.")
@@ -149,7 +150,11 @@ class GalaxySystem:
         # Return None if system doesn't exist
         if len(responses) == 0:
             return None
-        api: edsm_classes.Galaxy = cattr.structure(responses, edsm_classes.Galaxy)
+        try:
+            api: edsm_classes.Galaxy = cattr.structure(responses, edsm_classes.Galaxy)
+        except ClassValidationError as exc:
+            logger.exception("Error validating class. Invalid attributes.")
+            raise EDSMReturnError from exc
 
         # Store in cache and return
         sysobj = GalaxySystem.from_api(api=api)
@@ -200,22 +205,15 @@ class GalaxySystem:
         """
         # Else, get the system from EDSM
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}",
-                    params={
-                        "x": x_coord,
-                        "y": y_coord,
-                        "z": z_coord,
-                        "radius": 100,
-                        "minRadius": 1,
-                    },
-                    timeout=10,
-                ) as response:
-                    responses = await response.json()
-
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}"
+            params = {
+                "x": x_coord,
+                "y": y_coord,
+                "z": z_coord,
+                "radius": 100,
+                "minRadius": 1,
+            }
+            responses = await web_get(uri, params)
         except aiohttp.ClientError:
             logger.exception("EDSM: Error in `system get_info()` lookup.")
             raise EDSMConnectionError(
@@ -261,7 +259,9 @@ class Commander:
         )
 
     @classmethod
-    async def get_cmdr(cls, name, cache_override: bool = False) -> typing.Optional[Commander]:
+    async def get_cmdr(
+        cls, name, cache_override: bool = False
+    ) -> typing.Optional[Commander]:
         """Get info about a CMDR from EDSM
 
         If the same object was requested less than
@@ -290,16 +290,9 @@ class Commander:
                 return cls._lookupCache[name.strip().upper()].object
 
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}",
-                    params={"commanderName": name, "showCoordinates": 1},
-                    timeout=10,
-                ) as response:
-                    responses = await response.json()
-
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}"
+            params = {"commanderName": name, "showCoordinates": 1}
+            responses = await web_get(uri, params)
         except (aiohttp.ClientError, KeyError) as get_cmdr_error:
             logger.exception("EDSM: Error in Commander `get_cmdr()` lookup.")
             raise EDSMConnectionError(
@@ -310,7 +303,13 @@ class Commander:
             return None
         if responses["msgnum"] == 201:
             raise EDSMConnectionError
-        api: edsm_classes.Commander = cattr.structure(responses, edsm_classes.Commander)
+        try:
+            api: edsm_classes.Commander = cattr.structure(
+                responses, edsm_classes.Commander
+            )
+        except ClassValidationError as exc:
+            logger.exception("Error validating class. Invalid attributes.")
+            raise EDSMReturnError from exc
 
         if api.system is None:
             raise EDSMConnectionError("Error! CMDR Exists, but unable to get info.")
@@ -322,7 +321,9 @@ class Commander:
         return cmdrobj
 
     @classmethod
-    async def location(cls, name, cache_override: bool = False) -> typing.Optional[Location]:
+    async def location(
+        cls, name, cache_override: bool = False
+    ) -> typing.Optional[Location]:
         """Get a CMDRs location
 
         Get a Location object for an EDSM commander.
@@ -746,17 +747,11 @@ async def get_nearby_system(sys_name: str):
     name_to_check = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
-            async with aiohttp.ClientSession(
-                headers={"User-Agent": DEFAULT_USER_AGENT}
-            ) as session:
-                async with await session.get(
-                    f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}",
-                    params={"systemName": name_to_check},
-                    timeout=10,
-                ) as response:
-                    responces = await response.json()
-            if responces:
-                sys = responces[0]["name"]
+            uri = f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}"
+            params = {"systemName": name_to_check}
+            responses = await web_get(uri, params)
+            if responses:
+                sys = responses[0]["name"]
                 return True, sys
 
             # Cheeky bottom test to not include spaces in the repeat queries and not include it in the 5 request cap
