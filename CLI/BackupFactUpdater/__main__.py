@@ -21,14 +21,11 @@ import mysql.connector
 def run():
     """Run the Backup Fact Updater"""
     rootpath = pathlib.PurePath(__file__).parent.parent.parent
-    if isinstance(rootpath, pathlib.PureWindowsPath):
-        json_path = rf"{rootpath}\data\facts\backup_facts.json"
-        config = configparser.ConfigParser()
-        config.read(rf"{rootpath}\CLI\BackupFactUpdater\config.ini")
-    else:
-        json_path = f"{rootpath}/data/facts/backup_facts.json"
-        config = configparser.ConfigParser()
-        config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
+    rootpath = str(rootpath).replace("\\", "/")
+    print(rootpath)
+    json_path = rf"{rootpath}/data/facts/backup_facts.json"
+    config = configparser.ConfigParser()
+    config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
 
     dbconfig = {
         "user": config.get("Database", "user"),
@@ -49,7 +46,7 @@ def run():
     cont = input(
         "Please make a backup of the file first. Do you wish to proceed? (Y/n) "
     )
-    if cont != "Y":
+    if cont.upper() != "Y":
         print("Roger, aborting...")
         sys.exit()
     table = input("What DB table do you wish to fetch the facts from? ")
