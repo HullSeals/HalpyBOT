@@ -631,7 +631,7 @@ async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
                 dist_star=local_min.dist_star,
                 system_name=local_min.system_name,
                 local_direction=local_direction,
-                item=f"{item}",
+                item=float(item),
             )
             local_tup.append(next_nearest)
         return local_tup
