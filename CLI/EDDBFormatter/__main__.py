@@ -12,8 +12,8 @@ See license.md
 import os.path
 import json
 import sys
-from tqdm import tqdm
 import pathlib
+from tqdm import tqdm
 
 
 def run():
@@ -25,11 +25,12 @@ def run():
         f"Copyright (c) 2022 The Hull Seals\n"
         f"EDDB File Formatter for HalpyBOT\n"
         f"{'='*20}\n"
-        f"WARNING: This operation will remove the existing generated files, and relies on filtered data dumps from "
-        f"EDDB to proceed.\n "
+        f"WARNING: This operation will remove the existing generated files, "
+        f"and relies on filtered data dumps from EDDB to proceed.\n "
     )
     cont = input(
-        "Please make a backup of the previously generated files first. Do you wish to proceed? (Y/n) "
+        "Please make a backup of the previously generated files first. "
+        "Do you wish to proceed? (Y/n) "
     )
     if cont.upper() != "Y":
         print("Roger, aborting...")
@@ -96,8 +97,8 @@ def run():
             "is_planet": key["is_planetary"],
             "station_type": key["type"],
         }
-        # To be used as a diversion station, must have L pad, Repair function, not on a planet, not a mobile
-        # platform, and no more than 800 LS from the main star.
+        # To be used as a diversion station, must have L pad, Repair function,
+        # not on a planet, not a mobile platform, and no more than 800 LS from the main star.
         if (
             temp_station_dict["max_landing"] == "L"
             and temp_station_dict["has_repair"]
@@ -115,8 +116,8 @@ def run():
 
     # Now we need to combine the two dicts to a formatted list file.
     write_list = []
-    # LIST not a DICT. Otherwise, it won't work well with the dataclass we're actually using in the bot.
-    # (Found that out the hard way...)
+    # LIST not a DICT. Otherwise, it won't work well with the dataclass
+    # we're actually using in the bot. (Found that out the hard way...)
     for counter, key in enumerate(
         tqdm(station_dict, desc="Combining System Files: "), start=1
     ):
