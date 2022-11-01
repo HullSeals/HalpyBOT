@@ -82,7 +82,7 @@ def run():
     # Create an object for all our carriers and get their locations
     try:
         for carrier in tqdm(carrierdata):
-            crobj = DSSACarrier(name=carrier["Name"], location=carrier["Location"])
+            crobj = DSSACarrier(name=carrier["Name"], location=carrier["Destination"])
             if not crobj.has_system:
                 needs_manual.append(crobj.name)
                 carriers_bad.append(
