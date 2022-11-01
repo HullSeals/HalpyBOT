@@ -14,13 +14,14 @@ CLI for reading, parsing, and converting the official FleetComm DSSA spreadsheet
 - LXML Python Library
 
 ## Troubleshooting
-- This tool relies on the spreadsheet layout being the same as it was in early September 2021 in order to work correctly.
+- This tool relies on the spreadsheet layout being the same as it was on November 1st, 2022 in order to work correctly.
 Because of the semi-informal nature of this spreadsheet, and the obvious lack of any public guidelines that require
   consistency therein, this tool may need to be rewritten should the spreadsheet be changed dramatically.
 
 # Authors and Acknowledgements
 
 - Written by [Rik Overveld](https://gitlab.com/rik079)
+- Modifications by [David Sangrey](https://gitlab.com/rixxan)
 
 # License
 This project is governed under the GNU General Public License v3.0 license.
