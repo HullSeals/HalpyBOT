@@ -10,9 +10,15 @@ See license.md
 
 import re
 import json
-import aiohttp
 import asyncio
+import aiohttp
+from loguru import logger
 from halpybot import DEFAULT_USER_AGENT
+from halpybot.commands.notify import format_notification, notify
+from halpybot.packages.database import NoDatabaseConnection, test_database_connection
+from halpybot.packages.facts import Facts
+from halpybot.packages.configmanager import config, config_write
+from halpybot.packages.models import User
 
 
 def language_codes():
@@ -83,11 +89,76 @@ async def web_get(uri: str, params=None, timeout=10):
         return responses
 
 
-def timed_tasks(period):
-    def scheduler(fcn):
-        async def wrapper(*args, **kwargs):
-            asyncio.create_task(fcn(*args, **kwargs))
+async def task_starter(botclient):
+    [
+        asyncio.create_task(task)
+        for task in (
+            _five_minute_task(botclient),
+            # _ten_minute_task(),
+            _one_hour_task(botclient),
+            # _one_day_task(),
+            _one_week_task(),
+        )
+    ]
 
-        return wrapper
 
-    return scheduler
+async def _five_minute_task(botclient, *args, **kwargs):
+    while True:
+        await asyncio.sleep(300)
+        if config["Offline Mode"]["enabled"] == "True":
+            user = await User.get_info(botclient, botclient.nickname)
+            if user.oper:
+                await botclient.message(
+                    "#opers", "WARNING: Offline Mode Enabled. Please investigate."
+                )
+            await botclient.message(
+                config["System Monitoring"]["message_channel"],
+                "WARNING: Offline Mode Enabled. Please investigate.",
+            )
+
+
+# Reserved for Future Content
+# async def _ten_minute_task(*args, **kwargs):
+#     while True:
+#         await asyncio.sleep(600)
+#
+
+
+async def _one_hour_task(botclient, *args, **kwargs):
+    while True:
+        await asyncio.sleep(360)
+        try:
+            await test_database_connection()
+        except NoDatabaseConnection:
+            await botclient.message(
+                config["System Monitoring"]["message_channel"],
+                "WARNING: Offline Mode Enabled. DB Ping Failure.",
+            )
+
+
+# Reserved for Future Content
+# async def _one_day_task(*args, **kwargs):
+#     while True:
+#         await asyncio.sleep(86400)
+
+
+async def _one_week_task(*args, **kwargs):
+    while True:
+        await asyncio.sleep(604800)
+        if config["Offline Mode"]["enabled"] != "True":
+            try:
+                await Facts.fetch_facts(preserve_current=True)
+            except NoDatabaseConnection:
+                config_write("Offline Mode", "enabled", "True")
+                subject, topic, message = await format_notification(
+                    "CyberSignal",
+                    "cybers",
+                    "HalpyBOT Monitoring System",
+                    ["UFI Failure"],
+                )
+                try:
+                    await notify.send_notification(topic, message, subject)
+                except notify.NotificationFailure:
+                    logger.exception(
+                        "Notification not sent! I hope it wasn't important..."
+                    )

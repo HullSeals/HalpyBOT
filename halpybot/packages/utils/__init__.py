@@ -13,7 +13,7 @@ from .utils import (
     strip_non_ascii,
     language_codes,
     web_get,
-    timed_tasks,
+    task_starter,
 )
 from .shorten import shorten
 
@@ -23,5 +23,5 @@ __all__ = [
     "language_codes",
     "shorten",
     "web_get",
-    "timed_tasks",
+    "task_starter",
 ]
