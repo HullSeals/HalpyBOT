@@ -8,7 +8,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from . import delayedboard
 from . import edsm
 from . import fact
 from . import forcejoin
@@ -26,7 +25,6 @@ from . import drill
 from . import misc
 
 __all__ = [
-    "delayedboard",
     "edsm",
     "fact",
     "forcejoin",

@@ -449,7 +449,7 @@ async def test_drill_empty(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillkf_empty(bot_fx):
-    """Test what happens if the KF Drill case can be ran without arguments"""
+    """Test what happens if the KF Drill case can be run without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -464,7 +464,7 @@ async def test_drillkf_empty(bot_fx):
 
 @pytest.mark.asyncio
 async def test_drillcb_empty(bot_fx):
-    """Test if the CB drill case can be ran without arguments"""
+    """Test if the CB drill case can be run without arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
