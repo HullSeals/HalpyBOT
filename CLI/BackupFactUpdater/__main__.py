@@ -19,17 +19,17 @@ import mysql.connector
 
 # noinspection PyBroadException
 def run():
+    """Run the Backup Fact Updater"""
     rootpath = pathlib.PurePath(__file__).parent.parent.parent
-    if type(rootpath) == pathlib.PureWindowsPath:
-        json_path = fr"{rootpath}\data\facts\backup_facts.json"
+    if isinstance(rootpath, pathlib.PureWindowsPath):
+        json_path = rf"{rootpath}\data\facts\backup_facts.json"
         config = configparser.ConfigParser()
-        config.read(fr"{rootpath}\CLI\BackupFactUpdater\config.ini")
+        config.read(rf"{rootpath}\CLI\BackupFactUpdater\config.ini")
     else:
         json_path = f"{rootpath}/data/facts/backup_facts.json"
         config = configparser.ConfigParser()
-        config.read(fr"{rootpath}/CLI/BackupFactUpdater/config.ini")
+        config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
 
-    """Run the Backup Fact Updater"""
     dbconfig = {
         "user": config.get("Database", "user"),
         "password": config.get("Database", "password"),
