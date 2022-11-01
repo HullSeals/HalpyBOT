@@ -23,6 +23,7 @@ from . import userinfo
 from . import bot_help
 from . import caseutils
 from . import drill
+from . import misc
 
 __all__ = [
     "delayedboard",
@@ -40,4 +41,5 @@ __all__ = [
     "bot_help",
     "caseutils",
     "drill",
+    "misc",
 ]

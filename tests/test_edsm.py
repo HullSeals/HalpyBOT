@@ -8,11 +8,10 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import asyncio
 from unittest.mock import patch
 import pytest
 import aiohttp
-from halpybot.packages.configmanager import config, config_write
+from halpybot.packages.configmanager import config
 import halpybot.packages.edsm.edsm
 from halpybot.packages.edsm import (
     GalaxySystem,
@@ -27,6 +26,7 @@ from halpybot.packages.edsm import (
     EDSMConnectionError,
     sys_cleaner,
     NoNearbyEDSM,
+    EDSMReturnError,
 )
 
 # noinspection PyUnresolvedReferences
@@ -134,6 +134,13 @@ async def test_location():
     """Test that the Commander system responds with a value"""
     location = await Commander.location("Rixxan")
     assert location.system == "Pleiades Sector HR-W d1-79"
+
+
+@pytest.mark.asyncio
+async def test_location_malformed():
+    """Test that the Commander system can process a malformed EDSM return"""
+    with pytest.raises(EDSMReturnError):
+        await Commander.location("Abildgaard Jadrake")
 
 
 @pytest.mark.asyncio
