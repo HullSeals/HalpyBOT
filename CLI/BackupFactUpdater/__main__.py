@@ -8,34 +8,24 @@ All rights reserved.
 
 Licensed under the GNU General Public License
 See license.md
-
-As a word of caution, this script must be run from `halpybot/`, NOT `halpybot/CLI`.
-No one knows why, or how, but for some reason it will not parse the .ini properly
-when executed from CLI/. If you still encounter issues with running it from the main folder,
-make sure everything is added to path and pythonpath.
-
-UPDATE: Fixed! huzzah!
-UPDATE: Nope -_-
 """
 
 import json
-import os
 import sys
-
+import pathlib
 import configparser
 import mysql.connector
-
-hours_wasted_trying_to_understand_why = 10
-
-JSON_PATH = "../data/facts/backup_facts.json"
-
-config = configparser.ConfigParser()
-config.read("BackupFactUpdater/config.ini")
 
 
 # noinspection PyBroadException
 def run():
     """Run the Backup Fact Updater"""
+    rootpath = pathlib.PurePath(__file__).parent.parent.parent
+    rootpath = str(rootpath).replace("\\", "/")
+    json_path = rf"{rootpath}/data/facts/backup_facts.json"
+    config = configparser.ConfigParser()
+    config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
+
     dbconfig = {
         "user": config.get("Database", "user"),
         "password": config.get("Database", "password"),
@@ -55,13 +45,13 @@ def run():
     cont = input(
         "Please make a backup of the file first. Do you wish to proceed? (Y/n) "
     )
-    if cont != "Y":
+    if cont.upper() != "Y":
         print("Roger, aborting...")
         sys.exit()
     table = input("What DB table do you wish to fetch the facts from? ")
     print(f"0% Starting update from {table}. Please stand by...")
     try:
-        with open(JSON_PATH, "r", encoding="UTF-8") as jsonfile:
+        with open(json_path, "r", encoding="UTF-8") as jsonfile:
             print("20% Opening backup file...")
             resdict = json.load(jsonfile)
         database_connection = mysql.connector.connect(**dbconfig)
@@ -73,7 +63,7 @@ def run():
             resdict[f"{name}-{lang}"] = text
         database_connection.close()
         print("80% Writing to file...")
-        with open(JSON_PATH, "w+", encoding="UTF-8") as jsonfile:
+        with open(json_path, "w+", encoding="UTF-8") as jsonfile:
             json.dump(resdict, jsonfile, indent=4)
             print(
                 "100% Done. Confirm that the update was successful, and have a great day!"
@@ -83,10 +73,4 @@ def run():
 
 
 if __name__ == "__main__":
-    print(os.getcwd())
-    if not os.getcwd().endswith("CLI"):
-        print(
-            "Please run this tool from the /CLI folder, with `python3 BackupFactUpdater`"
-        )
-        sys.exit()
     run()

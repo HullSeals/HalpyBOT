@@ -63,14 +63,14 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
     for index, row in enumerate(rows):
         if row == [""] * 20:  # This would be an empty row, ignore it
             continue
-        if row[2].casefold() != "carrier operational":  # 2 - Carrier status
+        if row[1].casefold() != "carrier operational":  # 1 - Carrier status
             continue
         if row[9] == "":  # 9 - Carrier name
             anomalies.append(f"{index + 1} - Name field has no value")
         elif row[12] == "":  # 12 - Location
             anomalies.append(f"{index + 1} - Location field has no value")
         else:
-            usable.append(row[1:])
+            usable.append(row)
 
     # Now, we can convert these lists into dictionaries for easier reading later down the line
     carriers = []
