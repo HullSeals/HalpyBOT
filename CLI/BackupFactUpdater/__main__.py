@@ -17,7 +17,7 @@ import configparser
 from sqlalchemy import create_engine, text, exc
 
 
-def run():
+def run_facts():
     """Run the Backup Fact Updater"""
     rootpath = pathlib.PurePath(__file__).parent.parent.parent
     rootpath = str(rootpath).replace("\\", "/")
@@ -76,4 +76,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    run_facts()
