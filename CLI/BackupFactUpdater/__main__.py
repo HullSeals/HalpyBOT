@@ -25,13 +25,15 @@ def run():
     config = configparser.ConfigParser()
     config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
 
-    dbconfig = {
-        "user": config.get("Database", "user"),
-        "password": config.get("Database", "password"),
-        "host": config.get("Database", "host"),
-        "database": config.get("Database", "database"),
-        "connect_timeout": int(config.get("Database", "timeout")),
-    }
+    dbconfig = (
+        f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@'
+        f'{config["Database"]["host"]}/{config["Database"]["database"]}'
+    )
+
+    engine = create_engine(
+        dbconfig,
+        connect_args={"connect_timeout": int(config["Database"]["timeout"])},
+    )
 
     print("=============\nHalpyBOT fact file updater\n=============")
     print("\n")
