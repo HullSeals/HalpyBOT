@@ -21,8 +21,6 @@ from ..command import Commands, CommandGroup
 from ..facts import Facts
 from ..database import NoDatabaseConnection, test_database_connection
 
-pool = pydle.ClientPool()
-
 
 class HalpyBOT(pydle.Client, ListHandler):
     """Create the instance of HalpyBOT,"""
