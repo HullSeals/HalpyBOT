@@ -42,9 +42,7 @@ def run():
         + "=" * 20
         + "\n"
     )
-    print(
-        f"JSON and CSV files will be placed in folder: {filepath}"
-    )
+    print(f"JSON and CSV files will be placed in folder: {filepath}")
 
     carriers_good = []
     carriers_bad = []

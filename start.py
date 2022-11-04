@@ -11,7 +11,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import asyncio
 from logging import Handler, basicConfig, getLevelName
 import sys
 import threading
@@ -106,27 +105,15 @@ logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
 
 def _start_bot():
     """Starts HalpyBOT with the specified config values."""
-    bot_loop = asyncio.new_event_loop()
-    # hacky workaround is hacky
-    client.eventloop = bot_loop
-    asyncio.set_event_loop(bot_loop)
-
-    bot_loop.run_until_complete(
-        client.connect(
-            hostname=config["IRC"]["server"],
-            port=config["IRC"]["port"],
-            tls=config.getboolean("IRC", "usessl"),
-            tls_verify=False,
-        )
+    client.run(
+        hostname=config["IRC"]["server"],
+        port=config["IRC"]["port"],
+        tls=config.getboolean("IRC", "usessl"),
+        tls_verify=False,
     )
-    bot_loop.run_forever()
 
 
 def _start_server():
-    server_loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(server_loop)
-    asyncio.get_event_loop()
-
     web.run_app(app=APIConnector, port=int(config["API Connector"]["port"]))
 
 
