@@ -30,7 +30,7 @@ timestamp = datetime.now().strftime("%m%d%Y-%H%M%S")
 # noinspection PyBroadException
 
 
-def run():
+def run_dssa():
     """Run the DSSA Updater"""
     rootpath = pathlib.PurePath(__file__).parent
     rootpath = str(rootpath).replace("\\", "/")
@@ -137,6 +137,6 @@ def run():
 
 if __name__ == "__main__":
     try:
-        run()
+        run_dssa()
     except KeyboardInterrupt:
         sys.exit()
