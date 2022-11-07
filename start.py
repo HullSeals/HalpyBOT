@@ -10,10 +10,9 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+import asyncio
 from logging import Handler, basicConfig, getLevelName
 import sys
-import threading
 from os import path, mkdir
 from loguru import logger
 from aiohttp import web
@@ -21,7 +20,7 @@ from aiohttp import web
 # noinspection PyUnresolvedReferences
 from halpybot import commands
 from halpybot.packages.configmanager import config
-from halpybot.packages.ircclient import client
+from halpybot.packages.ircclient import HalpyBOT
 from halpybot.server import APIConnector
 
 
@@ -102,25 +101,33 @@ def logging_format():
     logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
 
 
-def _start_bot():
-    """Starts HalpyBOT with the specified config values."""
-    client.run(
-        hostname=config["IRC"]["server"],
-        port=config["IRC"]["port"],
-        tls=config.getboolean("IRC", "usessl"),
-        tls_verify=False,
-    )
-
-
-if __name__ == "__main__":
-    # Either the Bot, Webserver, or both need to be in their own threads isolated
-    # This is due to how aiohttp handles asyncio and not sharing well
+async def main():
     logging_format()
-    bthread = threading.Thread(target=_start_bot, name="BotThread", daemon=True)
-    bthread.start()
-    sthread = threading.Thread(
-        target=web.run_app(app=APIConnector, port=int(config["API Connector"]["port"])),
-        name="ServerThread",
-        daemon=True,
+    client = HalpyBOT(
+        nickname=config["IRC"]["nickname"],
+        sasl_identity=config["SASL"]["identity"],
+        sasl_password=config["SASL"]["password"],
+        sasl_username=config["SASL"]["username"],
     )
-    sthread.start()
+    runner = web.AppRunner(APIConnector)
+    runner.app["botclient"] = client
+    await runner.setup()
+    site = web.TCPSite(runner, "localhost", port=int(config["API Connector"]["port"]))
+    await site.start()
+    loop = asyncio.get_event_loop()
+    asyncio.ensure_future(
+        client.connect(
+            hostname=config["IRC"]["server"],
+            port=config["IRC"]["port"],
+            tls=config.getboolean("IRC", "usessl"),
+            tls_verify=False,
+        ),
+        loop=loop,
+    )
+    while True:
+        await asyncio.sleep(3600)
+
+
+# Global Entry Point
+if __name__ == "__main__":
+    asyncio.run(main())

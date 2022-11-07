@@ -33,13 +33,16 @@ async def announce(request):
     Raises:
         HTTPOk or HTTPInternalServerError
     """
+    botclient = request.app["botclient"]
     if request.body_exists:
         request = await request.json()
     # Parse arguments
     announcement = request["type"]
     args: Dict = request["parameters"]
     try:
-        await MainAnnouncer.announce(announcement=announcement, args=args)
+        await MainAnnouncer.announce(
+            announcement=announcement, args=args, client=botclient
+        )
         raise web.HTTPOk
     except AnnouncementError:
         raise web.HTTPInternalServerError from AnnouncementError
