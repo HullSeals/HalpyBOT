@@ -11,6 +11,8 @@ Licensed under the GNU General Public License
 See license.md
 """
 import asyncio
+import os
+import signal
 from logging import Handler, basicConfig, getLevelName
 import sys
 from os import path, mkdir
@@ -34,16 +36,19 @@ class InterceptHandler(Handler):
 
 
 def logging_format():
+    """
+    Configure the logging system, utilizing Loguru
+    """
     # Configure Logging File Name and Levels
-    logFile: str = config["Logging"]["log_file"]
-    CLI_level = config["Logging"]["cli_level"]
+    log_file: str = config["Logging"]["log_file"]
+    cli_level = config["Logging"]["cli_level"]
     file_level = config["Logging"]["file_level"]
 
     # Attempt to create log folder and path if it doesn't exist
     try:
-        logFolder = path.dirname(logFile)
-        if not path.exists(logFolder):
-            mkdir(logFolder)
+        log_folder = path.dirname(log_file)
+        if not path.exists(log_folder):
+            mkdir(log_folder)
     except PermissionError:
         logger.exception(
             "Unable to create log folder. Does this user have appropriate permissions?"
@@ -51,9 +56,9 @@ def logging_format():
         sys.exit()
 
     # Set the log format
-    FORMATTER = (
-        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra} | <cyan>{"
-        "name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level> "
+    formatter = (
+        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra} | "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
     )
     # Hook logging intercept
     basicConfig(handlers=[InterceptHandler()], level=0)
@@ -63,9 +68,9 @@ def logging_format():
 
     # Add File Logger
     logger.add(
-        logFile,
+        log_file,
         level=file_level,
-        format=FORMATTER,
+        format=formatter,
         rotation="500 MB",
         compression="zip",
         retention=90,
@@ -77,7 +82,7 @@ def logging_format():
     logger.add(
         "logs/connection.log",
         level=file_level,
-        format=FORMATTER,
+        format=formatter,
         rotation="500 MB",
         compression="zip",
         retention=90,
@@ -89,7 +94,7 @@ def logging_format():
     logger.add(
         "logs/command_access.log",
         level=file_level,
-        format=FORMATTER,
+        format=formatter,
         rotation="500 MB",
         compression="zip",
         retention=90,
@@ -98,10 +103,13 @@ def logging_format():
     )
 
     # Add CLI Logger
-    logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
+    logger.add(sys.stdout, level=cli_level, format=formatter)
 
 
 async def main():
+    """
+    The main startup script for HalpyBOT, called by the entry point
+    """
     logging_format()
     client = HalpyBOT(
         nickname=config["IRC"]["nickname"],
@@ -130,4 +138,7 @@ async def main():
 
 # Global Entry Point
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        os.kill(os.getpid(), signal.SIGTERM)

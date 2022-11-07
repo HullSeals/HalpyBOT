@@ -64,7 +64,8 @@ def authenticate():
 
             mac = get_hmac(msg)
             check = const_key_check
-            # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
+            # Check to see if the key is correct using static message.
+            # If wrong, return 401 unauthorised
             if not hmac.compare_digest(key_check, check.hexdigest()):
                 connection_logger.warning(
                     "Failed authentication. Incorrect key or key verification message"

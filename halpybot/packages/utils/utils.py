@@ -77,6 +77,12 @@ async def get_time_seconds(time: str):
 
 
 async def web_get(uri: str, params=None, timeout=10):
+    """
+    Use aiohttp's client to send an HTTP GET request.
+    uri: The URI/URL of the requested resource
+    params: Any additional HTTP parameters to send
+    timeout: Time in seconds before the server is deemed to have timed out
+    """
     async with aiohttp.ClientSession(
         headers={"User-Agent": DEFAULT_USER_AGENT}
     ) as session:
@@ -90,6 +96,9 @@ async def web_get(uri: str, params=None, timeout=10):
 
 
 async def task_starter(botclient):
+    """
+    Start the looping background tasks
+    """
     [
         asyncio.create_task(task)
         for task in (
