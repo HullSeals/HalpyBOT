@@ -149,21 +149,18 @@ class Fact:
             raise FactUpdateError
         try:
             with engine.connect() as database_connection:
-                args = (
-                    self._name,
-                    self._lang.casefold(),
-                    self._raw_text,
-                    self._author,
-                    self._ID,
-                )
                 database_connection.execute(
                     text(
                         f"UPDATE {config['Facts']['table']} "
-                        f"SET factName = %s, factLang = %s, factText = %s, "
-                        f"factEditedBy = %s "
-                        f"WHERE factID = %s",
-                        args,
-                    )
+                        f"SET factName = :fact_name, factLang = :fact_lang, factText = :fact_text, "
+                        f"factEditedBy = :fact_by "
+                        f"WHERE factID = :fact_id"
+                    ),
+                    fact_name=self._name,
+                    fact_lang=self._lang.casefold(),
+                    fact_text=self._raw_text,
+                    fact_author=self._author,
+                    fact_id=self._ID,
                 )
         except NoDatabaseConnection:
             logger.exception("No database connection. Unable to update fact.")
@@ -256,7 +253,7 @@ class FactHandler:
         """Flush the fact cache. Use with care"""
         self._fact_cache.clear()
 
-    async def add_fact(self, name: str, lang: str, text: str, author: str):
+    async def add_fact(self, name: str, lang: str, fact_text: str, author: str):
         """Add a new fact
 
         If the fact name corresponds to an existing fact in combination
@@ -266,7 +263,7 @@ class FactHandler:
         Args:
             name (str): name of the fact
             lang (str): language code, as specified in ISO-639-1
-            text (str): Text of the fact, including formatting
+            fact_text (str): Text of the fact, including formatting
             author (str): Author of the fact
 
         Raises:
@@ -290,9 +287,12 @@ class FactHandler:
                 text(
                     f"INSERT INTO {config['Facts']['table']} "
                     f"(factName, factLang, factText, factAuthor) "
-                    f"VALUES (%s, %s, %s, %s);",
-                    (name, lang, text, author),
-                )
+                    f"VALUES (:name, :lang, :fact_text, :author);"
+                ),
+                name=name,
+                lang=lang,
+                fact_text=fact_text,
+                author=author,
             )
         # Reset the fact handler
         await self.fetch_facts(preserve_current=True)
@@ -354,10 +354,8 @@ class FactHandler:
             )
         with engine.connect() as database_connection:
             database_connection.execute(
-                text(
-                    f"DELETE FROM {config['Facts']['table']} WHERE factID = %s",
-                    (self._fact_cache[name, lang].ID,),
-                )
+                text(f"DELETE FROM {config['Facts']['table']} WHERE factID = :fact_id"),
+                fact_id=self._fact_cache[name, lang].ID,
             )
             del self._fact_cache[name, lang]
 

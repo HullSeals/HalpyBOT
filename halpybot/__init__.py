@@ -10,7 +10,7 @@ See license.md
 
 from halpybot.packages.configmanager import config
 
-__version__ = "1.6.4"
+__version__ = "2.0.0-alpha"
 
 DEFAULT_USER_AGENT = (
     "HalpyBOT/"

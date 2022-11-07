@@ -126,7 +126,7 @@ async def _five_minute_task(botclient, *args, **kwargs):
 
 async def _one_hour_task(botclient, *args, **kwargs):
     while True:
-        await asyncio.sleep(360)
+        await asyncio.sleep(3600)
         try:
             await test_database_connection()
         except NoDatabaseConnection:
