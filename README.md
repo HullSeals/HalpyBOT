@@ -1,4 +1,4 @@
-# HalpyBOT 1.6.1
+# HalpyBOT
 This is the repository for HalpyBOT, the Hull Seals IRC Chatbot Assistant.
 
 # Description
@@ -60,4 +60,4 @@ Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome/b
 This project is governed under the [GNU General Public License v3.0](LICENSE) license.
 
 # Project Status
-The bot is running v1.5.2 in production, and still under active development.
+The bot is running v1.6.4 in production, and still under active development.

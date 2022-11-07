@@ -30,7 +30,7 @@ timestamp = datetime.now().strftime("%m%d%Y-%H%M%S")
 # noinspection PyBroadException
 
 
-def run():
+def run_dssa():
     """Run the DSSA Updater"""
     rootpath = pathlib.PurePath(__file__).parent
     rootpath = str(rootpath).replace("\\", "/")
@@ -42,9 +42,7 @@ def run():
         + "=" * 20
         + "\n"
     )
-    print(
-        f"JSON and CSV files will be placed in folder: {filepath}"
-    )
+    print(f"JSON and CSV files will be placed in folder: {filepath}")
 
     carriers_good = []
     carriers_bad = []
@@ -139,6 +137,6 @@ def run():
 
 if __name__ == "__main__":
     try:
-        run()
+        run_dssa()
     except KeyboardInterrupt:
         sys.exit()

@@ -16,7 +16,7 @@ import pathlib
 from tqdm import tqdm
 
 
-def run():
+def run_eddb():
     """Run the EDDB Formatter"""
     rootpath = pathlib.PurePath(__file__).parent
     rootpath = str(rootpath).replace("\\", "/")
@@ -151,6 +151,6 @@ def run():
 
 if __name__ == "__main__":
     try:
-        run()
+        run_eddb()
     except KeyboardInterrupt:
         sys.exit()

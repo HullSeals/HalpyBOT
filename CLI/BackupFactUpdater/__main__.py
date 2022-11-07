@@ -17,7 +17,7 @@ import configparser
 from sqlalchemy import create_engine, text, exc
 
 
-def run():
+def run_facts():
     """Run the Backup Fact Updater"""
     rootpath = pathlib.PurePath(__file__).parent.parent.parent
     rootpath = str(rootpath).replace("\\", "/")
@@ -25,13 +25,15 @@ def run():
     config = configparser.ConfigParser()
     config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
 
-    dbconfig = {
-        "user": config.get("Database", "user"),
-        "password": config.get("Database", "password"),
-        "host": config.get("Database", "host"),
-        "database": config.get("Database", "database"),
-        "connect_timeout": int(config.get("Database", "timeout")),
-    }
+    dbconfig = (
+        f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@'
+        f'{config["Database"]["host"]}/{config["Database"]["database"]}'
+    )
+
+    engine = create_engine(
+        dbconfig,
+        connect_args={"connect_timeout": int(config["Database"]["timeout"])},
+    )
 
     print("=============\nHalpyBOT fact file updater\n=============")
     print("\n")
@@ -74,4 +76,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    run_facts()

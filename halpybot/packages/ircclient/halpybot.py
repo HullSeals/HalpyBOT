@@ -8,21 +8,18 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import asyncio
 import os
 import signal
 from typing import Optional
 import pydle
-import halpybot.packages.utils as utils
 from loguru import logger
+from halpybot.packages import utils
 from .. import notify
 from ..configmanager import config_write, config
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import Facts
 from ..database import NoDatabaseConnection, test_database_connection
-
-pool = pydle.ClientPool()
 
 
 class HalpyBOT(pydle.Client, ListHandler):
@@ -197,7 +194,6 @@ client = HalpyBOT(
     sasl_identity=config["SASL"]["identity"],
     sasl_password=config["SASL"]["password"],
     sasl_username=config["SASL"]["username"],
-    eventloop=asyncio.get_event_loop(),
 )
 
 

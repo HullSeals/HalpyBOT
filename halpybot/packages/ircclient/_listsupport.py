@@ -23,7 +23,6 @@ class ListHandler(RFC1459Support):
         fallback: Optional[List] = None,
         username=None,
         realname=None,
-        eventloop=None,
         **kwargs,
     ):
         super().__init__(
@@ -31,7 +30,6 @@ class ListHandler(RFC1459Support):
             fallback if fallback is not None else [],
             username,
             realname,
-            eventloop,
             **kwargs,
         )
         self._pending_query = asyncio.Queue()
