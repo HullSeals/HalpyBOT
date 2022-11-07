@@ -25,14 +25,6 @@ engine = create_engine(
     connect_args={"connect_timeout": int(config["Database"]["timeout"])},
 )
 
-dbconfig = {
-    "user": config["Database"]["user"],
-    "password": config["Database"]["password"],
-    "host": config["Database"]["host"],
-    "database": config["Database"]["database"],
-    "connect_timeout": int(config["Database"]["timeout"]),
-}
-
 
 class NoDatabaseConnection(ConnectionError):
     """

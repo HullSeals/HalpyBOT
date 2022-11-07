@@ -105,12 +105,13 @@ async def server_root(request):
         sha = f" build {sha}"
     except git.InvalidGitRepositoryError:
         sha = ""
-    if botclient.nickname == "<unregistered>":
-        botclient.nickname = "Not Connected"
+    server_status_nick = botclient.nickname  # FIXME unsynchronized cross-thread read
+    if server_status_nick == "<unregistered>":
+        server_status_nick = "Not Connected"
     response = {
         "app": DEFAULT_USER_AGENT,
         "version": f"{__version__}{sha}",
-        "bot_nick": botclient.nickname,
+        "bot_nick": server_status_nick,
         "irc_connected": "True" if botclient.connected else "False",
         "offline_mode": config["Offline Mode"]["enabled"],
         "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
