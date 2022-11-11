@@ -12,7 +12,7 @@ import random
 from typing import List
 from loguru import logger
 from ..packages.utils import shorten
-from ..packages.checks import Require, Drilled
+from ..packages.checks import Require, Drilled, Pup
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 
@@ -53,5 +53,19 @@ async def cmd_roll(ctx: Context, args: List[str]):
             dice_roll = random.randint(1, int(dice[1]))
             rolls.append(dice_roll)
         total = sum(rolls)
-        return await ctx.reply(f"{ctx.sender}: {total} ({str(rolls)})")
+        return await ctx.reply(f"{ctx.sender}: {total} {str(rolls)}")
     return await ctx.reply(get_help_text("roll"))
+
+
+@Commands.command("fireball")
+@Require.permission(Pup)
+async def cmd_fireball(ctx: Context, args: List[str]):
+    if not args:
+        subject = "chat"
+    else:
+        subject = args[0]
+    dice = ["8d6"]
+    await ctx.reply(
+        f"Kawoosh! {ctx.sender} cast a fireball on {subject}! Rolling for damage..."
+    )
+    return await cmd_roll(ctx, dice)
