@@ -23,6 +23,12 @@ class Permission:
         self.msg = msg
 
 
+Bot = Permission(
+    vhost="bots.hullseals.space",
+    level=1,
+    msg="You shouldn't be able to see this sanity check...",
+)
+
 Pup = Permission(
     vhost="pup.hullseals.space",
     level=1,
@@ -64,6 +70,7 @@ Owner = Permission(
 )
 
 _levels = {
+    Bot.vhost: 1,
     Pup.vhost: 1,
     Drilled.vhost: 2,
     Moderator.vhost: 3,
