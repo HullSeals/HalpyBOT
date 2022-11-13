@@ -91,7 +91,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             )
         for channel in config["Channels"]["channellist"].split():
             await self.join(channel, force=True)
-        await utils.task_starter(client)
+        await utils.task_starter(self)
 
     async def on_message(self, target, by, message):
         """Handle an IRC message
@@ -187,14 +187,6 @@ class HalpyBOT(pydle.Client, ListHandler):
             config["Channels"]["channellist"] = " ".join(chlist)
             with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
-
-
-client = HalpyBOT(
-    nickname=config["IRC"]["nickname"],
-    sasl_identity=config["SASL"]["identity"],
-    sasl_password=config["SASL"]["password"],
-    sasl_username=config["SASL"]["username"],
-)
 
 
 async def crash_notif(crashtype, condition):

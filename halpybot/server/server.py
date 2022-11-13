@@ -17,7 +17,6 @@ from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
 from ..packages.configmanager import config
-from ..packages.ircclient import client as botclient
 
 
 routes = web.RouteTableDef()
@@ -105,6 +104,7 @@ async def server_root(request):
         sha = f" build {sha}"
     except git.InvalidGitRepositoryError:
         sha = ""
+    botclient = request.app["botclient"]
     server_status_nick = botclient.nickname  # FIXME unsynchronized cross-thread read
     if server_status_nick == "<unregistered>":
         server_status_nick = "Not Connected"
