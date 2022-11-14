@@ -15,7 +15,6 @@ from sqlalchemy import text
 from .server import APIConnector
 from .auth import authenticate
 from ..packages.database import engine, NoDatabaseConnection
-from ..packages.ircclient import client as botclient
 
 routes = web.RouteTableDef()
 
@@ -35,6 +34,7 @@ async def tail(request):
     Raises:
         HTTPOK or HTTPServiceUnavailable
     """
+    botclient = request.app["botclient"]
     if request.body_exists:
         request = await request.json()
     # Parse arguments
@@ -45,9 +45,9 @@ async def tail(request):
         with engine.connect() as database_connection:
             result = database_connection.execute(
                 text(
-                    "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;",
-                    (subject,),
-                )
+                    "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = :subject_name;"
+                ),
+                subject_name=subject,
             )
             for i in result:
                 logger.info(i)

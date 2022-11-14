@@ -24,7 +24,6 @@ from ..edsm import (
     sys_cleaner,
     NoNearbyEDSM,
 )
-from ..ircclient import client
 from .twitter import TwitterCasesAcc, TwitterConnectionError
 
 
@@ -75,7 +74,7 @@ class Announcer:
                 content=anntype["Content"],
             )
 
-    async def announce(self, announcement: str, args: Dict):
+    async def announce(self, announcement: str, args: Dict, client):
         """Announce a new case
 
         Args:

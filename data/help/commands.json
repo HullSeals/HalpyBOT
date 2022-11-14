@@ -189,52 +189,6 @@
       "use": "Shorten a provided URL"
     }
   },
-  "Delay": {
-    "delaystatus": {
-      "aliases": [
-        "checkstatus"
-      ],
-      "arguments": "",
-      "use": "Checks the system for Delayed Cases"
-    },
-    "delaycase": {
-      "aliases": [],
-      "arguments": "[case status] [notes]",
-      "use": "Adds a new case to the Delayed system, and responds with a unique Case ID."
-    },
-    "updatestatus": {
-      "aliases": [],
-      "arguments": "[case ID] [case status]",
-      "use": "Updates the Status Code of a case - see the table of different status codes below!"
-    },
-    "updatenotes": {
-      "aliases": [],
-      "arguments": "[case ID] [new notes]",
-      "use": "Updates the Notes attached to a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
-    },
-    "updatecase": {
-      "aliases": [],
-      "arguments": "[case ID] (case status) (case notes)",
-      "use": "Updates both the Status Code and Notes of a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
-    },
-    "close": {
-      "aliases": [
-        "endcase"
-      ],
-      "arguments": "[case ID]",
-      "use": "Closes a case and removes it from the Delayed Case system. It's encouraged to update the notes before you close a case!"
-    },
-    "reopen": {
-      "aliases": [],
-      "arguments": "[case ID] [case status]",
-      "use": "Reopens a previously-closed case, if a case is improperly closed. Moderator only"
-    },
-    "checkstatus": {
-      "aliases": [],
-      "arguments": "",
-      "use": "Check if any cases are currently marked as 'Delayed' in the database."
-    }
-  },
   "Drill": {
     "drillcase": {
       "aliases": [],
@@ -311,6 +265,13 @@
       ],
       "arguments": "",
       "use": "Shut down the bot. Will restart the bot if configured under daemon processing."
+    }
+  },
+  "Fun": {
+    "roll": {
+      "aliases": [],
+      "arguments": "#d#",
+      "use": "Roll the dice! (Up to 10 dice of any size)"
     }
   }
 }
