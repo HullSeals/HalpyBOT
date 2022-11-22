@@ -9,6 +9,7 @@ See license.md
 """
 
 import os
+import sys
 import signal
 from typing import Optional
 import pydle
@@ -220,3 +221,38 @@ async def crash_notif(crashtype, condition):
         condition=condition,
     )
     os.kill(os.getpid(), signal.SIGTERM)
+
+
+def configure_client():
+    """
+    Configure the SASL Authentication System and establish the Client
+    """
+    if config.getboolean("SASL", "use_sasl"):
+        if config["SASL"]["sasl_mode"] == "PLAIN":
+            logger.debug("PLAIN SASL Auth selected.")
+            client = HalpyBOT(
+                nickname=config["IRC"]["nickname"],
+                sasl_identity=config["SASL"]["identity"],
+                sasl_password=config["SASL"]["password"],
+                sasl_username=config["SASL"]["username"],
+            )
+            return client
+        if config["SASL"]["sasl_mode"] == "EXTERNAL":
+            logger.debug("EXTERNAL SASL Auth selected.")
+            file_check = os.path.isfile(f"certs/{config['SASL']['cert']}")
+            if not file_check:
+                logger.critical("Cert File Missing. Aborting.")
+                sys.exit("Missing Cert File")
+            client = HalpyBOT(
+                nickname=config["IRC"]["nickname"],
+                sasl_mechanism="EXTERNAL",
+                tls_client_cert=f"./certs/{config['SASL']['cert']}",
+            )
+            return client
+        logger.critical("Invalid SASL method selected.")
+        sys.exit("No SASL Method Selected, but SASL Enabled in Config.")
+    logger.debug("No SASL Auth selected.")
+    client = HalpyBOT(
+        nickname=config["IRC"]["nickname"],
+    )
+    return client
