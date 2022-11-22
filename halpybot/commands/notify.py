@@ -20,27 +20,24 @@ NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
 
 
-class Cached:
+class Timer:
     """Decorator Timer Class"""
 
     def __init__(self, ttl: datetime.timedelta):
         self.ttl = ttl
-        self.current_call = datetime.datetime.now()
         self.last_call = None
 
     def __call__(self, func):
         async def wrapper(ctx, *args, **kwargs):
             """Decorator to Determine if a function is to be run by timer"""
             should_call: bool = False
-            print(self.last_call)
             if self.last_call is None:
                 should_call = True
             if (
                 self.last_call is not None
-                and self.current_call > self.last_call + self.ttl
+                and datetime.datetime.now() > self.last_call + self.ttl
             ):
                 should_call = True
-                self.last_call = datetime.datetime.now()
             if should_call:
                 self.last_call = datetime.datetime.now()
                 return await func(ctx, *args, **kwargs)
@@ -51,7 +48,7 @@ class Cached:
         return wrapper
 
 
-timer_filter = Cached(ttl=datetime.timedelta(minutes=int(config["Notify"]["timer"])))
+timer_filter = Timer(ttl=datetime.timedelta(minutes=int(config["Notify"]["timer"])))
 
 
 @NotifyInfo.command("groups")
