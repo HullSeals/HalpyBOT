@@ -42,7 +42,8 @@ class Timer:
                 self.last_call = datetime.datetime.now()
                 return await func(ctx, *args, **kwargs)
             return await ctx.reply(
-                "Someone already called less than 5 minutes ago. hang on, staff is responding."
+                f"Someone already called less than {config['Notify']['timer']} "
+                f"minutes ago. hang on, staff is responding."
             )
 
         return wrapper
