@@ -299,32 +299,45 @@ async def cmd_coordslookup(ctx, args: List[str]):
     return await ctx.reply(f"{system} is {dist} LY from {xcoord}, {ycoord}, {zcoord}.")
 
 
-@Commands.command("diversion")
+@Commands.command("longdiversion", "longdiversions")
+async def cmd_longdiversion(ctx: Context, args: List[str]):
+    if args[0] == "--new":
+        args.insert(1, "--long")
+    else:
+        args.insert(0, "--long")
+    return await cmd_diversionlookup(ctx, args)
+
+
+@Commands.command("diversion", "diversions")
 async def cmd_diversionlookup(ctx: Context, args: List[str]):
     """
     Calculate the 5 closest FDEV-placed structures with repair capability to a known EDSM location.
 
-    Usage: !diversion <--new> [system/cmdr]
+    Usage: !diversion <--new> <--long> [system/cmdr]
     Aliases: n/a
     File Last Updated: 2022-05-23 w/ 7,384 Qualified Stations
     """
 
     cache_override = False
+    long = False
 
     if len(args) == 0:
         return await ctx.reply(get_help_text("diversion"))
     if args[0] == "--new":
         cache_override = True
         del args[0]
-        ctx.message = " ".join(args)
-        if not ctx.message:
-            return await ctx.reply(get_help_text("diversion"))
+    if args[0] == "--long":
+        long = True
+        del args[0]
+    ctx.message = " ".join(args)
+    if not ctx.message:
+        return await ctx.reply(get_help_text("diversion"))
     system = ctx.message.strip()
     cleaned_sys = await sys_cleaner(system)
 
     try:
         first, second, third, fourth, fifth = await diversions(
-            edsm_sys_name=cleaned_sys, cache_override=cache_override
+            edsm_sys_name=cleaned_sys, cache_override=cache_override, long=long
         )
         return await ctx.reply(
             f"Closest Diversion Stations to {cleaned_sys}:\n"

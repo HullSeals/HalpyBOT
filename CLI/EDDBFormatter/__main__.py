@@ -36,6 +36,14 @@ def run_eddb():
         print("Roger, aborting...")
         sys.exit()
 
+    distance = input(
+        "Do you want to filter the list to only stations within a certain range? (800 LS) (Y/n) "
+    )
+    if distance.upper() != "Y":
+        filter_dist = False
+    else:
+        filter_dist = True
+
     # Remove Old Files
     if os.path.exists(f"{rootpath}/files/output/filtered_stations.json"):
         os.remove(f"{rootpath}/files/output/filtered_stations.json")
@@ -99,15 +107,26 @@ def run_eddb():
         }
         # To be used as a diversion station, must have L pad, Repair function,
         # not on a planet, not a mobile platform, and no more than 800 LS from the main star.
-        if (
-            temp_station_dict["max_landing"] == "L"
-            and temp_station_dict["has_repair"]
-            and not temp_station_dict["is_planet"]
-            and temp_station_dict["station_type"] != "Fleet Carrier"
-            and temp_station_dict["dist_star"] <= 800
-        ):
-            station_dict[counter] = temp_station_dict
-            counter += 1
+        if filter_dist:
+            if (
+                temp_station_dict["max_landing"] == "L"
+                and temp_station_dict["has_repair"]
+                and not temp_station_dict["is_planet"]
+                and temp_station_dict["station_type"] != "Fleet Carrier"
+                and temp_station_dict["dist_star"] <= 800
+            ):
+                station_dict[counter] = temp_station_dict
+                counter += 1
+        else:
+            if (
+                temp_station_dict["max_landing"] == "L"
+                and temp_station_dict["has_repair"]
+                and not temp_station_dict["is_planet"]
+                and temp_station_dict["station_type"] != "Fleet Carrier"
+            ):
+                station_dict[counter] = temp_station_dict
+                counter += 1
+
     # Create output filtered station file, in case we want to review it later.
     with open(
         f"{rootpath}/files/output/filtered_stations.json", "w", encoding="UTF-8"

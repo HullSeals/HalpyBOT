@@ -366,6 +366,7 @@ class Edsm:
         self._carriers: typing.Optional[typing.List[GalaxySystem]] = None
         self._landmarks: typing.Optional[typing.List[GalaxySystem]] = None
         self._diversions: typing.Optional[typing.List[EDDBSystem]] = None
+        self._long_diversions: typing.Optional[typing.List[EDDBSystem]] = None
 
     @property
     def landmarks(self):
@@ -393,6 +394,17 @@ class Edsm:
         loaded_diversions = json.loads(diversions_target.read_text())
         self._diversions = cattr.structure(loaded_diversions, typing.List[EDDBSystem])
         return self._diversions
+
+    @property
+    def long_diversions(self):
+        if self._long_diversions:
+            return self._long_diversions
+        diversions_target = Path() / "data" / "edsm" / "long_range_diversions.json"
+        loaded_diversions = json.loads(diversions_target.read_text())
+        self._long_diversions = cattr.structure(
+            loaded_diversions, typing.List[EDDBSystem]
+        )
+        return self._long_diversions
 
 
 calculators = Edsm()
@@ -586,7 +598,9 @@ class Diversion:
 Diversions = typing.List[Diversion]
 
 
-async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
+async def diversions(
+    edsm_sys_name, cache_override: bool = False, long: bool = False
+) -> Diversions:
     """Check distance to the nearest diversion station
 
     Last updated 2022-05-23 w/ 7,384 Qualified Stations
@@ -594,6 +608,7 @@ async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
     Args:
         edsm_sys_name (str): System name
         cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
+        long (bool): To use the Long Range or Filtered System Data (default Filtered)
 
     Returns:
         (tuple): Five tuples containing diversion stations and relevant details.
@@ -617,7 +632,9 @@ async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
                 coords.z,
                 item.z_coord,
             ): item
-            for item in calculators.diversions
+            for item in (
+                calculators.diversions if not long else calculators.long_diversions
+            )
         }
         local_tup = []
         for value in range(5):
