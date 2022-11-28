@@ -24,8 +24,19 @@ from __future__ import annotations
 from typing import Optional, Set
 from attr import dataclass
 import pydle
-
 import cattr
+
+
+class UserError(Exception):
+    """
+    Base class for User Class errors
+    """
+
+
+class NoUserFound(UserError):
+    """
+    An exception occurred while sending a Discord Webhook
+    """
 
 
 @dataclass(frozen=True)
@@ -66,7 +77,11 @@ class User:
 
         """
         # fetch the user object from pydle
+        if nickname.endswith(",") or nickname.endswith(":"):
+            nickname = nickname[:-1]
         data = await bot.whois(nickname)
+        if data is None:
+            raise NoUserFound
         if "nickname" not in data:
             data["nickname"] = nickname
         return cattr.structure(data, Optional[User])
