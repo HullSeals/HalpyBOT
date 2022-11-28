@@ -10,7 +10,7 @@ See license.md
 from typing import List
 from ..packages.command import Commands
 from ..packages.facts import Facts
-from ..packages.models import Context, User
+from ..packages.models import Context, User, NoUserFound
 
 
 @Commands.command("go")
@@ -33,7 +33,7 @@ async def cmd_go(ctx: Context, args: List[str]):
             try:
                 whois = await User.get_info(ctx.bot, str(seal))
                 vhost = User.process_vhost(whois.hostname)
-            except AttributeError:
+            except (AttributeError, NoUserFound):
                 vhost = "notUser"
             # There is no hard set "not a seal" vhost level.
             if vhost is None:

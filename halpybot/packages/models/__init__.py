@@ -9,7 +9,15 @@ See license.md
 """
 
 from .edsm_classes import Coordinates, Location, SystemInfo
-from .user import User
+from .user import User, UserError, NoUserFound
 from .context import Context
 
-__all__ = ["Context", "User", "Coordinates", "Location", "SystemInfo"]
+__all__ = [
+    "Context",
+    "User",
+    "Coordinates",
+    "Location",
+    "SystemInfo",
+    "UserError",
+    "NoUserFound",
+]
