@@ -22,7 +22,7 @@ from aiohttp import web
 # noinspection PyUnresolvedReferences
 from halpybot import commands
 from halpybot.packages.configmanager import config
-from halpybot.packages.ircclient import HalpyBOT
+from halpybot.packages.ircclient import configure_client
 from halpybot.server import APIConnector
 
 
@@ -111,12 +111,7 @@ async def main():
     The main startup script for HalpyBOT, called by the entry point
     """
     logging_format()
-    client = HalpyBOT(
-        nickname=config["IRC"]["nickname"],
-        sasl_identity=config["SASL"]["identity"],
-        sasl_password=config["SASL"]["password"],
-        sasl_username=config["SASL"]["username"],
-    )
+    client = configure_client()
     runner = web.AppRunner(APIConnector)
     runner.app["botclient"] = client
     await runner.setup()

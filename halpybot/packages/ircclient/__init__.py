@@ -8,6 +8,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .halpybot import HalpyBOT
+from .halpybot import HalpyBOT, configure_client
 
-__all__ = ["HalpyBOT"]
+__all__ = ["HalpyBOT", "configure_client"]
