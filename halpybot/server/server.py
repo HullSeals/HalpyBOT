@@ -105,7 +105,7 @@ async def server_root(request):
     except git.InvalidGitRepositoryError:
         sha = ""
     botclient = request.app["botclient"]
-    server_status_nick = botclient.nickname  # FIXME unsynchronized cross-thread read
+    server_status_nick = botclient.nickname
     if server_status_nick == "<unregistered>":
         server_status_nick = "Not Connected"
     response = {
