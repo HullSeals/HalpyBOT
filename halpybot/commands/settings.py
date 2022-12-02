@@ -9,10 +9,8 @@ See license.md
 """
 
 from typing import List
-
 from loguru import logger
 import pydle
-
 from ..packages.checks import Require, Cyberseal
 from ..packages.configmanager import config_write, config
 from ..packages.command import CommandGroup, Commands, get_help_text

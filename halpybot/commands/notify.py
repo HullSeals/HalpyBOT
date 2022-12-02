@@ -7,8 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
-import time
+import datetime
 from typing import List
 from loguru import logger
 from ..packages import notify
@@ -17,9 +16,40 @@ from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.configmanager import config
 from ..packages.models import Context
 
-
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
+
+
+class Timer:
+    """Decorator Timer Class"""
+
+    def __init__(self, ttl: datetime.timedelta):
+        self.ttl = ttl
+        self.last_call = None
+
+    def __call__(self, func):
+        async def wrapper(ctx, *args, **kwargs):
+            """Decorator to Determine if a function is to be run by timer"""
+            should_call: bool = False
+            if self.last_call is None:
+                should_call = True
+            if (
+                self.last_call is not None
+                and datetime.datetime.now() > self.last_call + self.ttl
+            ):
+                should_call = True
+            if should_call:
+                self.last_call = datetime.datetime.now()
+                return await func(ctx, *args, **kwargs)
+            return await ctx.reply(
+                f"Someone already called less than {config['Notify']['timer']} "
+                f"minutes ago. hang on, staff is responding."
+            )
+
+        return wrapper
+
+
+timer_filter = Timer(ttl=datetime.timedelta(minutes=int(config["Notify"]["timer"])))
 
 
 @NotifyInfo.command("groups")
@@ -130,6 +160,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
 @Require.permission(Pup)
 @Require.channel()
 @Require.aws()
+@timer_filter
 async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
     Send a notification to the Admins and Moderators.
@@ -140,23 +171,17 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply(get_help_text("opsignal"))
 
-    with NotificationLock() as lock:
-        if not lock.locked:
-
-            subject, topic, message = await format_notification(
-                "OpSignal", "staff", ctx.sender, args
-            )
-            try:
-                await notify.send_notification(topic, message, subject)
-            except notify.NotificationFailure:
-                logger.exception("Notification not sent! I hope it wasn't important...")
-                return await ctx.reply("Unable to send the notification!")
-            return await ctx.reply(
-                f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
-            )
-        return await ctx.reply(
-            "Someone already called less than 5 minutes ago. hang on, staff is responding."
-        )
+    subject, topic, message = await format_notification(
+        "OpSignal", "staff", ctx.sender, args
+    )
+    try:
+        await notify.send_notification(topic, message, subject)
+    except notify.NotificationFailure:
+        logger.exception("Notification not sent! I hope it wasn't important...")
+        return await ctx.reply("Unable to send the notification!")
+    return await ctx.reply(
+        f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+    )
 
 
 @Commands.command(
@@ -165,6 +190,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
 @Require.permission(Pup)
 @Require.channel()
 @Require.aws()
+@timer_filter
 async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
     Send a notification to the Cyberseals.
@@ -176,23 +202,17 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply(get_help_text("cybersignal"))
 
-    with NotificationLock() as lock:
-        if not lock.locked:
-
-            subject, topic, message = await format_notification(
-                "CyberSignal", "cybers", ctx.sender, args
-            )
-            try:
-                await notify.send_notification(topic, message, subject)
-            except notify.NotificationFailure:
-                logger.exception("Notification not sent! I hope it wasn't important...")
-                return await ctx.reply("Unable to send the notification!")
-            return await ctx.reply(
-                f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
-            )
-        return await ctx.reply(
-            "Someone already called less than 5 minutes ago. hang on, staff is responding."
-        )
+    subject, topic, message = await format_notification(
+        "CyberSignal", "cybers", ctx.sender, args
+    )
+    try:
+        await notify.send_notification(topic, message, subject)
+    except notify.NotificationFailure:
+        logger.exception("Notification not sent! I hope it wasn't important...")
+        return await ctx.reply("Unable to send the notification!")
+    return await ctx.reply(
+        f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+    )
 
 
 async def format_notification(notify_type, group, sender, message):
@@ -213,21 +233,3 @@ async def format_notification(notify_type, group, sender, message):
     message = " ".join(message)
     message = f"{notify_type} used by {sender}: {message}"
     return subject, topic, message
-
-
-class NotificationLock:
-
-    _timer = 0
-
-    def __init__(self):
-        """
-        Create new context manager for the timed notification lock
-        """
-        # Check if last staff call was < 5 min ago
-        if NotificationLock._timer != 0 and time.time() < NotificationLock._timer + int(
-            config["Notify"]["timer"]
-        ):
-            self.locked = True
-        else:
-            self.locked = False
-            NotificationLock._timer = time.time()
