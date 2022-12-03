@@ -3,6 +3,7 @@
 /halpy/
 
 # Config files
+/.env
 /config/config.ini
 /data/announcer/announcer.json
 /CLI/BackupFactUpdater/config.ini
@@ -20,7 +21,11 @@ CLI/DSSAUpdater/files/*.csv
 
 #ideas and venv
 /.idea
+/.fleet
 
 #IDE
 /.vscode
 halpybot.json
+
+# Lock files
+poetry.lock
