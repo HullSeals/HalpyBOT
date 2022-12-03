@@ -43,11 +43,12 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     logger.info(
         "Manual case by {sender} in {channel}", sender=ctx.sender, channel=ctx.channel
     )
-    await asyncio.gather(*[
-        ctx.bot.message(
-            channel, f"xxxx MANCASE -- NEWCASE xxxx\n{info}\nxxxxxxxx"
-        ) for channel in config.manual_case.send_to
-    ])
+    await asyncio.gather(
+        *[
+            ctx.bot.message(channel, f"xxxx MANCASE -- NEWCASE xxxx\n{info}\nxxxxxxxx")
+            for channel in config.manual_case.send_to
+        ]
+    )
 
     # Send to Discord
     cn_message = {
@@ -79,7 +80,9 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
 
     try:
         await send_webhook(
-            hook_id=config.discord_notifications.webhook_id, hook_token=config.discord_notifications.webhook_token.get_secret_value(), body=cn_message
+            hook_id=config.discord_notifications.webhook_id,
+            hook_token=config.discord_notifications.webhook_token.get_secret_value(),
+            body=cn_message,
         )
     except WebhookSendError:
         logger.exception("Webhook could not be sent.")
@@ -126,7 +129,9 @@ async def cmd_tsping(ctx: Context, args: List[str]):
 
     try:
         await send_webhook(
-            hook_id=config.discord_notifications.webhook_id, hook_token=config.discord_notifications.webhook_token.get_secret_value(), body=cn_message
+            hook_id=config.discord_notifications.webhook_id,
+            hook_token=config.discord_notifications.webhook_token.get_secret_value(),
+            body=cn_message,
         )
     except WebhookSendError:
         logger.exception("Webhook could not be sent.")

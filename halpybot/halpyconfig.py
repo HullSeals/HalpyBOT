@@ -1,9 +1,20 @@
 import warnings
 
-from pydantic import BaseSettings, SecretStr, AnyUrl, BaseModel, stricturl, AnyHttpUrl, FilePath, constr
+from pydantic import (
+    BaseSettings,
+    SecretStr,
+    AnyUrl,
+    BaseModel,
+    stricturl,
+    AnyHttpUrl,
+    FilePath,
+    constr,
+)
 from typing import List, Set, Optional, Union, Tuple
 
 from typing import ClassVar
+
+
 class MysqlDsn(AnyUrl):
     allowed_schemes = {'mysql+mysqldb'}
 
@@ -11,7 +22,7 @@ class MysqlDsn(AnyUrl):
     @staticmethod
     def get_default_parts(parts):
         return {
-            'port': '3306',
+            "port": "3306",
         }
 
 
@@ -166,4 +177,3 @@ class HalpyConfig(BaseSettings):
     class Config:
         env_file = ".env"
         env_nested_delimiter = "::"
-

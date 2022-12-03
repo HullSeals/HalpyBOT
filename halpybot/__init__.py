@@ -13,7 +13,10 @@ from .halpyconfig import HalpyConfig
 config = HalpyConfig()
 
 from halpybot.packages.configmanager import config
+
 #
 __version__ = "2.0.0-alpha"
 
-DEFAULT_USER_AGENT = f"HalpyBot/{__version__}({config.irc.nickname})({config.user_agent.agent_comment}"
+DEFAULT_USER_AGENT = (
+    f"HalpyBot/{__version__}({config.irc.nickname})({config.user_agent.agent_comment}"
+)

@@ -22,7 +22,7 @@ from ..command import Commands, CommandGroup
 from ..facts import Facts
 from ..database import NoDatabaseConnection
 from ...halpyconfig import SaslExternal, SaslPlain
-
+import asyncio
 from ..database import NoDatabaseConnection, test_database_connection
 
 
@@ -118,9 +118,7 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         # Special command for getting the bot prefix
         if message == f"{self.nickname} prefix":
-            return await self.message(
-                target, f"Prefix: {config.irc.command_prefix}"
-            )
+            return await self.message(target, f"Prefix: {config.irc.command_prefix}")
 
         # Pass message to command handler
         if self._commandhandler:
@@ -190,10 +188,29 @@ class HalpyBOT(pydle.Client, ListHandler):
         chlist = config.channels.channel_list
         if channel in chlist:
             chlist.remove(channel)
-            config.channels.channel_list= " ".join(chlist)
+            config.channels.channel_list = " ".join(chlist)
             with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
 
+
+# dynamically determine which auth method to use.
+if isinstance(config.irc.sasl, SaslExternal):
+    auth_kwargs = dict(sasl_mechanism="EXTERNAL", tls_client_cert=config.irc.sasl.cert)
+elif isinstance(config.irc.sasl, SaslPlain):
+    auth_kwargs = dict(
+        sasl_username=config.irc.sasl.username,
+        sasl_password=config.irc.sasl.password.get_secret_value(),
+    )
+else:
+    raise AssertionError(
+        f"unreachable SASL auth variant reached: {type(config.irc.sasl)}"
+    )
+client = HalpyBOT(
+    nickname=config.irc.nickname,
+    sasl_identity=config.irc.sasl.identity,
+    **auth_kwargs,
+    eventloop=asyncio.get_event_loop(),
+)
 
 
 async def crash_notif(crashtype, condition):
