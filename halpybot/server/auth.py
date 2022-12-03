@@ -18,8 +18,6 @@ from aiohttp import web
 from ..packages.configmanager import config
 
 
-
-
 def get_hmac(msg):
     """
     Calculate the HMAC value for message validation
@@ -31,7 +29,9 @@ def get_hmac(msg):
         A new hmac object
     """
     return hmac.new(
-        bytes(config.api_connector.key.get_secret_value(), "utf8"), msg=msg.encode("utf8"), digestmod=hashlib.sha256
+        bytes(config.api_connector.key.get_secret_value(), "utf8"),
+        msg=msg.encode("utf8"),
+        digestmod=hashlib.sha256,
     )
 
 

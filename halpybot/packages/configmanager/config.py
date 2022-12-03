@@ -36,7 +36,7 @@ def config_write(module: str, key: str, value):
         value (str): New value
 
     """
-    raise NotImplementedError("# TODO") # TODO
+    raise NotImplementedError("# TODO")  # TODO
     logger.info("{module}, {key} set to {value}", module=module, key=key, value=value)
     config[module][key] = value
     try:
