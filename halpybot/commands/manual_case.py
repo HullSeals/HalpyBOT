@@ -106,7 +106,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     info = ctx.message
 
     cn_message = {
-        "content": f"Attention, {config.discord_notifications.trained_roll}! Seals are needed for this case.",
+        "content": f"Attention, {config.discord_notifications.trained_role}! Seals are needed for this case.",
         "username": f"{ctx.sender}",
         "avatar_url": "https://hullseals.space/images/emblem_mid.png",
         "tts": False,

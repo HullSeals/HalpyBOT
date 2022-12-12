@@ -107,7 +107,7 @@ class DiscordNotifications(BaseModel):
     webhook_id: Optional[str] = None
     webhook_token: Optional[SecretStr] = None
     case_notify: Optional[constr(regex=r"<@&(\d+)>")] = None
-    trained_roll: Optional[constr(regex=r"<@&(\d+)>")] = None
+    trained_role: Optional[constr(regex=r"<@&(\d+)>")] = None
 
 
 class Notify(BaseModel):
