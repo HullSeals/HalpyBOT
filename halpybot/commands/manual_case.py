@@ -7,7 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+import asyncio
 from typing import List
 import datetime
 from loguru import logger
@@ -16,9 +16,6 @@ from ..packages.checks import Require, Drilled
 from ..packages.models import Context, User
 from ..packages.configmanager import config
 from ..packages.announcer import send_webhook, WebhookSendError
-
-webhook_id = config["Discord Notifications"]["webhook_id"]
-webhook_token = config["Discord Notifications"]["webhook_token"]
 
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
@@ -46,14 +43,15 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     logger.info(
         "Manual case by {sender} in {channel}", sender=ctx.sender, channel=ctx.channel
     )
-    for channel in config["Manual Case"]["send_to"].split():
-        await ctx.bot.message(
+    await asyncio.gather(*[
+        ctx.bot.message(
             channel, f"xxxx MANCASE -- NEWCASE xxxx\n{info}\nxxxxxxxx"
-        )
+        ) for channel in config.manual_case.send_to
+    ])
 
     # Send to Discord
     cn_message = {
-        "content": f"New Incoming Case - {config['Discord Notifications']['CaseNotify']}",
+        "content": f"New Incoming Case - {config.discord_notifications.case_notify}",
         "username": "HalpyBOT",
         "avatar_url": "https://hullseals.space/images/emblem_mid.png",
         "tts": False,
@@ -81,7 +79,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
 
     try:
         await send_webhook(
-            hook_id=webhook_id, hook_token=webhook_token, body=cn_message
+            hook_id=config.discord_notifications.webhook_id, hook_token=config.discord_notifications.webhook_token.get_secret_value(), body=cn_message
         )
     except WebhookSendError:
         logger.exception("Webhook could not be sent.")
@@ -105,7 +103,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     info = ctx.message
 
     cn_message = {
-        "content": f"Attention, {config['Discord Notifications']['trainedrole']}! Seals are needed for this case.",
+        "content": f"Attention, {config.discord_notifications.trained_roll}! Seals are needed for this case.",
         "username": f"{ctx.sender}",
         "avatar_url": "https://hullseals.space/images/emblem_mid.png",
         "tts": False,
@@ -128,7 +126,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
 
     try:
         await send_webhook(
-            hook_id=webhook_id, hook_token=webhook_token, body=cn_message
+            hook_id=config.discord_notifications.webhook_id, hook_token=config.discord_notifications.webhook_token.get_secret_value(), body=cn_message
         )
     except WebhookSendError:
         logger.exception("Webhook could not be sent.")

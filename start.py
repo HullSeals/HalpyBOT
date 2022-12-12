@@ -40,9 +40,10 @@ def logging_format():
     Configure the logging system, utilizing Loguru
     """
     # Configure Logging File Name and Levels
-    log_file: str = config["Logging"]["log_file"]
-    cli_level = config["Logging"]["cli_level"]
-    file_level = config["Logging"]["file_level"]
+    log_level: str = str(config.logging.log_file)
+    # TODO: port this to pathlib
+    cli_level = config.logging.cli_level
+    file_level = config.logging.file_level
 
     # Attempt to create log folder and path if it doesn't exist
     try:
@@ -120,10 +121,10 @@ async def main():
     loop = asyncio.get_event_loop()
     asyncio.ensure_future(
         client.connect(
-            hostname=config["IRC"]["server"],
-            port=config["IRC"]["port"],
-            tls=config.getboolean("IRC", "usessl"),
-            tls_verify=False,
+            hostname=config.irc.server.host,
+            port=config.irc.server.port,
+            tls=config.irc.use_ssl,
+            tls_verify=False,  # TODO: expose in config
         ),
         loop=loop,
     )

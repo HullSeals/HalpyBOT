@@ -34,7 +34,7 @@ async def cmd_nick(ctx: Context, args: List[str]):
         return await ctx.reply(get_help_text("settings nick"))
     logger.info(
         "NICK CHANGE from {name} to {newName} by {sender}",
-        name=config["IRC"]["nickname"],
+        name=config.irc.nickname,
         newName=args[0],
         sender=ctx.sender,
     )
@@ -57,7 +57,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
         return await ctx.reply(get_help_text("settings prefix"))
     logger.info(
         "PREFIX CHANGE from {prefix} to {new} by {sender}",
-        prefix=config["IRC"]["commandPrefix"],
+        prefix=config.irc.command_prefix,
         new=args[0],
         sender=ctx.sender,
     )
@@ -81,12 +81,13 @@ async def cmd_offline(ctx: Context, args: List[str]):
     if len(args) == 0:
         return await ctx.reply(
             f"{get_help_text('settings offline')}\nCurrent "
-            f"offline setting: {config['Offline Mode']['enabled']}"
+            f"offline setting: {config.offline_mode.enabled}"
         )
-    if args[0].casefold() == "true" and config["Offline Mode"]["enabled"] != "True":
-        set_to = "True"
-    elif args[0].casefold() == "false" and config["Offline Mode"]["enabled"] != "False":
-        set_to = "False"
+    if args[0].casefold() == "true" and not config.offline_mode.enabled:
+        set_to = True
+    elif args[0].casefold() == "false" and config.offline_mode.enabled:
+        set_to = False
+        config_write("Offline Mode", "warning override", False)
     else:
         return await ctx.reply(
             "Error! Invalid parameters given or already in mode. Status not changed."
@@ -94,13 +95,13 @@ async def cmd_offline(ctx: Context, args: List[str]):
 
     logger.info(
         "OFFLINE MODE CHANGE from {mode} to {new} by {sender}",
-        mode=config["Offline Mode"]["enabled"],
-        new=set_to.upper(),
+        mode=config.offline_mode.enabled,
+        new=set_to,
         sender=ctx.sender,
     )
     # Write changes to config file
     config_write("Offline Mode", "enabled", f"{set_to}")
-    await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to.upper()}")
+    await ctx.reply(f"Warning! Offline Mode Status Changed to {set_to}")
 
 
 @Commands.command("joinchannel")

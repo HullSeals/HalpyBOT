@@ -151,7 +151,7 @@ class Fact:
             with engine.connect() as database_connection:
                 database_connection.execute(
                     text(
-                        f"UPDATE {config['Facts']['table']} "
+                        f"UPDATE {config.facts.table}"
                         f"SET factName = :fact_name, factLang = :fact_lang, factText = :fact_text, "
                         f"factEditedBy = :fact_by "
                         f"WHERE factID = :fact_id"
@@ -223,7 +223,7 @@ class FactHandler:
             result = database_connection.execute(
                 text(
                     f"SELECT factID, factName, factLang, factText, factAuthor "
-                    f"FROM {config['Facts']['table']}"
+                    f"FROM {config.facts.table}"
                 )
             )
             self._flush_cache()
@@ -285,7 +285,7 @@ class FactHandler:
         with engine.connect() as database_connection:
             database_connection.execute(
                 text(
-                    f"INSERT INTO {config['Facts']['table']} "
+                    f"INSERT INTO {config.facts.table} "
                     f"(factName, factLang, factText, factAuthor) "
                     f"VALUES (:name, :lang, :fact_text, :author);"
                 ),
@@ -354,7 +354,7 @@ class FactHandler:
             )
         with engine.connect() as database_connection:
             database_connection.execute(
-                text(f"DELETE FROM {config['Facts']['table']} WHERE factID = :fact_id"),
+                text(f"DELETE FROM {config.facts.table} WHERE factID = :fact_id"),
                 fact_id=self._fact_cache[name, lang].ID,
             )
             del self._fact_cache[name, lang]

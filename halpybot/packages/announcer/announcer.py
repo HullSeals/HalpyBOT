@@ -59,6 +59,7 @@ class Announcer:
         """
         self._announcements = {}
         # Load data
+        # TODO(theunknown1): load dataclass
         with open(
             "data/announcer/announcer.json", "r", encoding="UTF-8"
         ) as announcer_json:

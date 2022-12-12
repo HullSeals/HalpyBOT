@@ -34,7 +34,7 @@ class TwitterConnectionError(TweetError):
 
 class Twitter(tweepy.Client):
     def __init__(self, *args, **kwargs):
-        if not config.getboolean("Twitter", "enabled"):
+        if not config.twitter.enabled:
             self._open = False
             return
         self._open = True
@@ -69,10 +69,10 @@ class Twitter(tweepy.Client):
                 edsm_info = await announcement.get_edsm_data(args, twitter=True)
                 twitmsg = f"{mainline_tw} {edsm_info} Call your jumps, Seals!"
                 auth = tweepy.Client(
-                    consumer_key=config["Twitter"]["api_key"],
-                    consumer_secret=config["Twitter"]["api_secret"],
-                    access_token=config["Twitter"]["access_token"],
-                    access_token_secret=config["Twitter"]["access_secret"],
+                    consumer_key=config.twitter.api_key.get_secret_value(),
+                    consumer_secret=config.twitter.api_secret.get_secret_value(),
+                    access_token=config.twitter.access_token,
+                    access_token_secret=config.twitter.access_secret.get_secret_value(),
                 )
                 auth.create_tweet(text=twitmsg)
             except (NameError, tweepy.errors.TweepyException) as err:

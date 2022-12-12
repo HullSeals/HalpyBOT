@@ -10,10 +10,9 @@ See license.md
 
 import configparser
 from loguru import logger
+from halpybot.halpyconfig import HalpyConfig
 
-
-config = configparser.ConfigParser()
-config.read("config/config.ini")
+config: HalpyConfig = HalpyConfig()
 
 
 class ConfigException(Exception):
@@ -37,6 +36,7 @@ def config_write(module: str, key: str, value):
         value (str): New value
 
     """
+    raise NotImplementedError("# TODO") # TODO
     logger.info("{module}, {key} set to {value}", module=module, key=key, value=value)
     config[module][key] = value
     try:

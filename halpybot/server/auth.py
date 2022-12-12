@@ -18,8 +18,6 @@ from aiohttp import web
 from ..packages.configmanager import config
 
 
-client_secret = config["API Connector"]["key"]
-check_constant = config["API Connector"]["key_check_constant"]
 
 
 def get_hmac(msg):
@@ -33,13 +31,13 @@ def get_hmac(msg):
         A new hmac object
     """
     return hmac.new(
-        bytes(client_secret, "utf8"), msg=msg.encode("utf8"), digestmod=hashlib.sha256
+        bytes(config.api_connector.key.get_secret_value(), "utf8"), msg=msg.encode("utf8"), digestmod=hashlib.sha256
     )
 
 
 const_key_check = hmac.new(
-    bytes(client_secret, "utf8"),
-    msg=check_constant.encode("utf8"),
+    bytes(config.api_connector.key.get_secret_value(), "utf8"),
+    msg=config.api_connector.key_check_constant.get_secret_value().encode("utf8"),
     digestmod=hashlib.sha256,
 )
 

@@ -14,7 +14,7 @@ from halpybot.packages.database import latency
 from halpybot.packages.configmanager import config
 
 pytestmark = pytest.mark.skipif(
-    config["Offline Mode"]["enabled"] == "True",
+    config.offline_mode.enabled,
     reason="Offline Mode Enabled on database-touching tests! "
     "Please disable it to continue",
 )
