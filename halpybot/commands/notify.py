@@ -92,21 +92,21 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
     Usage: !notifyinfo details [group]
     Aliases: notifyinfo endpoints
     """
-    if len(args) == 0:
+    if not args:
         return await ctx.reply(get_help_text("notifyinfo details"))
 
     group = args[0].casefold().strip()
 
-    if group in ["staff", "moderators", "hull-seals-staff"]:
-        group = "staff"
-    elif group in ["cybers", "cyberseals"]:
-        group = "cybers"
+    if group in {"staff", "moderators", "hull-seals-staff"}:
+        group = config.notify.staff
+    elif group in {"cybers", "cyberseals"}:
+        group = config.notify.cybers
     else:
-        return await ctx.reply(f"Invalid group given: {group}.")
+        return await ctx.reply(f"Invalid group given: {group!r}.")
 
     try:
-        results = await notify.list_sub_by_topic(config["Notify"][group])
-        if len(results) == 0:
+        results = await notify.list_sub_by_topic(group)
+        if not len(results):
             return await ctx.reply("No users currently subscribed to that group.")
         results = str(results)
         return await ctx.reply(
@@ -135,16 +135,17 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
 
     group = args[0].casefold().strip()
 
-    if group in ["staff", "moderators", "hull-seals-staff"]:
-        group = "staff"
-    elif group in ["cybers", "cyberseals"]:
-        group = "cybers"
+    if group in {"staff", "moderators", "hull-seals-staff"}:
+        group = config.notify.staff
+    elif group in {"cybers", "cyberseals"}:
+        group = config.notify.cybers
+
     else:
         return await ctx.reply(
             "Please specify a valid group, for example: 'moderators', 'cyberseals'"
         )
     try:
-        await notify.subscribe(config["Notify"][group], args[1])
+        await notify.subscribe(group, args[1])
         return await ctx.reply(f"Subscription {args[1]} added to group {group}")
     except ValueError:
         return await ctx.reply(
@@ -229,7 +230,18 @@ async def format_notification(notify_type, group, sender, message):
         (tuple): Tuple with strings `subject`, `topic` and `message`
     """
     subject = f"HALPYBOT: {notify_type} Used"
-    topic = config["Notify"][f"{group}"]
+    # Sanity check, prevent sensitive information disclosure in case this field
+    # somehow gets injected.
+    if group not in config.notify.WHITELIST_GROUPS:
+        logger.critical("Attempt to access a blacklisted field in HalpyConfig.notify.")
+        raise AssertionError("unauthorized group.")
+    if group == "cybers":
+        topic = config.notify.cybers
+    elif group == "staff":
+        topic = config.notify.staff
+    else:
+        # this should be unreachable.
+        raise AssertionError(f"unreachable 'group' variant {group!r} reached.")
     message = " ".join(message)
     message = f"{notify_type} used by {sender}: {message}"
     return subject, topic, message

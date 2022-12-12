@@ -232,8 +232,8 @@ async def cmd_ufi(ctx: Context, args: List[str]):
     Usage: !ufi
     Aliases: updatefactindex
     """
-    offline_start = config["Offline Mode"]["enabled"]
-    if offline_start == "True":
+    offline_start = config.offline_mode.enabled
+    if offline_start:
         return await ctx.reply("Cannot update cache while in offline mode.")
     try:
         await Facts.fetch_facts(preserve_current=True)

@@ -113,7 +113,7 @@ async def server_root(request):
         "version": f"{__version__}{sha}",
         "bot_nick": server_status_nick,
         "irc_connected": "True" if botclient.connected else "False",
-        "offline_mode": config["Offline Mode"]["enabled"],
+        "offline_mode": config.offline_mode.enabled,
         "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
     }
     return web.json_response(response)

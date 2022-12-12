@@ -127,13 +127,13 @@ class GalaxySystem:
         if name in cls._lookupCache and not cache_override:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name].time
-            cachetime = int(config["EDSM"]["timeCached"])
+            cachetime = config.edsm.time_cached
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name].object
 
         # Else, get the system from EDSM
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}"
+            uri = config.edsm.system_endpoint
             params = {
                 "systemName": name,
                 "showCoordinates": 1,
@@ -205,7 +205,7 @@ class GalaxySystem:
         """
         # Else, get the system from EDSM
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}"
+            uri = config.edsm.sphere_endpoint
             params = {
                 "x": x_coord,
                 "y": y_coord,
@@ -285,12 +285,12 @@ class Commander:
         if name.strip().upper() in cls._lookupCache and not cache_override:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name.strip().upper()].time
-            cachetime = int(config["EDSM"]["timeCached"])
+            cachetime = config.edsm.time_cached
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name.strip().upper()].object
 
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}"
+            uri = config.edsm.getpos_endpoint
             params = {"commanderName": name, "showCoordinates": 1}
             responses = await web_get(uri, params)
         except (aiohttp.ClientError, KeyError) as get_cmdr_error:
@@ -495,7 +495,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
 
     coords = await get_coordinates(system, cache_override)
     if coords:
-        maxdist = config["EDSM"]["Maximum landmark distance"]
+        maxdist = config.edsm.maximum_landmark_distance
         distances = {
             calc_distance(
                 coords.x,
@@ -747,7 +747,7 @@ async def get_nearby_system(sys_name: str):
     name_to_check = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}"
+            uri = config.edsm.systems_endpoint
             params = {"systemName": name_to_check}
             responses = await web_get(uri, params)
             if responses:

@@ -21,7 +21,7 @@ async def test_pcfr(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_pup",
-        message=f"{config['IRC']['commandprefix']}pcfr",
+        message=f"{config.irc.command_prefix}pcfr",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Please tap ESC to go to the PAUSE menu, click SOCIAL, enter the CMDR name in the box, and click ADD FRIEND on their name.",
@@ -36,7 +36,7 @@ async def test_factinfo(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_cyber",
-        message=f"{config['IRC']['commandprefix']}factinfo pcfr",
+        message=f"{config.irc.command_prefix}factinfo pcfr",
     )
     assert bot_fx.sent_messages[1] == {
         "message": "Fact: pcfr\n"
@@ -57,7 +57,7 @@ async def test_factinfo_2(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}factinfo pcfr",
+        message=f"{config.irc.command_prefix}factinfo pcfr",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Only moderators+ can use this.",
@@ -72,7 +72,7 @@ async def test_allfacts(bot_fx):
         bot=bot_fx,
         channel="generic_seal",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}allfacts",
+        message=f"{config.irc.command_prefix}allfacts",
     )
     assert bot_fx.sent_messages[0].get("message").startswith("All English facts:")
 
@@ -84,7 +84,7 @@ async def test_allfacts_2(bot_fx):
         bot=bot_fx,
         channel="generic_seal",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}allfacts nl",
+        message=f"{config.irc.command_prefix}allfacts nl",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "All Dutch facts:\npcfr",
@@ -95,16 +95,16 @@ async def test_allfacts_2(bot_fx):
 @pytest.mark.asyncio
 async def test_ufi(bot_fx):
     """Test the UFI Command"""
-    if config["Offline Mode"]["enabled"] == "True":
+    if config.offline_mode.enabled:
         pytest.skip("Offline Mode Enabled")
-    prev_value = config["Offline Mode"]["enabled"]
+    prev_value = config.offline_mode.enabled
     config_write("Offline Mode", "enabled", "False")
 
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_cyber",
         sender="some_cyber",
-        message=f"{config['IRC']['commandprefix']}ufi",
+        message=f"{config.irc.command_prefix}ufi",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Fact cache updated.",
