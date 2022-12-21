@@ -223,7 +223,7 @@ class Announcement:
                     "\nDistance to landmark or DSSA unknown. Check case details with Dispatch."
                     if twitter
                     else "\nSystem Not Found in EDSM.\n"
-                    "Please check system name with client.\n "
+                    "Please check system name with client."
                 )
             except EDSMLookupError:
                 return "" if twitter else "\nUnable to query EDSM."
