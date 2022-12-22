@@ -13,16 +13,13 @@ from sqlalchemy import create_engine, text, exc
 from loguru import logger
 from ..configmanager import config_write, config
 
-dbconfig = (
-    f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@'
-    f'{config["Database"]["host"]}/{config["Database"]["database"]}'
-)
+dbconfig = config.database.connection_string
 
 engine = create_engine(
     dbconfig,
     pool_pre_ping=True,
     pool_recycle=3600,
-    connect_args={"connect_timeout": int(config["Database"]["timeout"])},
+    connect_args={"connect_timeout": config.database.timeout},
 )
 
 
@@ -48,7 +45,7 @@ async def test_database_connection():
     Test the database connection. Set offline mode if an error occurs.
     A.K.A. The artist formerly known as "Box of Angry Bees"
     """
-    if config.getboolean("Offline Mode", "Enabled"):
+    if config.offline_mode.enabled:
         raise NoDatabaseConnection
     attempt = 0
     for attempt in range(1, 4):

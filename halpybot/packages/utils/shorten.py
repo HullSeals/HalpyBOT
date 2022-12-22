@@ -48,9 +48,9 @@ async def shorten(url):
         url = "https://" + url
 
     try:
-        tgt_uri = f"{config['YOURLS']['uri']}/yourls-api.php"
+        tgt_uri = f"{config.yourls.uri}/yourls-api.php"
         params = {
-            "signature": config["YOURLS"]["pwd"],
+            "signature": config.yourls.pwd,
             "action": "shorturl",
             "format": "json",
             "url": url,

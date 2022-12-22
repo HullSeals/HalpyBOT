@@ -34,12 +34,12 @@ class SubscriptionError(SNSError):
     """
 
 
-if config["Notify"]["secret"] and config["Notify"]["access"]:
+if config.notify.secret and config.notify.access:
     SNS = boto3.client(
         "sns",
-        region_name=config["Notify"]["region"],  # AWS Region.
-        aws_access_key_id=config["Notify"]["access"],  # AWS IAM Access Key
-        aws_secret_access_key=config["Notify"]["secret"],
+        region_name=config.notify.region,  # AWS Region.
+        aws_access_key_id=config.notify.access,  # AWS IAM Access Key
+        aws_secret_access_key=config.notify.secret.get_secret_value(),
     )  # AWS IAM Secret
 else:
     SNS = None

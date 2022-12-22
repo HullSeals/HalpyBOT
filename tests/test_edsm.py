@@ -33,7 +33,7 @@ from halpybot.packages.edsm import (
 from .fixtures.mock_edsm import mock_api_server_fx
 
 SAFE_IP = "http://127.0.0.1:4000"
-CONFIG_IP = config["EDSM"]["uri"]
+CONFIG_IP = config.edsm.uri
 GOOD_IP = False
 
 if CONFIG_IP == SAFE_IP:
