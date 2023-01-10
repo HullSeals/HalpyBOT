@@ -26,8 +26,8 @@ import cattr
 from attr import dataclass, define, field
 from ..models import Coordinates, Location
 from ..models import edsm_classes
-from ..configmanager import config
 from ..utils import web_get
+from halpybot import config
 
 
 class EDSMLookupError(Exception):

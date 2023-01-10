@@ -12,7 +12,7 @@ import functools
 from typing import List
 from loguru import logger
 from ..models import User
-from ..configmanager import config
+from halpybot import config
 from ..database import test_database_connection, NoDatabaseConnection
 
 

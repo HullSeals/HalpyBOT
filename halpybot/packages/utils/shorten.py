@@ -9,7 +9,7 @@ See license.md
 """
 import aiohttp
 from loguru import logger
-from ..configmanager import config
+from halpybot import config
 from .utils import web_get
 
 

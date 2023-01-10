@@ -13,7 +13,7 @@ from loguru import logger
 import boto3
 import boto3.exceptions
 
-from ... import config
+from halpybot import config
 
 
 class SNSError(Exception):

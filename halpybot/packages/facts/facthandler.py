@@ -15,7 +15,7 @@ import re
 from loguru import logger
 from sqlalchemy import text
 from ..database import engine, NoDatabaseConnection
-from ..configmanager import config
+from halpybot import config
 from ..command import Commands
 
 

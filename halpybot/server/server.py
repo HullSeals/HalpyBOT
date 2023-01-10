@@ -16,7 +16,7 @@ from aiohttp.web import Request, StreamResponse
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
-from ..packages.configmanager import config
+from halpybot import config
 
 
 routes = web.RouteTableDef()

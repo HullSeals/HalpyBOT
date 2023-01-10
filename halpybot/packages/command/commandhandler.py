@@ -13,7 +13,7 @@ from typing import List
 import json
 import pydle
 from loguru import logger
-from ..configmanager import config
+from halpybot import config
 from ..models import Context
 
 

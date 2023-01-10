@@ -23,7 +23,7 @@ from ..packages.facts import (
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.utils import language_codes, strip_non_ascii
-from ..packages.configmanager import config
+from halpybot import config
 
 
 langcodes = language_codes()

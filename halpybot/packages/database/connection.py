@@ -12,7 +12,7 @@ import time
 from loguru import logger
 from sqlalchemy import create_engine, text, exc
 
-from ... import config
+from halpybot import config
 
 dbconfig = config.database.connection_string
 

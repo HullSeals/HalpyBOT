@@ -10,7 +10,7 @@ See license.md
 
 from typing import List
 
-from .. import config
+from halpybot import config
 from ..packages.checks import Require, Drilled
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context

@@ -15,7 +15,7 @@ import json
 from loguru import logger
 from aiohttp import web
 
-from .. import config
+from halpybot import config
 
 
 def get_hmac(msg):

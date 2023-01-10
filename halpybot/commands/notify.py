@@ -14,7 +14,7 @@ from ..packages import notify
 from ..packages.checks import Require, Moderator, Admin, Owner, Pup
 from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.models import Context
-from .. import config
+from halpybot import config
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
