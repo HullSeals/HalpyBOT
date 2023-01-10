@@ -114,7 +114,6 @@ async def main():
     runner = web.AppRunner(APIConnector)
     runner.app["botclient"] = client
     await runner.setup()
-    site = web.TCPSite(runner, )
     site = web.TCPSite(runner, "0.0.0.0", config.api_connector.port)
     await site.start()
     loop = asyncio.get_event_loop()
