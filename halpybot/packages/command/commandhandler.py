@@ -13,7 +13,7 @@ from typing import List
 import json
 import pydle
 from loguru import logger
-from ..configmanager import config
+from halpybot import config
 from ..models import Context
 
 
@@ -121,7 +121,7 @@ class CommandGroup:
             message (str): content of the message
 
         """
-        if message.startswith(config["IRC"]["commandPrefix"]):
+        if message.startswith(config.irc.command_prefix):
             # Start off with assigning all variables we need
             parts = message[1:].split(" ")
             command = parts[0].casefold()
@@ -262,7 +262,7 @@ class CommandGroup:
             # If no subcommand is provided, send a provisional help response
             if len(arguments) < 1:
                 return await command_context.reply(
-                    f"Subcommands of {config['IRC']['commandPrefix']}"
+                    f"Subcommands of {config.irc.command_prefix}"
                     f"{cmd._group_name}: "
                     f"{', '.join(sub for sub in subgroup.get_commands(True))}"
                 )
@@ -312,7 +312,7 @@ def get_help_text(search_command: str):
                 aliases = details["aliases"]
                 usage = details["use"]
                 return (
-                    f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n"
+                    f"Use: {config.irc.command_prefix}{command} {arguments}\nAliases: {', '.join(aliases)}\n"
                     f"{usage}"
                 )
     return None

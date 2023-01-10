@@ -7,16 +7,15 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+from .halpyconfig import HalpyConfig
 
-from halpybot.packages.configmanager import config
+# this is where the magic happens. 😇
+config = HalpyConfig()
 
+
+#
 __version__ = "2.0.0-alpha"
 
 DEFAULT_USER_AGENT = (
-    "HalpyBOT/"
-    + __version__
-    + " ("
-    + config["IRC"]["nickname"]
-    + ") "
-    + config["UserAgent"]["agent_comment"]
+    f"HalpyBot/{__version__}({config.irc.nickname})({config.user_agent.agent_comment}"
 )

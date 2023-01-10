@@ -10,7 +10,7 @@ See license.md
 
 import pytest
 from halpybot.packages.command import Commands
-from halpybot.packages.configmanager import config
+from halpybot import config
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
@@ -23,7 +23,7 @@ async def test_ping(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}ping",
+        message=f"{config.irc.command_prefix}ping",
     )
     assert bot_fx.sent_messages[0] == {"message": "Pong!", "target": "#bot-test"}
 
@@ -31,13 +31,13 @@ async def test_ping(bot_fx):
 @pytest.mark.asyncio
 async def test_serverping(bot_fx):
     """Check the serverstatus command"""
-    if config["Offline Mode"]["enabled"] == "True":
+    if config.offline_mode.enabled:
         pytest.skip("Offline Mode Enabled")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}serverstatus",
+        message=f"{config.irc.command_prefix}serverstatus",
     )
     assert bot_fx.sent_messages[0].get("message").startswith("The Elite servers are")
 
@@ -49,7 +49,7 @@ async def test_serverping_dm(bot_fx):
         bot=bot_fx,
         channel="generic_seal",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}ping",
+        message=f"{config.irc.command_prefix}ping",
     )
     assert bot_fx.sent_messages[0] == {"message": "Pong!", "target": "generic_seal"}
 
@@ -57,13 +57,13 @@ async def test_serverping_dm(bot_fx):
 @pytest.mark.asyncio
 async def test_lookup(bot_fx, mock_api_server_fx):
     """Test the lookup command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}lookup Sol",
+        message=f"{config.irc.command_prefix}lookup Sol",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "System SOL exists in EDSM",
@@ -74,13 +74,13 @@ async def test_lookup(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_2(bot_fx, mock_api_server_fx):
     """Test the lookup command with no arguments"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}lookup",
+        message=f"{config.irc.command_prefix}lookup",
     )
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"
     assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
@@ -94,13 +94,13 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_3(bot_fx, mock_api_server_fx):
     """Test the lookup command with an invalid system"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}lookup PRAISEHALPYDAMNWHYISTHISNOTASYSNAM",
+        message=f"{config.irc.command_prefix}lookup PRAISEHALPYDAMNWHYISTHISNOTASYSNAM",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "System PRAISEHALPYDAMNWHYISTHISNOTASYSNAM not found in EDSM",
@@ -111,13 +111,13 @@ async def test_lookup_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_4(bot_fx, mock_api_server_fx):
     """Test the Lookup command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}lookup --new Sol",
+        message=f"{config.irc.command_prefix}lookup --new Sol",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "System SOL exists in EDSM",
@@ -128,13 +128,13 @@ async def test_lookup_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_drillcase(bot_fx):
     """Test the drillcase command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}drillcase Rixxan, PC, Delkar, 90",
+        message=f"{config.irc.command_prefix}drillcase Rixxan, PC, Delkar, 90",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "xxxx DRILL -- DRILL -- DRILL xxxx\n"
@@ -154,7 +154,7 @@ async def test_drillcase_unauth(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_pup",
-        message=f"{config['IRC']['commandprefix']}drillcase Rixxan, PC, Delkar, 90",
+        message=f"{config.irc.command_prefix}drillcase Rixxan, PC, Delkar, 90",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "You have to be a drilled seal to use this!",
@@ -169,7 +169,7 @@ async def test_drillcase_unauth_guest(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="guest_user",
-        message=f"{config['IRC']['commandprefix']}drillcase Rixxan, PC, Delkar, 90",
+        message=f"{config.irc.command_prefix}drillcase Rixxan, PC, Delkar, 90",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "You have to be a drilled seal to use this!",
@@ -184,7 +184,7 @@ async def test_help(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="guest_user",
-        message=f"{config['IRC']['commandprefix']}help",
+        message=f"{config.irc.command_prefix}help",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Responding in DMs!",
@@ -201,10 +201,10 @@ async def test_help_specific(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="guest_user",
-        message=f"{config['IRC']['commandprefix']}help ping",
+        message=f"{config.irc.command_prefix}help ping",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config['IRC']['commandprefix']}ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "message": f"Use: {config.irc.command_prefix}ping \nAliases: \nCheck to see if the bot is responding to commands.",
         "target": "#bot-test",
     }
 
@@ -216,14 +216,14 @@ async def test_help_multiple(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="guest_user",
-        message=f"{config['IRC']['commandprefix']}help ping dssa",
+        message=f"{config.irc.command_prefix}help ping dssa",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config['IRC']['commandprefix']}ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "message": f"Use: {config.irc.command_prefix}ping \nAliases: \nCheck to see if the bot is responding to commands.",
         "target": "#bot-test",
     }
     assert bot_fx.sent_messages[1] == {
-        "message": f"Use: {config['IRC']['commandprefix']}dssa [EDSM Valid Location]\nAliases: \nCheck for the closest DSSA carrier to a given location.",
+        "message": f"Use: {config.irc.command_prefix}dssa [EDSM Valid Location]\nAliases: \nCheck for the closest DSSA carrier to a given location.",
         "target": "#bot-test",
     }
 
@@ -235,7 +235,7 @@ async def test_help_none(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="guest_user",
-        message=f"{config['IRC']['commandprefix']}help spaghetti",
+        message=f"{config.irc.command_prefix}help spaghetti",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "The command spaghetti could not be found in the list. Try running help without an argument to get the list of commands",
@@ -250,7 +250,7 @@ async def test_about(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="guest_user",
-        message=f"{config['IRC']['commandprefix']}about",
+        message=f"{config.irc.command_prefix}about",
     )
     assert bot_fx.sent_messages[1].get("target") == "guest_user"
     assert (
@@ -267,7 +267,7 @@ async def test_say_channel(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_user",
-        message=f"{config['IRC']['commandprefix']}say #bot-test bacon and eggs",
+        message=f"{config.irc.command_prefix}say #bot-test bacon and eggs",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Responding in DMs!",
@@ -286,7 +286,7 @@ async def test_utc(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_user",
-        message=f"{config['IRC']['commandprefix']}utc",
+        message=f"{config.irc.command_prefix}utc",
     )
     assert bot_fx.sent_messages[0].get("message").startswith("It is currently")
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"
@@ -299,7 +299,7 @@ async def test_year(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_user",
-        message=f"{config['IRC']['commandprefix']}year",
+        message=f"{config.irc.command_prefix}year",
     )
     assert bot_fx.sent_messages[0].get("message").startswith("It is currently the year")
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"
@@ -312,7 +312,7 @@ async def test_say_direct_unauth(bot_fx):
         bot=bot_fx,
         channel="some_admin",
         sender="some_admin",
-        message=f"{config['IRC']['commandprefix']}say #bot-test bacon and eggs",
+        message=f"{config.irc.command_prefix}say #bot-test bacon and eggs",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "No.",
@@ -327,7 +327,7 @@ async def test_say(bot_fx):
         bot=bot_fx,
         channel="some_cyber",
         sender="some_cyber",
-        message=f"{config['IRC']['commandprefix']}say #bot-test bacon and eggs",
+        message=f"{config.irc.command_prefix}say #bot-test bacon and eggs",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "bacon and eggs",
@@ -342,10 +342,10 @@ async def test_say_no_args(bot_fx):
         bot=bot_fx,
         channel="some_cyber",
         sender="some_cyber",
-        message=f"{config['IRC']['commandprefix']}say",
+        message=f"{config.irc.command_prefix}say",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config['IRC']['commandprefix']}say [channel] [text]\nAliases: \nMake the Bot say something",
+        "message": f"Use: {config.irc.command_prefix}say [channel] [text]\nAliases: \nMake the Bot say something",
         "target": "some_cyber",
     }
 
@@ -357,7 +357,7 @@ async def test_whois_hbot(bot_fx):
         bot=bot_fx,
         channel="some_admin",
         sender="some_admin",
-        message=f"{config['IRC']['commandprefix']}whois halpybot",
+        message=f"{config.irc.command_prefix}whois halpybot",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
@@ -372,10 +372,10 @@ async def test_whois_empty(bot_fx):
         bot=bot_fx,
         channel="some_admin",
         sender="some_admin",
-        message=f"{config['IRC']['commandprefix']}whois",
+        message=f"{config.irc.command_prefix}whois",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config['IRC']['commandprefix']}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
+        "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
         "target": "some_admin",
     }
 
@@ -383,13 +383,13 @@ async def test_whois_empty(bot_fx):
 @pytest.mark.asyncio
 async def test_whois(bot_fx):
     """Test the WHOIS command"""
-    if config["Offline Mode"]["enabled"] == "True":
+    if config.offline_mode.enabled:
         pytest.skip("Offline Mode Enabled")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="some_admin",
         sender="some_admin",
-        message=f"{config['IRC']['commandprefix']}whois Rixxan",
+        message=f"{config.irc.command_prefix}whois Rixxan",
     )
     assert (
         bot_fx.sent_messages[0]
@@ -401,13 +401,13 @@ async def test_whois(bot_fx):
 @pytest.mark.asyncio
 async def test_whoami(bot_fx):
     """Test the WHOAMI command"""
-    if config["Offline Mode"]["enabled"] == "True":
+    if config.offline_mode.enabled:
         pytest.skip("Offline Mode Enabled")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="Rixxan",
         sender="Rixxan",
-        message=f"{config['IRC']['commandprefix']}whoami",
+        message=f"{config.irc.command_prefix}whoami",
     )
     assert (
         bot_fx.sent_messages[0]
@@ -419,13 +419,13 @@ async def test_whoami(bot_fx):
 @pytest.mark.asyncio
 async def test_edsmping(bot_fx):
     """Test the EDSM Ping command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="some_cyber",
-        message=f"{config['IRC']['commandprefix']}edsmping",
+        message=f"{config.irc.command_prefix}edsmping",
     )
     assert bot_fx.sent_messages[0].get("message").startswith("EDSM Latency: ")
     assert bot_fx.sent_messages[0].get("message").endswith("seconds")
@@ -439,10 +439,10 @@ async def test_drill_empty(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}drillcase",
+        message=f"{config.irc.command_prefix}drillcase",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config['IRC']['commandprefix']}drillcase [cmdr], [platform], [system], [hull]\nAliases: \nStarts a new Drill Case, separated by Commas",
+        "message": f"Use: {config.irc.command_prefix}drillcase [cmdr], [platform], [system], [hull]\nAliases: \nStarts a new Drill Case, separated by Commas",
         "target": "#bot-test",
     }
 
@@ -454,10 +454,10 @@ async def test_drillkf_empty(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}drillkfcase",
+        message=f"{config.irc.command_prefix}drillkfcase",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config['IRC']['commandprefix']}drillkfcase [cmdr], [platform], [system], [planet], [coords], [type]\nAliases: \nStarts a new Drill Kingfisher Case, separated by Commas",
+        "message": f"Use: {config.irc.command_prefix}drillkfcase [cmdr], [platform], [system], [planet], [coords], [type]\nAliases: \nStarts a new Drill Kingfisher Case, separated by Commas",
         "target": "#bot-test",
     }
 
@@ -469,10 +469,10 @@ async def test_drillcb_empty(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}drillcbcase",
+        message=f"{config.irc.command_prefix}drillcbcase",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config['IRC']['commandprefix']}drillcbcase [cmdr], [platform], [system], [hull], [cansynth], [o2]\nAliases: \nStarts a new Drill CB Case, separated by Commas",
+        "message": f"Use: {config.irc.command_prefix}drillcbcase [cmdr], [platform], [system], [hull], [cansynth], [o2]\nAliases: \nStarts a new Drill CB Case, separated by Commas",
         "target": "#bot-test",
     }
 
@@ -480,13 +480,13 @@ async def test_drillcb_empty(bot_fx):
 @pytest.mark.asyncio
 async def test_drillkf(bot_fx):
     """Test the KF drill command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}drillkfcase Rixxan, PC, Delkar, 3 a, 123.456, 123.456, Puck",
+        message=f"{config.irc.command_prefix}drillkfcase Rixxan, PC, Delkar, 3 a, 123.456, 123.456, Puck",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "xxxx DRILL -- DRILL -- DRILL xxxx\n"
@@ -510,7 +510,7 @@ async def test_drillkf_unauth(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_pup",
-        message=f"{config['IRC']['commandprefix']}drillkfcase Rixxan, PC, Delkar, 3 a, 123.456, 123.456, Puck",
+        message=f"{config.irc.command_prefix}drillkfcase Rixxan, PC, Delkar, 3 a, 123.456, 123.456, Puck",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "You have to be a drilled seal to use this!",
@@ -521,13 +521,13 @@ async def test_drillkf_unauth(bot_fx):
 @pytest.mark.asyncio
 async def test_drillcb(bot_fx):
     """Test if the code black drill command can be run"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}drillcbcase Rixxan, PC, Delkar, 25, No, 12:34",
+        message=f"{config.irc.command_prefix}drillcbcase Rixxan, PC, Delkar, 25, No, 12:34",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "xxxx DRILL -- DRILL -- DRILL xxxx\nCMDR: Rixxan -- Platform: PC\nSystem: DELKAR -- Hull: 25\nCan Synth: No -- O2 Timer: 12:34\nxxxxxxxx",
@@ -546,7 +546,7 @@ async def test_drillcb_unauth(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="some_pup",
-        message=f"{config['IRC']['commandprefix']}drillcbcase",
+        message=f"{config.irc.command_prefix}drillcbcase",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "You have to be a drilled seal to use this!",
@@ -561,7 +561,7 @@ async def test_go_valid(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}go some_pup",
+        message=f"{config.irc.command_prefix}go some_pup",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "some_pup: You're up.",
@@ -576,7 +576,7 @@ async def test_go_guest(bot_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}go guest_user",
+        message=f"{config.irc.command_prefix}go guest_user",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "generic_seal: guest_user is not identified as a trained seal. Have them check their IRC setup?",
@@ -591,13 +591,13 @@ async def test_go_guest(bot_fx):
 @pytest.mark.asyncio
 async def test_locate(bot_fx, mock_api_server_fx):
     """Test the locate command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}locate Rixxan",
+        message=f"{config.irc.command_prefix}locate Rixxan",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "CMDR Rixxan was last seen in Pleiades Sector HR-W d1-79 on 2022-03-15 20:51:01",
@@ -608,13 +608,13 @@ async def test_locate(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_locate_malformed_response(bot_fx, mock_api_server_fx):
     """Test the locate command when EDSM gives a malformed or incomplete response"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}locate Abildgaard Jadrake",
+        message=f"{config.irc.command_prefix}locate Abildgaard Jadrake",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Received a reply from EDSM about Abildgaard Jadrake, but could not process the return.",
@@ -629,7 +629,7 @@ async def test_locate_2(bot_fx, mock_api_server_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}locate",
+        message=f"{config.irc.command_prefix}locate",
     )
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"
     assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
@@ -643,13 +643,13 @@ async def test_locate_2(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_locate_3(bot_fx, mock_api_server_fx):
     """Test the locate command with an invalid name"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}locate Praisehalpydamnwhyisthisnotacmdrnam",
+        message=f"{config.irc.command_prefix}locate Praisehalpydamnwhyisthisnotacmdrnam",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "CMDR not found or not sharing location on EDSM",
@@ -660,13 +660,13 @@ async def test_locate_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_locate_4(bot_fx, mock_api_server_fx):
     """Test the locate command cache override"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}locate --new Rixxan",
+        message=f"{config.irc.command_prefix}locate --new Rixxan",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "CMDR Rixxan was last seen in Pleiades Sector HR-W d1-79 on 2022-03-15 20:51:01",
@@ -677,13 +677,13 @@ async def test_locate_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance(bot_fx, mock_api_server_fx):
     """Test the distance command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}distance Rixxan : Delkar",
+        message=f"{config.irc.command_prefix}distance Rixxan : Delkar",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "RIXXAN is 444.35 LY South of DELKAR.",
@@ -694,13 +694,13 @@ async def test_distance(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance_2(bot_fx, mock_api_server_fx):
     """Test the distance command with no arguments"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}distance",
+        message=f"{config.irc.command_prefix}distance",
     )
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"
     assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
@@ -718,7 +718,7 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}dist Rixxan: Praisehalpydamnwhyisthisnotacmdrnam",
+        message=f"{config.irc.command_prefix}dist Rixxan: Praisehalpydamnwhyisthisnotacmdrnam",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Failed to query EDSM for system or CMDR details.",
@@ -729,13 +729,13 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance_4(bot_fx, mock_api_server_fx):
     """Test the distance command with cache override"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}dist --new Rixxan: Delkar",
+        message=f"{config.irc.command_prefix}dist --new Rixxan: Delkar",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "RIXXAN is 444.35 LY South of DELKAR.",
@@ -746,13 +746,13 @@ async def test_distance_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_coords(bot_fx, mock_api_server_fx):
     """Test the coords command"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}coords 1 2 3",
+        message=f"{config.irc.command_prefix}coords 1 2 3",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "Hixkar is 98.25 LY from 1, 2, 3.",
@@ -767,7 +767,7 @@ async def test_coords_2(bot_fx, mock_api_server_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}coords",
+        message=f"{config.irc.command_prefix}coords",
     )
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"
     assert bot_fx.sent_messages[0].get("message").startswith("Use: ")
@@ -785,7 +785,7 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}coords 1 2 h",
+        message=f"{config.irc.command_prefix}coords 1 2 h",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "All coordinates must be numeric.",
@@ -796,13 +796,13 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_coords_4(bot_fx, mock_api_server_fx):
     """Test the coords command with an invalid EDSM value"""
-    if config["EDSM"]["uri"] != "http://127.0.0.1:4000":
+    if config.edsm.uri != "http://127.0.0.1:4000":
         pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config['IRC']['commandprefix']}coords 1000000000 20000000000 30000000000",
+        message=f"{config.irc.command_prefix}coords 1000000000 20000000000 30000000000",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "No systems known to EDSM within 100ly of 1000000000, 20000000000, 30000000000.",

@@ -15,13 +15,12 @@ import os
 import signal
 from logging import Handler, basicConfig, getLevelName
 import sys
-from os import path, mkdir
 from loguru import logger
 from aiohttp import web
 
 # noinspection PyUnresolvedReferences
 from halpybot import commands
-from halpybot.packages.configmanager import config
+from halpybot import config
 from halpybot.packages.ircclient import configure_client
 from halpybot.server import APIConnector
 
@@ -40,15 +39,12 @@ def logging_format():
     Configure the logging system, utilizing Loguru
     """
     # Configure Logging File Name and Levels
-    log_file: str = config["Logging"]["log_file"]
-    cli_level = config["Logging"]["cli_level"]
-    file_level = config["Logging"]["file_level"]
+    cli_level = config.logging.cli_level
+    file_level = config.logging.file_level
 
     # Attempt to create log folder and path if it doesn't exist
     try:
-        log_folder = path.dirname(log_file)
-        if not path.exists(log_folder):
-            mkdir(log_folder)
+        config.logging.log_file.parent.mkdir(exist_ok=True)
     except PermissionError:
         logger.exception(
             "Unable to create log folder. Does this user have appropriate permissions?"
@@ -68,7 +64,7 @@ def logging_format():
 
     # Add File Logger
     logger.add(
-        log_file,
+        config.logging.log_file,
         level=file_level,
         format=formatter,
         rotation="500 MB",
@@ -115,15 +111,15 @@ async def main():
     runner = web.AppRunner(APIConnector)
     runner.app["botclient"] = client
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port=int(config["API Connector"]["port"]))
+    site = web.TCPSite(runner, "0.0.0.0", port=config.api_connector.port)
     await site.start()
     loop = asyncio.get_event_loop()
     asyncio.ensure_future(
         client.connect(
-            hostname=config["IRC"]["server"],
-            port=config["IRC"]["port"],
-            tls=config.getboolean("IRC", "usessl"),
-            tls_verify=False,
+            hostname=config.irc.server.host,
+            port=config.irc.server.port,
+            tls=config.irc.use_ssl,
+            tls_verify=False,  # TODO: expose in config
         ),
         loop=loop,
     )

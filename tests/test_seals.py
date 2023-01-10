@@ -12,10 +12,10 @@ Testing will always DISABLE offline mode. You must have access to a Seal-type DB
 
 import pytest
 from halpybot.packages.seals import whois
-from halpybot.packages.configmanager import config, config_write
+from halpybot import config
 
 pytestmark = pytest.mark.skipif(
-    config["Offline Mode"]["enabled"] == "True",
+    config.offline_mode.enabled,
     reason="Offline Mode Enabled on database-touching tests! "
     "Please disable it to continue",
 )
@@ -50,7 +50,7 @@ async def test_bad_whois():
 @pytest.mark.asyncio
 async def test_offline_whois():
     """Test that the WHOIS system responds properly in ONLINE mode"""
-    prev_value = config["Offline Mode"]["enabled"]
+    prev_value = config.offline_mode.enabled
     config_write("Offline Mode", "enabled", "False")
     user = await whois("ThisCMDRDoesntExist")
     assert user == "No registered user found by that name!"
@@ -60,7 +60,7 @@ async def test_offline_whois():
 @pytest.mark.asyncio
 async def test_no_db():
     """Test that the WHOIS responds properly in offline mode"""
-    prev_value = config["Offline Mode"]["enabled"]
+    prev_value = config.offline_mode.enabled
     config_write("Offline Mode", "enabled", "True")
     no_database = await whois("ThisCMDRDoesntExist")
     assert no_database == "Error searching user."

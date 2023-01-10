@@ -16,7 +16,7 @@ from aiohttp.web import Request, StreamResponse
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
-from ..packages.configmanager import config
+from halpybot import config
 
 
 routes = web.RouteTableDef()
@@ -113,7 +113,7 @@ async def server_root(request):
         "version": f"{__version__}{sha}",
         "bot_nick": server_status_nick,
         "irc_connected": "True" if botclient.connected else "False",
-        "offline_mode": config["Offline Mode"]["enabled"],
+        "offline_mode": config.offline_mode.enabled,
         "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
     }
     return web.json_response(response)

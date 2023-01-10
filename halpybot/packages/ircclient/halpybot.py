@@ -16,10 +16,13 @@ import pydle
 from loguru import logger
 from halpybot.packages import utils
 from .. import notify
-from ..configmanager import config_write, config
+from halpybot import config
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import Facts
+from ..database import NoDatabaseConnection
+from ...halpyconfig import SaslExternal, SaslPlain
+import asyncio
 from ..database import NoDatabaseConnection, test_database_connection
 
 
@@ -80,9 +83,11 @@ class HalpyBOT(pydle.Client, ListHandler):
         from config and login with operserv
         """
         await super().on_connect()
-        await self.operserv_login()
-        if config.getboolean("System Monitoring", "failure_button"):
-            config_write("System Monitoring", "failure_button", "False")
+        # only attempt to oper if we have credentials.
+        if config.irc.operline_password:
+            await self.operserv_login()
+        if config.system_monitoring.failure_button:
+            config.system_monitoring.failure_button = False
         try:
             await test_database_connection()
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
@@ -90,7 +95,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             logger.error(
                 "Could not fetch facts from DB, backup file loaded and entering OM"
             )
-        for channel in config["Channels"]["channellist"].split():
+        for channel in config.channels.channel_list:
             await self.join(channel, force=True)
         await utils.task_starter(self)
 
@@ -113,9 +118,7 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         # Special command for getting the bot prefix
         if message == f"{self.nickname} prefix":
-            return await self.message(
-                target, f"Prefix: {config['IRC']['commandPrefix']}"
-            )
+            return await self.message(target, f"Prefix: {config.irc.command_prefix}")
 
         # Pass message to command handler
         if self._commandhandler:
@@ -149,7 +152,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         Note: a logout command is not currently available
         """
         return await self.raw(
-            f"OPER {config['IRC']['operline']} {config['IRC']['operlinePassword']}\r\n"
+            f"OPER {config.irc.operline} {config.irc.operline_password.get_secret_value()}\r\n"
         )
 
     async def join(self, channel, password=None, force: bool = False):
@@ -168,8 +171,8 @@ class HalpyBOT(pydle.Client, ListHandler):
         if not force and channel not in await self.all_channels():
             raise ValueError(f"No such channel: {channel}")
         await super().join(channel, password)
-        if channel not in config["Channels"]["channellist"].split():
-            config["Channels"]["channellist"] += f" {channel}"
+        if channel not in config.channels.channel_list:
+            config.channels.channel_list.append(channel)
             with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
 
@@ -182,10 +185,10 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         """
         await super().part(channel, message)
-        chlist = config["Channels"]["channellist"].split()
+        chlist = config.channels.channel_list
         if channel in chlist:
             chlist.remove(channel)
-            config["Channels"]["channellist"] = " ".join(chlist)
+            config.channels.channel_list = " ".join(chlist)
             with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
 
@@ -201,18 +204,18 @@ async def crash_notif(crashtype, condition):
     Returns:
         Nothing.
     """
-    if config.getboolean("System Monitoring", "failure_button"):
+    if config.system_monitoring.failure_button:
         logger.critical(
             "HalpyBOT has failed, but this incident has already been reported."
         )
     else:
         subject = "HalpyBOT has died!"
-        topic = config["Notify"]["cybers"]
+        topic = config.notify.cybers
         message = f"HalpyBOT has shut down due to {crashtype}. Investigate immediately. Error Text: {condition}"
         try:
             await notify.send_notification(topic, message, subject)
             # Only trip the fuse if a notification is passed
-            config_write("System Monitoring", "failure_button", "True")
+            config.system_monitoring.failure_button = True
         except notify.NotificationFailure:
             logger.exception("Unable to send the notification!")
     logger.critical(
@@ -227,32 +230,28 @@ def configure_client():
     """
     Configure the SASL Authentication System and establish the Client
     """
-    if config.getboolean("SASL", "use_sasl"):
-        if config["SASL"]["sasl_mode"] == "PLAIN":
-            logger.debug("PLAIN SASL Auth selected.")
-            client = HalpyBOT(
-                nickname=config["IRC"]["nickname"],
-                sasl_identity=config["SASL"]["identity"],
-                sasl_password=config["SASL"]["password"],
-                sasl_username=config["SASL"]["username"],
-            )
-            return client
-        if config["SASL"]["sasl_mode"] == "EXTERNAL":
-            logger.debug("EXTERNAL SASL Auth selected.")
-            file_check = os.path.isfile(f"certs/{config['SASL']['cert']}")
-            if not file_check:
-                logger.critical("Cert File Missing. Aborting.")
-                sys.exit("Missing Cert File")
-            client = HalpyBOT(
-                nickname=config["IRC"]["nickname"],
-                sasl_mechanism="EXTERNAL",
-                tls_client_cert=f"./certs/{config['SASL']['cert']}",
-            )
-            return client
-        logger.critical("Invalid SASL method selected.")
-        sys.exit("No SASL Method Selected, but SASL Enabled in Config.")
-    logger.debug("No SASL Auth selected.")
-    client = HalpyBOT(
-        nickname=config["IRC"]["nickname"],
+    # dynamically determine which auth method to use.
+    if isinstance(config.irc.sasl, SaslExternal):
+        auth_kwargs = dict(
+            sasl_mechanism="EXTERNAL",
+            sasl_identity=config.irc.sasl.identity,
+            tls_client_cert=config.irc.sasl.cert,
+        )
+    elif isinstance(config.irc.sasl, SaslPlain):
+        auth_kwargs = dict(
+            sasl_username=config.irc.sasl.username,
+            sasl_identity=config.irc.sasl.identity,
+            sasl_password=config.irc.sasl.password.get_secret_value(),
+        )
+    elif config.irc.sasl is None:
+        logger.info("not using SASL auth.")
+        auth_kwargs = dict()
+    else:
+        raise AssertionError(
+            f"unreachable SASL auth variant reached: {type(config.irc.sasl)}"
+        )
+    return HalpyBOT(
+        nickname=config.irc.nickname,
+        **auth_kwargs,
+        eventloop=asyncio.get_event_loop(),
     )
-    return client

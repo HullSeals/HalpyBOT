@@ -10,11 +10,11 @@ See license.md
 
 from typing import List
 
+from halpybot import config
 from ..packages.checks import Require, Drilled
 from ..packages.command import Commands, get_help_text
-from ..packages.models import User
-from ..packages.configmanager import config
 from ..packages.models import Context
+from ..packages.models import User
 
 
 @Commands.command("forcejoin")
@@ -41,7 +41,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 
-    if args[1] not in config["Force join command"]["joinable"].casefold():
+    if args[1] not in config.forced_join.joinable:
         return await ctx.reply("I can't move people there.")
 
     if args[1] in channels:
