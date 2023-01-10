@@ -192,6 +192,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
 
+
 async def crash_notif(crashtype, condition):
     """
     Send a notification to the staff in the event of a failure in the bot.
