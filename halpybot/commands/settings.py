@@ -66,6 +66,39 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     )
 
 
+@Settings.command("offline")
+@Require.permission(Cyberseal)
+@Require.channel()
+async def cmd_offline(ctx: Context, args: List[str]):
+    """
+    Change the status of Offline mode.
+
+    Usage: !bot_management offline [Status]
+    Aliases: settings offline
+    """
+    if len(args) == 0:
+        return await ctx.reply(
+            f"{get_help_text('settings offline')}\nCurrent "
+            f"offline setting: {config.offline_mode.enabled}"
+        )
+    if not args[0].casefold() in ("true", "false"):
+        return await ctx.reply(
+            "Error! Invalid parameters given. Status not changed."
+        )
+    
+    to_offline = args[0].casefold() == "true"
+
+    logger.info(
+        "OFFLINE MODE CHANGE from {mode} to {new} by {sender}",
+        mode=config.offline_mode.enabled,
+        new=to_offline,
+        sender=ctx.sender,
+    )
+    config.offline_mode.enabled = to_offline
+    # Write changes to config file
+    await ctx.reply(f"Warning! Offline Mode Status Changed to {to_offline}")
+
+
 @Commands.command("joinchannel")
 @Require.permission(Cyberseal)
 async def cmd_joinchannel(ctx: Context, args: List[str]):
