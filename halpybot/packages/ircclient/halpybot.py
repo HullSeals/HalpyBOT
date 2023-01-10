@@ -192,27 +192,6 @@ class HalpyBOT(pydle.Client, ListHandler):
             with open("config/config.ini", "w", encoding="UTF-8") as conf:
                 config.write(conf)
 
-
-# dynamically determine which auth method to use.
-if isinstance(config.irc.sasl, SaslExternal):
-    auth_kwargs = dict(sasl_mechanism="EXTERNAL", tls_client_cert=config.irc.sasl.cert)
-elif isinstance(config.irc.sasl, SaslPlain):
-    auth_kwargs = dict(
-        sasl_username=config.irc.sasl.username,
-        sasl_password=config.irc.sasl.password.get_secret_value(),
-    )
-else:
-    raise AssertionError(
-        f"unreachable SASL auth variant reached: {type(config.irc.sasl)}"
-    )
-client = HalpyBOT(
-    nickname=config.irc.nickname,
-    sasl_identity=config.irc.sasl.identity,
-    **auth_kwargs,
-    eventloop=asyncio.get_event_loop(),
-)
-
-
 async def crash_notif(crashtype, condition):
     """
     Send a notification to the staff in the event of a failure in the bot.

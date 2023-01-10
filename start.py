@@ -15,7 +15,6 @@ import os
 import signal
 from logging import Handler, basicConfig, getLevelName
 import sys
-from os import path, mkdir
 from loguru import logger
 from aiohttp import web
 
