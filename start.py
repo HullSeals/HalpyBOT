@@ -39,8 +39,6 @@ def logging_format():
     Configure the logging system, utilizing Loguru
     """
     # Configure Logging File Name and Levels
-    log_level: str = str(config.logging.log_file)
-    # TODO: port this to pathlib
     cli_level = config.logging.cli_level
     file_level = config.logging.file_level
 
