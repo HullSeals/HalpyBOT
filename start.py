@@ -21,7 +21,7 @@ from aiohttp import web
 
 # noinspection PyUnresolvedReferences
 from halpybot import commands
-from halpybot.packages.configmanager import config
+from halpybot import config
 from halpybot.packages.ircclient import configure_client
 from halpybot.server import APIConnector
 

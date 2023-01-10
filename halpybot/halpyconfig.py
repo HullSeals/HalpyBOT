@@ -1,5 +1,5 @@
 import warnings
-
+from pathlib import Path
 from pydantic import (
     BaseSettings,
     SecretStr,
@@ -16,9 +16,8 @@ from typing import ClassVar
 
 
 class MysqlDsn(AnyUrl):
-    allowed_schemes = {'mysql+mysqldb'}
+    allowed_schemes = {"mysql+mysqldb"}
 
-    # TODO: Needed to generic "Parts" for "Replica Set", "Sharded Cluster", and other mongodb deployment modes
     @staticmethod
     def get_default_parts(parts):
         return {
@@ -61,7 +60,6 @@ class Channels(BaseModel):
 
 class Database(BaseModel):
     connection_string: MysqlDsn
-    database: str
     timeout: int = 10
 
 
@@ -116,7 +114,7 @@ class Notify(BaseModel):
     region: Optional[str] = None
     access: Optional[str] = None
     secret: Optional[SecretStr] = None
-    timer: Optional[str] = None
+    timer: int = 5  # minutes
     WHITELIST_GROUPS: ClassVar[Tuple[str, ...]] = ("staff", "cybers")
 
 
@@ -136,11 +134,25 @@ class Twitter(BaseModel):
     access_secret: Optional[SecretStr] = None
 
 
+FAILURE_BUTTON_PATH = Path.home() / ".halpy_failure_button"
+
+
 class SystemMonitoring(BaseModel):
     enabled: bool = True
     anope_timer: int = 300
     message_channel: str = "#seal-bob"
-    failure_button: bool = False
+
+    @property
+    def failure_button(self) -> bool:
+        return FAILURE_BUTTON_PATH.exists()
+
+    @failure_button.setter
+    def failure_button(self, value: bool):
+        # indepmotent.
+        if value:
+            FAILURE_BUTTON_PATH.touch(exist_ok=True)
+        else:
+            FAILURE_BUTTON_PATH.unlink(missing_ok=True)
 
 
 class UserAgent(BaseModel):

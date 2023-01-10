@@ -11,7 +11,7 @@ Testing will always DISABLE offline mode. You must have access to a Seal-type DB
 """
 import pytest
 from halpybot.packages.command import Commands
-from halpybot.packages.configmanager import config, config_write
+from halpybot import config, config_write
 
 
 @pytest.mark.asyncio

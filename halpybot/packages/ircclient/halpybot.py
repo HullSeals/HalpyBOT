@@ -16,7 +16,7 @@ import pydle
 from loguru import logger
 from halpybot.packages import utils
 from .. import notify
-from ..configmanager import config_write, config
+from halpybot import config
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import Facts
@@ -87,7 +87,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         if config.irc.operline_password:
             await self.operserv_login()
         if config.system_monitoring.failure_button:
-            config_write("System Monitoring", "failure_button", "False")
+            config.system_monitoring.failure_button = False
         try:
             await test_database_connection()
             await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
@@ -235,7 +235,7 @@ async def crash_notif(crashtype, condition):
         try:
             await notify.send_notification(topic, message, subject)
             # Only trip the fuse if a notification is passed
-            config_write("System Monitoring", "failure_button", "True")
+            config.system_monitoring.failure_button = True
         except notify.NotificationFailure:
             logger.exception("Unable to send the notification!")
     logger.critical(
@@ -250,32 +250,28 @@ def configure_client():
     """
     Configure the SASL Authentication System and establish the Client
     """
-    if config.getboolean("SASL", "use_sasl"):
-        if config["SASL"]["sasl_mode"] == "PLAIN":
-            logger.debug("PLAIN SASL Auth selected.")
-            client = HalpyBOT(
-                nickname=config["IRC"]["nickname"],
-                sasl_identity=config["SASL"]["identity"],
-                sasl_password=config["SASL"]["password"],
-                sasl_username=config["SASL"]["username"],
-            )
-            return client
-        if config["SASL"]["sasl_mode"] == "EXTERNAL":
-            logger.debug("EXTERNAL SASL Auth selected.")
-            file_check = os.path.isfile(f"certs/{config['SASL']['cert']}")
-            if not file_check:
-                logger.critical("Cert File Missing. Aborting.")
-                sys.exit("Missing Cert File")
-            client = HalpyBOT(
-                nickname=config["IRC"]["nickname"],
-                sasl_mechanism="EXTERNAL",
-                tls_client_cert=f"./certs/{config['SASL']['cert']}",
-            )
-            return client
-        logger.critical("Invalid SASL method selected.")
-        sys.exit("No SASL Method Selected, but SASL Enabled in Config.")
-    logger.debug("No SASL Auth selected.")
-    client = HalpyBOT(
-        nickname=config["IRC"]["nickname"],
+    # dynamically determine which auth method to use.
+    if isinstance(config.irc.sasl, SaslExternal):
+        auth_kwargs = dict(
+            sasl_mechanism="EXTERNAL",
+            sasl_identity=config.irc.sasl.identity,
+            tls_client_cert=config.irc.sasl.cert,
+        )
+    elif isinstance(config.irc.sasl, SaslPlain):
+        auth_kwargs = dict(
+            sasl_username=config.irc.sasl.username,
+            sasl_identity=config.irc.sasl.identity,
+            sasl_password=config.irc.sasl.password.get_secret_value(),
+        )
+    elif config.irc.sasl is None:
+        logger.info("not using SASL auth.")
+        auth_kwargs = dict()
+    else:
+        raise AssertionError(
+            f"unreachable SASL auth variant reached: {type(config.irc.sasl)}"
+        )
+    return HalpyBOT(
+        nickname=config.irc.nickname,
+        **auth_kwargs,
+        eventloop=asyncio.get_event_loop(),
     )
-    return client

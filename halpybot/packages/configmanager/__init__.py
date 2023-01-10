@@ -8,6 +8,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .config import config, config_write
+from .config import config_write
 
-__all__ = ["config", "config_write"]
+__all__ = ["config_write"]

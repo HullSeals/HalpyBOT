@@ -10,7 +10,7 @@ See license.md
 
 import pytest
 from halpybot.packages.command import Commands
-from halpybot.packages.configmanager import config
+from halpybot import config
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx

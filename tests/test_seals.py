@@ -12,7 +12,7 @@ Testing will always DISABLE offline mode. You must have access to a Seal-type DB
 
 import pytest
 from halpybot.packages.seals import whois
-from halpybot.packages.configmanager import config, config_write
+from halpybot import config
 
 pytestmark = pytest.mark.skipif(
     config.offline_mode.enabled,

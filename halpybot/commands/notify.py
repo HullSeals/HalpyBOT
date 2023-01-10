@@ -13,8 +13,8 @@ from loguru import logger
 from ..packages import notify
 from ..packages.checks import Require, Moderator, Admin, Owner, Pup
 from ..packages.command import CommandGroup, Commands, get_help_text
-from ..packages.configmanager import config
 from ..packages.models import Context
+from .. import config
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
@@ -42,14 +42,14 @@ class Timer:
                 self.last_call = datetime.datetime.now()
                 return await func(ctx, *args, **kwargs)
             return await ctx.reply(
-                f"Someone already called less than {config['Notify']['timer']} "
+                f"Someone already called less than {config.notify.timer} "
                 f"minutes ago. hang on, staff is responding."
             )
 
         return wrapper
 
 
-timer_filter = Timer(ttl=datetime.timedelta(minutes=int(config["Notify"]["timer"])))
+timer_filter = Timer(ttl=datetime.timedelta(minutes=config.notify.timer))
 
 
 @NotifyInfo.command("groups")

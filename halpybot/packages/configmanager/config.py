@@ -10,9 +10,6 @@ See license.md
 
 import configparser
 from loguru import logger
-from halpybot.halpyconfig import HalpyConfig
-
-config: HalpyConfig = HalpyConfig()
 
 
 class ConfigException(Exception):
@@ -37,11 +34,3 @@ def config_write(module: str, key: str, value):
 
     """
     raise NotImplementedError("# TODO")  # TODO
-    logger.info("{module}, {key} set to {value}", module=module, key=key, value=value)
-    config[module][key] = value
-    try:
-        with open("config/config.ini", "w", encoding="UTF-8") as conf:
-            config.write(conf)
-    except (FileNotFoundError, PermissionError) as ex:
-        logger.exception("Error writing value to config file. Check permissions?")
-        raise ConfigException from ex

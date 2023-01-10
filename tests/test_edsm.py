@@ -11,7 +11,7 @@ See license.md
 from unittest.mock import patch
 import pytest
 import aiohttp
-from halpybot.packages.configmanager import config
+from halpybot import config
 import halpybot.packages.edsm.edsm
 from halpybot.packages.edsm import (
     GalaxySystem,

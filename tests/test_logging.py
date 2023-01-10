@@ -10,7 +10,7 @@ See license.md
 
 import os
 import pytest
-from halpybot.packages.configmanager import config
+from halpybot import config
 
 logFile: str = str(config.logging.log_file)  # TODO: rewrite this to use Path objects.
 logFolder = os.path.dirname(logFile)

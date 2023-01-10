@@ -10,7 +10,7 @@ See license.md
 
 import os
 import pytest
-from halpybot.packages.configmanager import config, config_write
+from halpybot import config
 
 
 def test_config_exists():

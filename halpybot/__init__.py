@@ -12,7 +12,6 @@ from .halpyconfig import HalpyConfig
 # this is where the magic happens. 😇
 config = HalpyConfig()
 
-from halpybot.packages.configmanager import config
 
 #
 __version__ = "2.0.0-alpha"

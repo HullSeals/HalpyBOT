@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
 pydle = {extras = ["sasl"], version = "^1.0.1"}
-mysql-connector-python = "8.0.29"  # This was pinned deliberately, yeah?
 mysqlclient = "^2.1.1"
 numpy = "^1.23.5"
 boto3 = "^1.26.21"
@@ -22,7 +21,13 @@ attrs = "^22.1.0"
 cattrs = "^22.2.0"
 loguru = "^0.6.0"
 pydantic = {extras = ["dotenv"], version = "^1.10.2"}
+sqlalchemy = "^1.4.45"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+pytest-httpserver = "^1.0.6"
+pytest-asyncio = "^0.20.3"
 
 [build-system]
 requires = ["poetry-core"]

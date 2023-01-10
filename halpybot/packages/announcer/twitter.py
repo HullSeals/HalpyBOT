@@ -11,7 +11,7 @@ See license.md
 from loguru import logger
 import tweepy
 
-from ..configmanager import config
+from ... import config
 
 
 class TweetError(Exception):

@@ -9,9 +9,10 @@ See license.md
 """
 
 import time
-from sqlalchemy import create_engine, text, exc
 from loguru import logger
-from ..configmanager import config_write, config
+from sqlalchemy import create_engine, text, exc
+
+from ... import config
 
 dbconfig = config.database.connection_string
 

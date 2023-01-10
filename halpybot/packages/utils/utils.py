@@ -17,7 +17,7 @@ from halpybot import DEFAULT_USER_AGENT
 from halpybot.commands.notify import format_notification, notify
 from halpybot.packages.database import NoDatabaseConnection, test_database_connection
 from halpybot.packages.facts import Facts
-from halpybot.packages.configmanager import config, config_write
+from halpybot import config
 from halpybot.packages.models import User
 
 
