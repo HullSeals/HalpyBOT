@@ -47,9 +47,7 @@ def logging_format():
 
     # Attempt to create log folder and path if it doesn't exist
     try:
-        log_folder = path.dirname(log_file)
-        if not path.exists(log_folder):
-            mkdir(log_folder)
+        config.logging.log_file.parent.mkdir(exist_ok=True)
     except PermissionError:
         logger.exception(
             "Unable to create log folder. Does this user have appropriate permissions?"
@@ -69,7 +67,7 @@ def logging_format():
 
     # Add File Logger
     logger.add(
-        log_file,
+        config.logging.log_file,
         level=file_level,
         format=formatter,
         rotation="500 MB",
@@ -116,7 +114,8 @@ async def main():
     runner = web.AppRunner(APIConnector)
     runner.app["botclient"] = client
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port=int(config["API Connector"]["port"]))
+    site = web.TCPSite(runner, )
+    site = web.TCPSite(runner, "0.0.0.0", config.api_connector.port)
     await site.start()
     loop = asyncio.get_event_loop()
     asyncio.ensure_future(

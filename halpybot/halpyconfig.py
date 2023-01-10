@@ -98,7 +98,7 @@ class Edsm(BaseModel):
 class Logging(BaseModel):
     cli_level: str = "DEBUG"
     file_level: str = "INFO"
-    log_file: FilePath = "logs/halpybot.log"
+    log_file: FilePath = Path("logs/halpybot.log")
 
 
 class DiscordNotifications(BaseModel):
