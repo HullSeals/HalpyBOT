@@ -10,8 +10,7 @@ See license.md
 
 import warnings
 from pathlib import Path
-from typing import List, Set, Optional, Union, Tuple
-from typing import ClassVar
+from typing import List, Set, Optional, Union, Tuple, ClassVar
 from pydantic import (
     BaseSettings,
     SecretStr,
