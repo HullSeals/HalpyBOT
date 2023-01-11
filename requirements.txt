@@ -1,6 +1,6 @@
 pydle~=1.0.0
 pure-sasl~=0.6.2
-setuptools~=65.5.0
+setuptools~=65.6.3
 SQLAlchemy~=1.4.42
 mysqlclient~=2.1.1
 numpy~=1.23.4
