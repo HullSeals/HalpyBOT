@@ -1,5 +1,17 @@
+"""
+halpyconfig.py - Configuration Manager
+
+Copyright (c) The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
 import warnings
 from pathlib import Path
+from typing import List, Set, Optional, Union, Tuple
+from typing import ClassVar
 from pydantic import (
     BaseSettings,
     SecretStr,
@@ -10,9 +22,6 @@ from pydantic import (
     FilePath,
     constr,
 )
-from typing import List, Set, Optional, Union, Tuple
-
-from typing import ClassVar
 
 
 class MysqlDsn(AnyUrl):
@@ -60,6 +69,7 @@ class Channels(BaseModel):
 
 class Database(BaseModel):
     connection_string: MysqlDsn
+    database: str = "pydle"
     timeout: int = 10
 
 
@@ -138,10 +148,6 @@ FAILURE_BUTTON_PATH = Path.home() / ".halpy_failure_button"
 
 
 class SystemMonitoring(BaseModel):
-    enabled: bool = True
-    anope_timer: int = 300
-    message_channel: str = "#seal-bob"
-
     @property
     def failure_button(self) -> bool:
         return FAILURE_BUTTON_PATH.exists()

@@ -9,20 +9,18 @@ See license.md
 """
 
 import os
-import sys
 import signal
 from typing import Optional
+import asyncio
 import pydle
 from loguru import logger
 from halpybot.packages import utils
-from .. import notify
 from halpybot import config
+from .. import notify
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import Facts
-from ..database import NoDatabaseConnection
 from ...halpyconfig import SaslExternal, SaslPlain
-import asyncio
 from ..database import NoDatabaseConnection, test_database_connection
 
 
@@ -245,7 +243,7 @@ def configure_client():
         )
     elif config.irc.sasl is None:
         logger.info("not using SASL auth.")
-        auth_kwargs = dict()
+        auth_kwargs = {}
     else:
         raise AssertionError(
             f"unreachable SASL auth variant reached: {type(config.irc.sasl)}"

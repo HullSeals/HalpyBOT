@@ -26,6 +26,7 @@ CLI/DSSAUpdater/files/*.csv
 #IDE
 /.vscode
 halpybot.json
+.pylintrc
 
 # Lock files
 poetry.lock

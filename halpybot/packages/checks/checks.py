@@ -11,8 +11,8 @@ See license.md
 import functools
 from typing import List
 from loguru import logger
-from ..models import User
 from halpybot import config
+from ..models import User
 from ..database import test_database_connection, NoDatabaseConnection
 
 
@@ -202,8 +202,8 @@ class Require:
         def decorator(function):
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
-                if config.getboolean("Offline Mode", "enabled"):
-                    logger.critical(config["Offline Mode"]["enabled"])
+                if config.offline_mode.enabled:
+                    logger.critical(config.offline_mode.enabled)
                     return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
                 try:
                     await test_database_connection()

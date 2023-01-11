@@ -24,10 +24,10 @@ import aiohttp
 import numpy as np
 import cattr
 from attr import dataclass, define, field
+from halpybot import config
 from ..models import Coordinates, Location
 from ..models import edsm_classes
 from ..utils import web_get
-from halpybot import config
 
 
 class EDSMLookupError(Exception):

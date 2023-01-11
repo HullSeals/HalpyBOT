@@ -60,6 +60,12 @@ async def cmd_roll(ctx: Context, args: List[str]):
 @Commands.command("fireball")
 @Require.permission(Pup)
 async def cmd_fireball(ctx: Context, args: List[str]):
+    """
+    FOR FIREBALL!
+
+    Usage: !fireball
+    Aliases: n/a
+    """
     if not args:
         subject = "chat"
     else:

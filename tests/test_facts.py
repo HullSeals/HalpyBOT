@@ -11,7 +11,7 @@ Testing will always DISABLE offline mode. You must have access to a Seal-type DB
 """
 import pytest
 from halpybot.packages.command import Commands
-from halpybot import config, config_write
+from halpybot import config
 
 
 @pytest.mark.asyncio
@@ -98,7 +98,7 @@ async def test_ufi(bot_fx):
     if config.offline_mode.enabled:
         pytest.skip("Offline Mode Enabled")
     prev_value = config.offline_mode.enabled
-    config_write("Offline Mode", "enabled", "False")
+    config.offline_mode.enabled = False
 
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -110,4 +110,4 @@ async def test_ufi(bot_fx):
         "message": "Fact cache updated.",
         "target": "some_cyber",
     }
-    config_write("Offline Mode", "enabled", prev_value)
+    config.offline_mode.enabled = prev_value

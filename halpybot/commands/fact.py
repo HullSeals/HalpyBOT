@@ -10,7 +10,7 @@ See license.md
 
 from typing import List, Optional
 from loguru import logger
-
+from halpybot import config
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 from ..packages.facts import (
@@ -23,7 +23,6 @@ from ..packages.facts import (
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.utils import language_codes, strip_non_ascii
-from halpybot import config
 
 
 langcodes = language_codes()

@@ -70,9 +70,9 @@ async def get_time_seconds(time: str):
     res = pattern.search(time)
     counter = 0
     conversion_table = {"hour": 3600, "minutes": 60, "seconds": 1}
-    for unit in conversion_table:
+    for unit, seconds in conversion_table.items():
         value = int(res.group(unit))
-        counter += value * conversion_table[unit]
+        counter += value * seconds
     return str(counter)
 
 
@@ -114,14 +114,14 @@ async def task_starter(botclient):
 async def _five_minute_task(botclient, *args, **kwargs):
     while True:
         await asyncio.sleep(300)
-        if config["Offline Mode"]["enabled"] == "True":
+        if config.offline_mode.enabled:
             user = await User.get_info(botclient, botclient.nickname)
             if user.oper:
                 await botclient.message(
                     "#opers", "WARNING: Offline Mode Enabled. Please investigate."
                 )
             await botclient.message(
-                config["System Monitoring"]["message_channel"],
+                config.offline_mode.announce_channels,
                 "WARNING: Offline Mode Enabled. Please investigate.",
             )
 
@@ -140,7 +140,7 @@ async def _one_hour_task(botclient, *args, **kwargs):
             await test_database_connection()
         except NoDatabaseConnection:
             await botclient.message(
-                config["System Monitoring"]["message_channel"],
+                config.offline_mode.announce_channels,
                 "WARNING: Offline Mode Enabled. DB Ping Failure.",
             )
 
@@ -154,11 +154,11 @@ async def _one_hour_task(botclient, *args, **kwargs):
 async def _one_week_task(*args, **kwargs):
     while True:
         await asyncio.sleep(604800)
-        if config["Offline Mode"]["enabled"] != "True":
+        if not config.offline_mode.enabled:
             try:
                 await Facts.fetch_facts(preserve_current=True)
             except NoDatabaseConnection:
-                config_write("Offline Mode", "enabled", "True")
+                config.offline_mode.enabled = True
                 subject, topic, message = await format_notification(
                     "CyberSignal",
                     "cybers",

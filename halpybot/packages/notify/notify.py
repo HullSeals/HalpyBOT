@@ -68,7 +68,7 @@ async def list_topics():
     topics = response["Topics"]
     topic_list = []
     for topic, topic_type in enumerate(topics):
-        topic_list.append(topics[topic]["TopicArn"].split(":")[5])
+        topic_list.append(topic_type["TopicArn"].split(":")[5])
     return topic_list
 
 
@@ -137,7 +137,7 @@ async def list_sub_by_topic(topic_arn):
     subscriptions = response["Subscriptions"]
     sublist = []
     for sub, subtype in enumerate(subscriptions):
-        sublist.append(subscriptions[sub]["Endpoint"])
+        sublist.append(subtype["Endpoint"])
     return sublist
 
 

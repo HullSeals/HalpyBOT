@@ -11,10 +11,10 @@ import asyncio
 from typing import List
 import datetime
 from loguru import logger
+from halpybot import config
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context, User
-from halpybot import config
 from ..packages.announcer import send_webhook, WebhookSendError
 
 

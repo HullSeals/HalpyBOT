@@ -10,11 +10,11 @@ See license.md
 import datetime
 from typing import List
 from loguru import logger
+from halpybot import config
 from ..packages import notify
 from ..packages.checks import Require, Moderator, Admin, Owner, Pup
 from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.models import Context
-from halpybot import config
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
@@ -106,7 +106,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
 
     try:
         results = await notify.list_sub_by_topic(group)
-        if not len(results):
+        if not results:
             return await ctx.reply("No users currently subscribed to that group.")
         results = str(results)
         return await ctx.reply(

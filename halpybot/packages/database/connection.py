@@ -11,10 +11,9 @@ See license.md
 import time
 from loguru import logger
 from sqlalchemy import create_engine, text, exc
-
 from halpybot import config
 
-dbconfig = config.database.connection_string
+dbconfig = f"{config.database.connection_string}/{config.database.database}"
 
 engine = create_engine(
     dbconfig,
@@ -58,6 +57,6 @@ async def test_database_connection():
                 return
         except exc.OperationalError:
             pass
-    config_write("Offline Mode", "enabled", "True")
+    config.offline_mode.enabled = True
     logger.info(f"Failed on attempt {attempt}")
     raise NoDatabaseConnection

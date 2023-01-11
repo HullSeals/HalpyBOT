@@ -14,8 +14,8 @@ import json
 import re
 from loguru import logger
 from sqlalchemy import text
-from ..database import engine, NoDatabaseConnection
 from halpybot import config
+from ..database import engine, NoDatabaseConnection
 from ..command import Commands
 
 

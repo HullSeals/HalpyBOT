@@ -11,11 +11,10 @@ See license.md
 from typing import List
 from loguru import logger
 import pydle
+from halpybot import config
 from ..packages.checks import Require, Cyberseal
-
 from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.models import Context
-from halpybot import config
 
 Settings = CommandGroup()
 Settings.add_group("bot_management", "settings")
@@ -82,10 +81,8 @@ async def cmd_offline(ctx: Context, args: List[str]):
             f"offline setting: {config.offline_mode.enabled}"
         )
     if not args[0].casefold() in ("true", "false"):
-        return await ctx.reply(
-            "Error! Invalid parameters given. Status not changed."
-        )
-    
+        return await ctx.reply("Error! Invalid parameters given. Status not changed.")
+
     to_offline = args[0].casefold() == "true"
 
     logger.info(
