@@ -11,7 +11,7 @@ Reads all facts registered in the database and dumps them into a JSON file for u
 
 # Authors and Acknowledgements
 
-- Written by [Rik Overveld](https://gitlab.com/rik079)
+- Written by [Rik Overveld](https://github.com/rik079)
 
 # License
 This project is governed under the GNU General Public License v3.0 license.

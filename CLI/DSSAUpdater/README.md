@@ -20,8 +20,8 @@ Because of the semi-informal nature of this spreadsheet, and the obvious lack of
 
 # Authors and Acknowledgements
 
-- Written by [Rik Overveld](https://gitlab.com/rik079)
-- Modifications by [David Sangrey](https://gitlab.com/rixxan)
+- Written by [Rik Overveld](https://github.com/rik079)
+- Modifications by [David Sangrey](https://github.com/rixxan)
 
 # License
 This project is governed under the GNU General Public License v3.0 license.

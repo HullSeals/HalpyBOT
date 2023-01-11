@@ -23,7 +23,7 @@ is in, coordinates of the system, and the distance from the main star of the sta
 - The output files will be located in the `files\output` subdirectory.
 
 # Authors and Acknowledgements
-- Written by [David Sangrey](https://gitlab.com/rixxan)
+- Written by [David Sangrey](https://github.com/rixxan)
 
 # License
 This project is governed under the GNU General Public License v3.0 license.
