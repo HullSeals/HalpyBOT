@@ -54,6 +54,7 @@ class Irc(BaseModel):
     operline: Optional[str] = None
     operline_password: Optional[SecretStr] = None
     sasl: Union[SaslExternal, SaslPlain]
+    tls_verify: bool = False
 
 
 class ApiConnector(BaseModel):
@@ -186,10 +187,6 @@ class HalpyConfig(BaseSettings):
     system_monitoring: SystemMonitoring = SystemMonitoring()
     user_agent: UserAgent
     yourls: Optional[Yourls] = None
-
-    def write(self, *args):
-        warnings.warn("This function is deprecated.", DeprecationWarning)
-        raise NotImplementedError
 
     class Config:
         env_file = ".env"

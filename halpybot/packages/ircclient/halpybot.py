@@ -171,8 +171,6 @@ class HalpyBOT(pydle.Client, ListHandler):
         await super().join(channel, password)
         if channel not in config.channels.channel_list:
             config.channels.channel_list.append(channel)
-            with open("config/config.ini", "w", encoding="UTF-8") as conf:
-                config.write(conf)
 
     async def part(self, channel, message=None):
         """Part a channel
@@ -187,8 +185,6 @@ class HalpyBOT(pydle.Client, ListHandler):
         if channel in chlist:
             chlist.remove(channel)
             config.channels.channel_list = " ".join(chlist)
-            with open("config/config.ini", "w", encoding="UTF-8") as conf:
-                config.write(conf)
 
 
 async def crash_notif(crashtype, condition):
