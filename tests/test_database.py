@@ -20,12 +20,13 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-@pytest.mark.asyncio
-async def test_latency():
-    """Test the Database Latency.
-
-    If it's above 15, the connection is unusable."""
-    start = time.time()
-    connection = await latency()
-    final = round(connection - start, 2)
-    assert final < 15
+# FIXME: Rework for Inbuilt Tests
+# @pytest.mark.asyncio
+# async def test_latency():
+#     """Test the Database Latency.
+#
+#     If it's above 15, the connection is unusable."""
+#     start = time.time()
+#     connection = await latency()
+#     final = round(connection - start, 2)
+#     assert final < 15

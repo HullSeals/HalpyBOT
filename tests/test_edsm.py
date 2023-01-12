@@ -32,16 +32,7 @@ from halpybot.packages.edsm import (
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
 
-SAFE_IP = "http://127.0.0.1:4000"
-CONFIG_IP = config.edsm.uri
-GOOD_IP = False
-
-if CONFIG_IP == SAFE_IP:
-    GOOD_IP = True
-
-pytestmark = pytest.mark.skipif(
-    GOOD_IP is not True, reason="Invalid EDSM IP in Config. Please update to continue."
-)
+config.edsm.uri = "http://127.0.0.1:4000"
 
 
 # Test System

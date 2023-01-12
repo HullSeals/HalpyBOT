@@ -15,6 +15,9 @@ from halpybot import config
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
 
+config.offline_mode.enabled = False
+config.edsm.uri = "http://127.0.0.1:4000"
+
 
 @pytest.mark.asyncio
 async def test_ping(bot_fx):
@@ -31,8 +34,6 @@ async def test_ping(bot_fx):
 @pytest.mark.asyncio
 async def test_serverping(bot_fx):
     """Check the serverstatus command"""
-    if config.offline_mode.enabled:
-        pytest.skip("Offline Mode Enabled")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -43,7 +44,7 @@ async def test_serverping(bot_fx):
 
 
 @pytest.mark.asyncio
-async def test_serverping_dm(bot_fx):
+async def test_botping_dm(bot_fx):
     """Check the PING command in DMs"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -57,8 +58,6 @@ async def test_serverping_dm(bot_fx):
 @pytest.mark.asyncio
 async def test_lookup(bot_fx, mock_api_server_fx):
     """Test the lookup command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -74,8 +73,6 @@ async def test_lookup(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_2(bot_fx, mock_api_server_fx):
     """Test the lookup command with no arguments"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -94,8 +91,6 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_3(bot_fx, mock_api_server_fx):
     """Test the lookup command with an invalid system"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -111,8 +106,6 @@ async def test_lookup_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_lookup_4(bot_fx, mock_api_server_fx):
     """Test the Lookup command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -128,8 +121,6 @@ async def test_lookup_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_drillcase(bot_fx):
     """Test the drillcase command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -350,77 +341,73 @@ async def test_say_no_args(bot_fx):
     }
 
 
-@pytest.mark.asyncio
-async def test_whois_hbot(bot_fx):
-    """Test the WHOIS command easter egg"""
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="some_admin",
-        sender="some_admin",
-        message=f"{config.irc.command_prefix}whois halpybot",
-    )
-    assert bot_fx.sent_messages[0] == {
-        "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
-        "target": "some_admin",
-    }
+# FIXME: Rework for Internal DB
+# @pytest.mark.asyncio
+# async def test_whois_hbot(bot_fx):
+#     """Test the WHOIS command easter egg"""
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="some_admin",
+#         sender="some_admin",
+#         message=f"{config.irc.command_prefix}whois halpybot",
+#     )
+#     assert bot_fx.sent_messages[0] == {
+#         "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
+#         "target": "some_admin",
+#     }
+#
+#
+# @pytest.mark.asyncio
+# async def test_whois_empty(bot_fx):
+#     """Test the WHOIS command without arguments"""
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="some_admin",
+#         sender="some_admin",
+#         message=f"{config.irc.command_prefix}whois",
+#     )
+#     assert bot_fx.sent_messages[0] == {
+#         "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
+#         "target": "some_admin",
+#     }
 
 
-@pytest.mark.asyncio
-async def test_whois_empty(bot_fx):
-    """Test the WHOIS command without arguments"""
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="some_admin",
-        sender="some_admin",
-        message=f"{config.irc.command_prefix}whois",
-    )
-    assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
-        "target": "some_admin",
-    }
-
-
-@pytest.mark.asyncio
-async def test_whois(bot_fx):
-    """Test the WHOIS command"""
-    if config.offline_mode.enabled:
-        pytest.skip("Offline Mode Enabled")
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="some_admin",
-        sender="some_admin",
-        message=f"{config.irc.command_prefix}whois Rixxan",
-    )
-    assert (
-        bot_fx.sent_messages[0]
-        .get("message")
-        .startswith("CMDR Rixxan has a Seal ID of 1")
-    )
-
-
-@pytest.mark.asyncio
-async def test_whoami(bot_fx):
-    """Test the WHOAMI command"""
-    if config.offline_mode.enabled:
-        pytest.skip("Offline Mode Enabled")
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="Rixxan",
-        sender="Rixxan",
-        message=f"{config.irc.command_prefix}whoami",
-    )
-    assert (
-        bot_fx.sent_messages[0]
-        .get("message")
-        .startswith("CMDR Rixxan has a Seal ID of 1")
-    )
+# FIXME: These two tests need to be reworked to avoid poking the live DB.
+# @pytest.mark.asyncio
+# async def test_whois(bot_fx):
+#     """Test the WHOIS command"""
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="some_admin",
+#         sender="some_admin",
+#         message=f"{config.irc.command_prefix}whois Rixxan",
+#     )
+#     assert (
+#         bot_fx.sent_messages[0]
+#         .get("message")
+#         .startswith("CMDR Rixxan has a Seal ID of 1")
+#     )
+#
+#
+# @pytest.mark.asyncio
+# async def test_whoami(bot_fx):
+#     """Test the WHOAMI command"""
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="Rixxan",
+#         sender="Rixxan",
+#         message=f"{config.irc.command_prefix}whoami",
+#     )
+#     assert (
+#         bot_fx.sent_messages[0]
+#         .get("message")
+#         .startswith("CMDR Rixxan has a Seal ID of 1")
+#     )
 
 
 @pytest.mark.asyncio
 async def test_edsmping(bot_fx):
     """Test the EDSM Ping command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -480,8 +467,6 @@ async def test_drillcb_empty(bot_fx):
 @pytest.mark.asyncio
 async def test_drillkf(bot_fx):
     """Test the KF drill command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -521,8 +506,6 @@ async def test_drillkf_unauth(bot_fx):
 @pytest.mark.asyncio
 async def test_drillcb(bot_fx):
     """Test if the code black drill command can be run"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -591,8 +574,6 @@ async def test_go_guest(bot_fx):
 @pytest.mark.asyncio
 async def test_locate(bot_fx, mock_api_server_fx):
     """Test the locate command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -608,8 +589,6 @@ async def test_locate(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_locate_malformed_response(bot_fx, mock_api_server_fx):
     """Test the locate command when EDSM gives a malformed or incomplete response"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -643,8 +622,6 @@ async def test_locate_2(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_locate_3(bot_fx, mock_api_server_fx):
     """Test the locate command with an invalid name"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -660,8 +637,6 @@ async def test_locate_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_locate_4(bot_fx, mock_api_server_fx):
     """Test the locate command cache override"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -677,8 +652,6 @@ async def test_locate_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance(bot_fx, mock_api_server_fx):
     """Test the distance command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -694,8 +667,6 @@ async def test_distance(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance_2(bot_fx, mock_api_server_fx):
     """Test the distance command with no arguments"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -729,8 +700,6 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_distance_4(bot_fx, mock_api_server_fx):
     """Test the distance command with cache override"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -746,8 +715,6 @@ async def test_distance_4(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_coords(bot_fx, mock_api_server_fx):
     """Test the coords command"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
@@ -796,8 +763,6 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 @pytest.mark.asyncio
 async def test_coords_4(bot_fx, mock_api_server_fx):
     """Test the coords command with an invalid EDSM value"""
-    if config.edsm.uri != "http://127.0.0.1:4000":
-        pytest.skip("Invalid EDSM IP Given")
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",

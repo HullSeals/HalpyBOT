@@ -91,23 +91,23 @@ async def test_allfacts_2(bot_fx):
         "target": "generic_seal",
     }
 
-
-@pytest.mark.asyncio
-async def test_ufi(bot_fx):
-    """Test the UFI Command"""
-    if config.offline_mode.enabled:
-        pytest.skip("Offline Mode Enabled")
-    prev_value = config.offline_mode.enabled
-    config.offline_mode.enabled = False
-
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="some_cyber",
-        sender="some_cyber",
-        message=f"{config.irc.command_prefix}ufi",
-    )
-    assert bot_fx.sent_messages[0] == {
-        "message": "Fact cache updated.",
-        "target": "some_cyber",
-    }
-    config.offline_mode.enabled = prev_value
+# FIXME: Rework for Inbuilt Tests
+# @pytest.mark.asyncio
+# async def test_ufi(bot_fx):
+#     """Test the UFI Command"""
+#     if config.offline_mode.enabled:
+#         pytest.skip("Offline Mode Enabled")
+#     prev_value = config.offline_mode.enabled
+#     config.offline_mode.enabled = False
+#
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="some_cyber",
+#         sender="some_cyber",
+#         message=f"{config.irc.command_prefix}ufi",
+#     )
+#     assert bot_fx.sent_messages[0] == {
+#         "message": "Fact cache updated.",
+#         "target": "some_cyber",
+#     }
+#     config.offline_mode.enabled = prev_value
