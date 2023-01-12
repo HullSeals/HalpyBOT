@@ -91,6 +91,7 @@ async def test_allfacts_2(bot_fx):
         "target": "generic_seal",
     }
 
+
 # FIXME: Rework for Inbuilt Tests
 # @pytest.mark.asyncio
 # async def test_ufi(bot_fx):
