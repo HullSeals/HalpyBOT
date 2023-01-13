@@ -45,7 +45,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     """
     start = time.time()
     try:
-        latencycheck = await latency()
+        latencycheck = await latency(ctx.bot.engine)
     except NoDatabaseConnection:
         return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):

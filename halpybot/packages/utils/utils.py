@@ -136,7 +136,7 @@ async def _one_hour_task(botclient, *args, **kwargs):
     while True:
         await asyncio.sleep(3600)
         try:
-            await test_database_connection()
+            await test_database_connection(botclient.engine)
         except NoDatabaseConnection:
             await botclient.message(
                 config.offline_mode.announce_channels,
@@ -155,7 +155,9 @@ async def _one_week_task(botclient, *args, **kwargs):
         await asyncio.sleep(604800)
         if not config.offline_mode.enabled:
             try:
-                await botclient.facts.fetch_facts(preserve_current=True)
+                await botclient.facts.fetch_facts(
+                    botclient.engine, preserve_current=True
+                )
             except NoDatabaseConnection:
                 config.offline_mode.enabled = True
                 subject, topic, message = await format_notification(

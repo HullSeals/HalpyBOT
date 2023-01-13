@@ -79,6 +79,7 @@ class Announcer:
         Args:
             announcement: The type of announcement to make
             args: Arguments for the case announcement
+            client: The IRC Bot instance, used to send messages.
 
         Returns:
             Nothing

@@ -14,7 +14,7 @@ from loguru import logger
 from sqlalchemy import text
 from .server import APIConnector
 from .auth import authenticate
-from ..packages.database import engine, NoDatabaseConnection
+from ..packages.database import NoDatabaseConnection
 
 routes = web.RouteTableDef()
 
@@ -42,7 +42,7 @@ async def tail(request):
     subject = request["subject"]
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
-        with engine.connect() as database_connection:
+        with botclient.connect() as database_connection:
             result = database_connection.execute(
                 text(
                     "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = :subject_name;"

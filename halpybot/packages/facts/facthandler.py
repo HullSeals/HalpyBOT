@@ -13,9 +13,9 @@ from typing import List, Optional
 import json
 import re
 from loguru import logger
-from sqlalchemy import text
+from sqlalchemy import text, engine
 from halpybot import config
-from ..database import engine, NoDatabaseConnection
+from ..database import NoDatabaseConnection
 from ..command import Commands
 
 
@@ -95,15 +95,15 @@ class Fact:
         return self._author
 
     @name.setter
-    def name(self, newname: str):
+    def name(self, engine: engine.Engine, newname: str):
         self._name = newname
-        self._write()
+        self._write(engine)
 
     @text.setter
-    def text(self, newtext: str):
+    def text(self, engine: engine.Engine, newtext: str):
         self._text = self._parse_fact(newtext)
         self._raw_text = newtext
-        self._write()
+        self._write(engine)
 
     def _parse_fact(self, text: str):
         """Parse a fact
@@ -133,7 +133,7 @@ class Fact:
             text = text.replace(token, new)
         return text
 
-    def _write(self):
+    def _write(self, engine: engine.Engine):
         """Write changes to a fact to the database
 
         Raises:
@@ -198,26 +198,27 @@ class FactHandler:
             return self._fact_cache[name, lang]
         return None
 
-    async def fetch_facts(self, preserve_current: bool = False):
+    async def fetch_facts(self, engine: engine.Engine, preserve_current: bool = False):
         """Refresh fact cache.
 
         If a database connection is available, we will get the facts from there.
         Else, we get it from the backup files.
 
         Args:
+            engine (engine.Engine): DBAPI Engine
             preserve_current (bool): If True, and database connection is not available,
                 we don't attempt to update the fact cache at all and just leave it as it is.
 
         """
         try:
-            await self._from_database()
+            await self._from_database(engine)
         except NoDatabaseConnection:
             logger.exception("No database connection. Unable to retreive facts.")
             if not preserve_current:
                 await self._from_local()
             raise
 
-    async def _from_database(self):
+    async def _from_database(self, engine: engine.Engine):
         """Get facts from database and update the cache"""
         with engine.connect() as database_connection:
             result = database_connection.execute(
@@ -253,7 +254,9 @@ class FactHandler:
         """Flush the fact cache. Use with care"""
         self._fact_cache.clear()
 
-    async def add_fact(self, name: str, lang: str, fact_text: str, author: str):
+    async def add_fact(
+        self, engine: engine.Engine, name: str, lang: str, fact_text: str, author: str
+    ):
         """Add a new fact
 
         If the fact name corresponds to an existing fact in combination
@@ -261,6 +264,7 @@ class FactHandler:
         to create it.
 
         Args:
+            engine (engine.Engine): DBAPI Engine
             name (str): name of the fact
             lang (str): language code, as specified in ISO-639-1
             fact_text (str): Text of the fact, including formatting
@@ -295,7 +299,7 @@ class FactHandler:
                 author=author,
             )
         # Reset the fact handler
-        await self.fetch_facts(preserve_current=True)
+        await self.fetch_facts(engine, preserve_current=True)
 
     async def lang_by_fact(self, name: str):
         """Get a list of languages a fact exists in
@@ -333,13 +337,14 @@ class FactHandler:
                 namelist.append(fact[0])
         return namelist
 
-    async def delete_fact(self, name: str, lang: str = "en"):
+    async def delete_fact(self, engine: engine.Engine, name: str, lang: str = "en"):
         """Delete a fact
 
         Fact is immediately deleted from both local storage and the database;
         use with care.
 
         Args:
+            engine (engine.Engine): DBAPI Engine
             name (str): Name of the fact to be deleted
             lang (str): Fact language ISO-639-1 code. English by default
 

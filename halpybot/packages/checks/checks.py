@@ -206,7 +206,7 @@ class Require:
                     logger.critical(config.offline_mode.enabled)
                     return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
                 try:
-                    await test_database_connection()
+                    await test_database_connection(ctx.bot.engine)
                 except NoDatabaseConnection:
                     return await ctx.reply(
                         "Cannot comply: Database Error Detected. Entering OFFLINE mode."

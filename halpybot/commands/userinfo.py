@@ -37,7 +37,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
             "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
             "and has been involved with countless rescues."
         )
-    return await ctx.redirect(await whois(cmdr))
+    return await ctx.redirect(await whois(ctx.bot.engine, cmdr))
 
 
 @Commands.command("whoami")
@@ -51,4 +51,4 @@ async def cmd_whoami(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     cmdr = ctx.sender
-    return await ctx.redirect(await whois(cmdr))
+    return await ctx.redirect(await whois(ctx.bot.engine, cmdr))

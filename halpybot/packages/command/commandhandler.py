@@ -13,9 +13,10 @@ from typing import List, TYPE_CHECKING
 import json
 from loguru import logger
 from halpybot import config
+from ..models import Context
+
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
-from ..models import Context
 
 
 with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:

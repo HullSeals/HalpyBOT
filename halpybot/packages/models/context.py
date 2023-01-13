@@ -9,8 +9,8 @@ See license.md
 """
 
 from __future__ import annotations
-import pydle
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
 

@@ -98,7 +98,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         fact = " ".join(args[1:])
         fact = strip_non_ascii(fact)
         fact = str(fact[0])
-        await ctx.bot.facts.add_fact(name, lang, fact, ctx.sender)
+        await ctx.bot.facts.add_fact(ctx.bot.engine, name, lang, fact, ctx.sender)
         return await ctx.reply("Fact has been added.")
 
     except NoDatabaseConnection:
@@ -134,7 +134,7 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
         return await ctx.reply("That fact does not exist.")
 
     try:
-        await ctx.bot.facts.delete_fact(name, lang)
+        await ctx.bot.facts.delete_fact(ctx.bot.engine, name, lang)
         return await ctx.reply("Fact has been deleted.")
     except NoDatabaseConnection:
         logger.exception("Unable to add fact, database error!")
@@ -234,7 +234,7 @@ async def cmd_ufi(ctx: Context, args: List[str]):
     if offline_start:
         return await ctx.reply("Cannot update cache while in offline mode.")
     try:
-        await ctx.bot.facts.fetch_facts(preserve_current=True)
+        await ctx.bot.facts.fetch_facts(ctx.bot.engine, preserve_current=True)
     except NoDatabaseConnection:
         logger.exception("No Database Connection.")
         return await ctx.reply(

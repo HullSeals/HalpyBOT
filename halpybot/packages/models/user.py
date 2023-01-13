@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Optional, Set, TYPE_CHECKING
 from attr import dataclass
 import cattr
+
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
 

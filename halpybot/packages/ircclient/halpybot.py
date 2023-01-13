@@ -14,6 +14,7 @@ from typing import Optional
 import asyncio
 import pydle
 from loguru import logger
+from sqlalchemy import create_engine
 from halpybot.packages import utils
 from halpybot import config
 from .. import notify
@@ -32,11 +33,25 @@ class HalpyBOT(pydle.Client, ListHandler):
         super().__init__(*args, **kwargs)
         self.facts = FactHandler()
         self._commandhandler: Optional[CommandGroup] = Commands
+        self._dbconfig = (
+            f"{config.database.connection_string}/{config.database.database}"
+        )
+        self._engine = create_engine(
+            self._dbconfig,
+            pool_pre_ping=True,
+            pool_recycle=3600,
+            connect_args={"connect_timeout": config.database.timeout},
+        )
 
     @property
     def commandhandler(self):
         """Command/fact handler object that messages are passed to"""
         return self._commandhandler
+
+    @property
+    def engine(self):
+        """Database Connection Engine"""
+        return self._engine
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):
@@ -87,8 +102,8 @@ class HalpyBOT(pydle.Client, ListHandler):
         if config.system_monitoring.failure_button:
             config.system_monitoring.failure_button = False
         try:
-            await test_database_connection()
-            await self.facts.fetch_facts()
+            await test_database_connection(self.engine)
+            await self.facts.fetch_facts(self.engine, preserve_current=False)
         except NoDatabaseConnection:
             logger.error(
                 "Could not fetch facts from DB, backup file loaded and entering OM"

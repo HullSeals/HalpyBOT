@@ -12,12 +12,10 @@ from .connection import (
     NoDatabaseConnection,
     test_database_connection,
     latency,
-    engine,
 )
 
 __all__ = [
     "NoDatabaseConnection",
     "test_database_connection",
     "latency",
-    "engine",
 ]

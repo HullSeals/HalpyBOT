@@ -29,7 +29,6 @@ pydantic = {extras = ["dotenv"], version = "^1.10.2"}
 sqlalchemy = "^1.4.46"
 beautifulsoup4 = "^4.11.1"
 
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
 pytest-httpserver = "^1.0.6"
@@ -38,3 +37,7 @@ pytest-asyncio = "^0.20.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pylint.'MESSAGES CONTROL']
+extension-pkg-whitelist = "pydantic"
+disable="line-too-long"
