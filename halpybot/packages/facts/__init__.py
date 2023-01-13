@@ -13,7 +13,6 @@ from .facthandler import (
     FactHandler,
     FactHandlerError,
     FactUpdateError,
-    Facts,
     InvalidFactException,
 )
 
@@ -22,6 +21,5 @@ __all__ = [
     "FactHandler",
     "FactHandlerError",
     "FactUpdateError",
-    "Facts",
     "InvalidFactException",
 ]

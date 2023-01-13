@@ -9,11 +9,12 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List
+from typing import List, TYPE_CHECKING
 import json
-import pydle
 from loguru import logger
 from halpybot import config
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 from ..models import Context
 
 
@@ -107,7 +108,7 @@ class CommandGroup:
         return self._group_name
 
     async def invoke_from_message(
-        self, bot: pydle.Client, channel: str, sender: str, message: str
+        self, bot: HalpyBOT, channel: str, sender: str, message: str
     ):
         """Invoke a command or fact from a message
 
@@ -115,7 +116,7 @@ class CommandGroup:
         with arguments [1, "test"]
 
         Args:
-            bot (`pydle.Client`): botclient/pseudoclient the command was called from
+            bot (HalpyBOT): botclient/pseudoclient the command was called from
             channel (str): channel the message was sent in
             sender (str): user who invoked the command
             message (str): content of the message

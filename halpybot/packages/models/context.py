@@ -8,7 +8,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+from __future__ import annotations
 import pydle
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 
 
 class Context:
@@ -16,7 +20,7 @@ class Context:
 
     def __init__(
         self,
-        bot: pydle.Client,
+        bot: HalpyBOT,
         channel: str,
         sender: str,
         in_channel: bool,
@@ -26,7 +30,7 @@ class Context:
         """Create message context object
 
         Args:
-            bot (`pydle.Client`): botclient/pseudoclient
+            bot (HalpyBOT): botclient/pseudoclient
             channel (str): channel message was sent in
             sender (str): user who sent the message
             in_channel (bool): True if in a channel, False if in DM

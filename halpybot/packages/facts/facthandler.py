@@ -412,6 +412,3 @@ class FactHandler:
 
         # Else (no args, no default arg)
         return str(reqfact.text)
-
-
-Facts = FactHandler()

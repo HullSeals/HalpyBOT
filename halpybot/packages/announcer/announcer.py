@@ -12,9 +12,7 @@ See license.md
 from __future__ import annotations
 import json
 from typing import List, Dict, Optional
-import pydle
 from loguru import logger
-
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
@@ -25,7 +23,7 @@ from ..edsm import (
     NoNearbyEDSM,
 )
 from .twitter import TwitterCasesAcc, TwitterConnectionError
-
+from ..ircclient import HalpyBOT
 
 cardinal_flip = {
     "North": "South",
@@ -46,7 +44,7 @@ class AnnouncementError(Exception):
 
 
 class Announcer:
-    def __init__(self, bot: Optional[pydle.Client] = None):
+    def __init__(self, bot: Optional[HalpyBOT] = None):
         """Initialize announcer
 
         The client is passed to this class by HalpyBOT even though
@@ -54,7 +52,7 @@ class Announcer:
         call it easily
 
         Args:
-            bot (pydle.Client): Bot client we make announcements with
+            bot (HalpyBOT): Bot client we make announcements with
 
         """
         self._announcements = {}

@@ -18,7 +18,6 @@ from ..packages.facts import (
     FactUpdateError,
     FactHandlerError,
     InvalidFactException,
-    Facts,
 )
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
@@ -60,10 +59,10 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     if not args or len(args) != 1:
         return await ctx.reply(get_help_text("factinfo"))
     name, lang = await splitter(args)
-    fact: Optional[Fact] = await Facts.get(name, lang)
+    fact: Optional[Fact] = await ctx.bot.facts.get(name, lang)
     if fact is None:
         return await ctx.redirect("Fact not found.")
-    langlist = await Facts.lang_by_fact(name)
+    langlist = await ctx.bot.facts.lang_by_fact(name)
     reply = (
         f"Fact: {fact.name}\n"
         f"Language: {langcodes[lang.casefold()]} ({fact.language})\n"
@@ -99,7 +98,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
         fact = " ".join(args[1:])
         fact = strip_non_ascii(fact)
         fact = str(fact[0])
-        await Facts.add_fact(name, lang, fact, ctx.sender)
+        await ctx.bot.facts.add_fact(name, lang, fact, ctx.sender)
         return await ctx.reply("Fact has been added.")
 
     except NoDatabaseConnection:
@@ -131,11 +130,11 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
     if not args or len(args) != 1:
         return await ctx.reply(get_help_text("deletefact"))
     name, lang = await splitter(args)
-    if await Facts.get(name, lang) is None:
+    if await ctx.bot.facts.get(name, lang) is None:
         return await ctx.reply("That fact does not exist.")
 
     try:
-        await Facts.delete_fact(name, lang)
+        await ctx.bot.facts.delete_fact(name, lang)
         return await ctx.reply("Fact has been deleted.")
     except NoDatabaseConnection:
         logger.exception("Unable to add fact, database error!")
@@ -171,7 +170,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
             "Cannot comply: Please specify a valid language code."
         )
 
-    factlist = Facts.list(lang)
+    factlist = ctx.bot.facts.list(lang)
 
     if len(factlist) == 0:
         return await ctx.redirect(f"No {langcodes[lang.casefold()]} facts found.")
@@ -196,7 +195,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
 
     name, lang = await splitter(args)
 
-    fact = await Facts.get(name, lang)
+    fact = await ctx.bot.facts.get(name, lang)
     if fact is None:
         return await ctx.reply("That fact does not exist.")
     try:
@@ -235,7 +234,7 @@ async def cmd_ufi(ctx: Context, args: List[str]):
     if offline_start:
         return await ctx.reply("Cannot update cache while in offline mode.")
     try:
-        await Facts.fetch_facts(preserve_current=True)
+        await ctx.bot.facts.fetch_facts(preserve_current=True)
     except NoDatabaseConnection:
         logger.exception("No Database Connection.")
         return await ctx.reply(

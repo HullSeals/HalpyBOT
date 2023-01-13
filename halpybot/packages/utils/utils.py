@@ -16,7 +16,6 @@ from loguru import logger
 from halpybot import DEFAULT_USER_AGENT
 from halpybot.commands.notify import format_notification, notify
 from halpybot.packages.database import NoDatabaseConnection, test_database_connection
-from halpybot.packages.facts import Facts
 from halpybot import config
 from halpybot.packages.models import User
 
@@ -106,7 +105,7 @@ async def task_starter(botclient):
             # _ten_minute_task(),
             _one_hour_task(botclient),
             # _one_day_task(),
-            _one_week_task(),
+            _one_week_task(botclient),
         )
     ]
 
@@ -151,12 +150,12 @@ async def _one_hour_task(botclient, *args, **kwargs):
 #         await asyncio.sleep(86400)
 
 
-async def _one_week_task(*args, **kwargs):
+async def _one_week_task(botclient, *args, **kwargs):
     while True:
         await asyncio.sleep(604800)
         if not config.offline_mode.enabled:
             try:
-                await Facts.fetch_facts(preserve_current=True)
+                await botclient.facts.fetch_facts(preserve_current=True)
             except NoDatabaseConnection:
                 config.offline_mode.enabled = True
                 subject, topic, message = await format_notification(

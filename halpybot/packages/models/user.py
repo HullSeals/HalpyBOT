@@ -21,10 +21,11 @@ See license.md
 
 
 from __future__ import annotations
-from typing import Optional, Set
+from typing import Optional, Set, TYPE_CHECKING
 from attr import dataclass
-import pydle
 import cattr
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 
 
 class UserError(Exception):
@@ -65,11 +66,11 @@ class User:
     real_ip_address: Optional[str] = None
 
     @classmethod
-    async def get_info(cls, bot: pydle.Client, nickname: str) -> Optional[User]:
+    async def get_info(cls, bot: HalpyBOT, nickname: str) -> Optional[User]:
         """Get WHOIS info about a user
 
         Args:
-            bot (pydle.Client): IRC Client
+            bot (Halpybot): IRC Client
             nickname: User's nickname
 
         Returns:
@@ -116,11 +117,11 @@ class User:
         return f"{host}.hullseals.space"
 
     @classmethod
-    async def get_channels(cls, bot: pydle.Client, nick: str) -> Optional[list]:
+    async def get_channels(cls, bot: HalpyBOT, nick: str) -> Optional[list]:
         """Get a list of channels a user is on
 
         Args:
-            bot (pydle.Client): IRC Client
+            bot (HalpyBOT): IRC Client
             nick (str): User's nickname
 
         Returns:

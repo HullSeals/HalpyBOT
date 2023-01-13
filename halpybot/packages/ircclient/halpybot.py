@@ -19,7 +19,7 @@ from halpybot import config
 from .. import notify
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
-from ..facts import Facts
+from ..facts import FactHandler
 from ...halpyconfig import SaslExternal, SaslPlain
 from ..database import NoDatabaseConnection, test_database_connection
 
@@ -30,8 +30,8 @@ class HalpyBOT(pydle.Client, ListHandler):
     def __init__(self, *args, **kwargs):
         """Initialize a new Pydle client"""
         super().__init__(*args, **kwargs)
+        self.facts = FactHandler()
         self._commandhandler: Optional[CommandGroup] = Commands
-        self._commandhandler.facthandler = Facts
 
     @property
     def commandhandler(self):
@@ -88,7 +88,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             config.system_monitoring.failure_button = False
         try:
             await test_database_connection()
-            await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
+            await self.facts.fetch_facts()
         except NoDatabaseConnection:
             logger.error(
                 "Could not fetch facts from DB, backup file loaded and entering OM"
