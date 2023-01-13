@@ -103,11 +103,11 @@ class HalpyBOT(pydle.Client, ListHandler):
             config.system_monitoring.failure_button = False
         try:
             await test_database_connection(self.engine)
-            await self.facts.fetch_facts(self.engine, preserve_current=False)
         except NoDatabaseConnection:
             logger.error(
                 "Could not fetch facts from DB, backup file loaded and entering OM"
             )
+        await self.facts.fetch_facts(self.engine, preserve_current=False)
         for channel in config.channels.channel_list:
             await self.join(channel, force=True)
         await utils.task_starter(self)
