@@ -16,7 +16,7 @@ from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.database.connection import latency
-from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
+from ..packages.edsm import GalaxySystem, EDSMLookupError
 from ..packages.models import Context
 from ..packages.utils import web_get
 
@@ -90,7 +90,7 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     except aiohttp.ClientError as server_stat_error:
         logger.exception("Error in Elite Server Status lookup.")
         await ctx.reply(
-            f"The Elite servers are unreachable. Can't connect to the Elite API."
+            "The Elite servers are unreachable. Can't connect to the Elite API."
         )
         raise TypeError(
             "Unable to verify Elite Status, having issues connecting to the Elite API."
@@ -98,7 +98,7 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     except json.decoder.JSONDecodeError as server_response_error:
         logger.exception("Error in Elite server status lookup.")
         await ctx.reply(
-            f"The Elite servers are not responding properly. Elite API responded with garbled data."
+            "The Elite servers are not responding properly. Elite API responded with garbled data."
         )
         raise TypeError(
             "Unable to verify Elite Status, Elite API responded with an invalid reply."

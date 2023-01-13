@@ -8,9 +8,9 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import warnings
 from pathlib import Path
 from typing import List, Set, Optional, Union, Tuple, ClassVar
+import boto3
 from pydantic import (
     BaseSettings,
     SecretStr,
@@ -126,6 +126,17 @@ class Notify(BaseModel):
     secret: Optional[SecretStr] = None
     timer: int = 5  # minutes
     WHITELIST_GROUPS: ClassVar[Tuple[str, ...]] = ("staff", "cybers")
+
+    @property
+    def sns(self) -> boto3.client:
+        if not (self.secret and self.access):
+            return None
+        return boto3.client(
+            "sns",
+            region_name=self.region,  # AWS Region.
+            aws_access_key_id=self.access,  # AWS IAM Access Key
+            aws_secret_access_key=self.secret.get_secret_value(),  # AWS IAM Secret
+        )
 
 
 class Facts(BaseModel):

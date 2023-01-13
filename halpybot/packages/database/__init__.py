@@ -10,7 +10,6 @@ See license.md
 
 from .connection import (
     NoDatabaseConnection,
-    dbconfig,
     test_database_connection,
     latency,
     engine,
@@ -18,7 +17,6 @@ from .connection import (
 
 __all__ = [
     "NoDatabaseConnection",
-    "dbconfig",
     "test_database_connection",
     "latency",
     "engine",

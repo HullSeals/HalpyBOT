@@ -14,7 +14,6 @@ import hashlib
 import json
 from loguru import logger
 from aiohttp import web
-
 from halpybot import config
 
 
@@ -33,13 +32,6 @@ def get_hmac(msg):
         msg=msg.encode("utf8"),
         digestmod=hashlib.sha256,
     )
-
-
-const_key_check = hmac.new(
-    bytes(config.api_connector.key.get_secret_value(), "utf8"),
-    msg=config.api_connector.key_check_constant.get_secret_value().encode("utf8"),
-    digestmod=hashlib.sha256,
-)
 
 
 def authenticate():
@@ -61,7 +53,13 @@ def authenticate():
             )  # Remove all whitespace for the purpose of ensuring identical inputs to HMAC
 
             mac = get_hmac(msg)
-            check = const_key_check
+            check = hmac.new(
+                bytes(config.api_connector.key.get_secret_value(), "utf8"),
+                msg=config.api_connector.key_check_constant.get_secret_value().encode(
+                    "utf8"
+                ),
+                digestmod=hashlib.sha256,
+            )
             # Check to see if the key is correct using static message.
             # If wrong, return 401 unauthorised
             if not hmac.compare_digest(key_check, check.hexdigest()):
