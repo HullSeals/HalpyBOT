@@ -23,8 +23,6 @@ from ..packages.edsm import (
 )
 from ..packages.announcer.announcer import cardinal_flip
 
-CACHE_OVERRIDE = False
-
 
 @Commands.command("drillcase")
 @Require.permission(Drilled)

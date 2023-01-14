@@ -7,14 +7,15 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+from sqlalchemy.engine import Engine
+from ..database import NoDatabaseConnection
 
-from ..database import engine, NoDatabaseConnection
 
-
-async def whois(subject):
+async def whois(engine: Engine, subject):
     """Get a Seal's historical information from the Database.
 
     Args:
+        engine (Engine): The database connection engine
         subject (str): The Seal's name being searched
 
     Returns:

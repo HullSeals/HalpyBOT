@@ -7,7 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+import json
 import time
 from typing import List
 from loguru import logger
@@ -16,7 +16,7 @@ from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.database.connection import latency
-from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
+from ..packages.edsm import GalaxySystem, EDSMLookupError
 from ..packages.models import Context
 from ..packages.utils import web_get
 
@@ -45,7 +45,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     """
     start = time.time()
     try:
-        latencycheck = await latency()
+        latencycheck = await latency(ctx.bot.engine)
     except NoDatabaseConnection:
         return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):
@@ -86,11 +86,23 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     try:
         uri = "https://hosting.zaonce.net/launcher-status/status.json"
         responses = await web_get(uri)
+        print(responses)
     except aiohttp.ClientError as server_stat_error:
         logger.exception("Error in Elite Server Status lookup.")
-        raise EDSMConnectionError(
+        await ctx.reply(
+            "The Elite servers are unreachable. Can't connect to the Elite API."
+        )
+        raise TypeError(
             "Unable to verify Elite Status, having issues connecting to the Elite API."
         ) from server_stat_error
+    except json.decoder.JSONDecodeError as server_response_error:
+        logger.exception("Error in Elite server status lookup.")
+        await ctx.reply(
+            "The Elite servers are not responding properly. Elite API responded with garbled data."
+        )
+        raise TypeError(
+            "Unable to verify Elite Status, Elite API responded with an invalid reply."
+        ) from server_response_error
     if len(responses) == 0:
         return await ctx.reply("ERROR! Elite returned an empty reply.")
     message = responses["text"]

@@ -9,7 +9,6 @@ See license.md
 """
 from typing import List
 from ..packages.command import Commands
-from ..packages.facts import Facts
 from ..packages.models import Context, User, NoUserFound
 
 
@@ -45,5 +44,5 @@ async def cmd_go(ctx: Context, args: List[str]):
                 )
 
     return await ctx.reply(
-        await Facts.fact_formatted(fact=("go", "en"), arguments=args)
+        await ctx.bot.facts.fact_formatted(fact=("go", "en"), arguments=args)
     )

@@ -9,20 +9,19 @@ See license.md
 """
 
 import os
-import sys
 import signal
 from typing import Optional
+import asyncio
 import pydle
 from loguru import logger
+from sqlalchemy import create_engine
 from halpybot.packages import utils
-from .. import notify
 from halpybot import config
+from .. import notify
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
-from ..facts import Facts
-from ..database import NoDatabaseConnection
+from ..facts import FactHandler
 from ...halpyconfig import SaslExternal, SaslPlain
-import asyncio
 from ..database import NoDatabaseConnection, test_database_connection
 
 
@@ -32,13 +31,27 @@ class HalpyBOT(pydle.Client, ListHandler):
     def __init__(self, *args, **kwargs):
         """Initialize a new Pydle client"""
         super().__init__(*args, **kwargs)
+        self.facts = FactHandler()
         self._commandhandler: Optional[CommandGroup] = Commands
-        self._commandhandler.facthandler = Facts
+        self._dbconfig = (
+            f"{config.database.connection_string}/{config.database.database}"
+        )
+        self._engine = create_engine(
+            self._dbconfig,
+            pool_pre_ping=True,
+            pool_recycle=3600,
+            connect_args={"connect_timeout": config.database.timeout},
+        )
 
     @property
     def commandhandler(self):
         """Command/fact handler object that messages are passed to"""
         return self._commandhandler
+
+    @property
+    def engine(self):
+        """Database Connection Engine"""
+        return self._engine
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):
@@ -89,12 +102,12 @@ class HalpyBOT(pydle.Client, ListHandler):
         if config.system_monitoring.failure_button:
             config.system_monitoring.failure_button = False
         try:
-            await test_database_connection()
-            await self._commandhandler.facthandler.fetch_facts(preserve_current=False)
+            await test_database_connection(self.engine)
         except NoDatabaseConnection:
             logger.error(
                 "Could not fetch facts from DB, backup file loaded and entering OM"
             )
+        await self.facts.fetch_facts(self.engine, preserve_current=False)
         for channel in config.channels.channel_list:
             await self.join(channel, force=True)
         await utils.task_starter(self)
@@ -173,8 +186,6 @@ class HalpyBOT(pydle.Client, ListHandler):
         await super().join(channel, password)
         if channel not in config.channels.channel_list:
             config.channels.channel_list.append(channel)
-            with open("config/config.ini", "w", encoding="UTF-8") as conf:
-                config.write(conf)
 
     async def part(self, channel, message=None):
         """Part a channel
@@ -189,8 +200,6 @@ class HalpyBOT(pydle.Client, ListHandler):
         if channel in chlist:
             chlist.remove(channel)
             config.channels.channel_list = " ".join(chlist)
-            with open("config/config.ini", "w", encoding="UTF-8") as conf:
-                config.write(conf)
 
 
 async def crash_notif(crashtype, condition):
@@ -245,7 +254,7 @@ def configure_client():
         )
     elif config.irc.sasl is None:
         logger.info("not using SASL auth.")
-        auth_kwargs = dict()
+        auth_kwargs = {}
     else:
         raise AssertionError(
             f"unreachable SASL auth variant reached: {type(config.irc.sasl)}"

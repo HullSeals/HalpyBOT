@@ -11,8 +11,6 @@ See license.md
 import re as REEE  # 🤫
 from loguru import logger
 import boto3
-import boto3.exceptions
-
 from halpybot import config
 
 
@@ -34,17 +32,6 @@ class SubscriptionError(SNSError):
     """
 
 
-if config.notify.secret and config.notify.access:
-    SNS = boto3.client(
-        "sns",
-        region_name=config.notify.region,  # AWS Region.
-        aws_access_key_id=config.notify.access,  # AWS IAM Access Key
-        aws_secret_access_key=config.notify.secret.get_secret_value(),
-    )  # AWS IAM Secret
-else:
-    SNS = None
-
-
 async def list_topics():
     """Subscribe
 
@@ -62,13 +49,13 @@ async def list_topics():
     """
     # List all SNS Topics on the Acct
     try:
-        response = SNS.list_topics()
+        response = config.notify.sns.list_topics()
     except boto3.exceptions.Boto3Error as boto_exception:
         raise SNSError(boto_exception) from boto_exception
     topics = response["Topics"]
     topic_list = []
     for topic, topic_type in enumerate(topics):
-        topic_list.append(topics[topic]["TopicArn"].split(":")[5])
+        topic_list.append(topic_type["TopicArn"].split(":")[5])
     return topic_list
 
 
@@ -106,7 +93,9 @@ async def subscribe(topic, endpoint):
         raise ValueError
 
     try:
-        SNS.subscribe(TopicArn=topic, Protocol=protocol, Endpoint=endpoint)
+        config.notify.sns.subscribe(
+            TopicArn=topic, Protocol=protocol, Endpoint=endpoint
+        )
     except boto3.exceptions.Boto3Error as boto_exception:
         logger.info(
             "NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.",
@@ -131,13 +120,13 @@ async def list_sub_by_topic(topic_arn):
 
     """
     try:
-        response = SNS.list_subscriptions_by_topic(TopicArn=topic_arn)
+        response = config.notify.sns.list_subscriptions_by_topic(TopicArn=topic_arn)
     except boto3.exceptions.Boto3Error as boto_exception:
         raise SNSError(boto_exception) from boto_exception
     subscriptions = response["Subscriptions"]
     sublist = []
     for sub, subtype in enumerate(subscriptions):
-        sublist.append(subscriptions[sub]["Endpoint"])
+        sublist.append(subtype["Endpoint"])
     return sublist
 
 
@@ -156,6 +145,6 @@ async def send_notification(topic, message, subject):
 
     """
     try:
-        SNS.publish(TopicArn=topic, Message=message, Subject=subject)
+        config.notify.sns.publish(TopicArn=topic, Message=message, Subject=subject)
     except boto3.exceptions.Boto3Error as boto_exception:
         raise NotificationFailure(boto_exception) from boto_exception

@@ -119,7 +119,7 @@ async def main():
             hostname=config.irc.server.host,
             port=config.irc.server.port,
             tls=config.irc.use_ssl,
-            tls_verify=False,  # TODO: expose in config
+            tls_verify=config.irc.tls_verify,
         ),
         loop=loop,
     )

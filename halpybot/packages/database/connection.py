@@ -10,18 +10,8 @@ See license.md
 
 import time
 from loguru import logger
-from sqlalchemy import create_engine, text, exc
-
+from sqlalchemy import text, exc, engine
 from halpybot import config
-
-dbconfig = config.database.connection_string
-
-engine = create_engine(
-    dbconfig,
-    pool_pre_ping=True,
-    pool_recycle=3600,
-    connect_args={"connect_timeout": config.database.timeout},
-)
 
 
 class NoDatabaseConnection(ConnectionError):
@@ -30,18 +20,18 @@ class NoDatabaseConnection(ConnectionError):
     """
 
 
-async def latency():
+async def latency(db_engine: engine.Engine):
     """Ping the database and get latency
     Returns:
         Database connection latency
     """
-    with engine.connect() as conn:
+    with db_engine.connect() as conn:
         conn.execute(text("SELECT 'latency'"))
     end = time.time()
     return end
 
 
-async def test_database_connection():
+async def test_database_connection(db_engine: engine.Engine):
     """
     Test the database connection. Set offline mode if an error occurs.
     A.K.A. The artist formerly known as "Box of Angry Bees"
@@ -52,12 +42,12 @@ async def test_database_connection():
     for attempt in range(1, 4):
         logger.info("Attempting DB Connection")
         try:
-            with engine.connect() as conn:
+            with db_engine.connect() as conn:
                 conn.execute(text("SELECT '1'"))
                 logger.info(f"Succeeded on attempt {attempt}")
                 return
         except exc.OperationalError:
             pass
-    config_write("Offline Mode", "enabled", "True")
+    config.offline_mode.enabled = True
     logger.info(f"Failed on attempt {attempt}")
     raise NoDatabaseConnection

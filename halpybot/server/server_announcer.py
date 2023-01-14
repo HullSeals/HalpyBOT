@@ -49,5 +49,4 @@ async def announce(request):
 
 
 MainAnnouncer = Announcer()
-
 APIConnector.add_routes(routes)

@@ -1,7 +1,7 @@
 # Contributing
 
 Before contributing to the project, please read the general Cyberseals code of conduct 
-[here](https://gitlab.com/hull-seals/welcome/-/blob/master/CONTRIBUTING.md#our-standards)
+[here](https://github.com/HullSeals/.github/blob/main/CONTRIBUTING.md#our-standards)
 
 ## Helping with the project
 
