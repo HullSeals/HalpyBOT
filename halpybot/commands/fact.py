@@ -21,10 +21,7 @@ from ..packages.facts import (
 )
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
-from ..packages.utils import language_codes, strip_non_ascii
-
-
-langcodes = language_codes()
+from ..packages.utils import strip_non_ascii
 
 
 async def splitter(fact_payload):
@@ -65,8 +62,8 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     langlist = await ctx.bot.facts.lang_by_fact(name)
     reply = (
         f"Fact: {fact.name}\n"
-        f"Language: {langcodes[lang.casefold()]} ({fact.language})\n"
-        f"All langs: {', '.join(f'{langcodes[lan.casefold()]} ({lan.upper()})' for lan in langlist)}\n"
+        f"Language: {ctx.bot.langcodes[lang.casefold()]} ({fact.language})\n"
+        f"All langs: {', '.join(f'{ctx.bot.langcodes[lan.casefold()]} ({lan.upper()})' for lan in langlist)}\n"
         f"ID: {fact.ID}\n"
         f"Author: {fact.author}\n"
         f"Text: {fact.raw_text}"
@@ -88,7 +85,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
     if not args or len(args) < 2:
         return await ctx.reply(get_help_text("addfact"))
     name, lang = await splitter(args)
-    if lang not in langcodes:
+    if lang not in ctx.bot.langcodes:
         return await ctx.reply(
             "Cannot comply: Language code must be ISO-639-1 compliant."
         )
@@ -165,7 +162,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
         lang = args[0].casefold()
 
     # Input validation
-    if lang not in langcodes:
+    if lang not in ctx.bot.langcodes:
         return await ctx.redirect(
             "Cannot comply: Please specify a valid language code."
         )
@@ -173,9 +170,11 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
     factlist = ctx.bot.facts.list(lang)
 
     if len(factlist) == 0:
-        return await ctx.redirect(f"No {langcodes[lang.casefold()]} facts found.")
+        return await ctx.redirect(
+            f"No {ctx.bot.langcodes[lang.casefold()]} facts found."
+        )
     return await ctx.redirect(
-        f"All {langcodes[lang.casefold()]} facts:\n"
+        f"All {ctx.bot.langcodes[lang.casefold()]} facts:\n"
         f"{', '.join(fact for fact in factlist)}"
     )
 

@@ -22,6 +22,7 @@ from ._listsupport import ListHandler
 from ..announcer import Twitter
 from ..command import Commands, CommandGroup
 from ..facts import FactHandler
+from ..utils import language_codes
 from ...halpyconfig import SaslExternal, SaslPlain
 from ..database import NoDatabaseConnection, test_database_connection
 
@@ -44,6 +45,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             connect_args={"connect_timeout": config.database.timeout},
         )
         self._twitter = Twitter(wait_on_rate_limit=True)
+        self._langcodes = language_codes()
 
     @property
     def commandhandler(self):
@@ -57,7 +59,13 @@ class HalpyBOT(pydle.Client, ListHandler):
 
     @property
     def twitter(self):
+        """Twitter Linkup"""
         return self._twitter
+
+    @property
+    def langcodes(self):
+        """Language Codes"""
+        return self._langcodes
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):
