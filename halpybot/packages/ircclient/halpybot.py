@@ -19,6 +19,7 @@ from halpybot.packages import utils
 from halpybot import config
 from .. import notify
 from ._listsupport import ListHandler
+from ..announcer import Twitter
 from ..command import Commands, CommandGroup
 from ..facts import FactHandler
 from ...halpyconfig import SaslExternal, SaslPlain
@@ -42,6 +43,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             pool_recycle=3600,
             connect_args={"connect_timeout": config.database.timeout},
         )
+        self._twitter = Twitter(wait_on_rate_limit=True)
 
     @property
     def commandhandler(self):
@@ -52,6 +54,10 @@ class HalpyBOT(pydle.Client, ListHandler):
     def engine(self):
         """Database Connection Engine"""
         return self._engine
+
+    @property
+    def twitter(self):
+        return self._twitter
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):
