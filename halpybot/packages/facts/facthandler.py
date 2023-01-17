@@ -228,8 +228,7 @@ class FactHandler:
             result = database_connection.execute(
                 text(
                     "SELECT factID, factName, factLang, factText, factAuthor "
-                    "FROM :table",
-                    table=config.facts.table,
+                    "FROM {}".format(config.facts.table)
                 )
             )
             self._flush_cache()
@@ -369,9 +368,8 @@ class FactHandler:
             )
         with db_engine.connect() as database_connection:
             database_connection.execute(
-                text("DELETE FROM :table WHERE factID = :fact_id"),
+                text("DELETE FROM {} WHERE factID = :fact_id".format(config.facts.table)),
                 fact_id=self._fact_cache[name, lang].ID,
-                table=config.facts.table,
             )
             del self._fact_cache[name, lang]
 
