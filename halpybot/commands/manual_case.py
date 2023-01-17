@@ -21,7 +21,6 @@ from ..packages.announcer import send_webhook, WebhookSendError
 async def send_message(message_content, sender, embeds):
     """
     Send a message to Discord
-
     """
     cn_message = {
         "content": message_content,
