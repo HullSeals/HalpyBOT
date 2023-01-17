@@ -98,9 +98,7 @@ class Announcer:
                 await client.message(channel, await ann.format(args))
             if "Platform" in args.keys():
                 try:
-                    logger.critical("Trying Twitter")
                     await client.twitter.tweet_case(ann, args)
-                    logger.critical("Ending Twitter")
                 except TwitterConnectionError:
                     logger.exception("Unable to send case details to Twitter.")
                     return
