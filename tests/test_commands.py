@@ -342,67 +342,67 @@ async def test_say_no_args(bot_fx):
 
 
 # FIXME: Rework for Internal DB
-# @pytest.mark.asyncio
-# async def test_whois_hbot(bot_fx):
-#     """Test the WHOIS command easter egg"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="some_admin",
-#         sender="some_admin",
-#         message=f"{config.irc.command_prefix}whois halpybot",
-#     )
-#     assert bot_fx.sent_messages[0] == {
-#         "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
-#         "target": "some_admin",
-#     }
-#
-#
-# @pytest.mark.asyncio
-# async def test_whois_empty(bot_fx):
-#     """Test the WHOIS command without arguments"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="some_admin",
-#         sender="some_admin",
-#         message=f"{config.irc.command_prefix}whois",
-#     )
-#     assert bot_fx.sent_messages[0] == {
-#         "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
-#         "target": "some_admin",
-#     }
+@pytest.mark.asyncio
+async def test_whois_hbot(bot_fx):
+    """Test the WHOIS command easter egg"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config.irc.command_prefix}whois halpybot",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
+        "target": "some_admin",
+    }
+
+
+@pytest.mark.asyncio
+async def test_whois_empty(bot_fx):
+    """Test the WHOIS command without arguments"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config.irc.command_prefix}whois",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
+        "target": "some_admin",
+    }
 
 
 # FIXME: These two tests need to be reworked to avoid poking the live DB.
-# @pytest.mark.asyncio
-# async def test_whois(bot_fx):
-#     """Test the WHOIS command"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="some_admin",
-#         sender="some_admin",
-#         message=f"{config.irc.command_prefix}whois Rixxan",
-#     )
-#     assert (
-#         bot_fx.sent_messages[0]
-#         .get("message")
-#         .startswith("CMDR Rixxan has a Seal ID of 1")
-#     )
-#
-#
-# @pytest.mark.asyncio
-# async def test_whoami(bot_fx):
-#     """Test the WHOAMI command"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="Rixxan",
-#         sender="Rixxan",
-#         message=f"{config.irc.command_prefix}whoami",
-#     )
-#     assert (
-#         bot_fx.sent_messages[0]
-#         .get("message")
-#         .startswith("CMDR Rixxan has a Seal ID of 1")
-#     )
+@pytest.mark.asyncio
+async def test_whois(bot_fx):
+    """Test the WHOIS command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config.irc.command_prefix}whois Rixxan",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
+
+
+@pytest.mark.asyncio
+async def test_whoami(bot_fx):
+    """Test the WHOAMI command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="Rixxan",
+        sender="Rixxan",
+        message=f"{config.irc.command_prefix}whoami",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
 
 
 @pytest.mark.asyncio
@@ -537,19 +537,19 @@ async def test_drillcb_unauth(bot_fx):
     }
 
 
-@pytest.mark.asyncio
-async def test_go_valid(bot_fx):
-    """Test the GO command"""
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="#bot-test",
-        sender="generic_seal",
-        message=f"{config.irc.command_prefix}go some_pup",
-    )
-    assert bot_fx.sent_messages[0] == {
-        "message": "some_pup: You're up.",
-        "target": "#bot-test",
-    }
+# @pytest.mark.asyncio
+# async def test_go_valid(bot_fx):
+#     """Test the GO command"""
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="#bot-test",
+#         sender="generic_seal",
+#         message=f"{config.irc.command_prefix}go some_pup",
+#     )
+#     assert bot_fx.sent_messages[0] == {
+#         "message": "some_pup: You're up.",
+#         "target": "#bot-test",
+#     }
 
 
 @pytest.mark.asyncio
