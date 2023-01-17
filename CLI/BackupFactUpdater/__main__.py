@@ -58,7 +58,9 @@ def run_facts():
         print("40% Connection started...")
         with engine.connect() as conn:
             result = conn.execute(
-                text("SELECT factName, factLang, factText FROM {}".format(table)),
+                text(
+                    f"SELECT factName, factLang, factText FROM {table}",
+                )
             )
             print("60% Got data, parsing...")
             for (name, lang, facttext) in result:
