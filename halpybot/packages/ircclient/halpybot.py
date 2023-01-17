@@ -35,6 +35,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         super().__init__(*args, **kwargs)
         self.facts = FactHandler()
         self._commandhandler: Optional[CommandGroup] = Commands
+        self._commandhandler.facthandler = self.facts
         self._dbconfig = (
             f"{config.database.connection_string}/{config.database.database}"
         )
