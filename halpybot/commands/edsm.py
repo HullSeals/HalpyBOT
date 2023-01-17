@@ -38,13 +38,13 @@ async def cmd_systemlookup(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("lookup"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "lookup"))
     cache_override = False
     if args[0] == "--new":
         cache_override = True
         del args[0]
         if not args:
-            return await ctx.reply(get_help_text("lookup"))
+            return await ctx.reply(get_help_text(ctx.bot.commandsfile, "lookup"))
 
     # For whoever find's this note, you're not crazy. arg[0:] == arg. You get a gold star
     # Gitblame means no gold star for Rik
@@ -79,13 +79,13 @@ async def cmd_cmdrlocate(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("locatecmdr"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "locatecmdr"))
     cache_override = False
     if args[0] == "--new":
         cache_override = True
         del args[0]
         if not args:
-            return await ctx.reply(get_help_text("locatecmdr"))
+            return await ctx.reply(get_help_text(ctx.bot.commandsfile, "locatecmdr"))
 
     # No. Only 1 gold star per stupid thing
     cmdr = " ".join(args[0:]).strip()
@@ -119,13 +119,13 @@ async def cmd_distlookup(ctx: Context, args: List[str]):
     Aliases: dist
     """
     if len(args) <= 1:  # Minimum Number of Args is 2.
-        return await ctx.reply(get_help_text("dist"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "dist"))
     cache_override = False
     if args[0] == "--new":
         cache_override = True
         del args[0]
         if not args:
-            return await ctx.reply(get_help_text("dist"))
+            return await ctx.reply(get_help_text(ctx.bot.commandsfile, "dist"))
 
     try:
         # Parse systems/CMDRs from string
@@ -172,13 +172,13 @@ async def cmd_landmarklookup(ctx: Context, args: List[str]):
     cache_override = False
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("landmark"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "landmark"))
     if args[0] == "--new":
         cache_override = True
         del args[0]
         ctx.message = " ".join(args)
         if not ctx.message:
-            return await ctx.reply(get_help_text("landmark"))
+            return await ctx.reply(get_help_text(ctx.bot.commandsfile, "landmark"))
 
     system = ctx.message.strip()
     system = await sys_cleaner(system)
@@ -223,13 +223,13 @@ async def cmd_dssalookup(ctx: Context, args: List[str]):
     cache_override = False
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("dssa"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "dssa"))
     if args[0] == "--new":
         cache_override = True
         del args[0]
         ctx.message = " ".join(args)
         if not ctx.message:
-            return await ctx.reply(get_help_text("dssa"))
+            return await ctx.reply(get_help_text(ctx.bot.commandsfile, "dssa"))
 
     system = ctx.message.strip()
     system = await sys_cleaner(system)
@@ -266,7 +266,7 @@ async def cmd_coordslookup(ctx, args: List[str]):
     """
     system = None
     if len(args) <= 2:  # Minimum Number of Args is 3.
-        return await ctx.reply(get_help_text("coords"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "coords"))
     xcoord = args[0].strip()
     ycoord = args[1].strip()
     zcoord = args[2].strip()
@@ -312,13 +312,13 @@ async def cmd_diversionlookup(ctx: Context, args: List[str]):
     cache_override = False
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("diversion"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "diversion"))
     if args[0] == "--new":
         cache_override = True
         del args[0]
         ctx.message = " ".join(args)
         if not ctx.message:
-            return await ctx.reply(get_help_text("diversion"))
+            return await ctx.reply(get_help_text(ctx.bot.commandsfile, "diversion"))
     system = ctx.message.strip()
     cleaned_sys = await sys_cleaner(system)
 

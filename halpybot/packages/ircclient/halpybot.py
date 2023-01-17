@@ -7,7 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+import json
 import os
 import signal
 from typing import Optional
@@ -47,6 +47,8 @@ class HalpyBOT(pydle.Client, ListHandler):
         )
         self._twitter = Twitter(wait_on_rate_limit=True)
         self._langcodes = language_codes()
+        with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
+            self._commandsfile = json.load(jsonfile)
 
     @property
     def commandhandler(self):
@@ -67,6 +69,11 @@ class HalpyBOT(pydle.Client, ListHandler):
     def langcodes(self):
         """Language Codes"""
         return self._langcodes
+
+    @property
+    def commandsfile(self):
+        """Commands Help File"""
+        return self._commandsfile
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):

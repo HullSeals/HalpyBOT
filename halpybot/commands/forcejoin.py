@@ -28,7 +28,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) <= 1:
-        return await ctx.reply(get_help_text("forcejoin"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "forcejoin"))
 
     # Convert channel name to lower case to avoid issues with the already-in-channel check
     args[1] = args[1].casefold()
@@ -75,7 +75,7 @@ async def cmd_rrjoin(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("rrjoin"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "rrjoin"))
 
     botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
 

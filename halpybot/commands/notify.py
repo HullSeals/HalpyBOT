@@ -93,7 +93,9 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
     Aliases: notifyinfo endpoints
     """
     if not args:
-        return await ctx.reply(get_help_text("notifyinfo details"))
+        return await ctx.reply(
+            get_help_text(ctx.bot.commandsfile, "notifyinfo details")
+        )
 
     group = args[0].casefold().strip()
 
@@ -131,7 +133,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
     """
 
     if len(args) <= 1:
-        return await ctx.reply(get_help_text("addsub"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "addsub"))
 
     group = args[0].casefold().strip()
 
@@ -170,7 +172,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     Aliases: !callstaff, !opsig
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("opsignal"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "opsignal"))
 
     subject, topic, message = await format_notification(
         "OpSignal", "staff", ctx.sender, args
@@ -201,7 +203,7 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("cybersignal"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "cybersignal"))
 
     subject, topic, message = await format_notification(
         "CyberSignal", "cybers", ctx.sender, args

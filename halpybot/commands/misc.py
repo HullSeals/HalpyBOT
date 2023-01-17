@@ -27,7 +27,7 @@ async def cmd_shorten(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if not args:
-        return await ctx.reply(get_help_text("shorten"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "shorten"))
     logger.info(f"{ctx.sender} requested shortening of {args[0]}")
     surl = await shorten(args[0])
     return await ctx.reply(f"{ctx.sender}: Here's your short URL: {surl}")
@@ -42,7 +42,7 @@ async def cmd_roll(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if not args:
-        return await ctx.reply(get_help_text("roll"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
     dicesearch = re.search(r"^\d+d\d+$", args[0])
     if dicesearch is not None:
         dice = args[0].split("d")
@@ -54,7 +54,7 @@ async def cmd_roll(ctx: Context, args: List[str]):
             rolls.append(dice_roll)
         total = sum(rolls)
         return await ctx.reply(f"{ctx.sender}: {total} {str(rolls)}")
-    return await ctx.reply(get_help_text("roll"))
+    return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
 
 
 @Commands.command("fireball")

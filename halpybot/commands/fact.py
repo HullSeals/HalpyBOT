@@ -54,7 +54,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if not args or len(args) != 1:
-        return await ctx.reply(get_help_text("factinfo"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "factinfo"))
     name, lang = await splitter(args)
     fact: Optional[Fact] = await ctx.bot.facts.get(name, lang)
     if fact is None:
@@ -83,7 +83,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
     """
 
     if not args or len(args) < 2:
-        return await ctx.reply(get_help_text("addfact"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "addfact"))
     name, lang = await splitter(args)
     if lang not in ctx.bot.langcodes:
         return await ctx.reply(
@@ -125,7 +125,7 @@ async def cmd_deletefact(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if not args or len(args) != 1:
-        return await ctx.reply(get_help_text("deletefact"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "deletefact"))
     name, lang = await splitter(args)
     if await ctx.bot.facts.get(name, lang) is None:
         return await ctx.reply("That fact does not exist.")
@@ -190,7 +190,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
     Aliases: updatefact
     """
     if not args or len(args) < 2:
-        return await ctx.reply(get_help_text("editfact"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "editfact"))
 
     name, lang = await splitter(args)
 

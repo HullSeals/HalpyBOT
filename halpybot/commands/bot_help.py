@@ -8,15 +8,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import json
 from typing import List
 import git
 from halpybot import __version__
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
-
-with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
-    json_dict = json.load(jsonfile)
 
 
 @Commands.command("help")
@@ -30,18 +26,18 @@ async def hbot_help(ctx: Context, args: List[str]):
     if not args:
         # Return low detail list of commands
         help_string = ""
-        for catagory, command_dict in json_dict.items():
+        for catagory, command_dict in ctx.bot.commandsfile.items():
             help_string += catagory + "\n"
             help_string += "        " + ", ".join(command_dict) + "\n"
         # Remove final line break
         help_string = help_string[:-1]
         return await ctx.redirect(help_string)
     # A specific command has been queried
-    help_text = get_help_text(" ".join(args))
+    help_text = get_help_text(ctx.bot.commandsfile, " ".join(args))
     if help_text is not None:
         return await ctx.reply(help_text)
     for arg in args:
-        help_text = get_help_text(arg)
+        help_text = get_help_text(ctx.bot.commandsfile, arg)
 
         if help_text is None:
             await ctx.reply(

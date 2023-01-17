@@ -29,7 +29,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     Aliases: mancase, manualfish, manfish
     """
     if len(args) <= 1:
-        return await ctx.reply(get_help_text("mancase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "mancase"))
 
     # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
     try:
@@ -37,7 +37,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
     except KeyError:
-        return await ctx.reply(get_help_text("mancase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "mancase"))
 
     info = ctx.message
     logger.info(
@@ -102,7 +102,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     Aliases: wssping
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("tsping"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "tsping"))
     info = ctx.message
 
     cn_message = {

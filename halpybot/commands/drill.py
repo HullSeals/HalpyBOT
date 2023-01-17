@@ -40,7 +40,7 @@ async def cmd_drillcase(ctx: Context, args: List[str]):
     args = [x.strip(" ") for x in args]
     args = [ele for ele in args if ele.strip()]
     if len(args) < 4:
-        return await ctx.reply(get_help_text("drillcase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "drillcase"))
     system = await sys_cleaner(args[2])
     await ctx.reply(
         f"xxxx DRILL -- DRILL -- DRILL xxxx\n"
@@ -67,7 +67,7 @@ async def cmd_drillkfcase(ctx: Context, args: List[str]):
     args = [x.strip(" ") for x in args]
     args = [ele for ele in args if ele.strip()]
     if len(args) < 6:
-        return await ctx.reply(get_help_text("drillkfcase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "drillkfcase"))
     system = await sys_cleaner(args[2])
     await ctx.reply(
         f"xxxx DRILL -- DRILL -- DRILL xxxx\n"
@@ -96,7 +96,7 @@ async def cmd_drillcbcase(ctx: Context, args: List[str]):
     args = [x.strip(" ") for x in args]
     args = [ele for ele in args if ele.strip()]
     if len(args) < 6:
-        return await ctx.reply(get_help_text("drillcbcase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "drillcbcase"))
     system = await sys_cleaner(args[2])
     await ctx.reply(
         f"xxxx DRILL -- DRILL -- DRILL xxxx\n"
