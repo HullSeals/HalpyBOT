@@ -59,7 +59,8 @@ def run_facts():
         with engine.connect() as conn:
             result = conn.execute(
                 text(
-                    f"SELECT factName, factLang, factText FROM {table}",
+                    "SELECT factName, factLang, factText FROM :table",
+                    table=table,
                 )
             )
             print("60% Got data, parsing...")
