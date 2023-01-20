@@ -15,7 +15,7 @@ import aiohttp
 from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import NoDatabaseConnection
-from ..packages.database.connection import latency
+from ..packages.database.connection import test_database_connection
 from ..packages.edsm import GalaxySystem, EDSMLookupError
 from ..packages.models import Context
 from ..packages.utils import web_get
@@ -45,7 +45,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     """
     start = time.time()
     try:
-        latencycheck = await latency(ctx.bot.engine)
+        latencycheck = await test_database_connection(ctx.bot.engine)
     except NoDatabaseConnection:
         return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):

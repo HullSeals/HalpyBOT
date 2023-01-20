@@ -11,11 +11,9 @@ See license.md
 from .connection import (
     NoDatabaseConnection,
     test_database_connection,
-    latency,
 )
 
 __all__ = [
     "NoDatabaseConnection",
     "test_database_connection",
-    "latency",
 ]
