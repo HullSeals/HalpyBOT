@@ -24,7 +24,6 @@ from ..command import Commands, CommandGroup
 from ..facts import FactHandler
 from ..utils import language_codes
 from ...halpyconfig import SaslExternal, SaslPlain
-from ..database import NoDatabaseConnection, test_database_connection
 
 
 class HalpyBOT(pydle.Client, ListHandler):
@@ -123,13 +122,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.operserv_login()
         if config.system_monitoring.failure_button:
             config.system_monitoring.failure_button = False
-        try:
-            await test_database_connection(self.engine)
-        except NoDatabaseConnection:
-            logger.error(
-                "Could not fetch facts from DB, backup file loaded and entering OM"
-            )
-        await self.facts.fetch_facts(self.engine, preserve_current=False)
+        await self.facts.fetch_facts(self.engine)
         for channel in config.channels.channel_list:
             await self.join(channel, force=True)
         await utils.task_starter(self)

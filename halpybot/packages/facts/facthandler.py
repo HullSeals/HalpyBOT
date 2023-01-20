@@ -15,7 +15,7 @@ import re
 from loguru import logger
 from sqlalchemy import text, engine
 from halpybot import config
-from ..database import NoDatabaseConnection
+from ..database import NoDatabaseConnection, test_database_connection
 from ..command import Commands
 
 
@@ -215,12 +215,14 @@ class FactHandler:
 
         """
         try:
+            await test_database_connection(db_engine)
             await self._from_database(db_engine)
         except NoDatabaseConnection:
-            logger.exception("No database connection. Unable to retreive facts.")
+            logger.exception(
+                "Could not fetch facts from DB, backup file loaded and entering OM"
+            )
             if not preserve_current:
                 await self._from_local()
-            raise
 
     async def _from_database(self, db_engine: engine.Engine):
         """Get facts from database and update the cache"""

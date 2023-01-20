@@ -26,8 +26,8 @@ async def hbot_help(ctx: Context, args: List[str]):
     if not args:
         # Return low detail list of commands
         help_string = ""
-        for catagory, command_dict in ctx.bot.commandsfile.items():
-            help_string += catagory + "\n"
+        for category, command_dict in ctx.bot.commandsfile.items():
+            help_string += category + "\n"
             help_string += "        " + ", ".join(command_dict) + "\n"
         # Remove final line break
         help_string = help_string[:-1]
@@ -40,6 +40,15 @@ async def hbot_help(ctx: Context, args: List[str]):
         help_text = get_help_text(ctx.bot.commandsfile, arg)
 
         if help_text is None:
+            help_string = ""
+            for category, command_dict in ctx.bot.commandsfile.items():
+                if arg == category:
+                    help_string += category + "\n"
+                    help_string += "        " + ", ".join(command_dict) + "\n"
+                # Remove final line break
+                help_string = help_string[:-1]
+                return await ctx.redirect(help_string)
+
             await ctx.reply(
                 f"The command {arg} could not be found in the list. Try running help without an argument to get"
                 f" the list of commands"
