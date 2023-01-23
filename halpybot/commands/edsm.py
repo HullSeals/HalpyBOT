@@ -84,7 +84,7 @@ class EDSMUtils:
         def decorator(function):
             @functools.wraps(function)
             async def guarded(ctx, args: List[str]):
-                cmdr, cache_override = cache_prep(ctx, args)
+                cmdr, cache_override = await cache_prep(ctx, args)
                 try:
                     return await function(ctx, cmdr, cache_override)
                 except NoResultsEDSM:
