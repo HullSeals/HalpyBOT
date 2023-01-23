@@ -38,7 +38,7 @@ config.edsm.uri = "http://127.0.0.1:4000"
 # Test System
 # 1: Existing sys
 @pytest.mark.asyncio
-async def test_sys(mock_api_server_fx):
+async def test_sys():
     """Test that EDSM returns a valid response for a given system"""
     sys = await GalaxySystem.get_info("Sol", cache_override=True)
     assert sys.name == "Sol"

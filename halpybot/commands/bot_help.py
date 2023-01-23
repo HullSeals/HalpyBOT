@@ -47,7 +47,8 @@ async def hbot_help(ctx: Context, args: List[str]):
                     help_string += "        " + ", ".join(command_dict) + "\n"
                 # Remove final line break
                 help_string = help_string[:-1]
-                return await ctx.redirect(help_string)
+                if len(help_string) != 0:
+                    return await ctx.redirect(help_string)
 
             await ctx.reply(
                 f"The command {arg} could not be found in the list. Try running help without an argument to get"
