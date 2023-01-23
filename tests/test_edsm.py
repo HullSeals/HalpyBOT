@@ -28,6 +28,7 @@ from halpybot.packages.edsm import (
     NoNearbyEDSM,
     EDSMReturnError,
 )
+from halpybot.packages.models import Coordinates
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
@@ -164,7 +165,9 @@ async def test_distance_bad_dssa():
 
 def test_coords():
     """Test that the distance calculator responds the proper distance"""
-    coords = calc_distance(-1, 2, 3, 400, 500, 600)
+    sysa = Coordinates(x=-1, y=3, z=500)
+    sysb = Coordinates(x=2, y=400, z=600)
+    coords = calc_distance(sysa, sysb)
     assert coords == 409.41
 
 

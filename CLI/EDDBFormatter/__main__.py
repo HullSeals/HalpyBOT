@@ -52,7 +52,7 @@ def run_eddb():
 
     # Open the jq-formatted (or renamed) json system json file. (Original Size: 57 MB)
     with open(
-        f"{rootpath}/files/input/formatted_systems_populated.json",
+        f"{rootpath}/files/input/systems_populated.json",
         "r",
         encoding="UTF-8",
     ) as systemfile:
@@ -63,9 +63,11 @@ def run_eddb():
         temp_system_dict = {
             "id": system["id"],
             "system_name": system["name"],
-            "x_coord": system["x"],
-            "y_coord": system["y"],
-            "z_coord": system["z"],
+            "coords": {
+                "x_coord": system["x"],
+                "y_coord": system["y"],
+                "z_coord": system["z"],
+            },
             "needs_permit": system["needs_permit"],  # Included for filtering only.
         }
         if not temp_system_dict["needs_permit"]:
@@ -81,7 +83,7 @@ def run_eddb():
 
     # Open jq-formatted or renamed station file. (Original Size: 420 MB)
     with open(
-        f"{rootpath}/files/input/formatted_stations.json", "r", encoding="UTF-8"
+        f"{rootpath}/files/input/stations.json", "r", encoding="UTF-8"
     ) as jsonfile:
         data = json.load(jsonfile)
     station_dict = {}
@@ -104,6 +106,7 @@ def run_eddb():
             and temp_station_dict["has_repair"]
             and not temp_station_dict["is_planet"]
             and temp_station_dict["station_type"] != "Fleet Carrier"
+            and temp_station_dict["station_type"] != "Megaship"
             and temp_station_dict["dist_star"] <= 800
         ):
             station_dict[counter] = temp_station_dict
@@ -131,9 +134,11 @@ def run_eddb():
             "name": working_dict_1["name"],
             "dist_star": working_dict_1["dist_star"],
             "system_name": wd_2["system_name"],
-            "x_coord": wd_2["x_coord"],
-            "y_coord": wd_2["y_coord"],
-            "z_coord": wd_2["z_coord"],
+            "coords": {
+                "x": wd_2["coords"]["x_coord"],
+                "y": wd_2["coords"]["y_coord"],
+                "z": wd_2["coords"]["z_coord"],
+            },
         }
         write_list.append(final_dict)  # Append as List, not write as full Dict
     # Write it out before we forget what we're doing.
