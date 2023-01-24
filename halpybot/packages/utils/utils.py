@@ -110,7 +110,7 @@ async def task_starter(botclient):
     ]
 
 
-async def _five_minute_task(botclient, *args, **kwargs):
+async def _five_minute_task(botclient):
     while True:
         await asyncio.sleep(300)
         if config.offline_mode.enabled:
@@ -119,9 +119,11 @@ async def _five_minute_task(botclient, *args, **kwargs):
                 await botclient.message(
                     "#opers", "WARNING: Offline Mode Enabled. Please investigate."
                 )
-            await botclient.message(
-                config.offline_mode.announce_channels,
-                "WARNING: Offline Mode Enabled. Please investigate.",
+            await asyncio.gather(
+                *[
+                    botclient.message(channel, "WARNING: Offline Mode Enabled. Please investigate.")
+                    for channel in config.offline_mode.announce_channels
+                ]
             )
 
 
@@ -132,7 +134,7 @@ async def _five_minute_task(botclient, *args, **kwargs):
 #
 
 
-async def _one_hour_task(botclient, *args, **kwargs):
+async def _one_hour_task(botclient):
     while True:
         await asyncio.sleep(3600)
         try:
@@ -150,7 +152,7 @@ async def _one_hour_task(botclient, *args, **kwargs):
 #         await asyncio.sleep(86400)
 
 
-async def _one_week_task(botclient, *args, **kwargs):
+async def _one_week_task(botclient):
     while True:
         await asyncio.sleep(604800)
         if not config.offline_mode.enabled:
