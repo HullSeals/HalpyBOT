@@ -4,7 +4,6 @@
 
 # Config files
 /.env
-/config/config.ini
 /data/announcer/announcer.json
 /CLI/BackupFactUpdater/config.ini
 CLI/DSSAUpdater/config.ini
@@ -30,3 +29,6 @@ halpybot.json
 
 # Lock files
 poetry.lock
+
+# Distribution Releases
+/dist/*
