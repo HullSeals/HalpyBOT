@@ -121,7 +121,9 @@ async def _five_minute_task(botclient):
                 )
             await asyncio.gather(
                 *[
-                    botclient.message(channel, "WARNING: Offline Mode Enabled. Please investigate.")
+                    botclient.message(
+                        channel, "WARNING: Offline Mode Enabled. Please investigate."
+                    )
                     for channel in config.offline_mode.announce_channels
                 ]
             )
