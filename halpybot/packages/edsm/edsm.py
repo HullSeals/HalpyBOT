@@ -23,7 +23,7 @@ from loguru import logger
 import aiohttp
 import numpy as np
 import cattr
-from attr import dataclass, define, field
+from attr import dataclass, field
 from halpybot import config
 from ..models import Coordinates, Location
 from ..models import edsm_classes
@@ -564,7 +564,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         )
 
 
-@define
+@dataclass
 class Diversion:
     """Format for finding Diversion systems"""
 
@@ -575,10 +575,9 @@ class Diversion:
     item: float = field(converter=float)
 
 
-Diversions = typing.List[Diversion]
-
-
-async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
+async def diversions(
+    edsm_sys_name, cache_override: bool = False
+) -> typing.List[Diversion]:
     """Check distance to the nearest diversion station
 
     Last updated 2022-05-23 w/ 7,384 Qualified Stations
