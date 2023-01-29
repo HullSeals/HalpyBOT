@@ -11,7 +11,7 @@ See license.md
 
 from __future__ import annotations
 import json
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, TYPE_CHECKING
 from loguru import logger
 from ..edsm import (
     checklandmarks,
@@ -22,8 +22,10 @@ from ..edsm import (
     sys_cleaner,
     NoNearbyEDSM,
 )
-from .twitter import TwitterCasesAcc, TwitterConnectionError
-from ..ircclient import HalpyBOT
+from .twitter import TwitterConnectionError
+
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 
 cardinal_flip = {
     "North": "South",
@@ -96,7 +98,7 @@ class Announcer:
                 await client.message(channel, await ann.format(args))
             if "Platform" in args.keys():
                 try:
-                    await TwitterCasesAcc.tweet_case(ann, args)
+                    await client.twitter.tweet_case(ann, args)
                 except TwitterConnectionError:
                     logger.exception("Unable to send case details to Twitter.")
                     return

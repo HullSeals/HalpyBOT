@@ -7,7 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+import json
 import os
 import signal
 from typing import Optional
@@ -19,10 +19,11 @@ from halpybot.packages import utils
 from halpybot import config
 from .. import notify
 from ._listsupport import ListHandler
+from ..announcer import Twitter
 from ..command import Commands, CommandGroup
 from ..facts import FactHandler
+from ..utils import language_codes
 from ...halpyconfig import SaslExternal, SaslPlain
-from ..database import NoDatabaseConnection, test_database_connection
 
 
 class HalpyBOT(pydle.Client, ListHandler):
@@ -33,6 +34,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         super().__init__(*args, **kwargs)
         self.facts = FactHandler()
         self._commandhandler: Optional[CommandGroup] = Commands
+        self._commandhandler.facthandler = self.facts
         self._dbconfig = (
             f"{config.database.connection_string}/{config.database.database}"
         )
@@ -42,6 +44,10 @@ class HalpyBOT(pydle.Client, ListHandler):
             pool_recycle=3600,
             connect_args={"connect_timeout": config.database.timeout},
         )
+        self._twitter = Twitter(wait_on_rate_limit=True)
+        self._langcodes = language_codes()
+        with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
+            self._commandsfile = json.load(jsonfile)
 
     @property
     def commandhandler(self):
@@ -52,6 +58,21 @@ class HalpyBOT(pydle.Client, ListHandler):
     def engine(self):
         """Database Connection Engine"""
         return self._engine
+
+    @property
+    def twitter(self):
+        """Twitter Linkup"""
+        return self._twitter
+
+    @property
+    def langcodes(self):
+        """Language Codes"""
+        return self._langcodes
+
+    @property
+    def commandsfile(self):
+        """Commands Help File"""
+        return self._commandsfile
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):
@@ -101,13 +122,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.operserv_login()
         if config.system_monitoring.failure_button:
             config.system_monitoring.failure_button = False
-        try:
-            await test_database_connection(self.engine)
-        except NoDatabaseConnection:
-            logger.error(
-                "Could not fetch facts from DB, backup file loaded and entering OM"
-            )
-        await self.facts.fetch_facts(self.engine, preserve_current=False)
+        await self.facts.fetch_facts(self.engine)
         for channel in config.channels.channel_list:
             await self.join(channel, force=True)
         await utils.task_starter(self)

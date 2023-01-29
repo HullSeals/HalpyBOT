@@ -65,7 +65,6 @@ class Twitter(tweepy.Client):
             self.__bool__()
         ):  # Eh, this is stupid and unneccesary I guess. Keep it anyway
             try:
-
                 edsm_info = await announcement.get_edsm_data(args, twitter=True)
                 twitmsg = f"{mainline_tw} {edsm_info} Call your jumps, Seals!"
                 auth = tweepy.Client(
@@ -80,6 +79,3 @@ class Twitter(tweepy.Client):
                 raise TwitterConnectionError(err) from err
         else:
             return
-
-
-TwitterCasesAcc = Twitter(wait_on_rate_limit=True)

@@ -18,12 +18,8 @@ from halpybot import commands
 from .fixtures.mock_halpy import TestBot
 
 
-# FIXME
-# @pytest.fixture()
-# async def bot_fx():
-#     """Create a fixture that represents the bot"""
-#
-#     # noinspection PyProtectedMember
-#     await Facts._from_local()  # Allows us to test the Fact module from the pre-packaged JSON file
-#     test_bot = TestBot(nickname="HalpyTest[BOT]")
-#     return test_bot
+@pytest.fixture()
+async def bot_fx():
+    """Create a fixture that represents the bot"""
+    test_bot = TestBot(nickname="HalpyTest[BOT]")
+    return test_bot

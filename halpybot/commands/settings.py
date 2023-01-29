@@ -30,7 +30,7 @@ async def cmd_nick(ctx: Context, args: List[str]):
     Aliases: settings nick
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("settings nick"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "settings nick"))
     logger.info(
         "NICK CHANGE from {name} to {newName} by {sender}",
         name=config.irc.nickname,
@@ -51,7 +51,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
     Aliases: settings prefix
     """
     if not args:
-        return await ctx.reply(get_help_text("settings prefix"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "settings prefix"))
     logger.info(
         "PREFIX CHANGE from {prefix} to {new} by {sender}",
         prefix=config.irc.command_prefix,
@@ -77,7 +77,7 @@ async def cmd_offline(ctx: Context, args: List[str]):
     """
     if len(args) == 0:
         return await ctx.reply(
-            f"{get_help_text('settings offline')}\nCurrent "
+            f"{get_help_text(ctx.bot.commandsfile, 'settings offline')}\nCurrent "
             f"offline setting: {config.offline_mode.enabled}"
         )
     if not args[0].casefold() in ("true", "false"):
@@ -107,7 +107,7 @@ async def cmd_joinchannel(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("joinchannel"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "joinchannel"))
     try:
         await ctx.bot.join(args[0])
         return await ctx.reply(f"Bot joined channel {args[0]}")
@@ -127,7 +127,7 @@ async def cmd_part(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("partchannel"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "partchannel"))
     try:
         await ctx.bot.part(message=f"Parted by {ctx.sender}", channel=args[0])
         return await ctx.redirect(f"Bot parted channel {args[0]}")

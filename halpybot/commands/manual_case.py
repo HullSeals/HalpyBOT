@@ -18,6 +18,24 @@ from ..packages.models import Context, User
 from ..packages.announcer import send_webhook, WebhookSendError
 
 
+async def send_message(message_content, sender, embeds):
+    """
+    Send a message to Discord
+    """
+    cn_message = {
+        "content": message_content,
+        "username": sender,
+        "avatar_url": "https://hullseals.space/images/emblem_mid.png",
+        "tts": False,
+        "embeds": embeds,
+    }
+    await send_webhook(
+        hook_id=config.discord_notifications.webhook_id,
+        hook_token=config.discord_notifications.webhook_token.get_secret_value(),
+        body=cn_message,
+    )
+
+
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @Require.permission(Drilled)
 @Require.channel()
@@ -29,7 +47,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     Aliases: mancase, manualfish, manfish
     """
     if len(args) <= 1:
-        return await ctx.reply(get_help_text("mancase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "mancase"))
 
     # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
     try:
@@ -37,7 +55,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
     except KeyError:
-        return await ctx.reply(get_help_text("mancase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "mancase"))
 
     info = ctx.message
     logger.info(
@@ -51,12 +69,10 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     )
 
     # Send to Discord
-    cn_message = {
-        "content": f"New Incoming Case - {config.discord_notifications.case_notify}",
-        "username": "HalpyBOT",
-        "avatar_url": "https://hullseals.space/images/emblem_mid.png",
-        "tts": False,
-        "embeds": [
+    message_content = f"New Incoming Case - {config.discord_notifications.case_notify}"
+    sender = "HalpyBOT"
+    embeds = (
+        [
             {
                 "title": "New Manual Case!",
                 "type": "rich",
@@ -76,14 +92,9 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
                 ],
             }
         ],
-    }
-
+    )
     try:
-        await send_webhook(
-            hook_id=config.discord_notifications.webhook_id,
-            hook_token=config.discord_notifications.webhook_token.get_secret_value(),
-            body=cn_message,
-        )
+        await send_message(message_content, sender, embeds)
     except WebhookSendError:
         logger.exception("Webhook could not be sent.")
         await ctx.reply(
@@ -102,37 +113,27 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     Aliases: wssping
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("tsping"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "tsping"))
     info = ctx.message
-
-    cn_message = {
-        "content": f"Attention, {config.discord_notifications.trained_role}! Seals are needed for this case.",
-        "username": f"{ctx.sender}",
-        "avatar_url": "https://hullseals.space/images/emblem_mid.png",
-        "tts": False,
-        "embeds": [
-            {
-                "title": "Dispatcher Needs Seals",
-                "type": "rich",
-                "timestamp": f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
-                "color": 16093727,
-                "footer": {
-                    "text": f"Sent by {ctx.sender} from {ctx.channel}",
-                    "icon_url": "https://hullseals.space/images/emblem_mid.png",
-                },
-                "fields": [
-                    {"name": "Additional information", "value": info, "inline": False}
-                ],
-            }
-        ],
-    }
-
+    message_content = f"Attention, {config.discord_notifications.trained_role}! Seals are needed for this case."
+    sender = ctx.sender
+    embeds = [
+        {
+            "title": "Dispatcher Needs Seals",
+            "type": "rich",
+            "timestamp": f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
+            "color": 16093727,
+            "footer": {
+                "text": f"Sent by {ctx.sender} from {ctx.channel}",
+                "icon_url": "https://hullseals.space/images/emblem_mid.png",
+            },
+            "fields": [
+                {"name": "Additional information", "value": info, "inline": False}
+            ],
+        }
+    ]
     try:
-        await send_webhook(
-            hook_id=config.discord_notifications.webhook_id,
-            hook_token=config.discord_notifications.webhook_token.get_secret_value(),
-            body=cn_message,
-        )
+        await send_message(message_content, sender, embeds)
     except WebhookSendError:
         logger.exception("Webhook could not be sent.")
         await ctx.reply(

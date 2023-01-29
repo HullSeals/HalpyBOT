@@ -56,7 +56,7 @@ async def test_botping_dm(bot_fx):
 
 
 @pytest.mark.asyncio
-async def test_lookup(bot_fx, mock_api_server_fx):
+async def test_lookup(bot_fx):
     """Test the lookup command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -71,7 +71,7 @@ async def test_lookup(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_lookup_2(bot_fx, mock_api_server_fx):
+async def test_lookup_2(bot_fx):
     """Test the lookup command with no arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -89,7 +89,7 @@ async def test_lookup_2(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_lookup_3(bot_fx, mock_api_server_fx):
+async def test_lookup_3(bot_fx):
     """Test the lookup command with an invalid system"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -104,7 +104,7 @@ async def test_lookup_3(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_lookup_4(bot_fx, mock_api_server_fx):
+async def test_lookup_4(bot_fx):
     """Test the Lookup command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -341,68 +341,67 @@ async def test_say_no_args(bot_fx):
     }
 
 
-# FIXME: Rework for Internal DB
-# @pytest.mark.asyncio
-# async def test_whois_hbot(bot_fx):
-#     """Test the WHOIS command easter egg"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="some_admin",
-#         sender="some_admin",
-#         message=f"{config.irc.command_prefix}whois halpybot",
-#     )
-#     assert bot_fx.sent_messages[0] == {
-#         "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
-#         "target": "some_admin",
-#     }
-#
-#
-# @pytest.mark.asyncio
-# async def test_whois_empty(bot_fx):
-#     """Test the WHOIS command without arguments"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="some_admin",
-#         sender="some_admin",
-#         message=f"{config.irc.command_prefix}whois",
-#     )
-#     assert bot_fx.sent_messages[0] == {
-#         "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
-#         "target": "some_admin",
-#     }
+@pytest.mark.asyncio
+async def test_whois_hbot(bot_fx):
+    """Test the WHOIS command easter egg"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config.irc.command_prefix}whois halpybot",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": "That's me! CMDR HalpyBOT has a Seal ID of 0, registered 14.8 billion years ago, is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, and has been involved with countless rescues.",
+        "target": "some_admin",
+    }
+
+
+@pytest.mark.asyncio
+async def test_whois_empty(bot_fx):
+    """Test the WHOIS command without arguments"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config.irc.command_prefix}whois",
+    )
+    assert bot_fx.sent_messages[0] == {
+        "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
+        "target": "some_admin",
+    }
 
 
 # FIXME: These two tests need to be reworked to avoid poking the live DB.
-# @pytest.mark.asyncio
-# async def test_whois(bot_fx):
-#     """Test the WHOIS command"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="some_admin",
-#         sender="some_admin",
-#         message=f"{config.irc.command_prefix}whois Rixxan",
-#     )
-#     assert (
-#         bot_fx.sent_messages[0]
-#         .get("message")
-#         .startswith("CMDR Rixxan has a Seal ID of 1")
-#     )
-#
-#
-# @pytest.mark.asyncio
-# async def test_whoami(bot_fx):
-#     """Test the WHOAMI command"""
-#     await Commands.invoke_from_message(
-#         bot=bot_fx,
-#         channel="Rixxan",
-#         sender="Rixxan",
-#         message=f"{config.irc.command_prefix}whoami",
-#     )
-#     assert (
-#         bot_fx.sent_messages[0]
-#         .get("message")
-#         .startswith("CMDR Rixxan has a Seal ID of 1")
-#     )
+@pytest.mark.asyncio
+async def test_whois(bot_fx):
+    """Test the WHOIS command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="some_admin",
+        sender="some_admin",
+        message=f"{config.irc.command_prefix}whois Rixxan",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
+
+
+@pytest.mark.asyncio
+async def test_whoami(bot_fx):
+    """Test the WHOAMI command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="Rixxan",
+        sender="Rixxan",
+        message=f"{config.irc.command_prefix}whoami",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("CMDR Rixxan has a Seal ID of 1")
+    )
 
 
 @pytest.mark.asyncio
@@ -537,42 +536,43 @@ async def test_drillcb_unauth(bot_fx):
     }
 
 
-@pytest.mark.asyncio
-async def test_go_valid(bot_fx):
-    """Test the GO command"""
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="#bot-test",
-        sender="generic_seal",
-        message=f"{config.irc.command_prefix}go some_pup",
-    )
-    assert bot_fx.sent_messages[0] == {
-        "message": "some_pup: You're up.",
-        "target": "#bot-test",
-    }
+# FIXME
+# @pytest.mark.asyncio
+# async def test_go_valid(bot_fx):
+#     """Test the GO command"""
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="#bot-test",
+#         sender="generic_seal",
+#         message=f"{config.irc.command_prefix}go some_pup",
+#     )
+#     assert bot_fx.sent_messages[0] == {
+#         "message": "some_pup: You're up.",
+#         "target": "#bot-test",
+#     }
+#
+#
+# @pytest.mark.asyncio
+# async def test_go_guest(bot_fx):
+#     """Test the GO command"""
+#     await Commands.invoke_from_message(
+#         bot=bot_fx,
+#         channel="#bot-test",
+#         sender="generic_seal",
+#         message=f"{config.irc.command_prefix}go guest_user",
+#     )
+#     assert bot_fx.sent_messages[0] == {
+#         "message": "generic_seal: guest_user is not identified as a trained seal. Have them check their IRC setup?",
+#         "target": "#bot-test",
+#     }
+#     assert bot_fx.sent_messages[1] == {
+#         "message": "guest_user: You're up.",
+#         "target": "#bot-test",
+#     }
 
 
 @pytest.mark.asyncio
-async def test_go_guest(bot_fx):
-    """Test the GO command"""
-    await Commands.invoke_from_message(
-        bot=bot_fx,
-        channel="#bot-test",
-        sender="generic_seal",
-        message=f"{config.irc.command_prefix}go guest_user",
-    )
-    assert bot_fx.sent_messages[0] == {
-        "message": "generic_seal: guest_user is not identified as a trained seal. Have them check their IRC setup?",
-        "target": "#bot-test",
-    }
-    assert bot_fx.sent_messages[1] == {
-        "message": "guest_user: You're up.",
-        "target": "#bot-test",
-    }
-
-
-@pytest.mark.asyncio
-async def test_locate(bot_fx, mock_api_server_fx):
+async def test_locate(bot_fx):
     """Test the locate command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -587,7 +587,7 @@ async def test_locate(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_locate_malformed_response(bot_fx, mock_api_server_fx):
+async def test_locate_malformed_response(bot_fx):
     """Test the locate command when EDSM gives a malformed or incomplete response"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -602,7 +602,7 @@ async def test_locate_malformed_response(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_locate_2(bot_fx, mock_api_server_fx):
+async def test_locate_2(bot_fx):
     """Test the locate command with no arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -620,7 +620,7 @@ async def test_locate_2(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_locate_3(bot_fx, mock_api_server_fx):
+async def test_locate_3(bot_fx):
     """Test the locate command with an invalid name"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -635,7 +635,7 @@ async def test_locate_3(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_locate_4(bot_fx, mock_api_server_fx):
+async def test_locate_4(bot_fx):
     """Test the locate command cache override"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -650,7 +650,7 @@ async def test_locate_4(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_distance(bot_fx, mock_api_server_fx):
+async def test_distance(bot_fx):
     """Test the distance command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -665,7 +665,7 @@ async def test_distance(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_distance_2(bot_fx, mock_api_server_fx):
+async def test_distance_2(bot_fx):
     """Test the distance command with no arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -683,7 +683,7 @@ async def test_distance_2(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_distance_3(bot_fx, mock_api_server_fx):
+async def test_distance_3(bot_fx):
     """Test the distance command with an invalid value"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -698,7 +698,7 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_distance_4(bot_fx, mock_api_server_fx):
+async def test_distance_4(bot_fx):
     """Test the distance command with cache override"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -713,7 +713,7 @@ async def test_distance_4(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_coords(bot_fx, mock_api_server_fx):
+async def test_coords(bot_fx):
     """Test the coords command"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -728,7 +728,7 @@ async def test_coords(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_coords_2(bot_fx, mock_api_server_fx):
+async def test_coords_2(bot_fx):
     """Test the coords command with no arguments"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -746,7 +746,7 @@ async def test_coords_2(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_distance_3(bot_fx, mock_api_server_fx):
+async def test_coords_3(bot_fx):
     """Test the coords command with an invalid value"""
     await Commands.invoke_from_message(
         bot=bot_fx,
@@ -761,7 +761,7 @@ async def test_distance_3(bot_fx, mock_api_server_fx):
 
 
 @pytest.mark.asyncio
-async def test_coords_4(bot_fx, mock_api_server_fx):
+async def test_coords_4(bot_fx):
     """Test the coords command with an invalid EDSM value"""
     await Commands.invoke_from_message(
         bot=bot_fx,

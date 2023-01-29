@@ -29,7 +29,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.redirect(get_help_text("whois"))
+        return await ctx.redirect(get_help_text(ctx.bot.commandsfile, "whois"))
     cmdr = args[0]
     if cmdr.casefold() == "halpybot":
         return await ctx.redirect(

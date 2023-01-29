@@ -56,9 +56,9 @@ def test_commands():
     assert os.path.exists("data/help/commands.json")
 
 
-def test_commands_content():
+def test_commands_content(bot_fx):
     """Test the help file is formatted properly"""
-    assert get_help_text("ping") is not None
+    assert get_help_text(bot_fx.commandsfile, "ping") is not None
 
 
 @pytest.mark.asyncio

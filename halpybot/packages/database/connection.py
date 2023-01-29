@@ -20,17 +20,6 @@ class NoDatabaseConnection(ConnectionError):
     """
 
 
-async def latency(db_engine: engine.Engine):
-    """Ping the database and get latency
-    Returns:
-        Database connection latency
-    """
-    with db_engine.connect() as conn:
-        conn.execute(text("SELECT 'latency'"))
-    end = time.time()
-    return end
-
-
 async def test_database_connection(db_engine: engine.Engine):
     """
     Test the database connection. Set offline mode if an error occurs.
@@ -45,7 +34,7 @@ async def test_database_connection(db_engine: engine.Engine):
             with db_engine.connect() as conn:
                 conn.execute(text("SELECT '1'"))
                 logger.info(f"Succeeded on attempt {attempt}")
-                return
+                return time.time()
         except exc.OperationalError:
             pass
     config.offline_mode.enabled = True

@@ -10,17 +10,12 @@ See license.md
 
 from __future__ import annotations
 from typing import List, TYPE_CHECKING
-import json
 from loguru import logger
 from halpybot import config
 from ..models import Context
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
-
-
-with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
-    json_dict = json.load(jsonfile)
 
 
 class CommandException(Exception):
@@ -295,18 +290,19 @@ class CommandGroup:
         return [str(cmd) for cmd in self._command_list if self._command_list[cmd][1]]
 
 
-def get_help_text(search_command: str):
+def get_help_text(commandsfile, search_command: str):
     """
     Retrieve the help text for usage and arguments of a command.
 
     Args:
+        commandsfile (json object): The commandsfile from Context
         search_command (str): The command being looked up in the dictionary
 
     Returns:
         (str or None): Help instructions for a given command, None if unsuccessful.
     """
     search_command = search_command.casefold()
-    for command_dict in json_dict.values():
+    for command_dict in commandsfile.values():
         for command, details in command_dict.items():
             command = command.casefold()
             if command == search_command or search_command in details["aliases"]:
