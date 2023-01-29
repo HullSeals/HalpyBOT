@@ -2,7 +2,7 @@
 > For the Hull Seals, with a boot to the head
 Rixxan
 
-start.py - HalpyBOT startup script
+__main__.py - HalpyBOT startup script
 
 Copyright (c) The Hull Seals,
 All rights reserved.

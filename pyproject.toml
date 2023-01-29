@@ -40,4 +40,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
-disable="line-too-long"
+disable = "line-too-long"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
