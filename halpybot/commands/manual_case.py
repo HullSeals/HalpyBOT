@@ -69,6 +69,8 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
     )
 
     # Send to Discord
+    if not config.discord_notifications.enabled:
+        return await ctx.reply("Discord module not enabled. Notification not sent.")
     message_content = f"New Incoming Case - {config.discord_notifications.case_notify}"
     sender = "HalpyBOT"
     embeds = (
@@ -114,6 +116,8 @@ async def cmd_tsping(ctx: Context, args: List[str]):
     """
     if len(args) == 0:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "tsping"))
+    if not config.discord_notifications.enabled:
+        return await ctx.reply("Discord module not enabled. Notification not sent.")
     info = ctx.message
     message_content = f"Attention, {config.discord_notifications.trained_role}! Seals are needed for this case."
     sender = ctx.sender
