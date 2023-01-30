@@ -16,40 +16,8 @@ import pathlib
 from tqdm import tqdm
 
 
-def run_eddb():
-    """Run the EDDB Formatter"""
-    rootpath = pathlib.PurePath(__file__).parent
-    rootpath = str(rootpath).replace("\\", "/")
-    print(
-        f"{'='*20}\n"
-        f"Copyright (c) 2022 The Hull Seals\n"
-        f"EDDB File Formatter for HalpyBOT\n"
-        f"{'='*20}\n"
-        f"WARNING: This operation will remove the existing generated files, "
-        f"and relies on filtered data dumps from EDDB to proceed.\n "
-    )
-    cont = input(
-        "Please make a backup of the previously generated files first. "
-        "Do you wish to proceed? (Y/n) "
-    )
-    if cont.upper() != "Y":
-        print("Roger, aborting...")
-        sys.exit()
-
-    # Remove Old Files
-    if os.path.exists(f"{rootpath}/files/output/filtered_stations.json"):
-        os.remove(f"{rootpath}/files/output/filtered_stations.json")
-
-    if os.path.exists(f"{rootpath}/files/output/filtered_systems_populated.json"):
-        os.remove(f"{rootpath}/files/output/filtered_systems_populated.json")
-
-    if os.path.exists(
-        f"{rootpath}/files/output/filtered_combined_stations_with_systems.json"
-    ):
-        os.remove(
-            f"{rootpath}/files/output/filtered_combined_stations_with_systems.json"
-        )
-
+def prep_systems(rootpath):
+    """Grab the key information from systems"""
     # Open the jq-formatted (or renamed) json system json file. (Original Size: 57 MB)
     with open(
         f"{rootpath}/files/input/systems_populated.json",
@@ -80,7 +48,11 @@ def run_eddb():
         encoding="UTF-8",
     ) as system_file:
         json.dump(system_dict, system_file, indent=2)
+    return system_dict
 
+
+def filter_stations(rootpath):
+    """Filter the Station listing for just ones we want"""
     # Open jq-formatted or renamed station file. (Original Size: 420 MB)
     with open(
         f"{rootpath}/files/input/stations.json", "r", encoding="UTF-8"
@@ -117,6 +89,11 @@ def run_eddb():
     ) as json_file:
         json.dump(station_dict, json_file, indent=2)
 
+    return station_dict
+
+
+def write_output(system_dict, station_dict, rootpath):
+    """Write the final output file"""
     # Now we need to combine the two dicts to a formatted list file.
     write_list = []
     # LIST not a DICT. Otherwise, it won't work well with the dataclass
@@ -148,6 +125,47 @@ def run_eddb():
         encoding="UTF-8",
     ) as json_file:
         json.dump(write_list, json_file, indent=2)
+
+
+def run_eddb():
+    """Run the EDDB Formatter"""
+    rootpath = pathlib.PurePath(__file__).parent
+    rootpath = str(rootpath).replace("\\", "/")
+    print(
+        f"{'='*20}\n"
+        f"Copyright (c) 2022 The Hull Seals\n"
+        f"EDDB File Formatter for HalpyBOT\n"
+        f"{'='*20}\n"
+        f"WARNING: This operation will remove the existing generated files, "
+        f"and relies on filtered data dumps from EDDB to proceed.\n "
+    )
+    cont = input(
+        "Please make a backup of the previously generated files first. "
+        "Do you wish to proceed? (Y/n) "
+    )
+    if cont.upper() != "Y":
+        print("Roger, aborting...")
+        sys.exit()
+
+    # Remove Old Files
+    if os.path.exists(f"{rootpath}/files/output/filtered_stations.json"):
+        os.remove(f"{rootpath}/files/output/filtered_stations.json")
+
+    if os.path.exists(f"{rootpath}/files/output/filtered_systems_populated.json"):
+        os.remove(f"{rootpath}/files/output/filtered_systems_populated.json")
+
+    if os.path.exists(
+        f"{rootpath}/files/output/filtered_combined_stations_with_systems.json"
+    ):
+        os.remove(
+            f"{rootpath}/files/output/filtered_combined_stations_with_systems.json"
+        )
+
+    system_dict = prep_systems(rootpath)
+
+    station_dict = filter_stations(rootpath)
+
+    write_output(system_dict, station_dict, rootpath)
 
     print(
         "Operation Complete! Please validate the file manually before deploying to production."

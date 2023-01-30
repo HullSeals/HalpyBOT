@@ -10,19 +10,19 @@ This bot is in ACTIVE DEVELOPMENT.
 
 ## Requirements
 * Python 3.8-3.9
-* Setuptools Python Library
-* pip Package Manager
+* Poetry Package Manager
 * Linux systems may require libmariadbclient-dev or libmysqlclient-dev
 
 ## Usage
 - To install, download the latest [release](https://github.com/HullSeals/HalpyBOT/releases) from our repository.
 - Upload and extract the files to the directory or subdirectory you wish to install from.
-- Create your own config.ini to fit your server, following the example config file provided.
-- Install mandatory requirements with pip (`pip install -r requirements.txt`).
-- Run the bot (`start.py`) from the command line using Python.
+- Acquire the Diversions and DSSA datafiles from [Our Website](https://hullse.al/hbotassets), or build them yourself with our included CLI tools.
+- Create your own .env file to fit your server, following the example config file provided.
+- Install mandatory requirements with Poetry (`poetry install`).
+- Run the bot (`python halpybot`) from the command line using Python.
 
 ## Troubleshooting
-- Upon installation, be sure to replace the information in config.ini to match your own details.
+- Upon installation, be sure to replace the information in .env to match your own details.
 - Additionally, be sure to create a user account and SASL credentials for your IRC user.
 - One of the most common sources of issues is your TLS settings in the bot - check these!
 - If you are having issues, look through the closed bug reports.

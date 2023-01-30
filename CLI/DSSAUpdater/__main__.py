@@ -58,11 +58,6 @@ def run_dssa():
             "Error: This isn't a directory I can access, are you running a relative dir?"
         )
         sys.exit()
-    except Exception:
-        print(
-            f"Oops, that was an error: {Exception}. Contact Rik if the issue persists"
-        )
-        sys.exit()
 
     # Make sure we are committed to throwing 90+ queries at EDSM
     edsm_confirm = input(
