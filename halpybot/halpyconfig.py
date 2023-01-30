@@ -226,6 +226,7 @@ class UserAgent(BaseModel):
 class Yourls(BaseModel):
     """YOURLS Linkup Config"""
 
+    enabled: bool = False
     uri: AnyHttpUrl
     pwd: SecretStr
 

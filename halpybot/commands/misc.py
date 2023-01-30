@@ -11,6 +11,7 @@ import re
 import random
 from typing import List
 from loguru import logger
+from halpybot import config
 from ..packages.utils import shorten
 from ..packages.checks import Require, Drilled, Pup
 from ..packages.command import Commands, get_help_text
@@ -28,6 +29,8 @@ async def cmd_shorten(ctx: Context, args: List[str]):
     """
     if not args:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "shorten"))
+    if not config.yourls.enabled:
+        return await ctx.reply("Unable to comply. YOURLS module not enabled.")
     logger.info(f"{ctx.sender} requested shortening of {args[0]}")
     surl = await shorten(args[0])
     return await ctx.reply(f"{ctx.sender}: Here's your short URL: {surl}")
