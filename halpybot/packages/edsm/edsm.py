@@ -777,6 +777,10 @@ async def sys_cleaner(sys_name: str):
     orig_sys = sys_name
     sys_name = " ".join(sys_name.split())
     sys_name = sys_name.upper()
+    
+    # Remove any appended "SYSTEM" from the input.
+    if sys_name.endswith("SYSTEM"):
+        sys_name = (sys_name[:-6]).strip()
 
     try:
         if "-" in sys_name:
