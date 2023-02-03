@@ -12,7 +12,6 @@ See license.md
 import json
 from typing import List, Dict, Optional
 from loguru import logger
-import tweepy
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
@@ -36,12 +35,12 @@ cardinal_flip = {
 }
 
 
-async def get_edsm_data(args: Dict, twitter: bool = False) -> Optional[str]:
+async def get_edsm_data(args: Dict, generalized: bool = False) -> Optional[str]:
     """Calculates and formats a ready-to-go string with EDSM info about a system
 
     Args:
         args: Arguments for the case announcement
-        twitter: True if the information is meant to be sent over Twitter, else False.
+        generalized: True if the information is meant to be vague, else False.
 
     Returns:
         (str) string with information about the existence of a system, plus
@@ -58,7 +57,7 @@ async def get_edsm_data(args: Dict, twitter: bool = False) -> Optional[str]:
             landmark, distance, direction = await checklandmarks(sys_name)
             # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
             direction = cardinal_flip[direction]
-            if twitter:
+            if generalized:
                 return f"{distance} LY {direction} of {landmark}"
             if exact_sys:
                 return (
@@ -66,7 +65,7 @@ async def get_edsm_data(args: Dict, twitter: bool = False) -> Optional[str]:
                 )
             return (
                 f"Corrected system exists in EDSM, {distance} LY {direction} of {landmark}."
-                if twitter
+                if generalized
                 else f"System cleaner found a matching EDSM system. {sys_name} is {distance} LY "
                 f"{direction} of {landmark}."
             )
@@ -74,7 +73,7 @@ async def get_edsm_data(args: Dict, twitter: bool = False) -> Optional[str]:
             dssa, distance, direction = await checkdssa(args["System"])
             return (
                 "No major landmark found within 10,000 LY of the provided system."
-                if twitter
+                if generalized
                 else f"\nNo major landmark found within 10,000 LY {args['System']}."
                 f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
             )
@@ -86,7 +85,7 @@ async def get_edsm_data(args: Dict, twitter: bool = False) -> Optional[str]:
                     return (
                         f"System Cleaner found a matching EDSM system {distance} LY {direction} of "
                         f"{landmark}."
-                        if twitter
+                        if generalized
                         else f"\n{args['System']} could not be found in EDSM. "
                         f"System closest in name found in "
                         f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
@@ -95,48 +94,22 @@ async def get_edsm_data(args: Dict, twitter: bool = False) -> Optional[str]:
                     dssa, distance, direction = await checkdssa(close_sys)
                     return (
                         f"Corrected system calculated to be {distance} LY {direction} of {dssa}."
-                        if twitter
+                        if generalized
                         else f"\nThe closest DSSA Carrier is "
                         f"in {dssa}, {distance} LY {direction} of {close_sys}. "
                     )
             return (
                 "\nDistance to landmark or DSSA unknown. Check case details with Dispatch."
-                if twitter
+                if generalized
                 else "\nSystem Not Found in EDSM.\n"
                 "Please check system name with client."
             )
         except EDSMLookupError:
-            return "" if twitter else "\nUnable to query EDSM."
+            return "" if generalized else "\nUnable to query EDSM."
     else:
         raise ValueError(
             "Built-in EDSM lookup requires a 'System' parameter in the announcement configuration"
         )
-
-
-async def tweet_case(args):
-    """Tweet a case
-
-    Args:
-        args (dict): Announcement arguments dictionary
-
-    Returns:
-        Nothing
-
-    """
-    mainline_tw = f"A new {args['Platform']} case has come in."
-    try:
-        edsm_info = await get_edsm_data(args, twitter=True)
-        twitmsg = f"{mainline_tw} {edsm_info} Call your jumps, Seals!"
-        auth = tweepy.Client(
-            consumer_key=config.twitter.api_key.get_secret_value(),
-            consumer_secret=config.twitter.api_secret.get_secret_value(),
-            access_token=config.twitter.access_token,
-            access_token_secret=config.twitter.access_secret.get_secret_value(),
-        )
-        auth.create_tweet(text=twitmsg)
-    except (NameError, tweepy.errors.TweepyException):
-        logger.exception("Unable to send case details to Twitter.")
-        return
 
 
 class AnnouncementError(Exception):
@@ -187,9 +160,6 @@ class Announcer:
         try:
             for channel in ann.channels:
                 await client.message(channel, await ann.format(args))
-            if "Platform" in args.keys():
-                if config.twitter.enabled:
-                    await tweet_case(args)
         except Exception as announcement_exception:
             raise AnnouncementError(Exception) from announcement_exception
 
