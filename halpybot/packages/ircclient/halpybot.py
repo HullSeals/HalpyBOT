@@ -228,7 +228,7 @@ async def crash_notif(crashtype, condition):
     Returns:
         Nothing.
     """
-    if config.system_monitoring.failure_button:
+    if config.system_monitoring.get_failure_button():
         logger.critical(
             "HalpyBOT has failed, but this incident has already been reported."
         )
