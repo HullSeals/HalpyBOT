@@ -120,8 +120,8 @@ class HalpyBOT(pydle.Client, ListHandler):
         # only attempt to oper if we have credentials.
         if config.irc.operline_password:
             await self.operserv_login()
-        if config.system_monitoring.failure_button:
-            config.system_monitoring.failure_button = False
+        if config.system_monitoring.get_failure_button():
+            config.system_monitoring.set_failure_button(False)
         await self.facts.fetch_facts(self.engine)
         for channel in config.channels.channel_list:
             await self.join(channel, force=True)
@@ -239,7 +239,7 @@ async def crash_notif(crashtype, condition):
         try:
             await notify.send_notification(topic, message, subject)
             # Only trip the fuse if a notification is passed
-            config.system_monitoring.failure_button = True
+            config.system_monitoring.set_failure_button(True)
         except notify.NotificationFailure:
             logger.exception("Unable to send the notification!")
     logger.critical(

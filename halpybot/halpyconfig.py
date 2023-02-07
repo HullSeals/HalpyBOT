@@ -201,13 +201,11 @@ FAILURE_BUTTON_PATH = Path.home() / ".halpy_failure_button"
 class SystemMonitoring(BaseModel):
     """System Monitoring Config"""
 
-    @property
-    def failure_button(self) -> bool:
+    def get_failure_button(self) -> bool:
         """Failure Button Check"""
         return FAILURE_BUTTON_PATH.exists()
 
-    @failure_button.setter
-    def failure_button(self, value: bool):
+    def set_failure_button(self, value: bool):
         # indepmotent.
         if value:
             FAILURE_BUTTON_PATH.touch(exist_ok=True)
