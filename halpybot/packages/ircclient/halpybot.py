@@ -237,6 +237,8 @@ async def crash_notif(crashtype, condition):
         topic = config.notify.cybers
         message = f"HalpyBOT has shut down due to {crashtype}. Investigate immediately. Error Text: {condition}"
         try:
+            if not config.notify.enabled:
+                raise notify.NotificationFailure
             await notify.send_notification(topic, message, subject)
             # Only trip the fuse if a notification is passed
             config.system_monitoring.set_failure_button(True)
