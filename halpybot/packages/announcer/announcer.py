@@ -11,7 +11,6 @@ See license.md
 
 import json
 from typing import List, Dict, Optional
-from loguru import logger
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
@@ -21,7 +20,6 @@ from ..edsm import (
     sys_cleaner,
     NoNearbyEDSM,
 )
-from ... import config
 
 cardinal_flip = {
     "North": "South",
@@ -50,66 +48,57 @@ async def get_edsm_data(args: Dict, generalized: bool = False) -> Optional[str]:
         ValueError: Raised if System parameter is not present in `args` dict
 
     """
-    if args["System"]:
-        sys_name = args["System"]
-        try:
-            exact_sys = sys_name == args["System"]
-            landmark, distance, direction = await checklandmarks(sys_name)
-            # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
-            direction = cardinal_flip[direction]
-            if generalized:
-                return f"{distance} LY {direction} of {landmark}"
-            if exact_sys:
-                return (
-                    f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-                )
-            return (
-                f"Corrected system exists in EDSM, {distance} LY {direction} of {landmark}."
-                if generalized
-                else f"System cleaner found a matching EDSM system. {sys_name} is {distance} LY "
-                f"{direction} of {landmark}."
-            )
-        except NoNearbyEDSM:
-            dssa, distance, direction = await checkdssa(args["System"])
-            return (
-                "No major landmark found within 10,000 LY of the provided system."
-                if generalized
-                else f"\nNo major landmark found within 10,000 LY {args['System']}."
-                f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {args['System']}."
-            )
-        except NoResultsEDSM:
-            found_sys, close_sys = await get_nearby_system(sys_name)
-            if found_sys:
-                try:
-                    landmark, distance, direction = await checklandmarks(close_sys)
-                    return (
-                        f"System Cleaner found a matching EDSM system {distance} LY {direction} of "
-                        f"{landmark}."
-                        if generalized
-                        else f"\n{args['System']} could not be found in EDSM. "
-                        f"System closest in name found in "
-                        f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
-                    )
-                except NoNearbyEDSM:
-                    dssa, distance, direction = await checkdssa(close_sys)
-                    return (
-                        f"Corrected system calculated to be {distance} LY {direction} of {dssa}."
-                        if generalized
-                        else f"\nThe closest DSSA Carrier is "
-                        f"in {dssa}, {distance} LY {direction} of {close_sys}. "
-                    )
-            return (
-                "\nDistance to landmark or DSSA unknown. Check case details with Dispatch."
-                if generalized
-                else "\nSystem Not Found in EDSM.\n"
-                "Please check system name with client."
-            )
-        except EDSMLookupError:
-            return "" if generalized else "\nUnable to query EDSM."
-    else:
+    if "System" not in args:
         raise ValueError(
             "Built-in EDSM lookup requires a 'System' parameter in the announcement configuration"
         )
+    sys_name = args["System"]
+    try:
+        landmark, distance, direction = await checklandmarks(sys_name)
+        # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
+        direction = cardinal_flip[direction]
+        if generalized:
+            return (
+                f"{distance} LY {direction} of {landmark}"
+                if generalized
+                else f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+            )
+    except NoNearbyEDSM:
+        dssa, distance, direction = await checkdssa(sys_name)
+        return (
+            "No major landmark found within 10,000 LY of the provided system."
+            if generalized
+            else f"\nNo major landmark found within 10,000 LY of {sys_name}."
+            f"\nThe closest DSSA Carrier is in {dssa}, {distance} LY {direction} of {sys_name}."
+        )
+    except NoResultsEDSM:
+        found_sys, close_sys = await get_nearby_system(sys_name)
+        if found_sys:
+            try:
+                landmark, distance, direction = await checklandmarks(close_sys)
+                return (
+                    f"System Cleaner found a matching EDSM system {distance} LY {direction} of "
+                    f"{landmark}."
+                    if generalized
+                    else f"\n{sys_name} could not be found in EDSM. "
+                    f"System closest in name found in "
+                    f"EDSM was {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
+                )
+            except NoNearbyEDSM:
+                dssa, distance, direction = await checkdssa(close_sys)
+                return (
+                    f"Corrected system calculated to be {distance} LY {direction} of {dssa}."
+                    if generalized
+                    else f"\nThe closest DSSA Carrier is "
+                    f"in {dssa}, {distance} LY {direction} of {close_sys}. "
+                )
+        return (
+            "\nDistance to landmark or DSSA unknown. Check case details with Dispatch."
+            if generalized
+            else "\nSystem Not Found in EDSM.\n" "Please check system name with client."
+        )
+    except EDSMLookupError:
+        return "\nUnable to query EDSM."
 
 
 class AnnouncementError(Exception):
