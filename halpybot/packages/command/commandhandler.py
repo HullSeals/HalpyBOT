@@ -246,7 +246,6 @@ class CommandGroup:
                 in the command execution itself.
 
         """
-        command = command.casefold()
         cmd = self.command_list.get(command.casefold())
         if cmd is None:
             raise CommandHandlerError(f"Command not found: {command}")
