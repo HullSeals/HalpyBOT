@@ -61,7 +61,7 @@ class CommandGroup:
         self._command_list = {}
         self._fact_handler = None
         # Don't allow registration of multiple root groups
-        if CommandGroup._root is not None and is_root:
+        if CommandGroup._root and is_root:
             raise CommandHandlerError("Can only have one root group")
         if is_root:
             CommandGroup._root = self
@@ -118,46 +118,43 @@ class CommandGroup:
             message (str): content of the message
 
         """
-        if message.startswith(config.irc.command_prefix):
-            # Start off with assigning all variables we need
-            parts = message[1:].split(" ")
-            command = parts[0].casefold()
-            args = parts[1:]
-            args = [x for x in args if x]
-            in_channel = bot.is_channel(channel)
-            ctx = Context(bot, channel, sender, in_channel, " ".join(args[0:]), command)
-            # Determines the language of an eventual fact
-            lang = command.split("-")[1] if "-" in command else "en"
+        if not message.startswith(config.irc.command_prefix):
+            return
 
-            # See if it's a command, and execute
-            if command in Commands._command_list:
-                try:
-                    return await self.invoke_command(
-                        command=command, command_context=ctx, arguments=args
-                    )
-                except CommandException:
-                    logger.exception("Failed to invoke the command!")
-                    await ctx.reply("Unable to execute command.")
+        # Start off with assigning all variables we need
+        parts = message[1:].split(" ")
+        command = parts[0].casefold()
+        args = [arg for arg in parts[1:] if arg]
+        in_channel = bot.is_channel(channel)
+        ctx = Context(bot, channel, sender, in_channel, " ".join(args[0:]), command)
+        # Determines the language of an eventual fact
+        lang = command.split("-")[1] if "-" in command else "en"
 
-            # Possible fact
-
-            # Ignore if we have no fact handler attached
-            if not self._fact_handler:
-                return
-
-            # Are we requesting a specific language?
-            if command.split("-")[0] in await self._fact_handler.get_fact_names():
-                factname = command.split("-")[0]
-
-                # Do we have a fact for this language?
-                if lang not in list(await self._fact_handler.lang_by_fact(factname)):
-                    lang = "en"
-
-                return await ctx.reply(
-                    await self._fact_handler.fact_formatted(
-                        fact=(command.split("-")[0], lang), arguments=args
-                    )
+        # See if it's a command, and execute
+        if command in bot.commandhandler.command_list:
+            try:
+                return await self.invoke_command(
+                    command=command, command_context=ctx, arguments=args
                 )
+            except CommandException:
+                logger.exception("Failed to invoke the command!")
+                await ctx.reply("Unable to execute command.")
+
+        # Possible fact
+        # Ignore if we have no fact handler attached
+        if not self._fact_handler:
+            return
+
+        fact_name = command.split("-")[0]
+        if fact_name in await self._fact_handler.get_fact_names():
+            # Check for Language
+            if lang not in await self._fact_handler.lang_by_fact(fact_name):
+                lang = "en"
+            return await ctx.reply(
+                await self._fact_handler.fact_formatted(
+                    fact=(fact_name, lang), arguments=args
+                )
+            )
 
     def add_group(self, *names):
         """Attach group to root
@@ -199,7 +196,7 @@ class CommandGroup:
         """
 
         def decorator(function):
-            # Register every provided name
+            """Register every provided name"""
             for name in names:
                 self._register(name, function, bool(name == names[0]))
             # Set command attribute, so we can check if a function is an IRC-facing command or not
@@ -250,17 +247,17 @@ class CommandGroup:
 
         """
         command = command.casefold()
-        # Sanity check
-        if command not in self.command_list:
-            raise CommandHandlerError("(sub)command not found.")
-        cmd = self.command_list[command][0]
+        cmd = self.command_list.get(command.casefold())
+        if cmd is None:
+            raise CommandHandlerError(f"Command not found: {command}")
+        cmd = cmd[0]
         if isinstance(cmd, CommandGroup):  # Command group
-            subgroup = CommandGroup.get_group(name=cmd._group_name)
+            subgroup = CommandGroup.get_group(name=cmd.name)
             # If no subcommand is provided, send a provisional help response
             if len(arguments) < 1:
                 return await command_context.reply(
                     f"Subcommands of {config.irc.command_prefix}"
-                    f"{cmd._group_name}: "
+                    f"{cmd.name}: "
                     f"{', '.join(sub for sub in subgroup.get_commands(True))}"
                 )
             # Recursion, yay!
