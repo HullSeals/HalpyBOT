@@ -30,7 +30,9 @@ async def cmd_ping(ctx: Context, args: List[str]):
     Usage: !ping
     Aliases: n/a
     """
-    await ctx.reply("Pong!")
+    if args:
+        return await ctx.reply(" ".join(args).strip())
+    return await ctx.reply("Pong!")
 
 
 @Commands.command("dbping")

@@ -9,6 +9,7 @@ See license.md
 """
 
 from __future__ import annotations
+import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -53,7 +54,10 @@ class Context:
             message (str): The message to be sent
 
         """
-        await self.bot.reply(self.channel, self.sender, self.in_channel, message)
+        message = re.sub(r"\n+", "\n", message)
+        message = message.strip()
+        if message:
+            await self.bot.reply(self.channel, self.sender, self.in_channel, message)
 
     async def redirect(self, message: str):
         """Send a message to the person a DM-only command was run by
@@ -66,4 +70,7 @@ class Context:
             await self.bot.reply(
                 self.channel, self.sender, self.in_channel, "Responding in DMs!"
             )
-        await self.bot.reply(self.channel, self.sender, False, message)
+        message = re.sub(r"\n+", "\n", message)
+        message = message.strip()
+        if message:
+            await self.bot.reply(self.channel, self.sender, False, message)

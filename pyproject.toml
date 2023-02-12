@@ -15,11 +15,10 @@ python = ">=3.8,<3.10"
 pydle = {extras = ["sasl"], version = "^1.0.1"}
 mysqlclient = "^2.1.1"
 numpy = "^1.24.1"
-boto3 = "^1.26.47"
+boto3 = "^1.26.55"
 aiohttp = "^3.8.3"
-tweepy = "^4.12.1"
 gitpython = "^3.1.30"
-requests = "^2.28.1"
+requests = "^2.28.2"
 pyperclip = "^1.8.2"
 tqdm = "^4.64.1"
 attrs = "^22.2.0"
@@ -28,9 +27,10 @@ loguru = "^0.6.0"
 pydantic = {extras = ["dotenv"], version = "^1.10.2"}
 sqlalchemy = "^1.4.46"
 beautifulsoup4 = "^4.11.1"
+lxml = "^4.9.2"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.2.0"
+pytest = "^7.2.1"
 pytest-httpserver = "^1.0.6"
 pytest-asyncio = "^0.20.3"
 

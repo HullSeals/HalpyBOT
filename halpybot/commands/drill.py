@@ -8,20 +8,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
-from loguru import logger
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context
-from ..packages.edsm import (
-    checklandmarks,
-    EDSMLookupError,
-    checkdssa,
-    sys_cleaner,
-    NoResultsEDSM,
-    get_nearby_system,
-    NoNearbyEDSM,
-)
-from ..packages.announcer.announcer import cardinal_flip
+from ..packages.edsm import sys_cleaner
+from ..packages.announcer.announcer import get_edsm_data
 
 
 @Commands.command("drillcase")
@@ -118,41 +109,5 @@ async def lookup(system):
         (str) string with information about the existence of a system, plus
             distance and cardinal direction from the nearest landmark
     """
-    sys_name = system
-    try:
-        exact_sys = sys_name == system
-        landmark, distance, direction = await checklandmarks(sys_name)
-        # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
-        direction = cardinal_flip[direction]
-        if exact_sys:
-            return f"System exists in EDSM, {distance} LY {direction} of {landmark}."
-        return (
-            f"{system} could not be found in EDSM. System closest in name found in EDSM was"
-            f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
-        )
-    except NoNearbyEDSM:
-        dssa, distance, direction = await checkdssa(system)
-        return (
-            f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
-            f"{system}."
-        )
-    except NoResultsEDSM:
-        found_sys, close_sys = await get_nearby_system(sys_name)
-        if found_sys:
-            try:
-                landmark, distance, direction = await checklandmarks(close_sys)
-                return (
-                    f"{system} could not be found in EDSM. System closest in name found in EDSM was"
-                    f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
-                )
-            except NoNearbyEDSM:
-                dssa, distance, direction = await checkdssa(close_sys)
-                return (
-                    f"{sys_name} could not be found in EDSM. System closest in name found in "
-                    f"EDSM was {close_sys}.\nThe closest DSSA Carrier is in "
-                    f"{dssa}, {distance} LY {direction} of {close_sys}. "
-                )
-        return "System Not Found in EDSM.\nPlease check system name with client "
-    except EDSMLookupError:
-        logger.exception("Something went wrong with EDSM.")
-        return "Unable to query EDSM"
+    args = {"System": system}
+    return await get_edsm_data(args)

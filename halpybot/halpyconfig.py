@@ -187,16 +187,6 @@ class ManualCase(BaseModel):
     send_to: List[str] = ["#seal-bob", "#Repair-Requests"]
 
 
-class Twitter(BaseModel):
-    """Twitter Linkup Config"""
-
-    enabled: bool = False
-    api_key: Optional[SecretStr] = None
-    api_secret: Optional[SecretStr] = None
-    access_token: Optional[str] = None
-    access_secret: Optional[SecretStr] = None
-
-
 FAILURE_BUTTON_PATH = Path.home() / ".halpy_failure_button"
 
 
@@ -244,7 +234,6 @@ class HalpyConfig(BaseSettings):
     notify: Notify = Notify()
     facts: Facts = Facts()
     manual_case: ManualCase = ManualCase()
-    twitter: Twitter = Twitter()
     system_monitoring: SystemMonitoring = SystemMonitoring()
     user_agent: UserAgent
     yourls: Optional[Yourls] = None

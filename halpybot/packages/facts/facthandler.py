@@ -39,12 +39,12 @@ class InvalidFactException(FactHandlerError):
 
 class Fact:
     def __init__(
-        self, ID: Optional[int], name: str, lang: str, fact_text: str, author: str
+        self, fact_id: Optional[int], name: str, lang: str, fact_text: str, author: str
     ):
         """Create a new fact
 
         Args:
-            ID (int or None): Fact ID, if the fact only exists in local storage
+            fact_id (int or None): Fact ID, if the fact only exists in local storage
                 use None
             name (str): Name of the fact
             lang (str): Fact language ISO-639-1 code
@@ -52,8 +52,8 @@ class Fact:
             author (str): Fact author
 
         """
-        self._offline = bool(ID is None)
-        self._ID = ID
+        self._offline = bool(fact_id is None)
+        self._fact_id = fact_id
         self._name = name
         self._lang = lang
         self._default_argument = None
@@ -62,9 +62,9 @@ class Fact:
         self._author = author
 
     @property
-    def ID(self):
+    def fact_id(self):
         """Fact ID as stored in DB"""
-        return self._ID
+        return self._fact_id
 
     @property
     def name(self):
@@ -162,7 +162,7 @@ class Fact:
                     fact_lang=self._lang.casefold(),
                     fact_text=self._raw_text,
                     fact_author=self._author,
-                    fact_id=self._ID,
+                    fact_id=self._fact_id,
                 )
         except NoDatabaseConnection:
             logger.exception("No database connection. Unable to update fact.")
@@ -234,7 +234,7 @@ class FactHandler:
                 )
             )
             self._flush_cache()
-            for (fact_id, fact_name, fact_lang, fact_text, fact_author) in result:
+            for fact_id, fact_name, fact_lang, fact_text, fact_author in result:
                 self._fact_cache[fact_name, fact_lang] = Fact(
                     int(fact_id), fact_name, fact_lang, fact_text, fact_author
                 )
@@ -371,7 +371,7 @@ class FactHandler:
         with db_engine.connect() as database_connection:
             database_connection.execute(
                 text(f"DELETE FROM {config.facts.table} WHERE factID = :fact_id"),
-                fact_id=self._fact_cache[name, lang].ID,
+                fact_id=self._fact_cache[name, lang].fact_id,
             )
             del self._fact_cache[name, lang]
 
