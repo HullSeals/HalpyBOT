@@ -234,7 +234,7 @@ class FactHandler:
                 )
             )
             self._flush_cache()
-            for (fact_id, fact_name, fact_lang, fact_text, fact_author) in result:
+            for fact_id, fact_name, fact_lang, fact_text, fact_author in result:
                 self._fact_cache[fact_name, fact_lang] = Fact(
                     int(fact_id), fact_name, fact_lang, fact_text, fact_author
                 )

@@ -63,7 +63,7 @@ def run_facts():
                 )
             )
             print("60% Got data, parsing...")
-            for (name, lang, facttext) in result:
+            for name, lang, facttext in result:
                 resdict[f"{name}-{lang}"] = facttext
         print("80% Writing to file...")
         with open(json_path, "w+", encoding="UTF-8") as jsonfile:

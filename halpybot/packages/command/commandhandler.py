@@ -132,13 +132,9 @@ class CommandGroup:
 
         # See if it's a command, and execute
         if command in bot.commandhandler.command_list:
-            try:
-                return await self.invoke_command(
-                    command=command, command_context=ctx, arguments=args
-                )
-            except CommandException:
-                logger.exception("Failed to invoke the command!")
-                await ctx.reply("Unable to execute command.")
+            return await self.invoke_command(
+                command=command, command_context=ctx, arguments=args
+            )
 
         # Possible fact
         # Ignore if we have no fact handler attached
@@ -268,8 +264,23 @@ class CommandGroup:
         else:
             try:
                 await cmd(command_context, arguments)
-            except Exception as command_exception:
-                raise CommandException from command_exception
+            except Exception as cmd_ex:
+                error_type: dict = {
+                    AttributeError: "Walrus",
+                    IndexError: "Leopard",
+                    KeyError: "Bearded",
+                    NameError: "Harbor",
+                    SyntaxError: "Caspian",
+                    TypeError: "Spotted",
+                    ValueError: "Ringed",
+                }
+                set_error = (
+                    error_type[type(cmd_ex)] if type(cmd_ex) in error_type else "Harp"
+                )
+                logger.exception(f"Failed to invoke command. Code: {set_error}")
+                return await command_context.reply(
+                    f"Unable to execute command. Error code: {set_error}"
+                )
 
     def get_commands(self, mains: bool = False):
         """Get a list of registered commands in a group
