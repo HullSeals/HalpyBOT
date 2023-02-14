@@ -9,7 +9,6 @@ See license.md
 """
 
 from .utils import (
-    get_time_seconds,
     strip_non_ascii,
     language_codes,
     web_get,
@@ -19,7 +18,6 @@ from .shorten import shorten
 
 __all__ = [
     "strip_non_ascii",
-    "get_time_seconds",
     "language_codes",
     "shorten",
     "web_get",
