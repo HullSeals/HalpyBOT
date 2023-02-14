@@ -23,8 +23,8 @@ class Board:
         self._last_case_time = None
 
     @property
-    def time_since_last_case(self):
-        """Language Codes"""
+    def time_last_case(self):
+        """Time since the last case started"""
         return self._last_case_time
 
     def _update_last_index(self):

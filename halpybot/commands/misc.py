@@ -91,6 +91,6 @@ async def cmd_last(ctx: Context, args: List[str]):
     """
     if ctx.bot.board.time_since_last_case is None:
         return await ctx.reply("There haven't been any cases since I last restarted.")
-    elapsed = datetime.now() - ctx.bot.board.time_since_last_case
+    elapsed = datetime.now() - ctx.bot.board.time_last_case
     formatted = str(elapsed).split(".")[0]
     return await ctx.reply(f"Last case was {formatted} ago.")
