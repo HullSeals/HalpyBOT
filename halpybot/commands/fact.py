@@ -64,7 +64,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
         f"Fact: {fact.name}\n"
         f"Language: {ctx.bot.langcodes[lang.casefold()]} ({fact.language})\n"
         f"All langs: {', '.join(f'{ctx.bot.langcodes[lan.casefold()]} ({lan.upper()})' for lan in langlist)}\n"
-        f"ID: {fact.ID}\n"
+        f"ID: {fact.fact_id}\n"
         f"Author: {fact.author}\n"
         f"Text: {fact.raw_text}"
     )
