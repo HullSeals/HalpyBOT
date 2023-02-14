@@ -10,22 +10,8 @@ See license.md
 
 import os.path
 import pytest
-from halpybot.packages.utils import get_time_seconds, language_codes, strip_non_ascii
+from halpybot.packages.utils import language_codes, strip_non_ascii
 from halpybot.packages.command import get_help_text
-
-
-@pytest.mark.asyncio
-async def test_seconds():
-    """Test the time system responds properly"""
-    time = await get_time_seconds("12:34:56")
-    assert time == "45296"
-
-
-@pytest.mark.asyncio
-async def test_seconds_bad():
-    """Test the time system responds properly if an error occurs"""
-    with pytest.raises(ValueError):
-        await get_time_seconds("BACON")
 
 
 def test_lang():

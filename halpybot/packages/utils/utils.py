@@ -50,31 +50,6 @@ def strip_non_ascii(string: str):
     return res[0], bool(res != (string, 0))
 
 
-async def get_time_seconds(time: str):
-    """Get time in seconds from a hh:mm:ss format
-
-    Args:
-        time (str): Time, in a hh:mm:ss format
-
-    Returns:
-        (int): Time in seconds
-
-    Raises:
-        ValueError: String does not match required format
-
-    """
-    pattern = re.compile(r"(?P<hour>\d+):(?P<minutes>\d+):(?P<seconds>\d+)")
-    if not re.match(pattern, time):
-        raise ValueError("get_time_seconds input does not match hh:mm:ss format")
-    res = pattern.search(time)
-    counter = 0
-    conversion_table = {"hour": 3600, "minutes": 60, "seconds": 1}
-    for unit, seconds in conversion_table.items():
-        value = int(res.group(unit))
-        counter += value * seconds
-    return str(counter)
-
-
 async def web_get(uri: str, params=None, timeout=10):
     """
     Use aiohttp's client to send an HTTP GET request.
