@@ -11,7 +11,7 @@ import re
 import random
 from typing import List
 from loguru import logger
-from datetime import timedelta, datetime
+from datetime import datetime
 from halpybot import config
 from ..packages.utils import shorten
 from ..packages.checks import Require, Drilled, Pup
