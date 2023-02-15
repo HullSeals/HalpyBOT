@@ -46,7 +46,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         self._langcodes = utils.language_codes()
         with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
             self._commandsfile = json.load(jsonfile)
-        self._board = Board()
+        self._board = Board(id_range=10)
 
     @property
     def commandhandler(self):
