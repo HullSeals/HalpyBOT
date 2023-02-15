@@ -8,7 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from datetime import datetime
+from pendulum import now
 
 
 class Board:
@@ -29,7 +29,7 @@ class Board:
 
     def _update_last_index(self):
         """Update the last case time index"""
-        self._last_case_time = datetime.now()
+        self._last_case_time = now(tz="utc")
 
     """
     TODO

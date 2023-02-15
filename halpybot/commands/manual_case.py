@@ -9,8 +9,8 @@ See license.md
 """
 import asyncio
 from typing import List
-import datetime
 from loguru import logger
+import pendulum
 from halpybot import config
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
@@ -78,7 +78,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
             {
                 "title": "New Manual Case!",
                 "type": "rich",
-                "timestamp": f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
+                "timestamp": f"{pendulum.now(tz='utc').strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
                 "color": 16093727,
                 "footer": {
                     "text": f"{ctx.sender}",
@@ -125,7 +125,7 @@ async def cmd_tsping(ctx: Context, args: List[str]):
         {
             "title": "Dispatcher Needs Seals",
             "type": "rich",
-            "timestamp": f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
+            "timestamp": f"{pendulum.now(tz='utc').strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
             "color": 16093727,
             "footer": {
                 "text": f"Sent by {ctx.sender} from {ctx.channel}",
