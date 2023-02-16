@@ -43,9 +43,8 @@ class Board:
             if potential not in self._cases_by_id.keys():
                 self._next_case_index = potential
                 return potential
-        overflow_valid = False
         overflow_index = self._id_range
-        while not overflow_valid:
+        while True:
             overflow_index += 1
             if overflow_index not in self._cases_by_id.keys():
                 return overflow_index
