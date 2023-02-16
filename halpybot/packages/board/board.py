@@ -1,4 +1,15 @@
 """
+This file uses Open Source components.
+You can find the source code of their open source projects along with license
+information below. We acknowledge and are grateful to these developers for their contributions to open source.
+
+Project: SPARK / pipsqueak3 https://github.com/FuelRats/pipsqueak3
+License: https://github.com/FuelRats/pipsqueak3/blob/develop/LICENSE
+
+BSD 3-Clause License
+Copyright (c) 2018, The Fuel Rats Mischief
+All rights reserved.
+
 board.py - Internal Case Board
 
 Copyright (c) The Hull Seals,
@@ -9,6 +20,7 @@ See license.md
 """
 from __future__ import annotations
 import typing
+import itertools
 from asyncio import Lock
 from pendulum import now
 
@@ -26,28 +38,35 @@ class Board:
 
     def __init__(self, id_range):
         """Initalize the Board"""
-        self._cases_by_id: typing.Dict[int, TempRescue] = {}
-        self._case_alias_name: typing.Dict[str, int] = {}
-        self._next_case_index = None
+        self._cases_by_id: typing.Dict[int, TempRescue] = {
+            1: TempRescue(),
+            2: TempRescue(),
+            4: TempRescue()
+        }
+        self._case_alias_name: typing.Dict[str, int] = {
+            "bob": 1,
+            "larry": 2,
+            "john": 4
+        }
+        self._next_case_counter = itertools.count(start=1)
         self._last_case_time = None
         self._modlock = Lock()
         self._id_range: int = id_range
 
     @property
-    def next_case_id(self) -> int:
+    def _open_rescue_id(self) -> int:
+        """Returns the next unsed case ID"""
+        return next(itertools.filterfalse(self.__contains__, self._next_case_counter))
+
+    @property
+    def open_rescue_id(self) -> int:
         """Returns the next valid Case ID"""
-        if self._next_case_index is None:
-            self._next_case_index = 1
-            return 1
-        for potential in range(1, self._id_range):
-            if potential not in self._cases_by_id.keys():
-                self._next_case_index = potential
-                return potential
-        overflow_index = self._id_range
-        while True:
-            overflow_index += 1
-            if overflow_index not in self._cases_by_id.keys():
-                return overflow_index
+        next_id = next(self._next_case_counter)
+        overflow_index = next_id >= self._id_range
+        if overflow_index:
+            self._next_case_counter = itertools.count()
+            return self._open_rescue_id
+        return next_id
 
     @property
     def time_last_case(self):
@@ -64,6 +83,11 @@ class Board:
         if isinstance(key, int):
             return self._cases_by_id[key]
         return None
+
+    def __contains__(self, key: typing.Union[str, int]) -> bool:
+        if isinstance(key, str):
+            return key.casefold() in self._case_alias_name
+        return key in self._cases_by_id
 
     async def new_rescue(self):
         pass
