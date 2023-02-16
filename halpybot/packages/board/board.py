@@ -27,8 +27,8 @@ class Board:
     def __init__(self, id_range):
         """Initalize the Board"""
         self._cases_by_id: typing.Dict[int, TempRescue] = {}
-        self._cases_by_name: typing.Dict[str, TempRescue] = {}
-        self._case_index = None
+        self._case_alias_name: typing.Dict[str, int] = {}
+        self._next_case_index = None
         self._last_case_time = None
         self._modlock = Lock()
         self._id_range: int = id_range
@@ -36,7 +36,19 @@ class Board:
     @property
     def next_case_id(self) -> int:
         """Returns the next valid Case ID"""
-        return 4
+        if self._next_case_index is None:
+            self._next_case_index = 1
+            return 1
+        for potential in range(1, self._id_range):
+            if potential not in self._cases_by_id.keys():
+                self._next_case_index = potential
+                return potential
+        overflow_valid = False
+        overflow_index = self._id_range
+        while not overflow_valid:
+            overflow_index += 1
+            if overflow_index not in self._cases_by_id.keys():
+                return overflow_index
 
     @property
     def time_last_case(self):
@@ -49,7 +61,7 @@ class Board:
 
     def __getitem__(self, key: typing.Union[str, int]) -> TempRescue | None:
         if isinstance(key, str):
-            return self._cases_by_name[key.casefold()]
+            return self._cases_by_id[self._case_alias_name[key.casefold()]]
         if isinstance(key, int):
             return self._cases_by_id[key]
         return None
