@@ -28,7 +28,9 @@ from pendulum import now
 class TempRescue:
     """TODO: Replace with Real Rescue Type"""
 
-    pass
+    def __init__(self, case_id, client, **kwargs):
+        self.board_id = case_id
+        self.client = client
 
 
 class Board:
@@ -54,6 +56,33 @@ class Board:
             4: TempRescue(),
         }
         self._case_alias_name = {"bob": 1, "larry": 2, "john": 4}
+        return
+
+    @property
+    async def debug_full_board(self):
+        """DEBUG: Load test data into the board"""
+        self._cases_by_id = {
+            1: TempRescue(),
+            2: TempRescue(),
+            3: TempRescue(),
+            4: TempRescue(),
+            5: TempRescue(),
+            6: TempRescue(),
+            7: TempRescue(),
+            8: TempRescue(),
+            9: TempRescue(),
+        }
+        self._case_alias_name = {
+            "one": 1,
+            "two": 2,
+            "three": 3,
+            "four": 4,
+            "five": 5,
+            "six": 6,
+            "seven": 7,
+            "eight": 8,
+            "nine": 9,
+        }
 
     @property
     async def debug_clear_board(self):
@@ -72,7 +101,7 @@ class Board:
         next_id = self._open_rescue_id
         overflow_index = next_id >= self._id_range
         if overflow_index:
-            self._next_case_counter = itertools.count()
+            self._next_case_counter = itertools.count(start=1)
             return self._open_rescue_id
         return next_id
 
@@ -85,6 +114,7 @@ class Board:
         """Update the last case time index"""
         self._last_case_time = now(tz="utc")
 
+    # TODO: Do we need this?
     def __getitem__(self, key: typing.Union[str, int]) -> TempRescue | None:
         if isinstance(key, str):
             return self._cases_by_id[self._case_alias_name[key.casefold()]]
@@ -97,18 +127,27 @@ class Board:
             return key.casefold() in self._case_alias_name
         return key in self._cases_by_id
 
-    async def new_rescue(self):
-        pass
+    async def new_rescue(self, client, **kwargs):
+        new_id = self.open_rescue_id
+        case = TempRescue(new_id, client, **kwargs)
+        self._last_case_time = now(tz="utc")
+        async with self._modlock:
+            self._cases_by_id[new_id] = case
+            self._case_alias_name[client] = new_id
 
     async def mod_rescue(self):
         pass
 
-    async def del_rescue(self):
-        pass
+    async def del_rescue(self, case: TempRescue):
+        if isinstance(case, TempRescue):
+            board_id = case.board_id
+            client = case.client
+        async with self._modlock:
+            self._cases_by_id.pop(board_id)
+            self._case_alias_name.pop(client)
 
     """
     TODO
-    1) Create Local Case IDs
     2) Create a Case
     3) Update a Case
     4) Delete a Case

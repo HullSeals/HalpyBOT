@@ -10,7 +10,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
-from ..packages.command import Commands, get_help_text
+from ..packages.command import Commands
 from ..packages.models import Context
 
 
@@ -29,3 +29,9 @@ async def cmd_loadboard(ctx: Context, args: List[str]):
 async def cmd_clearboard(ctx: Context, args: List[str]):
     await ctx.bot.board.debug_clear_board
     return await ctx.reply("Board Cleared!")
+
+
+@Commands.command("fullboard")
+async def cmd_loadboard(ctx: Context, args: List[str]):
+    await ctx.bot.board.debug_full_board
+    return await ctx.reply("Debug Full Data Loaded!")
