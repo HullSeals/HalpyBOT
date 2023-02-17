@@ -51,9 +51,9 @@ class Board:
     async def debug_load_board(self):
         """DEBUG: Load test data into the board"""
         self._cases_by_id = {
-            1: TempRescue(),
-            2: TempRescue(),
-            4: TempRescue(),
+            1: TempRescue(1, "bob"),
+            2: TempRescue(2, "larry"),
+            4: TempRescue(4, "john"),
         }
         self._case_alias_name = {"bob": 1, "larry": 2, "john": 4}
         return
@@ -62,15 +62,15 @@ class Board:
     async def debug_full_board(self):
         """DEBUG: Load test data into the board"""
         self._cases_by_id = {
-            1: TempRescue(),
-            2: TempRescue(),
-            3: TempRescue(),
-            4: TempRescue(),
-            5: TempRescue(),
-            6: TempRescue(),
-            7: TempRescue(),
-            8: TempRescue(),
-            9: TempRescue(),
+            1: TempRescue(1, "one"),
+            2: TempRescue(2, "two"),
+            3: TempRescue(3, "three"),
+            4: TempRescue(4, "four"),
+            5: TempRescue(5, "five"),
+            6: TempRescue(6, "six"),
+            7: TempRescue(7, "seven"),
+            8: TempRescue(8, "eight"),
+            9: TempRescue(9, "nine"),
         }
         self._case_alias_name = {
             "one": 1,
@@ -83,12 +83,14 @@ class Board:
             "eight": 8,
             "nine": 9,
         }
+        return
 
     @property
     async def debug_clear_board(self):
         """DEBUG: clear test data from the board"""
         self._cases_by_id = {}
         self._case_alias_name = {}
+        return
 
     @property
     def _open_rescue_id(self) -> int:
@@ -114,8 +116,7 @@ class Board:
         """Update the last case time index"""
         self._last_case_time = now(tz="utc")
 
-    # TODO: Do we need this?
-    def __getitem__(self, key: typing.Union[str, int]) -> TempRescue | None:
+    def return_rescue(self, key: typing.Union[str, int]) -> TempRescue | None:
         if isinstance(key, str):
             return self._cases_by_id[self._case_alias_name[key.casefold()]]
         if isinstance(key, int):
@@ -142,9 +143,11 @@ class Board:
         if isinstance(case, TempRescue):
             board_id = case.board_id
             client = case.client
-        async with self._modlock:
-            self._cases_by_id.pop(board_id)
-            self._case_alias_name.pop(client)
+            async with self._modlock:
+                self._cases_by_id.pop(board_id)
+                self._case_alias_name.pop(client)
+        else:
+            raise ValueError
 
     """
     TODO
