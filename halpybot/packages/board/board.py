@@ -38,20 +38,28 @@ class Board:
 
     def __init__(self, id_range):
         """Initalize the Board"""
-        self._cases_by_id: typing.Dict[int, TempRescue] = {
-            1: TempRescue(),
-            2: TempRescue(),
-            4: TempRescue()
-        }
-        self._case_alias_name: typing.Dict[str, int] = {
-            "bob": 1,
-            "larry": 2,
-            "john": 4
-        }
+        self._cases_by_id: typing.Dict[int, TempRescue] = {}
+        self._case_alias_name: typing.Dict[str, int] = {}
         self._next_case_counter = itertools.count(start=1)
         self._last_case_time = None
         self._modlock = Lock()
         self._id_range: int = id_range
+
+    @property
+    async def debug_load_board(self):
+        """DEBUG: Load test data into the board"""
+        self._cases_by_id = {
+            1: TempRescue(),
+            2: TempRescue(),
+            4: TempRescue(),
+        }
+        self._case_alias_name = {"bob": 1, "larry": 2, "john": 4}
+
+    @property
+    async def debug_clear_board(self):
+        """DEBUG: clear test data from the board"""
+        self._cases_by_id = {}
+        self._case_alias_name = {}
 
     @property
     def _open_rescue_id(self) -> int:
@@ -61,7 +69,7 @@ class Board:
     @property
     def open_rescue_id(self) -> int:
         """Returns the next valid Case ID"""
-        next_id = next(self._next_case_counter)
+        next_id = self._open_rescue_id
         overflow_index = next_id >= self._id_range
         if overflow_index:
             self._next_case_counter = itertools.count()

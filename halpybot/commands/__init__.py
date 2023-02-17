@@ -23,6 +23,7 @@ from . import bot_help
 from . import caseutils
 from . import drill
 from . import misc
+from . import debug
 
 __all__ = [
     "edsm",
@@ -40,4 +41,5 @@ __all__ = [
     "caseutils",
     "drill",
     "misc",
+    "debug",
 ]

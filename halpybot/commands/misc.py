@@ -94,8 +94,3 @@ async def cmd_last(ctx: Context, args: List[str]):
     now = pendulum.now(tz="utc")
     elapsed = now.diff(ctx.bot.board.time_last_case).in_words()
     return await ctx.reply(f"Last case was {elapsed} ago.")
-
-
-@Commands.command("debug")
-async def cmd_dbg(ctx: Context, args: List[str]):
-    await ctx.reply(f"ID: {ctx.bot.board.open_rescue_id}")
