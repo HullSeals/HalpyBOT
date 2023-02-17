@@ -22,7 +22,8 @@ from __future__ import annotations
 import typing
 import itertools
 from asyncio import Lock
-from pendulum import now
+from contextlib import asynccontextmanager
+from pendulum import now, DateTime
 
 
 class TempRescue:
@@ -47,6 +48,7 @@ class Board:
         self._modlock = Lock()
         self._id_range: int = id_range
 
+    # TODO: Remove Debug Info
     @property
     async def debug_load_board(self):
         """DEBUG: Load test data into the board"""
@@ -92,6 +94,8 @@ class Board:
         self._case_alias_name = {}
         return
 
+    # END DEBUG
+
     @property
     def _open_rescue_id(self) -> int:
         """Returns the next unsed case ID"""
@@ -108,7 +112,7 @@ class Board:
         return next_id
 
     @property
-    def time_last_case(self):
+    def time_last_case(self) -> typing.Optional[DateTime]:
         """Time since the last case started"""
         return self._last_case_time
 
@@ -117,6 +121,7 @@ class Board:
         self._last_case_time = now(tz="utc")
 
     def return_rescue(self, key: typing.Union[str, int]) -> TempRescue | None:
+        """Find a Case given the Client Name or Case ID"""
         if isinstance(key, str):
             return self._cases_by_id[self._case_alias_name[key.casefold()]]
         if isinstance(key, int):
@@ -128,18 +133,34 @@ class Board:
             return key.casefold() in self._case_alias_name
         return key in self._cases_by_id
 
-    async def new_rescue(self, client, **kwargs):
+    async def add_case(self, client, **kwargs) -> TempRescue:
+        """Create a new Case given the client name"""
         new_id = self.open_rescue_id
         case = TempRescue(new_id, client, **kwargs)
         self._last_case_time = now(tz="utc")
+        if case.client in self._case_alias_name.keys():
+            raise ValueError("Case with Client Name Already Exists")
         async with self._modlock:
             self._cases_by_id[new_id] = case
             self._case_alias_name[client] = new_id
+        return case
 
-    async def mod_rescue(self):
-        pass
+    @asynccontextmanager
+    async def mod_case(self, case: TempRescue):
+        """Modify an existing case"""
+        async with self._modlock:
+            current_case = case.board_id
+            current_client = case.client
+            self._cases_by_id.pop(current_case)
+            self._case_alias_name.pop(current_client)
+            try:
+                yield case
+            finally:
+                self._cases_by_id[current_case] = current_case
+                self._case_alias_name[current_client] = current_client
 
-    async def del_rescue(self, case: TempRescue):
+    async def del_case(self, case: TempRescue):
+        """Delete a Case from the Board"""
         if isinstance(case, TempRescue):
             board_id = case.board_id
             client = case.client
@@ -148,10 +169,3 @@ class Board:
                 self._case_alias_name.pop(client)
         else:
             raise ValueError
-
-    """
-    TODO
-    2) Create a Case
-    3) Update a Case
-    4) Delete a Case
-    """
