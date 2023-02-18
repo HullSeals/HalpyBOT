@@ -138,7 +138,7 @@ class Board:
         new_id = self.open_rescue_id
         case = TempRescue(new_id, client, **kwargs)
         self._last_case_time = now(tz="utc")
-        if case.client in self._case_alias_name.keys():
+        if case.client in self._case_alias_name:
             raise ValueError("Case with Client Name Already Exists")
         async with self._modlock:
             self._cases_by_id[new_id] = case
