@@ -66,6 +66,11 @@
       ],
       "arguments": "[case info]",
       "use": "Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
+    },
+    "last": {
+      "aliases:": [],
+      "arguments": "",
+      "use": "Check the time since the last case."
     }
   },
   "Facts": {
@@ -168,6 +173,8 @@
       "aliases": [
         "summontech",
         "calltech",
+        "shitsfucked",
+        "shitsonfireyo",
         "cybersig"
       ],
       "arguments": "[info]",

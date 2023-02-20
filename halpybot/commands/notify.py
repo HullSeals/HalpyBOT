@@ -7,8 +7,8 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-import datetime
 from typing import List
+import pendulum
 from loguru import logger
 from halpybot import config
 from ..packages import notify
@@ -23,7 +23,7 @@ NotifyInfo.add_group("notifyinfo", "notificationinfo")
 class Timer:
     """Decorator Timer Class"""
 
-    def __init__(self, ttl: datetime.timedelta):
+    def __init__(self, ttl: pendulum.Duration):
         self.ttl = ttl
         self.last_call = None
 
@@ -35,21 +35,22 @@ class Timer:
                 should_call = True
             if (
                 self.last_call is not None
-                and datetime.datetime.now() > self.last_call + self.ttl
+                and pendulum.now(tz="utc") > self.last_call + self.ttl
             ):
                 should_call = True
             if should_call:
-                self.last_call = datetime.datetime.now()
+                self.last_call = pendulum.now(tz="utc")
                 return await func(ctx, *args, **kwargs)
+            next_valid = self.last_call + self.ttl
             return await ctx.reply(
-                f"Someone already called less than {config.notify.timer} "
-                f"minutes ago. hang on, staff is responding."
+                f"Someone already called less than {config.notify.timer} minutes ago."
+                f" Hang on, staff is responding. Try again at {next_valid.to_time_string()} UTC."
             )
 
         return wrapper
 
 
-timer_filter = Timer(ttl=datetime.timedelta(minutes=config.notify.timer))
+timer_filter = Timer(ttl=pendulum.Duration(minutes=config.notify.timer))
 
 
 @NotifyInfo.command("groups")

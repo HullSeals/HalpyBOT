@@ -11,6 +11,7 @@ import re
 import random
 from typing import List
 from loguru import logger
+import pendulum
 from halpybot import config
 from ..packages.utils import shorten
 from ..packages.checks import Require, Drilled, Pup
@@ -78,3 +79,18 @@ async def cmd_fireball(ctx: Context, args: List[str]):
         f"Kawoosh! {ctx.sender} cast a fireball on {subject}! Rolling for damage..."
     )
     return await cmd_roll(ctx, dice)
+
+
+@Commands.command("last")
+async def cmd_last(ctx: Context, args: List[str]):
+    """
+    Check the time since the last case
+
+    Usage: !last
+    Aliases: n/a
+    """
+    if ctx.bot.board.time_last_case is None:
+        return await ctx.reply("There haven't been any cases since I last restarted.")
+    now = pendulum.now(tz="utc")
+    elapsed = now.diff(ctx.bot.board.time_last_case).in_words()
+    return await ctx.reply(f"Last case was {elapsed} ago.")

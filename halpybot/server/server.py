@@ -9,8 +9,8 @@ See license.md
 
 """
 from typing import Type, Union
-from datetime import datetime
 from loguru import logger
+import pendulum
 import git
 from aiohttp.web import Request, StreamResponse
 from aiohttp import web
@@ -114,7 +114,7 @@ async def server_root(request):
         "bot_nick": server_status_nick,
         "irc_connected": "True" if botclient.connected else "False",
         "offline_mode": config.offline_mode.enabled,
-        "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
+        "timestamp": pendulum.now(tz="utc").replace(microsecond=0).isoformat(),
     }
     return web.json_response(response)
 

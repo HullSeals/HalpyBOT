@@ -14,8 +14,8 @@ See license.md
 """
 import pathlib
 import sys
-from datetime import datetime
 import json
+import pendulum
 import pyperclip
 from tqdm import tqdm
 from src import DSSACarrier, scrape_spreadsheet
@@ -25,7 +25,7 @@ SHEET_LINK = (
     "1vTevQUcLThqo4emXE4nowJeasI07gFio4fETwevAXKIA18NhlDzbnZzRMVUOAT26OROfHG7fCXvTLgY/pubhtml?gid=0&single=true"
 )
 
-timestamp = datetime.now().strftime("%m%d%Y-%H%M%S")
+timestamp = pendulum.now(tz="utc").strftime("%m%d%Y-%H%M%S")
 
 # noinspection PyBroadException
 

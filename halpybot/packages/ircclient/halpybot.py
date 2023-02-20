@@ -15,13 +15,13 @@ import asyncio
 import pydle
 from loguru import logger
 from sqlalchemy import create_engine
-from halpybot.packages import utils
 from halpybot import config
+from .. import utils
 from .. import notify
+from ..board import Board
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import FactHandler
-from ..utils import language_codes
 from ...halpyconfig import SaslExternal, SaslPlain
 
 
@@ -43,9 +43,10 @@ class HalpyBOT(pydle.Client, ListHandler):
             pool_recycle=3600,
             connect_args={"connect_timeout": config.database.timeout},
         )
-        self._langcodes = language_codes()
+        self._langcodes = utils.language_codes()
         with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
             self._commandsfile = json.load(jsonfile)
+        self._board = Board(id_range=10)
 
     @property
     def commandhandler(self):
@@ -66,6 +67,11 @@ class HalpyBOT(pydle.Client, ListHandler):
     def commandsfile(self):
         """Commands Help File"""
         return self._commandsfile
+
+    @property
+    def board(self):
+        """Return the Case Board"""
+        return self._board
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):
