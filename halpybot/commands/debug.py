@@ -32,6 +32,6 @@ async def cmd_clearboard(ctx: Context, args: List[str]):
 
 
 @Commands.command("fullboard")
-async def cmd_loadboard(ctx: Context, args: List[str]):
+async def cmd_fullboard(ctx: Context, args: List[str]):
     await ctx.bot.board.debug_full_board
     return await ctx.reply("Debug Full Data Loaded!")

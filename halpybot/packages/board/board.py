@@ -119,24 +119,29 @@ class Board:
             return self._cases_by_id[self._case_alias_name[key.casefold()]]
         if isinstance(key, int):
             return self._cases_by_id[key]
-        raise KeyError
+        raise KeyError(f"Key {key!r} not found.")
 
     def __contains__(self, key: typing.Union[str, int]) -> bool:
         if isinstance(key, str):
             return key.casefold() in self._case_alias_name
-        return key in self._cases_by_id
+        if isinstance(key, int):
+            return key in self._cases_by_id
+        return False
 
     async def add_case(self, client) -> Case:
         """Create a new Case given the client name"""
-        new_id = self.open_rescue_id
-        case = Case(board_id=new_id, client_name=client, platform="PC", system="Delkar")
-        self._last_case_time = now(tz="utc")
-        if case.client_name in self._case_alias_name:
-            raise ValueError("Case with Client Name Already Exists")
         async with self._modlock:
+            new_id = self.open_rescue_id
+            case = Case(
+                board_id=new_id, client_name=client, platform="PC", system="Delkar"
+            )
+            self._last_case_time = now(tz="utc")
+            if case.client_name in self._case_alias_name:
+                raise ValueError("Case with Client Name Already Exists")
+
             self._cases_by_id[new_id] = case
             self._case_alias_name[client] = new_id
-        return case
+            return case
 
     @asynccontextmanager
     async def mod_case(self, case: Case):
