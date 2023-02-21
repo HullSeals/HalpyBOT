@@ -15,7 +15,7 @@ from halpybot.packages.command.commandhandler import get_help_text
 from ..packages.seals import whois
 from ..packages.command import Commands
 from ..packages.checks import Require, Pup
-from ..packages.models import Context
+from ..packages.models import Context, Seal
 
 
 @Commands.command("whois")
@@ -37,7 +37,14 @@ async def cmd_whois(ctx: Context, args: List[str]):
             "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
             "and has been involved with countless rescues."
         )
-    return await ctx.redirect(await whois(ctx.bot.engine, cmdr))
+    try:
+        seal: Seal = await whois(ctx.bot.engine, cmdr)
+    except KeyError:
+        return await ctx.reply("No registered user found by that name!")
+    return await ctx.reply(
+        f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history} {seal.aliases}"
+        f", and has been involved with {seal.case_num} rescues."
+    )
 
 
 @Commands.command("whoami")
@@ -51,4 +58,11 @@ async def cmd_whoami(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     cmdr = ctx.sender
-    return await ctx.redirect(await whois(ctx.bot.engine, cmdr))
+    try:
+        seal: Seal = await whois(ctx.bot.engine, cmdr)
+    except KeyError:
+        return await ctx.redirect("No registered user found by that name!")
+    return await ctx.redirect(
+        f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history} {seal.aliases}"
+        f", and has been involved with {seal.case_num} rescues."
+    )

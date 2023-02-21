@@ -12,6 +12,7 @@ from .edsm_classes import Coordinates, Location, SystemInfo
 from .user import User, UserError, NoUserFound
 from .context import Context
 from .case import Case
+from .seal import Seal
 
 __all__ = [
     "Context",
@@ -22,4 +23,5 @@ __all__ = [
     "UserError",
     "NoUserFound",
     "Case",
+    "Seal",
 ]
