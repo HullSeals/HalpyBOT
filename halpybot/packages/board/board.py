@@ -131,7 +131,7 @@ class Board:
         new_id = self.open_rescue_id
         case = Case(board_id=new_id, client_name=client, platform="PC", system="Delkar")
         self._last_case_time = now(tz="utc")
-        if case.board_name_ref() in self._case_alias_name:
+        if case.client_name in self._case_alias_name:
             raise ValueError("Case with Client Name Already Exists")
         async with self._modlock:
             self._cases_by_id[new_id] = case
@@ -143,7 +143,7 @@ class Board:
         """Modify an existing case"""
         async with self._modlock:
             current_case = case.board_id
-            current_client = case.board_name_ref()
+            current_client = case.client_name
             self._cases_by_id.pop(current_case)
             self._case_alias_name.pop(current_client)
             try:
@@ -156,7 +156,7 @@ class Board:
         """Delete a Case from the Board"""
         if isinstance(case, Case):
             board_id = case.board_id
-            client = case.board_name_ref()
+            client = case.client_name
             async with self._modlock:
                 self._cases_by_id.pop(board_id)
                 self._case_alias_name.pop(client)

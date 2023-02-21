@@ -43,12 +43,6 @@ class Case:
     planet: Optional[str] = None
     pcoords: Optional[str] = None
 
-    def board_name_ref(self):
-        """Return how we are referring to the Client's name"""
-        if self.irc_nick:
-            return self.irc_nick
-        return self.client_name
-
 
 # TODOs:
 # How do we define platforms, Case Status, coords, etc.?
