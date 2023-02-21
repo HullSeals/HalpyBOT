@@ -11,6 +11,7 @@ See license.md
 
 import json
 from typing import List, Dict, Optional
+from attrs import define
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
@@ -153,33 +154,26 @@ class Announcer:
             raise AnnouncementError(Exception) from announcement_exception
 
 
+@define
 class Announcement:
-    def __init__(
-        self,
-        ann_type: str,
-        name: str,
-        description: str,
-        channels: List[str],
-        edsm: Optional[int],
-        content: List[str],
-    ):
-        """Create a new announceable object
+    """Create a new announceable object
 
-        Args:
-            ann_type (str): Announcement reference code, used by API
-            name (str): Name, for reference only
-            description (str): Description of the announcement
-            channels (list of str): channels the announcement is to be sent to
-            edsm (int or Null): the announcement parameter we want to run
-                an EDSM system query on. none if Null.
-            content (list of str): lines to be sent in the announcement
-        """
-        self.ann_type = ann_type
-        self.name = name
-        self.description = description
-        self.channels = channels
-        self._edsm = edsm
-        self._content = "".join(content)
+    Args:
+        ann_type (str): Announcement reference code, used by API
+        name (str): Name, for reference only
+        description (str): Description of the announcement
+        channels (list of str): channels the announcement is to be sent to
+        edsm (int or Null): the announcement parameter we want to run
+            an EDSM system query on. none if Null.
+        content (list of str): lines to be sent in the announcement
+    """
+
+    ann_type: str
+    name: str
+    description: str
+    channels: List[str]
+    content: List[str]
+    edsm: Optional[int] = None
 
     async def format(self, args) -> str:
         """Format announcement in a ready-to-be-sent format
@@ -198,9 +192,9 @@ class Announcement:
         """
         if "System" in args.keys():
             args["System"] = await sys_cleaner(args["System"])
-        # Come on pylint
-        announcement = self._content.format(**args)
-        if self._edsm:
+        formatted_content = "".join(self.content)
+        announcement = formatted_content.format(**args)
+        if self.edsm:
             try:
                 announcement += await get_edsm_data(args)
             except ValueError:
