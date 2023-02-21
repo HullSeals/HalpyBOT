@@ -22,7 +22,8 @@ class Case:
     system: str
     platform: str
     board_id: int
-    creation_time = updated_time = pendulum.now(tz="utc")
+    creation_time: pendulum.DateTime = field(factory=lambda: pendulum.now(tz="utc"))
+    updated_time: pendulum.DateTime = field(factory=lambda: pendulum.now(tz="utc"))
     active: bool = True
     # Filled As Case Continues
     dispatchers: list = field(factory=list)
