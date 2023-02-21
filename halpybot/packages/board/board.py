@@ -113,13 +113,13 @@ class Board:
         """Update the last case time index"""
         self._last_case_time = now(tz="utc")
 
-    def return_rescue(self, key: typing.Union[str, int]) -> Case | None:
+    def return_rescue(self, key: typing.Union[str, int]) -> Case:
         """Find a Case given the Client Name or Case ID"""
         if isinstance(key, str):
             return self._cases_by_id[self._case_alias_name[key.casefold()]]
         if isinstance(key, int):
             return self._cases_by_id[key]
-        return None
+        raise KeyError
 
     def __contains__(self, key: typing.Union[str, int]) -> bool:
         if isinstance(key, str):
@@ -140,12 +140,15 @@ class Board:
 
     @asynccontextmanager
     async def mod_case(self, case: Case):
-        """Modify an existing case"""
+        """
+        Modify an existing case'
+        TODO: Is this thing on?
+        """
         async with self._modlock:
             current_case = case.board_id
             current_client = case.client_name
-            self._cases_by_id.pop(current_case)
-            self._case_alias_name.pop(current_client)
+            del self._cases_by_id[current_case]
+            del self._case_alias_name[current_client]
             try:
                 yield case
             finally:
@@ -154,11 +157,29 @@ class Board:
 
     async def del_case(self, case: Case):
         """Delete a Case from the Board"""
-        if isinstance(case, Case):
-            board_id = case.board_id
-            client = case.client_name
-            async with self._modlock:
-                self._cases_by_id.pop(board_id)
-                self._case_alias_name.pop(client)
-        else:
+        if not isinstance(case, Case):
             raise ValueError
+        board_id = case.board_id
+        client = case.client_name
+        async with self._modlock:
+            del self._cases_by_id[board_id]
+            del self._case_alias_name[client]
+
+    async def rename_case(self, new_name: str, case: Case):
+        """Rename an actively referenced case"""
+        # Make Sure we have a Case
+        if not isinstance(case, Case):
+            raise ValueError
+        # Gather old info
+        board_id = case.board_id
+        old_name = case.client_name
+        # Test Old Info
+        if new_name in self._case_alias_name:
+            raise AssertionError(f"Case already exists under the name {new_name!r}")
+        if old_name == new_name:
+            raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
+        # Update and Continue
+        case.client_name = new_name
+        async with self._modlock:
+            del self._case_alias_name[old_name]
+            self._case_alias_name[new_name] = board_id
