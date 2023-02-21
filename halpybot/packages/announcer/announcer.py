@@ -127,6 +127,7 @@ class Announcer:
                 channels=ann_type["Channels"],
                 edsm=ann_type["EDSM"],
                 content=ann_type["Content"],
+                type=ann_type["Type"],
             )
 
     async def announce(self, announcement: str, args: Dict, client):
@@ -166,6 +167,7 @@ class Announcement:
         edsm (int or Null): the announcement parameter we want to run
             an EDSM system query on. none if Null.
         content (list of str): lines to be sent in the announcement
+        type (str): The Type of announcement (Case, Action, or Other)
     """
 
     ann_type: str
@@ -174,6 +176,7 @@ class Announcement:
     channels: List[str]
     content: List[str]
     edsm: Optional[int] = None
+    type: Optional[str] = None
 
     async def format(self, args) -> str:
         """Format announcement in a ready-to-be-sent format
