@@ -17,10 +17,11 @@ class Seal:
 
     name: str
     seal_id: int
+    case_num: int
+    cmdrs: Optional[List[str]]
+    irc_aliases: Optional[List[str]]
     reg_date: str
     dw2: bool
-    aliases: Optional[List[str]]
-    case_num: int
 
     @property
     def dw2_history(self):

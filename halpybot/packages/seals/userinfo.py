@@ -23,7 +23,7 @@ async def whois(engine: Engine, subject):
 
     """
     connection = engine.raw_connection()
-    args = (subject, 0, 0, 0, 0, 0, 0)
+    args = (subject, 0, 0, 0, 0, 0, 0, 0)
     cursor_obj = connection.cursor()
     cursor_obj.callproc("spWhoIs", args)
     result = list(cursor_obj.fetchall())
@@ -33,15 +33,16 @@ async def whois(engine: Engine, subject):
     if not result:
         raise KeyError("No Results Given")
     for res in result:
-        u_id, u_cases, u_name, u_regdate, u_dw2 = res
+        print(res)
+        u_id, u_cases, u_name, u_aliases, u_regdate, u_dw2 = res
         if u_id is None:
             raise ValueError
-        seal = Seal(
+        return Seal(
             name=subject,
             seal_id=u_id,
             reg_date=u_regdate,
             dw2=u_dw2,
-            aliases=u_name,
+            cmdrs=u_name,
+            irc_aliases=u_aliases,
             case_num=u_cases,
         )
-        return seal
