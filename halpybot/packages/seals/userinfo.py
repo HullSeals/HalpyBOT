@@ -34,6 +34,8 @@ async def whois(engine: Engine, subject):
         raise KeyError("No Results Given")
     for res in result:
         u_id, u_cases, u_name, u_regdate, u_dw2 = res
+        if u_id is None:
+            raise ValueError
         seal = Seal(
             name=subject,
             seal_id=u_id,

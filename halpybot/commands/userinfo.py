@@ -39,7 +39,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
         )
     try:
         seal: Seal = await whois(ctx.bot.engine, cmdr)
-    except KeyError:
+    except (KeyError, ValueError):
         return await ctx.reply("No registered user found by that name!")
     return await ctx.reply(
         f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history} {seal.aliases}"
@@ -60,7 +60,7 @@ async def cmd_whoami(ctx: Context, args: List[str]):
     cmdr = ctx.sender
     try:
         seal: Seal = await whois(ctx.bot.engine, cmdr)
-    except KeyError:
+    except (KeyError, ValueError):
         return await ctx.redirect("No registered user found by that name!")
     return await ctx.redirect(
         f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history} {seal.aliases}"
