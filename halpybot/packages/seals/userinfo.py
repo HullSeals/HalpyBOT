@@ -33,7 +33,6 @@ async def whois(engine: Engine, subject):
     if not result:
         raise KeyError("No Results Given")
     for res in result:
-        print(res)
         u_id, u_cases, u_name, u_aliases, u_regdate, u_dw2 = res
         if u_id is None:
             raise ValueError

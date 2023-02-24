@@ -88,7 +88,6 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     try:
         uri = "https://hosting.zaonce.net/launcher-status/status.json"
         responses = await web_get(uri)
-        print(responses)
     except aiohttp.ClientError as server_stat_error:
         logger.exception("Error in Elite Server Status lookup.")
         await ctx.reply(
