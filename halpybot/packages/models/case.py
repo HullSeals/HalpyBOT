@@ -8,8 +8,36 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import Optional
+from enum import Enum
 from attrs import define, field
+from attr import dataclass
 import pendulum
+
+
+class Platform(Enum):
+    """Storing Platform References"""
+
+    ODYSSEY = 1
+    XBOX = 2
+    PLAYSTATION = 3
+    LEGACY_HORIZONS = 4
+    LIVE_HORIZONS = 5
+
+
+class Status(Enum):
+    """Saving Case Status"""
+
+    ACTIVE = 0
+    CLOSED = 1
+    DELAYED = 2
+
+
+@dataclass
+class KFCoords:
+    """KingFisher Coordinate Object"""
+
+    x: float
+    y: float
 
 
 @define
@@ -20,17 +48,16 @@ class Case:
     # Da Mandatories
     client_name: str
     system: str
-    platform: str
+    platform: Platform
     board_id: int
     creation_time: pendulum.DateTime = field(factory=lambda: pendulum.now(tz="utc"))
     updated_time: pendulum.DateTime = field(factory=lambda: pendulum.now(tz="utc"))
-    active: bool = True
+    status: Status = Status.ACTIVE
     # Filled As Case Continues
     dispatchers: list = field(factory=list)
     responders: list = field(factory=list)
     case_notes: list = field(factory=list)
-    case_status: Optional[str] = None
-    closed_to: Optional[str] = None
+    closed_to: Optional[int] = None
 
     # Da Optionalz
     irc_nick: Optional[str] = None
@@ -41,9 +68,4 @@ class Case:
 
     # For Kingfisher Cases
     planet: Optional[str] = None
-    pcoords: Optional[str] = None
-
-
-# TODOs:
-# How do we define platforms, Case Status, coords, etc.?
-# Can we define our lists more specifically?
+    pcoords: Optional[KFCoords] = None

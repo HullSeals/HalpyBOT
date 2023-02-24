@@ -21,6 +21,7 @@ from ..edsm import (
     sys_cleaner,
     NoNearbyEDSM,
 )
+from ..models import Platform
 
 cardinal_flip = {
     "North": "South",
@@ -31,6 +32,14 @@ cardinal_flip = {
     "SW": "NE",
     "West": "East",
     "NW": "SE",
+}
+
+platform_shorts = {
+    Platform.ODYSSEY: "PCO",
+    Platform.XBOX: "XB",
+    Platform.PLAYSTATION: "PS",
+    Platform.LEGACY_HORIZONS: "PCH",
+    Platform.LIVE_HORIZONS: "PCL",
 }
 
 
