@@ -31,7 +31,7 @@ class Status(Enum):
     DELAYED = 2
 
 
-@define
+@define(frozen=True)
 class KFCoords:
     """KingFisher Coordinate Object"""
 

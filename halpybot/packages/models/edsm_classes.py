@@ -17,7 +17,7 @@ from typing import Optional
 from attrs import define
 
 
-@define
+@define(frozen=True)
 class Coordinates:
     """EDSM object coordinates dictionary"""
 
@@ -26,7 +26,7 @@ class Coordinates:
     z: float
 
 
-@define
+@define(frozen=True)
 class SystemInfo:
     """EDSM system information dictionary"""
 
@@ -39,7 +39,7 @@ class SystemInfo:
     economy: str
 
 
-@define
+@define(frozen=True)
 class Location:
     """EDSM location object"""
 
@@ -48,7 +48,7 @@ class Location:
     time: Optional[str]
 
 
-@define
+@define(frozen=True)
 class Commander:
     """The Commander keys we care about"""
 
@@ -58,7 +58,7 @@ class Commander:
     date: Optional[str]
 
 
-@define
+@define(frozen=True)
 class Galaxy:
     """Galaxy Keys we care about"""
 

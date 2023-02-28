@@ -11,7 +11,7 @@ from typing import Optional, List
 from attrs import define
 
 
-@define
+@define(frozen=True)
 class Seal:
     """Define our Seal"""
 

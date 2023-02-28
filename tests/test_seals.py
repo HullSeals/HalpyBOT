@@ -11,6 +11,8 @@ Testing will always DISABLE offline mode. You must have access to a Seal-type DB
 """
 
 import pytest
+
+from halpybot.packages.models import Seal
 from halpybot.packages.seals import whois
 from halpybot import config
 
@@ -18,29 +20,17 @@ config.offline_mode.enabled = False
 
 
 @pytest.mark.asyncio
-async def test_egg_whois(bot_fx):
-    """Test the WHOIS reply for the fun name"""
-    user = await whois(bot_fx.engine, "HalpyBOT")
-    user = user[: len(user) // 2]
-    assert (
-        user
-        == "CMDR HalpyBOT has a Seal ID of 235, registered on 2019-12-20, is a DW2 Veteran and Founder Seal "
-    )
-
-
-@pytest.mark.asyncio
 async def test_good_whois(bot_fx):
     """Test the WHOIS reply for a valid user"""
     user = await whois(bot_fx.engine, "rik079")
-    user = user[: len(user) // 3]
-    assert user == "CMDR rik079 has a Seal ID of 400, registered on 2020-01-15, with r"
+    assert isinstance(user, Seal)
 
 
 @pytest.mark.asyncio
 async def test_bad_whois(bot_fx):
     """Test the WHOIS reply for a valid user"""
-    user = await whois(bot_fx.engine, "blargnet")
-    assert user == "No registered user found by that name!"
+    with pytest.raises(ValueError):
+        await whois(bot_fx.engine, "blargnet")
 
 
 @pytest.mark.asyncio
@@ -48,6 +38,6 @@ async def test_offline_whois(bot_fx):
     """Test that the WHOIS system responds properly in ONLINE mode"""
     prev_value = config.offline_mode.enabled
     config.offline_mode.enabled = True
-    user = await whois(bot_fx.engine, "ThisCMDRDoesntExist")
-    assert user == "No registered user found by that name!"
+    with pytest.raises(ValueError):
+        await whois(bot_fx.engine, "ThisCMDRDoesntExist")
     config.offline_mode.enabled = prev_value

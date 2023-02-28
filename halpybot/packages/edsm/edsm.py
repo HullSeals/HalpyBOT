@@ -61,7 +61,7 @@ class EDSMReturnError(EDSMLookupError):
     """
 
 
-@define
+@define(frozen=True)
 class EDSMQuery:
     """
     Formulate an EDSM Query and save the time the query was run.
@@ -71,7 +71,7 @@ class EDSMQuery:
     time: time()
 
 
-@define
+@define(frozen=True)
 class EDDBSystem:
     """
     EDDB system object
@@ -85,7 +85,7 @@ class EDDBSystem:
     coords: Coordinates
 
 
-@define
+@define(frozen=True)
 class GalaxySystem:
     """
     EDSM system object
@@ -564,7 +564,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         )
 
 
-@define
+@define(frozen=True)
 class Diversion:
     """Format for finding Diversion systems"""
 
