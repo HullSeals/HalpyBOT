@@ -17,7 +17,7 @@ from ..models import User
 from ..database import test_database_connection, NoDatabaseConnection
 
 
-@dataclass
+@dataclass(frozen=True)
 class Permission:
     """Reference a specific permission level"""
 
