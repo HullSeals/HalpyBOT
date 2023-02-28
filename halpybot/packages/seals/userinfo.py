@@ -24,11 +24,9 @@ async def whois(engine: Engine, subject):
     """
     connection = engine.raw_connection()
     args = (subject, 0, 0, 0, 0, 0, 0, 0)
-    cursor_obj = connection.cursor()
-    cursor_obj.callproc("spWhoIs", args)
-    result = list(cursor_obj.fetchall())
-    cursor_obj.close()
-    connection.close()
+    with connection.cursor() as cursor_obj:
+        cursor_obj.callproc("spWhoIs", args)
+        result = list(cursor_obj.fetchall())
     if not result:
         raise KeyError("No Results Given")
     for res in result:
