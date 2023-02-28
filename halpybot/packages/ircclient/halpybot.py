@@ -218,9 +218,14 @@ class HalpyBOT(pydle.Client, ListHandler):
     async def on_join(self, channel, user):
         """Greet Case Users"""
         await super().on_join(channel, user)
-        # TODO: If new join member of a case, respond:
-        # await self.message(channel, f'{user} connected successfully.
-        # Welcome! Please wait for a dispatcher to respond to your case.')
+        for board_id, case in self.board.by_id.items():
+            if user in (case.irc_nick, case.client_name):
+                return await self.message(
+                    channel,
+                    f"{user} connected successfully. Welcome! Please "
+                    f"wait for a dispatcher to respond to your case. "
+                    f"(Case ID: {board_id})",
+                )
 
 
 async def crash_notif(crashtype, condition):

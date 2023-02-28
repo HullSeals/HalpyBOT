@@ -24,7 +24,7 @@ import itertools
 from asyncio import Lock
 from contextlib import asynccontextmanager
 from pendulum import now, DateTime
-from ..models import Case
+from ..models import Case, Platform
 
 
 class Board:
@@ -105,9 +105,13 @@ class Board:
         return next_id
 
     @property
+    def by_id(self) -> dict:
+        """Returns the cases_by_id dict"""
+        return self._cases_by_id
+
+    @property
     def time_last_case(self) -> typing.Optional[DateTime]:
         """Time since the last case started"""
-        return self._last_case_time
 
     def _update_last_index(self):
         """Update the last case time index"""
@@ -128,12 +132,12 @@ class Board:
             return key in self._cases_by_id
         return False
 
-    async def add_case(self, client) -> Case:
+    async def add_case(self, client, platform: Platform, system) -> Case:
         """Create a new Case given the client name"""
         async with self._modlock:
             new_id = self.open_rescue_id
             case = Case(
-                board_id=new_id, client_name=client, platform="PC", system="Delkar"
+                board_id=new_id, client_name=client, platform=platform, system=system
             )
             self._last_case_time = now(tz="utc")
             if case.client_name in self._case_alias_name:
@@ -163,7 +167,7 @@ class Board:
     async def del_case(self, case: Case):
         """Delete a Case from the Board"""
         if not isinstance(case, Case):
-            raise ValueError
+            raise TypeError
         board_id = case.board_id
         client = case.client_name
         async with self._modlock:
@@ -174,7 +178,7 @@ class Board:
         """Rename an actively referenced case"""
         # Make Sure we have a Case
         if not isinstance(case, Case):
-            raise ValueError
+            raise TypeError
         # Gather old info
         board_id = case.board_id
         old_name = case.client_name

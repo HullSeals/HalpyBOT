@@ -11,13 +11,13 @@ See license.md
 import functools
 from typing import List
 from loguru import logger
-from attr import dataclass
+from attrs import define
 from halpybot import config
 from ..models import User
 from ..database import test_database_connection, NoDatabaseConnection
 
 
-@dataclass(frozen=True)
+@define(frozen=True)
 class Permission:
     """Reference a specific permission level"""
 

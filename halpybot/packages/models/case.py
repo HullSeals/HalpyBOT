@@ -10,7 +10,6 @@ See license.md
 from typing import Optional
 from enum import Enum
 from attrs import define, field
-from attr import dataclass
 import pendulum
 
 
@@ -32,7 +31,7 @@ class Status(Enum):
     DELAYED = 2
 
 
-@dataclass
+@define
 class KFCoords:
     """KingFisher Coordinate Object"""
 

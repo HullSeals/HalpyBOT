@@ -23,7 +23,7 @@ from loguru import logger
 import aiohttp
 import numpy as np
 import cattr
-from attr import dataclass, field
+from attrs import define, field
 from halpybot import config
 from ..models import Coordinates, Location
 from ..models import edsm_classes
@@ -61,7 +61,7 @@ class EDSMReturnError(EDSMLookupError):
     """
 
 
-@dataclass
+@define
 class EDSMQuery:
     """
     Formulate an EDSM Query and save the time the query was run.
@@ -71,7 +71,7 @@ class EDSMQuery:
     time: time()
 
 
-@dataclass
+@define
 class EDDBSystem:
     """
     EDDB system object
@@ -85,7 +85,7 @@ class EDDBSystem:
     coords: Coordinates
 
 
-@dataclass
+@define
 class GalaxySystem:
     """
     EDSM system object
@@ -236,7 +236,7 @@ class GalaxySystem:
         return sysname, dist
 
 
-@dataclass(frozen=True)
+@define(frozen=True)
 class Commander:
     """
     EDSM commander object
@@ -564,7 +564,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         )
 
 
-@dataclass
+@define
 class Diversion:
     """Format for finding Diversion systems"""
 

@@ -8,10 +8,10 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import Optional, List
-from attr import dataclass
+from attrs import define
 
 
-@dataclass
+@define
 class Seal:
     """Define our Seal"""
 
