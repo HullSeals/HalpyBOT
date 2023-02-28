@@ -28,7 +28,6 @@ async def whois(engine: Engine, subject):
     cursor_obj.callproc("spWhoIs", args)
     result = list(cursor_obj.fetchall())
     cursor_obj.close()
-    connection.commit()
     connection.close()
     if not result:
         raise KeyError("No Results Given")
