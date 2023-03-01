@@ -18,6 +18,7 @@ from sqlalchemy import create_engine
 from halpybot import config
 from .. import utils
 from .. import notify
+from ..announcer import Announcer
 from ..board import Board
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
@@ -47,6 +48,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
             self._commandsfile = json.load(jsonfile)
         self._board = Board(id_range=10)
+        self._announcer = Announcer()
 
     @property
     def commandhandler(self):
@@ -72,6 +74,11 @@ class HalpyBOT(pydle.Client, ListHandler):
     def board(self):
         """Return the Case Board"""
         return self._board
+
+    @property
+    def announcer(self):
+        """Return the Announcer"""
+        return self._announcer
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):

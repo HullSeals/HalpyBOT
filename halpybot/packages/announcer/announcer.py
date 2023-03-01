@@ -129,7 +129,7 @@ class Announcer:
         # Create announcement objects and store them in dict
         for ann_type in self._config["AnnouncerType"]:
             self._announcements[ann_type["ID"]] = Announcement(
-                ann_type=ann_type["ID"],
+                case_type=ann_type["ID"],
                 name=ann_type["Name"],
                 description=ann_type["Description"],
                 channels=ann_type["Channels"],
@@ -168,7 +168,7 @@ class Announcement:
     """Create a new announceable object
 
     Args:
-        ann_type (str): Announcement reference code, used by API
+        case_type (str): Announcement reference code, used by API
         name (str): Name, for reference only
         description (str): Description of the announcement
         channels (list of str): channels the announcement is to be sent to
@@ -178,7 +178,7 @@ class Announcement:
         type (str): The Type of announcement (Case, Action, or Other)
     """
 
-    ann_type: str
+    case_type: str
     name: str
     description: str
     channels: List[str]
