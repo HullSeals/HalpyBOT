@@ -15,6 +15,7 @@ from sqlalchemy import text
 from .server import APIConnector
 from .auth import authenticate
 from ..packages.database import NoDatabaseConnection
+from ..packages.ircclient import HalpyBOT
 
 routes = web.RouteTableDef()
 
@@ -34,7 +35,7 @@ async def tail(request):
     Raises:
         HTTPOK or HTTPServiceUnavailable
     """
-    botclient = request.app["botclient"]
+    botclient: HalpyBOT = request.app["botclient"]
     if request.body_exists:
         request = await request.json()
     # Parse arguments
@@ -42,7 +43,7 @@ async def tail(request):
     subject = request["subject"]
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
-        with botclient.connect() as database_connection:
+        with botclient.engine.connect() as database_connection:
             result = database_connection.execute(
                 text(
                     "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = :subject_name;"
