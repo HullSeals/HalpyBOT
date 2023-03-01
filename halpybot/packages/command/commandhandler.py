@@ -312,12 +312,18 @@ def get_help_text(commandsfile, search_command: str):
     for command_dict in commandsfile.values():
         for command, details in command_dict.items():
             command = command.casefold()
-            if command == search_command or search_command in details["aliases"]:
+            if command == search_command or (
+                "aliases" in details and search_command in details["aliases"]
+            ):
                 arguments = details["arguments"]
-                aliases = details["aliases"]
+                aliases = (
+                    f"\nAliases: {', '.join(details['aliases'])}"
+                    if details["aliases"]
+                    else ""
+                )
                 usage = details["use"]
                 return (
-                    f"Use: {config.irc.command_prefix}{command} {arguments}\nAliases: {', '.join(aliases)}\n"
+                    f"Use: {config.irc.command_prefix}{command} {arguments} {aliases}\n"
                     f"{usage}"
                 )
     return None

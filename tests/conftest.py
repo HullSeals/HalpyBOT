@@ -14,12 +14,19 @@ if os.getcwd().endswith("tests"):
     os.chdir("..")
 
 # noinspection PyUnresolvedReferences
-from halpybot import commands
+from halpybot import commands, config
 from .fixtures.mock_halpy import TestBot
 
 
 @pytest.fixture()
-async def bot_fx():
+async def bot_fx() -> TestBot:
     """Create a fixture that represents the bot"""
     test_bot = TestBot(nickname="HalpyTest[BOT]")
     return test_bot
+
+
+@pytest.fixture()
+async def db_engine(bot_fx: bot_fx):
+    """Create a db_engine fixture"""
+    config.offline_mode.enabled = False
+    return bot_fx.engine

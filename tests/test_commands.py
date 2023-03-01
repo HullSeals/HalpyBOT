@@ -195,7 +195,7 @@ async def test_help_specific(bot_fx):
         message=f"{config.irc.command_prefix}help ping",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "message": f"Use: {config.irc.command_prefix}ping  \nCheck to see if the bot is responding to commands.",
         "target": "#bot-test",
     }
 
@@ -210,11 +210,11 @@ async def test_help_multiple(bot_fx):
         message=f"{config.irc.command_prefix}help ping dssa",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}ping \nAliases: \nCheck to see if the bot is responding to commands.",
+        "message": f"Use: {config.irc.command_prefix}ping  \nCheck to see if the bot is responding to commands.",
         "target": "#bot-test",
     }
     assert bot_fx.sent_messages[1] == {
-        "message": f"Use: {config.irc.command_prefix}dssa [EDSM Valid Location]\nAliases: \nCheck for the closest DSSA carrier to a given location.",
+        "message": f"Use: {config.irc.command_prefix}dssa [EDSM Valid Location] \nCheck for the closest DSSA carrier to a given location.",
         "target": "#bot-test",
     }
 
@@ -336,7 +336,7 @@ async def test_say_no_args(bot_fx):
         message=f"{config.irc.command_prefix}say",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}say [channel] [text]\nAliases: \nMake the Bot say something",
+        "message": f"Use: {config.irc.command_prefix}say [channel] [text] \nMake the Bot say something",
         "target": "some_cyber",
     }
 
@@ -366,7 +366,7 @@ async def test_whois_empty(bot_fx):
         message=f"{config.irc.command_prefix}whois",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}whois [name]\nAliases: \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
+        "message": f"Use: {config.irc.command_prefix}whois [name] \nCheck the user information for registered name. Must be a registered user, and run in DMs with HalpyBOT.",
         "target": "some_admin",
     }
 
@@ -428,7 +428,7 @@ async def test_drill_empty(bot_fx):
         message=f"{config.irc.command_prefix}drillcase",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}drillcase [cmdr], [platform], [system], [hull]\nAliases: \nStarts a new Drill Case, separated by Commas",
+        "message": f"Use: {config.irc.command_prefix}drillcase [cmdr], [platform], [system], [hull] \nStarts a new Drill Case, separated by Commas",
         "target": "#bot-test",
     }
 
@@ -443,7 +443,7 @@ async def test_drillkf_empty(bot_fx):
         message=f"{config.irc.command_prefix}drillkfcase",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}drillkfcase [cmdr], [platform], [system], [planet], [coords], [type]\nAliases: \nStarts a new Drill Kingfisher Case, separated by Commas",
+        "message": f"Use: {config.irc.command_prefix}drillkfcase [cmdr], [platform], [system], [planet], [coords], [type] \nStarts a new Drill Kingfisher Case, separated by Commas",
         "target": "#bot-test",
     }
 
@@ -458,7 +458,7 @@ async def test_drillcb_empty(bot_fx):
         message=f"{config.irc.command_prefix}drillcbcase",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": f"Use: {config.irc.command_prefix}drillcbcase [cmdr], [platform], [system], [hull], [cansynth], [o2]\nAliases: \nStarts a new Drill CB Case, separated by Commas",
+        "message": f"Use: {config.irc.command_prefix}drillcbcase [cmdr], [platform], [system], [hull], [cansynth], [o2] \nStarts a new Drill CB Case, separated by Commas",
         "target": "#bot-test",
     }
 

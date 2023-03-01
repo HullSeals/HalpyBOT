@@ -67,12 +67,11 @@ async def get_edsm_data(args: Dict, generalized: bool = False) -> Optional[str]:
         landmark, distance, direction = await checklandmarks(sys_name)
         # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
         direction = cardinal_flip[direction]
-        if generalized:
-            return (
-                f"{distance} LY {direction} of {landmark}"
-                if generalized
-                else f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-            )
+        return (
+            f"{distance} LY {direction} of {landmark}"
+            if generalized
+            else f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+        )
     except NoNearbyEDSM:
         dssa, distance, direction = await checkdssa(sys_name)
         return (

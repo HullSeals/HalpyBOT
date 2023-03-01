@@ -157,3 +157,8 @@ class TestBot(HalpyBOT):
         raise RuntimeWarning(
             "Connection to a server disallowed in instances of the mock bot."
         )
+
+    @property
+    def engine(self):
+        """Database Connection Engine"""
+        return self._engine
