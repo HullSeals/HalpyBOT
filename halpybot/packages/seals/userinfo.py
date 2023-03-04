@@ -8,6 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 from sqlalchemy.engine import Engine
+from sqlalchemy import text
 from ..models import Seal
 
 
@@ -22,23 +23,25 @@ async def whois(engine: Engine, subject):
         (Seal): The Seal object
 
     """
-    connection = engine.raw_connection()
-    args = (subject, 0, 0, 0, 0, 0, 0, 0)
-    with connection.cursor() as cursor_obj:
-        cursor_obj.callproc("spWhoIs", args)
-        result = list(cursor_obj.fetchall())
-    if not result:
-        raise KeyError("No Results Given")
-    for res in result:
-        u_id, u_cases, u_name, u_aliases, u_regdate, u_dw2 = res
-        if u_id is None:
-            raise ValueError
-        return Seal(
-            name=subject,
-            seal_id=u_id,
-            reg_date=u_regdate,
-            dw2=u_dw2,
-            cmdrs=u_name,
-            irc_aliases=u_aliases,
-            case_num=u_cases,
+    with engine.connect() as conn:
+        result = conn.execute(
+            text(
+                "CALL spWhoIs(:subject, @sealID, @casecnt, @sealnms, @ircnms, @joined, @dw2, @message)"
+            ),
+            {"subject": subject},
         )
+        results = result.fetchall()
+    if not results:
+        raise KeyError("No Results Given")
+    u_id, u_cases, u_name, u_aliases, u_regdate, u_dw2 = results[0]
+    if u_id is None:
+        raise ValueError
+    return Seal(
+        name=subject,
+        seal_id=u_id,
+        reg_date=u_regdate,
+        dw2=u_dw2,
+        cmdrs=u_name,
+        irc_aliases=u_aliases,
+        case_num=u_cases,
+    )
