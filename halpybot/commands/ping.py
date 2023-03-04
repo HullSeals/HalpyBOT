@@ -86,7 +86,9 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     try:
-        uri = "https://launcher-4586754895.elitedangerous.com/launcher-status/status.json"
+        uri = (
+            "https://launcher-4586754895.elitedangerous.com/launcher-status/status.json"
+        )
         responses = await web_get(uri)
     except aiohttp.ClientError as server_stat_error:
         logger.exception("Error in Elite Server Status lookup.")
