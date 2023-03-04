@@ -112,6 +112,7 @@ class Board:
     @property
     def time_last_case(self) -> typing.Optional[DateTime]:
         """Time since the last case started"""
+        return self._last_case_time
 
     def _update_last_index(self):
         """Update the last case time index"""
