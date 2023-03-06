@@ -11,6 +11,7 @@ See license.md
 
 import json
 from typing import List, Dict, Optional
+from loguru import logger
 from attrs import define
 from ..edsm import (
     checklandmarks,
@@ -40,6 +41,7 @@ platform_shorts = {
     Platform.PLAYSTATION: "PS",
     Platform.LEGACY_HORIZONS: "PCH",
     Platform.LIVE_HORIZONS: "PCL",
+    Platform.UNKNOWN: "UKN",
 }
 
 
@@ -160,6 +162,7 @@ class Announcer:
             for channel in ann.channels:
                 await client.message(channel, await ann.format(args))
         except Exception as announcement_exception:
+            logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
 
 
@@ -203,6 +206,15 @@ class Announcement:
         """
         if "System" in args.keys():
             args["System"] = await sys_cleaner(args["System"])
+        if "Platform" in args.keys():
+            try:
+                codemap = Platform(int(args["Platform"]))
+            except ValueError:
+                codemap = Platform(6)
+            args["Short"] = platform_shorts[codemap]
+            args["Platform"] = codemap.name
+        else:
+            args["Short"] = None
         formatted_content = "".join(self.content)
         announcement = formatted_content.format(**args)
         if self.edsm:

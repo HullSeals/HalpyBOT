@@ -39,9 +39,9 @@
       ],
       "EDSM": true,
       "Content": [
-        "xxxx CBCASE -- NEWCASE -- {Platform}CASE xxx\n",
-        "CMDR: {CMDR} -- Platform: {Platform} -- System: {System} -- Hull: {Hull}\n",
-        "Can synth: {CanSynth} -- O2 timer: {Oxygen}\n",
+        "xxxx {Short}CASE -- NEWCASE -- CBCASE xxx\n",
+        "CMDR: {CMDR} -- Platform: {Platform} -- System: {System}\n",
+        "Hull: {Hull} -- Can synth: {CanSynth} -- O2 timer: {Oxygen}\n",
         "xxxxxxxx"
       ],
       "Type": "Case"
@@ -56,7 +56,7 @@
       ],
       "EDSM": true,
       "Content": [
-        "xxxx {Platform}CASE -- NEWCASE xxxx\n",
+        "xxxx {Short}CASE -- NEWCASE xxxx\n",
         "CMDR: {CMDR} -- Platform: {Platform}\n",
         "System: {System} -- Hull: {Hull}\n",
         "xxxxxxxx"
@@ -73,7 +73,7 @@
       ],
       "EDSM": true,
       "Content": [
-        "xxxx {Platform}KFCASE -- NEWCASE xxxx\n",
+        "xxxx {Short}KFCASE -- NEWCASE xxxx\n",
         "CMDR: {CMDR} -- Platform: {Platform}\n",
         "System: {System} -- Planet: {Planet}\n",
         "Coordinates: {Coords}\n",

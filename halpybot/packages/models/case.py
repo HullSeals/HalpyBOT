@@ -21,6 +21,7 @@ class Platform(Enum):
     PLAYSTATION = 3
     LEGACY_HORIZONS = 4
     LIVE_HORIZONS = 5
+    UNKNOWN = 6
 
 
 class Status(Enum):
