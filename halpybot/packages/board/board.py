@@ -120,9 +120,9 @@ class Board:
 
     def return_rescue(self, key: typing.Union[str, int]) -> Case:
         """Find a Case given the Client Name or Case ID"""
-        if isinstance(key, str):
+        if isinstance(key, str) and key in self._case_alias_name.keys():
             return self._cases_by_id[self._case_alias_name[key.casefold()]]
-        if isinstance(key, int):
+        if isinstance(key, int) and key in self._cases_by_id.keys():
             return self._cases_by_id[key]
         raise KeyError(f"Key {key!r} not found.")
 

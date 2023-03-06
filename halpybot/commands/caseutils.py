@@ -8,7 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.models import Context, User, NoUserFound
 
 
@@ -46,3 +46,37 @@ async def cmd_go(ctx: Context, args: List[str]):
     return await ctx.reply(
         await ctx.bot.facts.fact_formatted(fact=("go", "en"), arguments=args)
     )
+
+
+@Commands.command("listboard")
+async def cmd_listboard(ctx: Context, args: List[str]):
+    """
+    Send a user the key details of every case on the board in DMs
+
+    Usage: !listboard
+    Aliases: n/a
+    """
+    caseboard = ctx.bot.board.by_id
+    if not caseboard:
+        return await ctx.redirect("The case board is empty!")
+    await ctx.redirect("Here's the current case board:")
+    for case in caseboard.values():
+        hskf = "Seal" if case.hull_percent else "Fisher" if case.planet else "Unknown"
+        await ctx.redirect(
+            f"Case {case.board_id}: Client: {case.client_name}, Platform: {case.platform}, "
+            f"Type: {hskf}, Status: {case.status.name}"
+        )
+    return await ctx.redirect(f"{len(caseboard)} Cases on the Board.")
+
+
+@Commands.command("listcase")
+async def cmd_listcase(ctx: Context, args: List[str]):
+    """
+    Send a user the key details of a case on the board in DMs
+
+    Usage: !listcase [board ID]
+    Aliases: n/a
+    """
+    if not args:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "listcase"))
+    return await ctx.redirect("Coming Soon!")

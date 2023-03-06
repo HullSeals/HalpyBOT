@@ -316,11 +316,8 @@ def get_help_text(commandsfile, search_command: str):
                 "aliases" in details and search_command in details["aliases"]
             ):
                 arguments = details["arguments"]
-                aliases = (
-                    f"\nAliases: {', '.join(details['aliases'])}"
-                    if details["aliases"]
-                    else ""
-                )
+                aliases = details.get("aliases")
+                aliases = f"\nAliases: {', '.join(aliases)}" if aliases else ""
                 usage = details["use"]
                 return (
                     f"Use: {config.irc.command_prefix}{command} {arguments} {aliases}\n"
