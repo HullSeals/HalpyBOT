@@ -227,12 +227,36 @@ class HalpyBOT(pydle.Client, ListHandler):
         await super().on_join(channel, user)
         for board_id, case in self.board.by_id.items():
             if user in (case.irc_nick, case.client_name):
+                if case.welcomed:
+                    return await self.message(
+                        channel,
+                        f"Client {user} reconnected. Welcome back! (Case {board_id})",
+                    )
                 return await self.message(
                     channel,
-                    f"{user} connected successfully. Welcome! Please "
+                    f"Client {user} connected successfully. Welcome! Please "
                     f"wait for a dispatcher to respond to your case. "
-                    f"(Case ID: {board_id})",
+                    f"(Case {board_id})",
                 )
+
+    async def on_part(self, channel, user, message=None):
+        """Notify of Departing Case Users"""
+        await super().on_part(channel, user, message)
+        for board_id, case in self.board.by_id.items():
+            if user in (case.irc_nick, case.client_name):
+                return await self.message(
+                    channel, f"Client {user} left the channel. (Case {board_id})"
+                )
+
+    async def on_quit(self, user, message=None):
+        """Notify of Departing Case Users"""
+        await super().on_quit(user, message)
+        for board_id, case in self.board.by_id.items():
+            if user in (case.irc_nick, case.client_name):
+                for channel in config.channels.channel_list:
+                    return await self.message(
+                        channel, f"Client {user} left the server. (Case {board_id})"
+                    )
 
 
 async def crash_notif(crashtype, condition):

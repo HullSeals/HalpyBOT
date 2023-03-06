@@ -52,6 +52,7 @@ class Case:
     creation_time: pendulum.DateTime = field(factory=lambda: pendulum.now(tz="utc"))
     updated_time: pendulum.DateTime = field(factory=lambda: pendulum.now(tz="utc"))
     status: Status = Status.ACTIVE
+    welcomed: bool = False
     # Filled As Case Continues
     dispatchers: list = field(factory=list)
     responders: list = field(factory=list)

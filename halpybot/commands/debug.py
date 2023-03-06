@@ -44,3 +44,17 @@ async def cmd_newcase(ctx: Context, args: List[str]):
     sys = args[2]
     case = await ctx.bot.board.add_case(client=cmdr, platform=plt, system=sys)
     return await ctx.reply(f"New case started: Board ID {case.board_id}")
+
+
+@Commands.command("debugwelcome")
+async def cmd_debugwelcome(ctx: Context, args: List[str]):
+    try:
+        caseref = int(args[0])
+    except ValueError:
+        caseref = args[0]
+    try:
+        case = ctx.bot.board.return_rescue(caseref)
+    except KeyError:
+        return await ctx.reply("[DEBUG] No case found.")
+    case.welcomed = True
+    return await ctx.reply(f"[DEBUG] case {caseref} set to Welcomed.")
