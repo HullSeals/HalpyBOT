@@ -8,8 +8,10 @@ Licensed under the GNU General Public License
 See license.md
 """
 import re
+from typing import Dict
 from pendulum import now
-from ..models import Case
+from ..ircclient import HalpyBOT
+from ..models import Case, Platform
 
 
 async def format_case_details(case: Case) -> str:
@@ -63,3 +65,30 @@ async def format_case_details(case: Case) -> str:
         f"   Notes: {case.case_notes if case.case_notes else 'None Yet!'}"
     )
     return message
+
+
+async def create_case(args: Dict, codemap: Platform, client: HalpyBOT) -> int:
+    """Create a Case on the board from a rescue announcement"""
+    # Determine if an IRCN is needed by default
+    ircn = re.search("/[^a-zA-Z0-9]/", args["CMDR"])
+    if ircn:
+        ircn = re.sub("/[^a-zA-Z0-9]/", "", args["CMDR"])
+    # Create the base case
+    newcase: Case = await client.board.add_case(
+        client=args["CMDR"], platform=codemap, system=args["System"]
+    )
+    async with client.board.mod_case(newcase) as case:
+        if ircn:
+            case.irc_nick = ircn
+        if "CanSynth" in args:
+            case.hull_percent = int(args["Hull"])
+            case.canopy_broken = True
+            case.can_synth = True
+            case.o2_timer = args["Oxygen"]
+        elif "Coords" in args:
+            case.planet = args["Planet"]
+            case.pcoords = args["Coords"]
+            case.kftype = args["KFType"]
+        else:
+            case.hull_percent = int(args["Hull"])
+    return newcase.board_id

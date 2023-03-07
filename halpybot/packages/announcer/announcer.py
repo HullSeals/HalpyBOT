@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import List, Dict, Optional, TYPE_CHECKING
 from loguru import logger
 from attrs import define
+from ..case import create_case
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
@@ -24,7 +25,7 @@ from ..edsm import (
     sys_cleaner,
     NoNearbyEDSM,
 )
-from ..models import Platform, Case
+from ..models import Platform
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
@@ -184,33 +185,6 @@ class Announcer:
         except Exception as announcement_exception:
             logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
-
-
-async def create_case(args: Dict, codemap: Platform, client: HalpyBOT) -> int:
-    """Create a Case on the board from a rescue announcement"""
-    # Determine if an IRCN is needed by default
-    ircn = re.search("/[^a-zA-Z0-9]/", args["CMDR"])
-    if ircn:
-        ircn = re.sub("/[^a-zA-Z0-9]/", "", args["CMDR"])
-    # Create the base case
-    newcase: Case = await client.board.add_case(
-        client=args["CMDR"], platform=codemap, system=args["System"]
-    )
-    async with client.board.mod_case(newcase) as case:
-        if ircn:
-            case.irc_nick = ircn
-        if "CanSynth" in args:
-            case.hull_percent = int(args["Hull"])
-            case.canopy_broken = True
-            case.can_synth = True
-            case.o2_timer = args["Oxygen"]
-        elif "Coords" in args:
-            case.planet = args["Planet"]
-            case.pcoords = args["Coords"]
-            case.kftype = args["KFType"]
-        else:
-            case.hull_percent = int(args["Hull"])
-    return newcase.board_id
 
 
 @define
