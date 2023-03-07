@@ -42,7 +42,7 @@
         "xxxx {Short}CASE -- NEWCASE -- CBCASE xxx\n",
         "CMDR: {CMDR} -- Platform: {Platform} -- System: {System}\n",
         "Hull: {Hull} -- Can synth: {CanSynth} -- O2 timer: {Oxygen}\n",
-        "xxxxxxxx"
+        "xxxx Case ID: {Board ID} xxxx"
       ],
       "Type": "Case"
     },
@@ -59,7 +59,7 @@
         "xxxx {Short}CASE -- NEWCASE xxxx\n",
         "CMDR: {CMDR} -- Platform: {Platform}\n",
         "System: {System} -- Hull: {Hull}\n",
-        "xxxxxxxx"
+        "xxxx Case ID: {Board ID} xxxx"
       ],
       "Type": "Case"
     },
@@ -78,7 +78,7 @@
         "System: {System} -- Planet: {Planet}\n",
         "Coordinates: {Coords}\n",
         "Type: {KFType}\n",
-        "xxxxxxxx"
+        "xxxx Case ID: {Board ID} xxxx"
       ],
       "Type": "Case"
     }

@@ -144,9 +144,9 @@ class Board:
 
     def return_rescue(self, key: typing.Union[str, int]) -> Case:
         """Find a Case given the Client Name or Case ID"""
-        if isinstance(key, str) and key in self._case_alias_name.keys():
+        if isinstance(key, str) and key in self._case_alias_name:
             return self._cases_by_id[self._case_alias_name[key.casefold()]]
-        if isinstance(key, int) and key in self._cases_by_id.keys():
+        if isinstance(key, int) and key in self._cases_by_id:
             return self._cases_by_id[key]
         raise KeyError(f"Key {key!r} not found.")
 
@@ -157,7 +157,7 @@ class Board:
             return key in self._cases_by_id
         return False
 
-    async def add_case(self, client, platform: Platform, system) -> Case:
+    async def add_case(self, client: str, platform: Platform, system: str) -> Case:
         """Create a new Case given the client name"""
         async with self._modlock:
             new_id = self.open_rescue_id

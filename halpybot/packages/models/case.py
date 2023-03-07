@@ -62,6 +62,8 @@ class Case:
 
     # Da Optionalz
     irc_nick: Optional[str] = None
+    can_synth: Optional[bool] = None
+    o2_timer: Optional[str] = None
 
     # For Seal Cases
     hull_percent: Optional[int] = None
@@ -70,3 +72,4 @@ class Case:
     # For Kingfisher Cases
     planet: Optional[str] = None
     pcoords: Optional[KFCoords] = None
+    kftype: Optional[str] = None
