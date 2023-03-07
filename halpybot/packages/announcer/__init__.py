@@ -8,7 +8,13 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .announcer import Announcer, Announcement, AnnouncementError, get_edsm_data
+from .announcer import (
+    Announcer,
+    Announcement,
+    AnnouncementError,
+    get_edsm_data,
+    AlreadyExistsError,
+)
 from .dc_webhook import send_webhook, DiscordWebhookError, WebhookSendError
 
 __all__ = [
@@ -16,6 +22,7 @@ __all__ = [
     "Announcement",
     "AnnouncementError",
     "get_edsm_data",
+    "AlreadyExistsError",
     "send_webhook",
     "DiscordWebhookError",
     "WebhookSendError",

@@ -11,8 +11,7 @@ See license.md
 
 from typing import Dict
 from aiohttp import web
-from ..packages.announcer import AnnouncementError
-from ..packages.announcer.announcer import AlreadyExistsError
+from ..packages.announcer import AnnouncementError, AlreadyExistsError
 from ..packages.ircclient import HalpyBOT
 from .server import APIConnector
 from .auth import authenticate
