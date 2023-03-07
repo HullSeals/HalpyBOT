@@ -105,7 +105,7 @@ class Board:
         return next_id
 
     @property
-    def by_id(self) -> dict:
+    def by_id(self) -> typing.Dict[int, Case]:
         """Returns the cases_by_id dict"""
         return self._cases_by_id
 
@@ -133,7 +133,7 @@ class Board:
             return key in self._cases_by_id
         return False
 
-    async def add_case(self, client, platform: Platform, system) -> Case:
+    async def add_case(self, client: str, platform: Platform, system: str) -> Case:
         """Create a new Case given the client name"""
         async with self._modlock:
             new_id = self.open_rescue_id
