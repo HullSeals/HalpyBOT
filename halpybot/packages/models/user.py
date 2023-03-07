@@ -22,7 +22,7 @@ See license.md
 
 from __future__ import annotations
 from typing import Optional, Set, TYPE_CHECKING
-from attr import dataclass
+from attrs import define
 import cattr
 
 if TYPE_CHECKING:
@@ -41,7 +41,7 @@ class NoUserFound(UserError):
     """
 
 
-@dataclass(frozen=True)
+@define(frozen=True)
 class User:
     """IRC User info
 

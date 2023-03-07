@@ -1,51 +1,86 @@
 {
-  "hbot": "1.6.2",
+  "hbot": "2.0",
   "AnnouncerType": [
-
-    {"ID": "PPWK",
-    "Name": "Paperwork",
-    "Description": "Used to inform users of completed paperwork",
-    "Channels": ["#seal-bob", "#Repair-Requests"],
-    "EDSM": false,
-    "Content":  ["Paperwork for case {CMDR} completed by {Seal}. ({Number})"]
+    {
+      "ID": "PPWK",
+      "Name": "Paperwork",
+      "Description": "Used to inform users of completed paperwork",
+      "Channels": [
+        "#seal-bob",
+        "#Repair-Requests"
+      ],
+      "EDSM": false,
+      "Content": [
+        "Paperwork for case {CMDR} completed by {Seal}"
+      ],
+      "Type": "Action"
     },
-
-    {"ID": "CODEBLACK",
-    "Name":  "Code Black",
-    "Description": "Inform users of a new code black case",
-    "Channels": ["#seal-bob", "#Repair-Requests", "#Code-Black"],
-    "EDSM": true,
-    "Content": ["xxxx CBCASE -- NEWCASE -- {Platform}CASE xxx\n",
-                "CMDR: {CMDR} -- Platform: {Platform} -- System: {System} -- Hull: {Hull}\n",
-                "Can synth: {CanSynth} -- O2 timer: {Oxygen}\n",
-                "xxxxxxxx"]
+    {
+      "ID": "TEST",
+      "Name": "Webhook Test",
+      "Description": "Used to validate that HalpyBOT's announcer module is intact.",
+      "Channels": [
+        "#Cybers"
+      ],
+      "EDSM": false,
+      "Content": [
+        "{CMDR} has issued a test of HalpyBOT's announcer. Code 200, all clear."
+      ],
+      "Type": "Other"
     },
-
+    {
+      "ID": "CODEBLACK",
+      "Name": "Code Black",
+      "Description": "Inform users of a new code black case",
+      "Channels": [
+        "#seal-bob",
+        "#Repair-Requests",
+        "#Code-Black"
+      ],
+      "EDSM": true,
+      "Content": [
+        "xxxx CBCASE -- NEWCASE -- {Platform}CASE xxx\n",
+        "CMDR: {CMDR} -- Platform: {Platform} -- System: {System} -- Hull: {Hull}\n",
+        "Can synth: {CanSynth} -- O2 timer: {Oxygen}\n",
+        "xxxxxxxx"
+      ],
+      "Type": "Case"
+    },
     {
       "ID": "SEALCASE",
       "Name": "Seal Case",
       "Description": "Create a new seal case",
-      "Channels": ["#seal-bob, #Repair-Requests"],
+      "Channels": [
+        "#seal-bob",
+        "#Repair-Requests"
+      ],
       "EDSM": true,
-      "Content": ["xxxx {Platform}CASE -- NEWCASE xxxx\n",
-                  "CMDR: {CMDR} -- Platform: {Platform}\n",
-                  "System: {System} -- Hull: {Hull}\n",
-                  "xxxxxxxx"]
+      "Content": [
+        "xxxx {Platform}CASE -- NEWCASE xxxx\n",
+        "CMDR: {CMDR} -- Platform: {Platform}\n",
+        "System: {System} -- Hull: {Hull}\n",
+        "xxxxxxxx"
+      ],
+      "Type": "Case"
     },
-
     {
       "ID": "KFCASE",
       "Name": "Kingfisher case",
       "Description": "Create a new kingfisher case",
-      "Channels": ["#seal-bob", "#Repair-Requests"],
+      "Channels": [
+        "#seal-bob",
+        "#Repair-Requests"
+      ],
       "EDSM": true,
-      "Content": ["xxxx {Platform}KFCASE -- NEWCASE xxxx\n",
-                  "CMDR: {CMDR} -- Platform: {Platform}\n",
-                  "System: {System} -- Planet: {Planet}\n",
-                  "Coordinates: {Coords}\n",
-                  "Type: {KFType}\n",
-                  "xxxxxxxx"]
+      "Content": [
+        "xxxx {Platform}KFCASE -- NEWCASE xxxx\n",
+        "CMDR: {CMDR} -- Platform: {Platform}\n",
+        "System: {System} -- Planet: {Planet}\n",
+        "Coordinates: {Coords}\n",
+        "Type: {KFType}\n",
+        "xxxxxxxx"
+      ],
+      "Type": "Case"
     }
-
   ]
 }

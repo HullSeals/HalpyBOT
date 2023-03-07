@@ -23,7 +23,7 @@ from loguru import logger
 import aiohttp
 import numpy as np
 import cattr
-from attr import dataclass, field
+from attrs import define, field
 from halpybot import config
 from ..models import Coordinates, Location
 from ..models import edsm_classes
@@ -61,7 +61,7 @@ class EDSMReturnError(EDSMLookupError):
     """
 
 
-@dataclass
+@define(frozen=True)
 class EDSMQuery:
     """
     Formulate an EDSM Query and save the time the query was run.
@@ -71,7 +71,7 @@ class EDSMQuery:
     time: time()
 
 
-@dataclass
+@define(frozen=True)
 class EDDBSystem:
     """
     EDDB system object
@@ -85,7 +85,7 @@ class EDDBSystem:
     coords: Coordinates
 
 
-@dataclass
+@define(frozen=True)
 class GalaxySystem:
     """
     EDSM system object
@@ -236,7 +236,7 @@ class GalaxySystem:
         return sysname, dist
 
 
-@dataclass(frozen=True)
+@define(frozen=True)
 class Commander:
     """
     EDSM commander object
@@ -383,6 +383,8 @@ class Edsm:
         if self._landmarks:
             return self._landmarks
         landmark_target = Path() / "data" / "edsm" / "landmarks.json"
+        if not landmark_target.is_file():
+            raise FileNotFoundError
         landmarks = json.loads(landmark_target.read_text())
         self._landmarks = cattr.structure(landmarks, typing.List[GalaxySystem])
         return self._landmarks
@@ -393,6 +395,8 @@ class Edsm:
         if self._carriers:
             return self._carriers
         carrier_target = Path() / "data" / "edsm" / "dssa.json"
+        if not carrier_target.is_file():
+            raise FileNotFoundError
         carriers = json.loads(carrier_target.read_text())
         self._carriers = cattr.structure(carriers, typing.List[GalaxySystem])
         return self._carriers
@@ -403,6 +407,8 @@ class Edsm:
         if self._diversions:
             return self._diversions
         diversions_target = Path() / "data" / "edsm" / "diversions.json"
+        if not diversions_target.is_file():
+            raise FileNotFoundError
         loaded_diversions = json.loads(diversions_target.read_text())
         self._diversions = cattr.structure(loaded_diversions, typing.List[EDDBSystem])
         return self._diversions
@@ -564,7 +570,7 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         )
 
 
-@dataclass
+@define(frozen=True)
 class Diversion:
     """Format for finding Diversion systems"""
 

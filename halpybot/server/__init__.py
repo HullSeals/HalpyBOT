@@ -9,7 +9,7 @@ See license.md
 """
 
 from .server import APIConnector
-from .server_announcer import MainAnnouncer
+from .server_announcer import announce
 from .rank_change import tail
 
-__all__ = ["APIConnector", "MainAnnouncer", "tail"]
+__all__ = ["APIConnector", "announce", "tail"]

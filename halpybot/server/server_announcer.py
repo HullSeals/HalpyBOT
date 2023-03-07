@@ -11,7 +11,8 @@ See license.md
 
 from typing import Dict
 from aiohttp import web
-from ..packages.announcer import Announcer, AnnouncementError
+from ..packages.announcer import AnnouncementError
+from ..packages.ircclient import HalpyBOT
 from .server import APIConnector
 from .auth import authenticate
 
@@ -33,14 +34,14 @@ async def announce(request):
     Raises:
         HTTPOk or HTTPInternalServerError
     """
-    botclient = request.app["botclient"]
+    botclient: HalpyBOT = request.app["botclient"]
     if request.body_exists:
         request = await request.json()
     # Parse arguments
     announcement = request["type"]
     args: Dict = request["parameters"]
     try:
-        await MainAnnouncer.announce(
+        await botclient.announcer.announce(
             announcement=announcement, args=args, client=botclient
         )
         raise web.HTTPOk
@@ -48,5 +49,4 @@ async def announce(request):
         raise web.HTTPInternalServerError from AnnouncementError
 
 
-MainAnnouncer = Announcer()
 APIConnector.add_routes(routes)

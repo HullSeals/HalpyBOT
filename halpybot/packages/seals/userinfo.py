@@ -8,7 +8,8 @@ Licensed under the GNU General Public License
 See license.md
 """
 from sqlalchemy.engine import Engine
-from ..database import NoDatabaseConnection
+from sqlalchemy import text
+from ..models import Seal
 
 
 async def whois(engine: Engine, subject):
@@ -19,42 +20,28 @@ async def whois(engine: Engine, subject):
         subject (str): The Seal's name being searched
 
     Returns:
-        (str): The details about the Seal, or an error string if not found.
+        (Seal): The Seal object
 
     """
-    # Set default values
-    u_id, u_cases, u_name, u_regdate, u_distant_worlds, u_distant_worlds_2 = (
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
-    connection = engine.raw_connection()
-    try:
-        args = (subject, 0, 0, 0, 0, 0, 0)
-        cursor_obj = connection.cursor()
-        cursor_obj.callproc("spWhoIs", args)
-        result = list(cursor_obj.fetchall())
-        cursor_obj.close()
-        connection.commit()
-    except NoDatabaseConnection:
-        return "Error searching user."
-    finally:
-        connection.close()
-    for res in result:
-        u_id, u_cases, u_name, u_regdate, u_distant_worlds = res
-        if u_distant_worlds == 1:
-            u_distant_worlds_2 = (
-                ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
-            )
-        else:
-            u_distant_worlds_2 = ", with registered CMDRs of"
-
+    with engine.connect() as conn:
+        result = conn.execute(
+            text(
+                "CALL spWhoIs(:subject, @sealID, @casecnt, @sealnms, @ircnms, @joined, @dw2, @message)"
+            ),
+            {"subject": subject},
+        )
+        results = result.fetchall()
+    if not results:
+        raise KeyError("No Results Given")
+    u_id, u_cases, u_name, u_aliases, u_regdate, u_dw2 = results[0]
     if u_id is None:
-        return "No registered user found by that name!"
-    return (
-        f"CMDR {subject} has a Seal ID of {u_id}, registered on {u_regdate}{u_distant_worlds_2} {u_name}"
-        f", and has been involved with {u_cases} rescues."
+        raise ValueError
+    return Seal(
+        name=subject,
+        seal_id=u_id,
+        reg_date=u_regdate,
+        dw2=u_dw2,
+        cmdrs=u_name,
+        irc_aliases=u_aliases,
+        case_num=u_cases,
     )

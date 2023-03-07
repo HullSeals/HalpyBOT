@@ -51,7 +51,6 @@ def authenticate():
             msg = "".join(
                 msg.split()
             )  # Remove all whitespace for the purpose of ensuring identical inputs to HMAC
-
             mac = get_hmac(msg)
             check = hmac.new(
                 bytes(config.api_connector.key.get_secret_value(), "utf8"),

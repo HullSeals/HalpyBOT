@@ -7,14 +7,16 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+from aiohttp.test_utils import make_mocked_request
 import pytest
 from halpybot.server.server import server_root
+from tests.fixtures import TestBot
 
 
-# FIXME: This test is not functioning correctly.
-# @pytest.mark.asyncio
-# async def test_root():
-#     """Test the server responds properly to a GET / query"""
-#     mac = await server_root("bacon")
-#     assert mac.status == 200
+@pytest.mark.asyncio
+async def test_root(bot_fx: TestBot):
+    """Test the server responds properly to a GET / query"""
+    request = make_mocked_request("GET", "/")
+    request.app["botclient"] = bot_fx
+    mac = await server_root(request)
+    assert mac.status == 200

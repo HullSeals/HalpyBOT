@@ -11,6 +11,7 @@ See license.md
 
 import json
 from typing import List, Dict, Optional
+from attrs import define
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
@@ -20,6 +21,7 @@ from ..edsm import (
     sys_cleaner,
     NoNearbyEDSM,
 )
+from ..models import Platform
 
 cardinal_flip = {
     "North": "South",
@@ -30,6 +32,14 @@ cardinal_flip = {
     "SW": "NE",
     "West": "East",
     "NW": "SE",
+}
+
+platform_shorts = {
+    Platform.ODYSSEY: "PCO",
+    Platform.XBOX: "XB",
+    Platform.PLAYSTATION: "PS",
+    Platform.LEGACY_HORIZONS: "PCH",
+    Platform.LIVE_HORIZONS: "PCL",
 }
 
 
@@ -57,12 +67,11 @@ async def get_edsm_data(args: Dict, generalized: bool = False) -> Optional[str]:
         landmark, distance, direction = await checklandmarks(sys_name)
         # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
         direction = cardinal_flip[direction]
-        if generalized:
-            return (
-                f"{distance} LY {direction} of {landmark}"
-                if generalized
-                else f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
-            )
+        return (
+            f"{distance} LY {direction} of {landmark}"
+            if generalized
+            else f"\nSystem exists in EDSM, {distance} LY {direction} of {landmark}."
+        )
     except NoNearbyEDSM:
         dssa, distance, direction = await checkdssa(sys_name)
         return (
@@ -120,12 +129,13 @@ class Announcer:
         # Create announcement objects and store them in dict
         for ann_type in self._config["AnnouncerType"]:
             self._announcements[ann_type["ID"]] = Announcement(
-                ann_type=ann_type["ID"],
+                case_type=ann_type["ID"],
                 name=ann_type["Name"],
                 description=ann_type["Description"],
                 channels=ann_type["Channels"],
                 edsm=ann_type["EDSM"],
                 content=ann_type["Content"],
+                type=ann_type["Type"],
             )
 
     async def announce(self, announcement: str, args: Dict, client):
@@ -153,33 +163,28 @@ class Announcer:
             raise AnnouncementError(Exception) from announcement_exception
 
 
+@define
 class Announcement:
-    def __init__(
-        self,
-        ann_type: str,
-        name: str,
-        description: str,
-        channels: List[str],
-        edsm: Optional[int],
-        content: List[str],
-    ):
-        """Create a new announceable object
+    """Create a new announceable object
 
-        Args:
-            ann_type (str): Announcement reference code, used by API
-            name (str): Name, for reference only
-            description (str): Description of the announcement
-            channels (list of str): channels the announcement is to be sent to
-            edsm (int or Null): the announcement parameter we want to run
-                an EDSM system query on. none if Null.
-            content (list of str): lines to be sent in the announcement
-        """
-        self.ann_type = ann_type
-        self.name = name
-        self.description = description
-        self.channels = channels
-        self._edsm = edsm
-        self._content = "".join(content)
+    Args:
+        case_type (str): Announcement reference code, used by API
+        name (str): Name, for reference only
+        description (str): Description of the announcement
+        channels (list of str): channels the announcement is to be sent to
+        edsm (int or Null): the announcement parameter we want to run
+            an EDSM system query on. none if Null.
+        content (list of str): lines to be sent in the announcement
+        type (str): The Type of announcement (Case, Action, or Other)
+    """
+
+    case_type: str
+    name: str
+    description: str
+    channels: List[str]
+    content: List[str]
+    edsm: Optional[int] = None
+    type: Optional[str] = None
 
     async def format(self, args) -> str:
         """Format announcement in a ready-to-be-sent format
@@ -198,9 +203,9 @@ class Announcement:
         """
         if "System" in args.keys():
             args["System"] = await sys_cleaner(args["System"])
-        # Come on pylint
-        announcement = self._content.format(**args)
-        if self._edsm:
+        formatted_content = "".join(self.content)
+        announcement = formatted_content.format(**args)
+        if self.edsm:
             try:
                 announcement += await get_edsm_data(args)
             except ValueError:

@@ -11,16 +11,19 @@ See license.md
 import functools
 from typing import List
 from loguru import logger
+from attrs import define
 from halpybot import config
 from ..models import User
 from ..database import test_database_connection, NoDatabaseConnection
 
 
+@define(frozen=True)
 class Permission:
-    def __init__(self, vhost: str, level: int, msg: str):
-        self.vhost = vhost
-        self.level = level
-        self.msg = msg
+    """Reference a specific permission level"""
+
+    vhost: str
+    level: int
+    msg: str
 
 
 Bot = Permission(

@@ -11,7 +11,7 @@ See license.md
 """
 from typing import List
 from ..packages.command import Commands
-from ..packages.models import Context
+from ..packages.models import Context, Platform
 
 
 @Commands.command("nextid")
@@ -32,6 +32,15 @@ async def cmd_clearboard(ctx: Context, args: List[str]):
 
 
 @Commands.command("fullboard")
-async def cmd_loadboard(ctx: Context, args: List[str]):
+async def cmd_fullboard(ctx: Context, args: List[str]):
     await ctx.bot.board.debug_full_board
     return await ctx.reply("Debug Full Data Loaded!")
+
+
+@Commands.command("newcase")
+async def cmd_newcase(ctx: Context, args: List[str]):
+    cmdr = args[0]
+    plt = Platform(int(args[1])).name
+    sys = args[2]
+    case = await ctx.bot.board.add_case(client=cmdr, platform=plt, system=sys)
+    return await ctx.reply(f"New case started: Board ID {case.board_id}")

@@ -77,7 +77,7 @@ async def subscribe(topic, endpoint):
 
     """
 
-    mail = r"^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,24}$"
+    mail = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     sms = r"^\+?[1-9]\d{1,14}$"
     protocol = None
 

@@ -11,6 +11,7 @@ See license.md
 import time
 import pytest
 from halpybot.packages.database import test_database_connection
+from halpybot import config
 
 
 @pytest.mark.asyncio
@@ -18,6 +19,7 @@ async def test_db(bot_fx):
     """Test the Database Latency.
 
     If it's above 15, the connection is unusable."""
+    config.offline_mode.enabled = False
     start = time.time()
     connection = await test_database_connection(bot_fx.engine)
     final = round(connection - start, 2)

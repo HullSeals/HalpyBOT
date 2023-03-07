@@ -18,6 +18,7 @@ from sqlalchemy import create_engine
 from halpybot import config
 from .. import utils
 from .. import notify
+from ..announcer import Announcer
 from ..board import Board
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
@@ -47,6 +48,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
             self._commandsfile = json.load(jsonfile)
         self._board = Board(id_range=10)
+        self._announcer = Announcer()
 
     @property
     def commandhandler(self):
@@ -72,6 +74,11 @@ class HalpyBOT(pydle.Client, ListHandler):
     def board(self):
         """Return the Case Board"""
         return self._board
+
+    @property
+    def announcer(self):
+        """Return the Announcer"""
+        return self._announcer
 
     @commandhandler.setter
     def commandhandler(self, handler: CommandGroup):
@@ -214,6 +221,18 @@ class HalpyBOT(pydle.Client, ListHandler):
         if channel in chlist:
             chlist.remove(channel)
             config.channels.channel_list = " ".join(chlist)
+
+    async def on_join(self, channel, user):
+        """Greet Case Users"""
+        await super().on_join(channel, user)
+        for board_id, case in self.board.by_id.items():
+            if user in (case.irc_nick, case.client_name):
+                return await self.message(
+                    channel,
+                    f"{user} connected successfully. Welcome! Please "
+                    f"wait for a dispatcher to respond to your case. "
+                    f"(Case ID: {board_id})",
+                )
 
 
 async def crash_notif(crashtype, condition):
