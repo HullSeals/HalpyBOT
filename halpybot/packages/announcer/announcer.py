@@ -11,6 +11,7 @@ See license.md
 from __future__ import annotations
 import json
 import re
+from pathlib import Path
 from typing import List, Dict, Optional, TYPE_CHECKING
 from loguru import logger
 from attrs import define
@@ -130,17 +131,21 @@ class AlreadyExistsError(AnnouncementError):
 
 class Announcer:
     def __init__(self):
-        """Initialize the Announcer"""
+        """
+        Initialize the Announcer
+
+        TODO: This should be converted into a attrs.define dataclass in the future.
+        """
         self._announcements = {}
         # Load data
-        # TODO(theunknown1): load dataclass
-        with open(
-            "data/announcer/announcer.json", "r", encoding="UTF-8"
-        ) as announcer_json:
-            self._config = json.load(announcer_json)
-        # Create announcement objects and store them in dict
+        data_path = Path("data/announcer/announcer.json")
+        with data_path.open(encoding="UTF-8") as f:
+            self._config = json.load(f)
+        self._create_announcements()
+
+    def _create_announcements(self):
         for ann_type in self._config["AnnouncerType"]:
-            self._announcements[ann_type["ID"]] = Announcement(
+            ann = Announcement(
                 case_type=ann_type["ID"],
                 name=ann_type["Name"],
                 description=ann_type["Description"],
@@ -149,6 +154,7 @@ class Announcer:
                 content=ann_type["Content"],
                 type=ann_type["Type"],
             )
+            self._announcements[ann_type["ID"]] = ann
 
     async def announce(self, announcement: str, args: Dict, client: HalpyBOT):
         """Announce a new case
@@ -255,7 +261,7 @@ class Announcement:
             except ValueError:
                 codemap = Platform(6)
             args["Short"] = platform_shorts[codemap]
-            args["Platform"] = codemap.name
+            args["Platform"] = re.sub("_", " ", codemap.name)
             # Create a case, if required
             try:
                 args["Board ID"] = await create_case(args, codemap, client)
