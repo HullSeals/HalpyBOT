@@ -63,7 +63,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     for case in caseboard.values():
         hskf = "Seal" if case.hull_percent else "Fisher" if case.planet else "Unknown"
         await ctx.redirect(
-            f"Case {case.board_id}: Client: {case.client_name}, Platform: {case.platform}, "
+            f"Case {case.board_id}: Client: {case.client_name}, Platform: {case.platform.name}, "
             f"Type: {hskf}, Status: {case.status.name}"
         )
     return await ctx.redirect(f"{len(caseboard)} Cases on the Board.")
