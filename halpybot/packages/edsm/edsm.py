@@ -441,6 +441,8 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
     """
 
     # get both systems at the same time.
+    system1: GalaxySystem
+    system2: GalaxySystem
     system1, system2 = await asyncio.gather(
         GalaxySystem.get_info(name=sysa, cache_override=cache_override),
         GalaxySystem.get_info(name=sysb, cache_override=cache_override),

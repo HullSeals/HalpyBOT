@@ -40,7 +40,7 @@ class KFCoords:
     y: float
 
 
-@define
+@define(frozen=True)
 class Case:
     """The Case Object - Tracking All The Things!"""
 

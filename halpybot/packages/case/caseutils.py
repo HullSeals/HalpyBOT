@@ -10,6 +10,7 @@ See license.md
 import re
 from typing import Dict
 from pendulum import now
+from attrs import evolve
 from ..ircclient import HalpyBOT
 from ..models import Case, Platform
 
@@ -77,18 +78,24 @@ async def create_case(args: Dict, codemap: Platform, client: HalpyBOT) -> int:
     newcase: Case = await client.board.add_case(
         client=args["CMDR"], platform=codemap, system=args["System"]
     )
-    async with client.board.mod_case(newcase) as case:
-        if ircn:
-            case.irc_nick = ircn
-        if "CanSynth" in args:
-            case.hull_percent = int(args["Hull"])
-            case.canopy_broken = True
-            case.can_synth = True
-            case.o2_timer = args["Oxygen"]
-        elif "Coords" in args:
-            case.planet = args["Planet"]
-            case.pcoords = args["Coords"]
-            case.kftype = args["KFType"]
-        else:
-            case.hull_percent = int(args["Hull"])
+    if ircn:
+        newcase = evolve(newcase, irc_nick=ircn)
+    if "CanSynth" in args:
+        newcase = evolve(
+            newcase,
+            hull_percent=int(args["Hull"]),
+            canopy_broken=True,
+            can_synth=args["CanSynth"],
+            o2_timer=args["Oxygen"],
+        )
+    elif "Coords" in args:
+        newcase = evolve(
+            newcase,
+            planet=args["Planet"],
+            pcoords=args["Coords"],
+            kftype=args["KFType"],
+        )
+    else:
+        newcase = evolve(newcase, hull_percent=int(args["Hull"]))
+    await client.board.mod_case(newcase.board_id, newcase)
     return newcase.board_id

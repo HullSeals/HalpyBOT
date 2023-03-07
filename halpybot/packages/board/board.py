@@ -22,7 +22,7 @@ from __future__ import annotations
 import typing
 import itertools
 from asyncio import Lock
-from contextlib import asynccontextmanager
+from attrs import evolve
 from pendulum import now, DateTime
 from ..models import Case, Platform
 
@@ -172,22 +172,12 @@ class Board:
             self._case_alias_name[client] = new_id
             return case
 
-    @asynccontextmanager
-    async def mod_case(self, case: Case):
+    async def mod_case(self, case_id: int, new_case: Case):
         """
         Modify an existing case
         """
-        async with self._modlock:
-            current_case = case.board_id
-            current_client = case.client_name
-            del self._cases_by_id[current_case]
-            del self._case_alias_name[current_client]
-            try:
-                yield case
-            finally:
-                case.updated_time = now(tz="UTC")
-                self._cases_by_id[current_case] = case
-                self._case_alias_name[current_client] = current_case
+        new_case = evolve(new_case, updated_time=now(tz="UTC"))
+        self._cases_by_id[case_id] = new_case
 
     async def del_case(self, case: Case):
         """Delete a Case from the Board"""

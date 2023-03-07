@@ -10,8 +10,10 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
+from attrs import evolve
+from pendulum import now
 from ..packages.command import Commands
-from ..packages.models import Context, Platform
+from ..packages.models import Context, Platform, Case
 
 
 @Commands.command("nextid")
@@ -53,8 +55,9 @@ async def cmd_debugwelcome(ctx: Context, args: List[str]):
     except ValueError:
         caseref = args[0]
     try:
-        case = ctx.bot.board.return_rescue(caseref)
+        case: Case = ctx.bot.board.return_rescue(caseref)
     except KeyError:
         return await ctx.reply("[DEBUG] No case found.")
-    case.welcomed = True
+    newcase = evolve(case, welcomed=True)
+    await ctx.bot.board.mod_case(newcase.board_id, newcase)
     return await ctx.reply(f"[DEBUG] case {caseref} set to Welcomed.")
