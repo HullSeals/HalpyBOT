@@ -54,6 +54,8 @@ class Context:
             message (str): The message to be sent
 
         """
+        if not message:
+            raise TypeError("Empty message passed to reply")
         message = re.sub(r"\n+", "\n", message)
         message = message.strip()
         if message:
@@ -66,6 +68,8 @@ class Context:
             message (str): The message to be sent
 
         """
+        if not message:
+            raise TypeError("Empty message passed to redirect")
         if self.in_channel:
             await self.bot.reply(
                 self.channel, self.sender, self.in_channel, "Responding in DMs!"

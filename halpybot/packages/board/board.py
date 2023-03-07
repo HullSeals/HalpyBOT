@@ -145,7 +145,7 @@ class Board:
     def return_rescue(self, key: typing.Union[str, int]) -> Case:
         """Find a Case given the Client Name or Case ID"""
         if isinstance(key, str) and key in self._case_alias_name:
-            return self._cases_by_id[self._case_alias_name[key.casefold()]]
+            return self._cases_by_id[self._case_alias_name[key]]
         if isinstance(key, int) and key in self._cases_by_id:
             return self._cases_by_id[key]
         raise KeyError(f"Key {key!r} not found.")
@@ -175,8 +175,7 @@ class Board:
     @asynccontextmanager
     async def mod_case(self, case: Case):
         """
-        Modify an existing case'
-        TODO: Is this thing on?
+        Modify an existing case
         """
         async with self._modlock:
             current_case = case.board_id
@@ -186,6 +185,7 @@ class Board:
             try:
                 yield case
             finally:
+                case.updated_time = now(tz="UTC")
                 self._cases_by_id[current_case] = case
                 self._case_alias_name[current_client] = current_case
 

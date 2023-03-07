@@ -7,9 +7,21 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+import re
 from typing import List
+from pendulum import now
+from ..packages.case import format_case_details
 from ..packages.command import Commands, get_help_text
-from ..packages.models import Context, User, NoUserFound
+from ..packages.models import Context, User, NoUserFound, Case
+
+
+async def get_case(ctx: Context, case_arg: str) -> Case:
+    """Fetch a case from the Board"""
+    try:
+        caseref = int(case_arg)
+    except ValueError:
+        caseref = case_arg
+    return ctx.bot.board.return_rescue(caseref)
 
 
 @Commands.command("go")
@@ -59,14 +71,16 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     caseboard = ctx.bot.board.by_id
     if not caseboard:
         return await ctx.redirect("The case board is empty!")
-    await ctx.redirect("Here's the current case board:")
+    message = "Here's the current case board:\n"
     for case in caseboard.values():
         hskf = "Seal" if case.hull_percent else "Fisher" if case.planet else "Unknown"
-        await ctx.redirect(
-            f"Case {case.board_id}: Client: {case.client_name}, Platform: {case.platform.name}, "
-            f"Type: {hskf}, Status: {case.status.name}"
+        long_ago = now(tz="utc").diff(case.updated_time).in_words()
+        plt = re.sub("_", " ", case.platform.name)
+        message += (
+            f"Case {case.board_id}: Client: {case.client_name}, Platform: {plt}, "
+            f"Type: {hskf}, Status: {case.status.name}, Updated: {long_ago} ago.\n"
         )
-    return await ctx.redirect(f"{len(caseboard)} Cases on the Board.")
+    return await ctx.redirect(f"{message}{len(caseboard)} Cases on the Board.")
 
 
 @Commands.command("listcase")
@@ -79,4 +93,8 @@ async def cmd_listcase(ctx: Context, args: List[str]):
     """
     if not args:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "listcase"))
-    return await ctx.redirect("Coming Soon!")
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.redirect(f"No case found for {args[0]!r}.")
+    return await ctx.redirect(await format_case_details(case))

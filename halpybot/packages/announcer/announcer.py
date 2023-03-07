@@ -139,8 +139,8 @@ class Announcer:
         self._announcements = {}
         # Load data
         data_path = Path("data/announcer/announcer.json")
-        with data_path.open(encoding="UTF-8") as f:
-            self._config = json.load(f)
+        with data_path.open(encoding="UTF-8") as ann_file:
+            self._config = json.load(ann_file)
         self._create_announcements()
 
     def _create_announcements(self):
@@ -196,19 +196,20 @@ async def create_case(args: Dict, codemap: Platform, client: HalpyBOT) -> int:
     newcase: Case = await client.board.add_case(
         client=args["CMDR"], platform=codemap, system=args["System"]
     )
-    if ircn:
-        newcase.irc_nick = ircn
-    if "CanSynth" in args:
-        newcase.hull_percent = int(args["Hull"])
-        newcase.canopy_broken = True
-        newcase.can_synth = True
-        newcase.o2_timer = args["Oxygen"]
-    elif "Coords" in args:
-        newcase.planet = args["Planet"]
-        newcase.pcoords = args["Coords"]
-        newcase.kftype = args["KFType"]
-    else:
-        newcase.hull_percent = int(args["Hull"])
+    async with client.board.mod_case(newcase) as case:
+        if ircn:
+            case.irc_nick = ircn
+        if "CanSynth" in args:
+            case.hull_percent = int(args["Hull"])
+            case.canopy_broken = True
+            case.can_synth = True
+            case.o2_timer = args["Oxygen"]
+        elif "Coords" in args:
+            case.planet = args["Planet"]
+            case.pcoords = args["Coords"]
+            case.kftype = args["KFType"]
+        else:
+            case.hull_percent = int(args["Hull"])
     return newcase.board_id
 
 
