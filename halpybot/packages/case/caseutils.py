@@ -29,7 +29,7 @@ async def format_case_details(case: Case) -> str:
     """
     updated = now(tz="utc").diff(case.updated_time).in_words()
     created = now(tz="utc").diff(case.creation_time).in_words()
-    plt = re.sub("_", " ", case.platform.name)
+    plt = case.platform.name.replace("_", " ")
     message = (
         f"Here's the case listing for Case ID {case.board_id}:\n "
         f"General Details: \n"

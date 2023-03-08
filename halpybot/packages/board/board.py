@@ -47,13 +47,19 @@ class Board:
         """DEBUG: Load test data into the board"""
         self._cases_by_id = {
             1: Case(
-                board_id=1, client_name="Bob", platform=Platform(1), system="Delkar"
+                board_id=1, client_name="Bob", platform=Platform.XBOX, system="Delkar"
             ),
             2: Case(
-                board_id=2, client_name="Larry", platform=Platform(1), system="Delkar"
+                board_id=2,
+                client_name="Larry",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
             ),
             4: Case(
-                board_id=3, client_name="John", platform=Platform(1), system="Delkar"
+                board_id=3,
+                client_name="John",
+                platform=Platform.PLAYSTATION,
+                system="Delkar",
             ),
         }
         self._case_alias_name = {"bob": 1, "larry": 2, "john": 4}
@@ -64,31 +70,55 @@ class Board:
         """DEBUG: Load test data into the board"""
         self._cases_by_id = {
             1: Case(
-                board_id=1, client_name="one", platform=Platform(1), system="Delkar"
+                board_id=1,
+                client_name="one",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
             ),
             2: Case(
-                board_id=2, client_name="two", platform=Platform(1), system="Delkar"
+                board_id=2, client_name="two", platform=Platform.XBOX, system="Delkar"
             ),
             3: Case(
-                board_id=3, client_name="three", platform=Platform(1), system="Delkar"
+                board_id=3,
+                client_name="three",
+                platform=Platform.PLAYSTATION,
+                system="Delkar",
             ),
             4: Case(
-                board_id=4, client_name="four", platform=Platform(1), system="Delkar"
+                board_id=4,
+                client_name="four",
+                platform=Platform.LIVE_HORIZONS,
+                system="Delkar",
             ),
             5: Case(
-                board_id=5, client_name="five", platform=Platform(1), system="Delkar"
+                board_id=5,
+                client_name="five",
+                platform=Platform.LEGACY_HORIZONS,
+                system="Delkar",
             ),
             6: Case(
-                board_id=6, client_name="six", platform=Platform(1), system="Delkar"
+                board_id=6,
+                client_name="six",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
             ),
             7: Case(
-                board_id=7, client_name="seven", platform=Platform(1), system="Delkar"
+                board_id=7,
+                client_name="seven",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
             ),
             8: Case(
-                board_id=8, client_name="eight", platform=Platform(1), system="Delkar"
+                board_id=8,
+                client_name="eight",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
             ),
             9: Case(
-                board_id=9, client_name="nine", platform=Platform(1), system="Delkar"
+                board_id=9,
+                client_name="nine",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
             ),
         }
         self._case_alias_name = {

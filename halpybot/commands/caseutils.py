@@ -7,7 +7,6 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-import re
 from typing import List
 from pendulum import now
 from ..packages.case import format_case_details
@@ -75,7 +74,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     for case in caseboard.values():
         hskf = "Seal" if case.hull_percent else "Fisher" if case.planet else "Unknown"
         long_ago = now(tz="utc").diff(case.updated_time).in_words()
-        plt = re.sub("_", " ", case.platform.name)
+        plt = case.platform.name.replace("_", " ")
         message += (
             f"Case {case.board_id}: Client: {case.client_name}, Platform: {plt}, "
             f"Type: {hskf}, Status: {case.status.name}, Updated: {long_ago} ago.\n"

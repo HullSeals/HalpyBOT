@@ -10,7 +10,6 @@ See license.md
 """
 from __future__ import annotations
 import json
-import re
 from pathlib import Path
 from typing import List, Dict, Optional, TYPE_CHECKING
 from loguru import logger
@@ -47,7 +46,7 @@ platform_shorts = {
     Platform.PLAYSTATION: "PS",
     Platform.LEGACY_HORIZONS: "PCH",
     Platform.LIVE_HORIZONS: "PCL",
-    Platform.UNKNOWN: "UKN",
+    Platform.UNKNOWN: "UNK",
 }
 
 
@@ -234,9 +233,9 @@ class Announcement:
             try:
                 codemap = Platform(int(args["Platform"]))
             except ValueError:
-                codemap = Platform(6)
+                codemap = Platform.UNKNOWN
             args["Short"] = platform_shorts[codemap]
-            args["Platform"] = re.sub("_", " ", codemap.name)
+            args["Platform"] = codemap.name.replace("_", " ")
             # Create a case, if required
             try:
                 args["Board ID"] = await create_case(args, codemap, client)
