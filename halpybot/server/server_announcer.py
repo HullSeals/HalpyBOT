@@ -10,7 +10,7 @@ See license.md
 """
 
 from typing import Dict
-from aiohttp import web
+from aiohttp import web, web_request
 from ..packages.announcer import AnnouncementError, AlreadyExistsError
 from ..packages.ircclient import HalpyBOT
 from .server import APIConnector
@@ -21,7 +21,7 @@ routes = web.RouteTableDef()
 
 @routes.post("/announce")
 @authenticate()
-async def announce(request):
+async def announce(request: web_request.Request):
     """
     Collect and format a new announcer system message from a POST request.
 

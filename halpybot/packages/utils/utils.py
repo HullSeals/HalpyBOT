@@ -7,11 +7,12 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
+from __future__ import annotations
 import re
 import json
 import asyncio
 import aiohttp
+from typing import Dict, Optional, Union, TYPE_CHECKING
 from loguru import logger
 from halpybot import DEFAULT_USER_AGENT
 from halpybot.commands.notify import format_notification, notify
@@ -19,8 +20,11 @@ from halpybot.packages.database import NoDatabaseConnection, test_database_conne
 from halpybot import config
 from halpybot.packages.models import User
 
+if TYPE_CHECKING:
+    from halpybot.packages.ircclient import HalpyBOT
 
-def language_codes():
+
+def language_codes() -> Dict[str, str]:
     """Get a dict of ISO-639-1 language codes
 
     Returns:
@@ -28,11 +32,10 @@ def language_codes():
 
     """
     with open("data/languages/iso639-1.json", encoding="UTF-8") as file:
-        langs = json.load(file)
-        return langs
+        return json.load(file)
 
 
-def strip_non_ascii(string: str):
+def strip_non_ascii(string: str) -> tuple:
     """Strip non-ASCII characters from a string
 
     Args:
@@ -46,11 +49,14 @@ def strip_non_ascii(string: str):
 
     """
     res = re.subn(r"[^\x00-\x7f]", r"", string)
-
     return res[0], bool(res != (string, 0))
 
 
-async def web_get(uri: str, params=None, timeout=10):
+async def web_get(
+    uri: str,
+    params: Optional[Dict[str, Union[str, int, float]]] = None,
+    timeout: int = 10,
+) -> Dict:
     """
     Use aiohttp's client to send an HTTP GET request.
     uri: The URI/URL of the requested resource
@@ -69,7 +75,7 @@ async def web_get(uri: str, params=None, timeout=10):
         return responses
 
 
-async def task_starter(botclient):
+async def task_starter(botclient: HalpyBOT):
     """
     Start the looping background tasks
     """
@@ -85,7 +91,7 @@ async def task_starter(botclient):
     ]
 
 
-async def _five_minute_task(botclient):
+async def _five_minute_task(botclient: HalpyBOT):
     while True:
         await asyncio.sleep(300)
         if config.offline_mode.enabled:
@@ -111,7 +117,7 @@ async def _five_minute_task(botclient):
 #
 
 
-async def _one_hour_task(botclient):
+async def _one_hour_task(botclient: HalpyBOT):
     while True:
         await asyncio.sleep(3600)
         try:
@@ -129,7 +135,7 @@ async def _one_hour_task(botclient):
 #         await asyncio.sleep(86400)
 
 
-async def _one_week_task(botclient):
+async def _one_week_task(botclient: HalpyBOT):
     while True:
         await asyncio.sleep(604800)
         if not config.offline_mode.enabled:

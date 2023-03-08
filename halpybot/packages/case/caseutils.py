@@ -9,7 +9,7 @@ See license.md
 """
 from __future__ import annotations
 import re
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, Union
 from pendulum import now
 from attrs import evolve
 from ..models import Case, Platform
@@ -71,9 +71,12 @@ async def format_case_details(case: Case) -> str:
     return message
 
 
-async def create_case(args: Dict, codemap: Platform, client: HalpyBOT) -> int:
+async def create_case(
+    args: Dict[str, Union[str, int, bool]], codemap: Platform, client: HalpyBOT
+) -> int:
     """Create a Case on the board from a rescue announcement"""
     # Determine if an IRCN is needed by default
+
     ircn = re.search("/[^a-zA-Z0-9]/", args["CMDR"])
     if ircn:
         ircn = re.sub("/[^a-zA-Z0-9]/", "", args["CMDR"])

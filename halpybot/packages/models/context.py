@@ -11,39 +11,31 @@ See license.md
 from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
+from attrs import define
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
 
 
+@define(frozen=True)
 class Context:
-    """Message context object"""
+    """Message context object
 
-    def __init__(
-        self,
-        bot: HalpyBOT,
-        channel: str,
-        sender: str,
-        in_channel: bool,
-        message: str,
-        command: str,
-    ):
-        """Create message context object
+    Args:
+        bot (HalpyBOT): botclient/pseudoclient
+        channel (str): channel message was sent in
+        sender (str): user who sent the message
+        in_channel (bool): True if in a channel, False if in DM
+        message (str): message content
 
-        Args:
-            bot (HalpyBOT): botclient/pseudoclient
-            channel (str): channel message was sent in
-            sender (str): user who sent the message
-            in_channel (bool): True if in a channel, False if in DM
-            message (str): message content
+    """
 
-        """
-        self.bot = bot
-        self.channel = channel
-        self.sender = sender
-        self.in_channel = in_channel
-        self.message = message
-        self.command = command
+    bot: HalpyBOT
+    channel: str
+    sender: str
+    in_channel: bool
+    message: str
+    command: str
 
     async def reply(self, message: str):
         """Send a message to the channel a message was sent in

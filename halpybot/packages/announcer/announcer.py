@@ -11,7 +11,7 @@ See license.md
 from __future__ import annotations
 import json
 from pathlib import Path
-from typing import List, Dict, Optional, TYPE_CHECKING
+from typing import List, Dict, Optional, TYPE_CHECKING, Union
 from loguru import logger
 from attrs import define
 from ..case import create_case
@@ -50,7 +50,9 @@ platform_shorts = {
 }
 
 
-async def get_edsm_data(args: Dict, generalized: bool = False) -> Optional[str]:
+async def get_edsm_data(
+    args: Dict[str, str], generalized: bool = False
+) -> Optional[str]:
     """Calculates and formats a ready-to-go string with EDSM info about a system
 
     Args:
@@ -209,7 +211,9 @@ class Announcement:
     edsm: Optional[int] = None
     type: Optional[str] = None
 
-    async def format(self, args: Dict, client: HalpyBOT) -> str:
+    async def format(
+        self, args: Dict[str, Union[str, int, bool]], client: HalpyBOT
+    ) -> str:
         """Format announcement in a ready-to-be-sent format
 
         This includes the result of the EDSM query if specified in the config

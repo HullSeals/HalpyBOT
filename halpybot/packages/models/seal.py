@@ -24,7 +24,7 @@ class Seal:
     dw2: bool
 
     @property
-    def dw2_history(self):
+    def dw2_history(self) -> str:
         """Is the Seal a DW2 vet?"""
         if self.dw2:
             return ", is a DW2 Veteran and Founder Seal with registered CMDRs of"

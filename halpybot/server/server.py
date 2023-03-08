@@ -12,7 +12,7 @@ from typing import Type, Union
 from loguru import logger
 import pendulum
 import git
-from aiohttp.web import Request, StreamResponse
+from aiohttp.web import Request, StreamResponse, Response
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
@@ -79,7 +79,7 @@ class HalpyServer(web.Application):
 
 
 @web.middleware
-async def compression_middleware(request, handler):
+async def compression_middleware(request: Request, handler) -> Response:
     """Enable compression to improve our responses"""
     response = await handler(request)
     response.enable_compression()
@@ -87,7 +87,7 @@ async def compression_middleware(request, handler):
 
 
 @routes.get("/")
-async def server_root(request):
+async def server_root(request: Request) -> Response:
     """
     Get the key information about the Bot
 
