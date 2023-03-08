@@ -7,12 +7,15 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+from __future__ import annotations
 import re
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 from pendulum import now
 from attrs import evolve
-from ..ircclient import HalpyBOT
 from ..models import Case, Platform
+
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 
 
 async def format_case_details(case: Case) -> str:
