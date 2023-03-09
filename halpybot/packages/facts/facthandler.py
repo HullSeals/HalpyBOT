@@ -12,8 +12,6 @@ from __future__ import annotations
 from typing import List, Optional, Dict, Tuple
 import json
 import re
-from attrs import define, field
-from attr import ib
 from loguru import logger
 from sqlalchemy import text, engine
 from halpybot import config
@@ -39,39 +37,49 @@ class InvalidFactException(FactHandlerError):
     """
 
 
-@define
 class Fact:
-    """
-    Create a new fact
+    def __init__(
+        self, fact_id: Optional[int], name: str, lang: str, fact_text: str, author: str
+    ):
+        """Create a new fact
+
         Args:
-            fact_id (int or None): Fact ID, if the fact only exists in local storage, use None
+            fact_id (int or None): Fact ID, if the fact only exists in local storage
+                use None
             name (str): Name of the fact
             lang (str): Fact language ISO-639-1 code
             fact_text (str): Fact fact_text
             author (str): Fact author
-    """
 
-    fact_id: Optional[int]
-    name: str
-    lang: str
-    fact_text: str
-    author: str
+        """
+        self._offline = bool(fact_id is None)
+        self._fact_id = fact_id
+        self._name = name
+        self._lang = lang
+        self._default_argument = None
+        self._text = self._parse_fact(fact_text)
+        self._raw_text = fact_text
+        self._author = author
 
-    default_argument: Optional[str] = ib(init=False, default=None)
-    _offline: bool = ib(init=False, default=False)
-    _text: str = ib(init=False)
-    _raw_text: str = ib(init=False)
+    @property
+    def fact_id(self):
+        """Fact ID as stored in DB"""
+        return self._fact_id
 
-    def __attrs_post_init__(self):
-        self._offline = bool(self.fact_id is None)
-        self.default_argument = None
-        self._text = self._parse_fact(self.fact_text)
-        self._raw_text = self.fact_text
+    @property
+    def name(self):
+        """Fact name"""
+        return self._name
 
     @property
     def language(self):
         """ISO-639-1 language code"""
-        return self.lang.upper()
+        return self._lang.upper()
+
+    @property
+    def default_argument(self):
+        """Argument used when none are provided by user"""
+        return self._default_argument
 
     @property
     def text(self):
@@ -82,6 +90,22 @@ class Fact:
     def raw_text(self):
         """Unparsed fact content, including default argument"""
         return self._raw_text
+
+    @property
+    def author(self):
+        """Fact author"""
+        return self._author
+
+    @name.setter
+    def name(self, db_engine: engine.Engine, newname: str):
+        self._name = newname
+        self._write(db_engine)
+
+    @text.setter
+    def text(self, db_engine: engine.Engine, newtext: str):
+        self._text = self._parse_fact(newtext)
+        self._raw_text = newtext
+        self._write(db_engine)
 
     def _parse_fact(self, fact_text: str) -> str:
         """Parse a fact
@@ -98,14 +122,14 @@ class Fact:
         re_defarg = re.compile(r"({{(?P<defarg>.+)}})(?P<fact>.+)")
         groups = re_defarg.search(fact_text)
         if re.match(re_defarg, fact_text):
-            self.default_argument = groups.group("defarg")
+            self._default_argument = groups.group("defarg")
         repltable = {
             "<<BOLD>>": "\u0002",
             "<<ITALICS>>": "\u001D",
             "<<UNDERLINE>>": "\u001f",
             " %n% ": "\n",
         }
-        if self.default_argument:
+        if self._default_argument:
             fact_text = groups.group("fact")
         for token, new in repltable.items():
             fact_text = fact_text.replace(token, new)
@@ -134,11 +158,11 @@ class Fact:
                         f"factEditedBy = :fact_by "
                         f"WHERE factID = :fact_id"
                     ),
-                    fact_name=self.name,
-                    fact_lang=self.lang.casefold(),
+                    fact_name=self._name,
+                    fact_lang=self._lang.casefold(),
                     fact_text=self._raw_text,
-                    fact_author=self.author,
-                    fact_id=self.fact_id,
+                    fact_author=self._author,
+                    fact_id=self._fact_id,
                 )
         except NoDatabaseConnection:
             logger.exception("No database connection. Unable to update fact.")
@@ -148,17 +172,16 @@ class Fact:
             ) from NoDatabaseConnection
 
 
-@define
 class FactHandler:
-    """Create a new fact handler
+    def __init__(self):
+        """Create a new fact handler
 
-    Create a new fact manager object. On creation, this is still
-    'empty', and not able to process input. Do this by loading facts
-    and attaching it to a command handler.
+        Create a new fact manager object. On creation, this is still
+        'empty', and not able to process input. Do this by loading facts
+        and attaching it to a command handler.
 
-    """
-
-    _fact_cache: Dict[Tuple[str, str], Fact] = field(factory=dict)
+        """
+        self._fact_cache: Dict[Tuple[str, str], Fact] = {}
 
     async def get(self, name: str, lang: str = "en") -> Optional[Fact]:
         """Get a fact object by name
@@ -370,7 +393,6 @@ class FactHandler:
         for fact in self._fact_cache:
             if fact[1].casefold() == lang.casefold():
                 langlist.append(fact[0])
-        print(langlist)
         return langlist
 
     async def fact_formatted(self, fact: tuple, arguments: List[str]) -> str:
