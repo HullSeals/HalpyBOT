@@ -10,7 +10,7 @@ See license.md
 
 import re as REEE  # 🤫
 from loguru import logger
-from typing import List, Union
+from typing import List
 from boto3.exceptions import Boto3Error
 from halpybot import config
 

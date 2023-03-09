@@ -11,7 +11,7 @@ See license.md
 from __future__ import annotations
 import json
 from pathlib import Path
-from typing import List, Dict, Optional, TYPE_CHECKING, TypedDict
+from typing import List, Dict, Optional, TYPE_CHECKING, TypedDict, Union
 from loguru import logger
 from attrs import define
 from ..case import create_case
@@ -51,7 +51,7 @@ platform_shorts = {
 
 
 async def get_edsm_data(
-    args: AnnouncerArgs, generalized: bool = False
+    args: Union[AnnouncerArgs, Dict[str, str]], generalized: bool = False
 ) -> Optional[str]:
     """Calculates and formats a ready-to-go string with EDSM info about a system
 
@@ -200,7 +200,7 @@ class AnnouncerArgs(TypedDict):
     Platform: Optional[str]
     System: Optional[str]
     Planet: Optional[str]
-    Coordinates: Optional[str]
+    Coords: Optional[str]
     KFType: Optional[str]
     Board_ID: Optional[int]
     Seal: Optional[str]

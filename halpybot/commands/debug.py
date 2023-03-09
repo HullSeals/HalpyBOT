@@ -11,7 +11,6 @@ See license.md
 """
 from typing import List
 from attrs import evolve
-from pendulum import now
 from ..packages.command import Commands
 from ..packages.models import Context, Platform, Case
 
@@ -42,7 +41,7 @@ async def cmd_fullboard(ctx: Context, args: List[str]):
 @Commands.command("newcase")
 async def cmd_newcase(ctx: Context, args: List[str]):
     cmdr = args[0]
-    plt = Platform(int(args[1])).name
+    plt = Platform(int(args[1]))
     sys = args[2]
     case = await ctx.bot.board.add_case(client=cmdr, platform=plt, system=sys)
     return await ctx.reply(f"New case started: Board ID {case.board_id}")

@@ -233,7 +233,8 @@ class Board:
         if old_name == new_name:
             raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
         # Update and Continue
-        case.client_name = new_name
+        newcase = evolve(case, client_name=new_name)
+        await self.mod_case(board_id, newcase)
         async with self._modlock:
             del self._case_alias_name[old_name]
             self._case_alias_name[new_name] = board_id
