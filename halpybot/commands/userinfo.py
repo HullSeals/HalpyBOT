@@ -76,4 +76,3 @@ async def cmd_whoami(ctx: Context, args: List[str]):
         f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history}"
         f" {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
     )
-
