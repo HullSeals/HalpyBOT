@@ -159,7 +159,7 @@ class Board:
         return next_id
 
     @property
-    def by_id(self) -> dict:
+    def by_id(self) -> typing.Dict[int, Case]:
         """Returns the cases_by_id dict"""
         return self._cases_by_id
 

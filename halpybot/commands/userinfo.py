@@ -7,15 +7,25 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
 from typing import List
-
+from sqlalchemy.engine import Engine
 from halpybot.packages.command.commandhandler import get_help_text
-
 from ..packages.seals import whois
 from ..packages.command import Commands
 from ..packages.checks import Require, Pup
 from ..packages.models import Context, Seal
+
+
+async def whois_fetch(engine: Engine, cmdr: str):
+    """Fetch the details of the user requested by WHOIS"""
+    try:
+        seal: Seal = await whois(engine, cmdr)
+    except (KeyError, ValueError):
+        return "No registered user found by that name!"
+    return (
+        f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}"
+        f"{seal.dw2_history} {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
+    )
 
 
 @Commands.command("whois")
@@ -66,3 +76,4 @@ async def cmd_whoami(ctx: Context, args: List[str]):
         f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history}"
         f" {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
     )
+
