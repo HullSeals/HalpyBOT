@@ -9,13 +9,14 @@ See license.md
 """
 from __future__ import annotations
 import re
-from typing import Dict, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 from pendulum import now
 from attrs import evolve
 from ..models import Case, Platform
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
+    from ..announcer import AnnouncerArgs
 
 
 async def format_case_details(case: Case) -> str:
@@ -71,9 +72,7 @@ async def format_case_details(case: Case) -> str:
     return message
 
 
-async def create_case(
-    args: Dict[str, Union[str, int, bool]], codemap: Platform, client: HalpyBOT
-) -> int:
+async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) -> int:
     """Create a Case on the board from a rescue announcement"""
     # Determine if an IRCN is needed by default
 

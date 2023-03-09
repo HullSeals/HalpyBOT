@@ -14,6 +14,7 @@ from .announcer import (
     AnnouncementError,
     get_edsm_data,
     AlreadyExistsError,
+    AnnouncerArgs,
 )
 from .dc_webhook import send_webhook, DiscordWebhookError, WebhookSendError
 
@@ -23,6 +24,7 @@ __all__ = [
     "AnnouncementError",
     "get_edsm_data",
     "AlreadyExistsError",
+    "AnnouncerArgs",
     "send_webhook",
     "DiscordWebhookError",
     "WebhookSendError",

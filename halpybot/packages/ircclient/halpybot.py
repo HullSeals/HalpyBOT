@@ -133,7 +133,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.join(channel, force=True)
         await utils.task_starter(self)
 
-    async def on_message(self, target, by, message):
+    async def on_message(self, target: str, by: str, message: str):
         """Handle an IRC message
 
         Invoked from Pydle on a new message. Message is passed to
@@ -176,7 +176,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         else:
             await self.message(sender, message)
 
-    async def on_unknown(self, message):
+    async def on_unknown(self, message: str):
         """Unknown Command"""
         logger.warning(f"Unknown Command Received: {message}")
 

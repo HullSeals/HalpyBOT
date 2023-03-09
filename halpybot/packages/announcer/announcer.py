@@ -51,7 +51,7 @@ platform_shorts = {
 
 
 async def get_edsm_data(
-    args: Dict[str, str], generalized: bool = False
+    args: AnnouncerArgs, generalized: bool = False
 ) -> Optional[str]:
     """Calculates and formats a ready-to-go string with EDSM info about a system
 
