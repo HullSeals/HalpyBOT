@@ -11,7 +11,7 @@ See license.md
 from __future__ import annotations
 import json
 from pathlib import Path
-from typing import List, Dict, Optional, TYPE_CHECKING, Union
+from typing import List, Dict, Optional, TYPE_CHECKING, TypedDict
 from loguru import logger
 from attrs import define
 from ..case import create_case
@@ -132,6 +132,8 @@ class AlreadyExistsError(AnnouncementError):
 
 
 class Announcer:
+    """The Announcer - Send Messages to All Points"""
+
     def __init__(self):
         """
         Initialize the Announcer
@@ -188,6 +190,25 @@ class Announcer:
             raise AnnouncementError(Exception) from announcement_exception
 
 
+class AnnouncerArgs(TypedDict):
+    """
+    Possible Values in the Announcer Payload
+    """
+
+    Short: Optional[str]
+    CMDR: Optional[str]
+    Platform: Optional[str]
+    System: Optional[str]
+    Planet: Optional[str]
+    Coordinates: Optional[str]
+    KFType: Optional[str]
+    Board_ID: Optional[int]
+    Seal: Optional[str]
+    CanSynth: Optional[str]
+    Hull: Optional[str]
+    Oxygen: Optional[str]
+
+
 @define
 class Announcement:
     """Create a new announceable object
@@ -211,9 +232,7 @@ class Announcement:
     edsm: Optional[int] = None
     type: Optional[str] = None
 
-    async def format(
-        self, args: Dict[str, Union[str, int, bool]], client: HalpyBOT
-    ) -> str:
+    async def format(self, args: AnnouncerArgs, client: HalpyBOT) -> str:
         """Format announcement in a ready-to-be-sent format
 
         This includes the result of the EDSM query if specified in the config
@@ -242,7 +261,7 @@ class Announcement:
             args["Platform"] = codemap.name.replace("_", " ")
             # Create a case, if required
             try:
-                args["Board ID"] = await create_case(args, codemap, client)
+                args["Board_ID"] = await create_case(args, codemap, client)
             except ValueError as val_err:
                 raise AlreadyExistsError("Case Already Exists") from val_err
         # Finally, format and return
