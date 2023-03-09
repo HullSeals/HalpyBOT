@@ -9,10 +9,10 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict, Optional, Tuple, Callable
 from loguru import logger
 from halpybot import config
-from ..models import Context
+from ..models import Context, HelpArguments
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
@@ -43,8 +43,8 @@ class CommandGroup:
 
     """
 
-    _grouplist = []
-    _root: CommandGroup = None
+    _grouplist: List[CommandGroup] = []
+    _root: Optional[CommandGroup] = None
 
     def __init__(self, is_root: bool = False):
         """Create new command group
@@ -58,7 +58,7 @@ class CommandGroup:
         """
         self._is_root = is_root
         self._group_name = ""
-        self._command_list = {}
+        self._command_list: Dict[str, Tuple[Callable, bool]] = {}
         self._fact_handler = None
         # Don't allow registration of multiple root groups
         if CommandGroup._root and is_root:
@@ -292,12 +292,15 @@ class CommandGroup:
             (list): All registered command names (mains only if mains = True)
 
         """
+        print(self._command_list)
         if not mains:
             return list(self._command_list.keys())
         return [str(cmd) for cmd in self._command_list if self._command_list[cmd][1]]
 
 
-def get_help_text(commandsfile, search_command: str):
+def get_help_text(
+    commandsfile: Dict[str, Dict[str, HelpArguments]], search_command: str
+):
     """
     Retrieve the help text for usage and arguments of a command.
 

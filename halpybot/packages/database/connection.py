@@ -20,7 +20,7 @@ class NoDatabaseConnection(ConnectionError):
     """
 
 
-async def test_database_connection(db_engine: engine.Engine):
+async def test_database_connection(db_engine: engine.Engine) -> float:
     """
     Test the database connection. Set offline mode if an error occurs.
     A.K.A. The artist formerly known as "Box of Angry Bees"

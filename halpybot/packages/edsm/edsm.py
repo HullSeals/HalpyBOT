@@ -165,6 +165,8 @@ class GalaxySystem:
         sysobj = GalaxySystem.from_api(api=api)
 
         cls._lookupCache[name] = EDSMQuery(sysobj, time())
+        print(cls._lookupCache)
+        print(type(cls._lookupCache))
         return sysobj
 
     @classmethod
@@ -443,12 +445,12 @@ async def checkdistance(
     """
 
     # get both systems at the same time.
-    system1: GalaxySystem
-    system2: GalaxySystem
     system1, system2 = await asyncio.gather(
         GalaxySystem.get_info(name=sysa, cache_override=cache_override),
         GalaxySystem.get_info(name=sysb, cache_override=cache_override),
     )
+    system1: GalaxySystem
+    system2: GalaxySystem
 
     if system1 is None:
         # not a system, maybe a commander?
@@ -482,10 +484,10 @@ async def checkdistance(
             f"database."
         )
 
-    distance = calc_distance(system_a, system_b)
-    distance = f"{distance:,}"
+    distance: float = calc_distance(system_a, system_b)
+    formatted_distance: str = f"{distance:,}"
     direction = await calc_direction(system_b.x, system_a.x, system_b.z, system_a.z)
-    return distance, direction
+    return formatted_distance, direction
 
 
 async def checklandmarks(
@@ -718,17 +720,15 @@ async def get_coordinates(
     Returns:
         ('Coordinates' or None): A coordinate class object if exists, else None.
     """
-    sys: GalaxySystem = await GalaxySystem.get_info(
+    sys: typing.Optional[GalaxySystem] = await GalaxySystem.get_info(
         name=edsm_sys_name, cache_override=cache_override
     )
     if sys:
-        coords: Coordinates = sys.coords
-    else:
-        cmdr: Location = await Commander.location(
-            name=edsm_sys_name, cache_override=cache_override
-        )
-        coords = cmdr.coordinates if cmdr else None
-    return coords
+        return sys.coords
+    cmdr: typing.Optional[Location] = await Commander.location(
+        name=edsm_sys_name, cache_override=cache_override
+    )
+    return cmdr.coordinates if cmdr else None
 
 
 async def get_nearby_system(sys_name: str) -> typing.Tuple[bool, typing.Optional[str]]:

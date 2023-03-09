@@ -11,9 +11,10 @@ from __future__ import annotations
 import re
 import json
 import asyncio
+from typing import Dict, Optional, Union, TYPE_CHECKING, Any
 import aiohttp
-from typing import Dict, Optional, Union, TYPE_CHECKING
 from loguru import logger
+from pydantic import SecretStr
 from halpybot import DEFAULT_USER_AGENT
 from halpybot.commands.notify import format_notification, notify
 from halpybot.packages.database import NoDatabaseConnection, test_database_connection
@@ -54,9 +55,9 @@ def strip_non_ascii(string: str) -> tuple:
 
 async def web_get(
     uri: str,
-    params: Optional[Dict[str, Union[str, int, float]]] = None,
+    params: Optional[Dict[str, Union[str, SecretStr, float]]] = None,
     timeout: int = 10,
-) -> Dict:
+) -> Dict[str, Any]:
     """
     Use aiohttp's client to send an HTTP GET request.
     uri: The URI/URL of the requested resource

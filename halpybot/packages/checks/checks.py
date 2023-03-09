@@ -9,7 +9,7 @@ See license.md
 """
 
 import functools
-from typing import List
+from typing import List, Optional
 from loguru import logger
 from attrs import define
 from halpybot import config
@@ -88,7 +88,7 @@ class Require:
     """Declare decorators to limit the use of commands"""
 
     @staticmethod
-    def permission(role: Permission, message: str = None):
+    def permission(role: Permission, message: Optional[str] = None):
         """Require permission for a command
 
         Args:
@@ -111,7 +111,7 @@ class Require:
                 # Define required level
                 required_level = role.level
                 # Get role
-                whois = await User.get_info(ctx.bot, ctx.sender)
+                whois: Optional[User] = await User.get_info(ctx.bot, ctx.sender)
                 vhost = User.process_vhost(whois.hostname)
 
                 if vhost is None:

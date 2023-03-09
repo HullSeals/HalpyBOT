@@ -9,7 +9,7 @@ See license.md
 
 """
 
-from typing import Dict
+from typing import Dict, Union, Optional
 import aiohttp
 from loguru import logger
 
@@ -28,7 +28,11 @@ class WebhookSendError(DiscordWebhookError):
     """
 
 
-async def send_webhook(hook_id: int, hook_token: str, body: Dict):
+async def send_webhook(
+    hook_id: Optional[int],
+    hook_token: str,
+    body: Dict[str, Union[str, Dict[str, Union[str, bool, int]]]],
+):
     """Send a webhook payload to Discord
 
     Args:

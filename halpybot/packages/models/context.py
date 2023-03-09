@@ -10,11 +10,19 @@ See license.md
 
 from __future__ import annotations
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict, List, Optional
 from attrs import define
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
+
+
+class HelpArguments(TypedDict):
+    """Format of the Help command output""" ""
+
+    aliases: List[str]
+    arguments: Optional[str]
+    use: str
 
 
 @define(frozen=True)

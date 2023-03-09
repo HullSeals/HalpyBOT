@@ -8,8 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from typing import List
-
+from typing import List, Optional
 from halpybot import config
 from ..packages.checks import Require, Drilled
 from ..packages.command import Commands, get_help_text
@@ -33,11 +32,11 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     # Convert channel name to lower case to avoid issues with the already-in-channel check
     args[1] = args[1].casefold()
 
-    botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
+    botuser: Optional[User] = await User.get_info(ctx.bot, ctx.bot.nickname)
 
     # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
     try:
-        channels = await User.get_channels(ctx.bot, args[0])
+        channels: List[str] = await User.get_channels(ctx.bot, args[0])
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 

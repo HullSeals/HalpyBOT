@@ -23,6 +23,7 @@ from ..board import Board
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import FactHandler
+from ..models import HelpArguments
 from ...halpyconfig import SaslExternal, SaslPlain
 
 
@@ -66,7 +67,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         return self._langcodes
 
     @property
-    def commandsfile(self) -> Dict:  # TODO: This is Vague. Fix.
+    def commandsfile(self) -> Dict[str, Dict[str, HelpArguments]]:
         """Commands Help File"""
         return self._commandsfile
 
@@ -189,7 +190,9 @@ class HalpyBOT(pydle.Client, ListHandler):
             f"OPER {config.irc.operline} {config.irc.operline_password.get_secret_value()}\r\n"
         )
 
-    async def join(self, channel: str, password: str = None, force: bool = False):
+    async def join(
+        self, channel: str, password: Optional[str] = None, force: bool = False
+    ):
         """Join a channel
 
         We do not allow Halpy to join a non-existent channel,

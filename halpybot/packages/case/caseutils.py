@@ -84,7 +84,7 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
         client=args["CMDR"], platform=codemap, system=args["System"]
     )
     if ircn:
-        newcase = evolve(newcase, irc_nick=ircn)
+        newcase: Case = evolve(newcase, irc_nick=ircn)
     if "CanSynth" in args:
         newcase = evolve(
             newcase,

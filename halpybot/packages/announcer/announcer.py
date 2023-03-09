@@ -52,7 +52,7 @@ platform_shorts = {
 
 async def get_edsm_data(
     args: Union[AnnouncerArgs, Dict[str, str]], generalized: bool = False
-) -> Optional[str]:
+) -> str:
     """Calculates and formats a ready-to-go string with EDSM info about a system
 
     Args:
@@ -197,7 +197,7 @@ class AnnouncerArgs(TypedDict):
 
     Short: Optional[str]
     CMDR: Optional[str]
-    Platform: Optional[str]
+    Platform: Union[Optional[int], Optional[str]]
     System: Optional[str]
     Planet: Optional[str]
     Coords: Optional[str]
@@ -205,7 +205,7 @@ class AnnouncerArgs(TypedDict):
     Board_ID: Optional[int]
     Seal: Optional[str]
     CanSynth: Optional[str]
-    Hull: Optional[str]
+    Hull: Optional[int]
     Oxygen: Optional[str]
 
 
@@ -254,7 +254,7 @@ class Announcement:
         # Set the platform relation to the Enum, if exists
         if "Platform" in args.keys():
             try:
-                codemap = Platform(int(args["Platform"]))
+                codemap: Platform = Platform(int(args["Platform"]))
             except ValueError:
                 codemap = Platform.UNKNOWN
             args["Short"] = platform_shorts[codemap]

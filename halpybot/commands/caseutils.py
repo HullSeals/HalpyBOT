@@ -7,7 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-from typing import List
+from typing import List, Union
 from pendulum import now
 from ..packages.case import format_case_details
 from ..packages.command import Commands, get_help_text
@@ -17,7 +17,7 @@ from ..packages.models import Context, User, NoUserFound, Case
 async def get_case(ctx: Context, case_arg: str) -> Case:
     """Fetch a case from the Board"""
     try:
-        caseref = int(case_arg)
+        caseref: Union[str, int] = int(case_arg)
     except ValueError:
         caseref = case_arg
     return ctx.bot.board.return_rescue(caseref)
