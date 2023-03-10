@@ -9,7 +9,6 @@ See license.md
 """
 from typing import List, Union
 from pendulum import now
-from ..packages.case import format_case_details
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context, User, NoUserFound, Case
 
@@ -96,4 +95,4 @@ async def cmd_listcase(ctx: Context, args: List[str]):
         case: Case = await get_case(ctx, args[0])
     except KeyError:
         return await ctx.redirect(f"No case found for {args[0]!r}.")
-    return await ctx.redirect(await format_case_details(case))
+    return await ctx.redirect(await case.format_case_details(case))

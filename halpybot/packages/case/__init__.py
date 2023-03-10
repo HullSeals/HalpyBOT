@@ -8,6 +8,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .caseutils import format_case_details, create_case
+from .caseutils import create_case
 
-__all__ = ["format_case_details", "create_case"]
+__all__ = ["create_case"]
