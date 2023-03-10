@@ -20,6 +20,7 @@ See license.md
 """
 from __future__ import annotations
 import typing
+import functools
 import itertools
 from asyncio import Lock
 from attrs import evolve
@@ -202,11 +203,14 @@ class Board:
             self._case_alias_name[client] = new_id
             return case
 
-    async def mod_case(self, case_id: int, new_case: Case):
+    @functools.wraps(evolve)
+    async def mod_case(self, case_id: int, **kwargs):
         """
         Modify an existing case
         """
-        new_case = evolve(new_case, updated_time=now(tz="UTC"))
+        new_case = evolve(
+            self._cases_by_id[case_id], updated_time=now(tz="UTC"), **kwargs
+        )
         self._cases_by_id[case_id] = new_case
 
     async def del_case(self, case: Case):
@@ -233,8 +237,8 @@ class Board:
         if old_name == new_name:
             raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
         # Update and Continue
-        newcase = evolve(case, client_name=new_name)
-        await self.mod_case(board_id, newcase)
+        name_kwarg = {"client_name": new_name}
+        await self.mod_case(board_id, **name_kwarg)
         async with self._modlock:
             del self._case_alias_name[old_name]
             self._case_alias_name[new_name] = board_id

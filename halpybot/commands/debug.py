@@ -57,6 +57,6 @@ async def cmd_debugwelcome(ctx: Context, args: List[str]):
         case: Case = ctx.bot.board.return_rescue(caseref)
     except KeyError:
         return await ctx.reply("[DEBUG] No case found.")
-    newcase = evolve(case, welcomed=True)
-    await ctx.bot.board.mod_case(newcase.board_id, newcase)
+    mod_kwargs = {"welcomed": True}
+    await ctx.bot.board.mod_case(case.board_id, **mod_kwargs)
     return await ctx.reply(f"[DEBUG] case {caseref} set to Welcomed.")

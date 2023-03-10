@@ -10,7 +10,6 @@ See license.md
 from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
-from attrs import evolve
 from ..models import Case, Platform
 
 if TYPE_CHECKING:
@@ -20,33 +19,45 @@ if TYPE_CHECKING:
 
 async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) -> int:
     """Create a Case on the board from a rescue announcement"""
-    # Determine if an IRCN is needed by default
-
-    ircn = re.search("/[^a-zA-Z0-9]/", args["CMDR"])
-    if ircn:
-        ircn = re.sub("/[^a-zA-Z0-9]/", "", args["CMDR"])
     # Create the base case
     newcase: Case = await client.board.add_case(
         client=args["CMDR"], platform=codemap, system=args["System"]
     )
+    # Determine if an IRCN is needed by default
+    ircn = re.search("/[^a-zA-Z0-9]/", args["CMDR"])
     if ircn:
-        newcase: Case = evolve(newcase, irc_nick=ircn)
-    if "CanSynth" in args:
-        newcase = evolve(
-            newcase,
-            hull_percent=int(args["Hull"]),
-            canopy_broken=True,
-            can_synth=args["CanSynth"],
-            o2_timer=args["Oxygen"],
-        )
-    elif "Coords" in args:
-        newcase = evolve(
-            newcase,
-            planet=args["Planet"],
-            pcoords=args["Coords"],
-            kftype=args["KFType"],
-        )
+        ircn = re.sub("/[^a-zA-Z0-9]/", "", args["CMDR"])
+        # If IRCN needed
+        evolve_args = {
+            "irc_nick": ircn,
+        }
     else:
-        newcase = evolve(newcase, hull_percent=int(args["Hull"]))
-    await client.board.mod_case(newcase.board_id, newcase)
+        # If no IRCN needed, save ClientName as IRCN
+        evolve_args = {"irc_nick": newcase.client_name}
+    # What type of case are we dealing with?
+    if "CanSynth" in args:  # CB
+        evolve_args.update(
+            {
+                "canopy_broken": True,
+                "can_synth": args["CanSynth"],
+                "o2_timer": args["Oxygen"],
+                "hull_percent": int(args["Hull"]),
+            }
+        )
+    elif "Coords" in args:  # KF
+        evolve_args.update(
+            {
+                "planet": args["Planet"],
+                "pcoords": args["Coords"],
+                "kftype": args["KFType"],
+            }
+        )
+    else:  # Must be standard Seal
+        evolve_args.update(
+            {
+                "hull_percent": int(args["Hull"]),
+            }
+        )
+    # Call the wrapped evolve function with **kwargs
+    await client.board.mod_case(newcase.board_id, **evolve_args)
     return newcase.board_id
