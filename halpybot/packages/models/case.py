@@ -40,7 +40,7 @@ class KFCoords:
     y: float
 
 
-@define(frozen=True)
+@define(frozen=True, str=False)
 class Case:
     """The Case Object - Tracking All The Things!"""
 
@@ -74,7 +74,7 @@ class Case:
     pcoords: Optional[KFCoords] = None
     kftype: Optional[str] = None
 
-    async def format_case_details(self) -> str:
+    def __str__(self) -> str:
         """Format case information in a ready-to-be-sent format
 
         Args:
