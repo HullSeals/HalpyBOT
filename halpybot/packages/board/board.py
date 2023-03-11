@@ -182,10 +182,10 @@ class Board:
         raise KeyError(f"Key {key!r} not found.")
 
     def __contains__(self, key: typing.Union[str, int]) -> bool:
-        if isinstance(key.casefold(), str):
-            return key in self._case_alias_name
         if isinstance(key, int):
             return key in self._cases_by_id
+        if isinstance(key.casefold(), str):
+            return key in self._case_alias_name
         return False
 
     async def add_case(self, client: str, platform: Platform, system: str) -> Case:
