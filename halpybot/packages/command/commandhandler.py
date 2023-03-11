@@ -292,7 +292,6 @@ class CommandGroup:
             (list): All registered command names (mains only if mains = True)
 
         """
-        print(self._command_list)
         if not mains:
             return list(self._command_list.keys())
         return [str(cmd) for cmd in self._command_list if self._command_list[cmd][1]]

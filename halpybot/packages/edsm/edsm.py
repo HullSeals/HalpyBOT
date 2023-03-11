@@ -165,8 +165,6 @@ class GalaxySystem:
         sysobj = GalaxySystem.from_api(api=api)
 
         cls._lookupCache[name] = EDSMQuery(sysobj, time())
-        print(cls._lookupCache)
-        print(type(cls._lookupCache))
         return sysobj
 
     @classmethod
