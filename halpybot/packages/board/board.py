@@ -175,15 +175,15 @@ class Board:
 
     def return_rescue(self, key: typing.Union[str, int]) -> Case:
         """Find a Case given the Client Name or Case ID"""
-        if isinstance(key, str) and key in self._case_alias_name:
-            return self._cases_by_id[self._case_alias_name[key]]
-        if isinstance(key, int) and key in self._cases_by_id:
+        if isinstance(key, str):
+            return self._cases_by_id[self._case_alias_name[key.casefold()]]
+        if isinstance(key, int):
             return self._cases_by_id[key]
         raise KeyError(f"Key {key!r} not found.")
 
     def __contains__(self, key: typing.Union[str, int]) -> bool:
-        if isinstance(key, str):
-            return key.casefold() in self._case_alias_name
+        if isinstance(key.casefold(), str):
+            return key in self._case_alias_name
         if isinstance(key, int):
             return key in self._cases_by_id
         return False
@@ -196,11 +196,11 @@ class Board:
                 board_id=new_id, client_name=client, platform=platform, system=system
             )
             self._update_last_index()
-            if case.client_name in self._case_alias_name:
+            if case.client_name.casefold() in self._case_alias_name:
                 raise ValueError("Case with Client Name Already Exists")
 
             self._cases_by_id[new_id] = case
-            self._case_alias_name[client] = new_id
+            self._case_alias_name[client.casefold()] = new_id
             return case
 
     @functools.wraps(evolve)
@@ -221,7 +221,7 @@ class Board:
         client = case.client_name
         async with self._modlock:
             del self._cases_by_id[board_id]
-            del self._case_alias_name[client]
+            del self._case_alias_name[client.casefold()]
 
     async def rename_case(self, new_name: str, case: Case):
         """Rename an actively referenced case"""
@@ -232,13 +232,13 @@ class Board:
         board_id = case.board_id
         old_name = case.client_name
         # Test Old Info
-        if new_name in self._case_alias_name:
+        if new_name.casefold() in self._case_alias_name:
             raise AssertionError(f"Case already exists under the name {new_name!r}")
-        if old_name == new_name:
+        if old_name.casefold() == new_name.casefold():
             raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
         # Update and Continue
         name_kwarg = {"client_name": new_name}
         await self.mod_case(board_id, **name_kwarg)
         async with self._modlock:
-            del self._case_alias_name[old_name]
-            self._case_alias_name[new_name] = board_id
+            del self._case_alias_name[old_name.casefold()]
+            self._case_alias_name[new_name.casefold()] = board_id
