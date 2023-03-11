@@ -204,12 +204,27 @@ class Board:
             return case
 
     @functools.wraps(evolve)
-    async def mod_case(self, case_id: int, **kwargs):
+    async def mod_case(
+        self, case_id: int, action: str = None, append: str = None, sender: str = None, **kwargs
+    ):
         """
         Modify an existing case
         """
+        curr_time = now(tz="UTC")
+        current_case_notes = self.return_rescue(case_id).case_notes
+        if action:
+            for item in kwargs.values():
+                notes = f"{action} set to {item} by {sender} at {curr_time.to_time_string()}"
+                current_case_notes.append(notes)
+        if append:
+            for item in kwargs.values():
+                notes = f"{action} added to {item} by {sender} at {curr_time.to_time_string()}"
+                current_case_notes.append(notes)
         new_case = evolve(
-            self._cases_by_id[case_id], updated_time=now(tz="UTC"), **kwargs
+            self._cases_by_id[case_id],
+            updated_time=curr_time,
+            case_notes=current_case_notes,
+            **kwargs,
         )
         self._cases_by_id[case_id] = new_case
 
@@ -223,7 +238,7 @@ class Board:
             del self._cases_by_id[board_id]
             del self._case_alias_name[client.casefold()]
 
-    async def rename_case(self, new_name: str, case: Case):
+    async def rename_case(self, new_name: str, case: Case, sender):
         """Rename an actively referenced case"""
         # Make Sure we have a Case
         if not isinstance(case, Case):
@@ -238,7 +253,8 @@ class Board:
             raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
         # Update and Continue
         name_kwarg = {"client_name": new_name}
-        await self.mod_case(board_id, **name_kwarg)
+        action = "Client Name"
+        await self.mod_case(board_id, action, sender, **name_kwarg)
         async with self._modlock:
             del self._case_alias_name[old_name.casefold()]
             self._case_alias_name[new_name.casefold()] = board_id

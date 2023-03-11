@@ -81,6 +81,16 @@
       "aliases:": [],
       "arguments": "[Board ID]",
       "use": "List specific details of a current case."
+    },
+    "rename": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Client Name]",
+      "use": "Rename the client for the given case."
+    },
+    "ircn": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Valid IRC User]",
+      "use": "Set the updated client's IRC Name"
     }
   },
   "Facts": {

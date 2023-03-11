@@ -23,17 +23,28 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
     newcase: Case = await client.board.add_case(
         client=args["CMDR"], platform=codemap, system=args["System"]
     )
-    # Determine if an IRCN is needed by default
-    ircn = re.search("/[^a-zA-Z0-9]/", args["CMDR"])
+    evolve_args = {
+        "irc_nick": newcase.client_name,
+    }
+    # Determine if a different IRCN is needed by default
+    ircn = re.search(r"[^a-zA-Z0-9]", newcase.client_name)
     if ircn:
-        ircn = re.sub("/[^a-zA-Z0-9]/", "", args["CMDR"])
+        ircn = re.sub(r"[^a-zA-Z0-9]", "", newcase.client_name)
         # If IRCN needed
-        evolve_args = {
-            "irc_nick": ircn,
-        }
-    else:
-        # If no IRCN needed, save ClientName as IRCN
-        evolve_args = {"irc_nick": newcase.client_name}
+        evolve_args.update(
+            {
+                "irc_nick": ircn,
+            }
+        )
+    if evolve_args["irc_nick"][0].isdigit():
+        ircn = evolve_args["irc_nick"]
+        ircn = f"CMDR_{ircn}"
+        evolve_args.update(
+            {
+                "irc_nick": ircn,
+            }
+        )
+
     # What type of case are we dealing with?
     if "CanSynth" in args:  # CB
         evolve_args.update(

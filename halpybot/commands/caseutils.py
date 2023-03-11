@@ -11,6 +11,7 @@ from typing import List, Union
 from pendulum import now
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context, User, NoUserFound, Case
+from ..packages.checks import Require, Drilled
 
 
 async def get_case(ctx: Context, case_arg: str) -> Case:
@@ -59,6 +60,7 @@ async def cmd_go(ctx: Context, args: List[str]):
 
 
 @Commands.command("listboard")
+@Require.permission(Drilled)
 async def cmd_listboard(ctx: Context, args: List[str]):
     """
     Send a user the key details of every case on the board in DMs
@@ -82,6 +84,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
 
 @Commands.command("listcase")
+@Require.permission(Drilled)
 async def cmd_listcase(ctx: Context, args: List[str]):
     """
     Send a user the key details of a case on the board in DMs
@@ -96,3 +99,56 @@ async def cmd_listcase(ctx: Context, args: List[str]):
     except KeyError:
         return await ctx.redirect(f"No case found for {args[0]!r}.")
     return await ctx.redirect(f"{case}")
+
+
+@Commands.command("rename")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_renamecase(ctx: Context, args: List[str]):
+    """
+    Rename the user of an active case
+
+    Usage: !rename [board ID] [new name]
+    Aliases: n/a
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "rename"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.redirect(f"No case found for {args[0]!r}.")
+    try:
+        await ctx.bot.board.rename_case(args[1], case, ctx.sender)
+    except AssertionError as err:
+        return await ctx.reply(str(err))
+    return await ctx.reply(
+        f"Client for case {case.board_id} set to {args[1]!r} from {case.client_name!r}"
+    )
+
+
+@Commands.command("ircn")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_ircn(ctx: Context, args: List[str]):
+    """
+    Rename the user of an active case
+
+    Usage: !ircn [board ID] [valid IRC user]
+    Aliases: n/a
+    """
+    if not args:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "ircn"))
+    try:
+        await User.get_info(ctx.bot, args[1])
+    except (AttributeError, NoUserFound):
+        return await ctx.reply("That's not an IRC user!")
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.redirect(f"No case found for {args[0]!r}.")
+    new_details = {"irc_nick": args[1]}
+    action = "IRC Name"
+    await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+    return await ctx.reply(
+        f"IRC Name for case {case.board_id} set to {args[1]!r} from {case.irc_nick!r}."
+    )

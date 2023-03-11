@@ -118,10 +118,14 @@ class Case:
             )
         else:
             message += f"Case Details:\n" f"   Hull Remaining: {self.hull_percent}\n"
+        if self.case_notes:
+            case_notes = "\n      ".join(self.case_notes)
+        else:
+            case_notes = "      None Yet!"
         message += (
             f"Responder Details:\n"
             f"   Dispatchers: {', '.join(self.dispatchers) if self.dispatchers else 'None Yet!'}\n"
             f"   Responders: {', '.join(self.responders) if self.responders else 'None Yet!'}\n"
-            f"   Notes: {self.case_notes if self.case_notes else 'None Yet!'}"
+            f"   Notes: \n      {case_notes}"
         )
         return message

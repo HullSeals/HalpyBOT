@@ -272,4 +272,8 @@ class Announcement:
                 announcement += await get_edsm_data(args)
             except ValueError:
                 announcement += "\nAttention Dispatch, please confirm clients system before proceeding."
+        if args.get("Board_ID"):
+            case = client.board.return_rescue(args["Board_ID"])
+            if case.irc_nick != case.client_name:
+                announcement += f"\nExpected IRC User: {case.irc_nick}"
         return announcement
