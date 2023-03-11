@@ -218,7 +218,7 @@ class Board:
                 current_case_notes.append(notes)
         if append:
             for item in kwargs.values():
-                notes = f"{action} added to {item} by {sender} at {curr_time.to_time_string()}"
+                notes = f"{item} added to {append} by {sender} at {curr_time.to_time_string()}"
                 current_case_notes.append(notes)
         new_case = evolve(
             self._cases_by_id[case_id],
