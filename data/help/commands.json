@@ -96,6 +96,11 @@
       "aliases:": [],
       "arguments": "[Board ID] [New System]",
       "use": "Set the updated client's System."
+    },
+    "status": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Status]",
+      "use": "Set the updated case status. \nValid options include 'ACTIVE', 'DELAYED', and 'INACTIVE'."
     }
   },
   "Facts": {

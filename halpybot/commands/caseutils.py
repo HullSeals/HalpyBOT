@@ -12,7 +12,7 @@ from pendulum import now
 from halpybot import config
 from ..packages.command import Commands, get_help_text
 from ..packages.edsm import sys_cleaner
-from ..packages.models import Context, User, NoUserFound, Case
+from ..packages.models import Context, User, NoUserFound, Case, Status
 from ..packages.checks import Require, Drilled
 
 
@@ -118,10 +118,10 @@ async def cmd_renamecase(ctx: Context, args: List[str]):
     try:
         case: Case = await get_case(ctx, args[0])
     except KeyError:
-        return await ctx.redirect(f"No case found for {args[0]!r}.")
+        return await ctx.reply(f"No case found for {args[0]!r}.")
     try:
         await ctx.bot.board.rename_case(args[1], case, ctx.sender)
-    except AssertionError as err:
+    except (AssertionError, ValueError) as err:
         return await ctx.reply(str(err))
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
@@ -149,10 +149,13 @@ async def cmd_ircn(ctx: Context, args: List[str]):
     try:
         case: Case = await get_case(ctx, args[0])
     except KeyError:
-        return await ctx.redirect(f"No case found for {args[0]!r}.")
+        return await ctx.reply(f"No case found for {args[0]!r}.")
     new_details = {"irc_nick": args[1]}
     action = "IRC Name"
-    await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+    try:
+        await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+    except ValueError as val_err:
+        return await ctx.reply(str(val_err))
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,
@@ -176,14 +179,52 @@ async def cmd_system(ctx: Context, args: List[str]):
     try:
         case: Case = await get_case(ctx, args[0])
     except KeyError:
-        return await ctx.redirect(f"No case found for {args[0]!r}.")
+        return await ctx.reply(f"No case found for {args[0]!r}.")
     newsys: str = " ".join(args[1:])
     newsys = await sys_cleaner(newsys)
     new_details = {"system": newsys}
     action = "Client System"
-    await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+    try:
+        await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+    except ValueError as val_err:
+        return await ctx.reply(str(val_err))
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,
             f"System for case {case.board_id} set to {newsys!r} from {case.system!r}",
+        )
+
+
+@Commands.command("status")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_status(ctx: Context, args: List[str]):
+    """
+    Change the activity status of a case
+
+    Usage: !active [board ID] [new status]
+    Aliases: n/a
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "active"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    try:
+        status = Status[args[1].upper()]
+        if status == Status.CLOSED:
+            raise KeyError  # Mock a KeyError. This command can't close a case.
+    except KeyError:
+        return await ctx.reply("Invalid case status provided.")
+    new_details = {"status": status}
+    action = "Case Status"
+    try:
+        await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+    except ValueError:
+        return await ctx.reply(f"{action} is already set to {status.name}.")
+    for channel in config.channels.rescue_channels:
+        await ctx.bot.message(
+            channel,
+            f"Status for case {case.board_id} set to {status.name!r} from {case.status.name!r}",
         )

@@ -30,6 +30,7 @@ class Status(Enum):
     ACTIVE = 0
     CLOSED = 1
     DELAYED = 2
+    INACTIVE = 3
 
 
 @define(frozen=True)

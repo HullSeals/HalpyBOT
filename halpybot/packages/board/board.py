@@ -216,6 +216,8 @@ class Board:
 
         if action:
             for key, item in kwargs.items():
+                if getattr(case, key) == item:
+                    raise ValueError(f"{action} is already set to {item}.")
                 notes = f"{action} set to {item} from {getattr(case, key)} by {sender} at {curr_time.to_time_string()}"
                 current_case_notes.append(notes)
         new_case = evolve(
