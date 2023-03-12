@@ -202,7 +202,7 @@ async def cmd_status(ctx: Context, args: List[str]):
     """
     Change the activity status of a case
 
-    Usage: !active [board ID] [new status]
+    Usage: !status [board ID] [new status]
     Aliases: n/a
     """
     if len(args) < 2:
