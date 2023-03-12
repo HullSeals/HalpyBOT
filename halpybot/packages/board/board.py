@@ -238,7 +238,7 @@ class Board:
             del self._cases_by_id[board_id]
             del self._case_alias_name[client.casefold()]
 
-    async def rename_case(self, new_name: str, case: Case, sender):
+    async def rename_case(self, new_name: str, case: Case, sender: str):
         """Rename an actively referenced case"""
         # Make Sure we have a Case
         if not isinstance(case, Case):
