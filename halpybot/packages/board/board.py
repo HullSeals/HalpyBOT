@@ -205,7 +205,7 @@ class Board:
 
     @functools.wraps(evolve)
     async def mod_case(
-        self, case_id: int, action: str = None, append: str = None, sender: str = None, **kwargs
+        self, case_id: int, action: str = None, sender: str = None, **kwargs
     ):
         """
         Modify an existing case
@@ -215,10 +215,6 @@ class Board:
         if action:
             for item in kwargs.values():
                 notes = f"{action} set to {item} by {sender} at {curr_time.to_time_string()}"
-                current_case_notes.append(notes)
-        if append:
-            for item in kwargs.values():
-                notes = f"{item} added to {append} by {sender} at {curr_time.to_time_string()}"
                 current_case_notes.append(notes)
         new_case = evolve(
             self._cases_by_id[case_id],
