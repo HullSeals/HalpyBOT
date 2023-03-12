@@ -9,7 +9,9 @@ See license.md
 """
 from typing import List, Union
 from pendulum import now
+from halpybot import config
 from ..packages.command import Commands, get_help_text
+from ..packages.edsm import sys_cleaner
 from ..packages.models import Context, User, NoUserFound, Case
 from ..packages.checks import Require, Drilled
 
@@ -121,9 +123,11 @@ async def cmd_renamecase(ctx: Context, args: List[str]):
         await ctx.bot.board.rename_case(args[1], case, ctx.sender)
     except AssertionError as err:
         return await ctx.reply(str(err))
-    return await ctx.reply(
-        f"Client for case {case.board_id} set to {args[1]!r} from {case.client_name!r}"
-    )
+    for channel in config.channels.rescue_channels:
+        await ctx.bot.message(
+            channel,
+            f"Client for case {case.board_id} set to {args[1]!r} from {case.client_name!r}",
+        )
 
 
 @Commands.command("ircn")
@@ -149,6 +153,37 @@ async def cmd_ircn(ctx: Context, args: List[str]):
     new_details = {"irc_nick": args[1]}
     action = "IRC Name"
     await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
-    return await ctx.reply(
-        f"IRC Name for case {case.board_id} set to {args[1]!r} from {case.irc_nick!r}."
-    )
+    for channel in config.channels.rescue_channels:
+        await ctx.bot.message(
+            channel,
+            f"IRC Name for case {case.board_id} set to {args[1]!r} from {case.irc_nick!r}.",
+        )
+
+
+@Commands.command("system")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_system(ctx: Context, args: List[str]):
+    """
+    Change the system of an active case
+
+    Usage: !rename [board ID] [new system]
+    Aliases: n/a
+    TODO: Can we call Landmark from here?
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "system"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.redirect(f"No case found for {args[0]!r}.")
+    newsys: str = " ".join(args[1:])
+    newsys = await sys_cleaner(newsys)
+    new_details = {"system": newsys}
+    action = "Client System"
+    await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+    for channel in config.channels.rescue_channels:
+        await ctx.bot.message(
+            channel,
+            f"System for case {case.board_id} set to {newsys!r} from {case.system!r}",
+        )

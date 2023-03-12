@@ -80,6 +80,7 @@ class Channels(BaseModel):
     """Channel List Config"""
 
     channel_list: List[str]
+    rescue_channels: List[str]
 
 
 class Database(BaseModel):
