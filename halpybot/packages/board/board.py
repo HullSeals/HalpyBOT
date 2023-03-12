@@ -210,11 +210,13 @@ class Board:
         """
         Modify an existing case
         """
+        case = self.return_rescue(case_id)
         curr_time = now(tz="UTC")
-        current_case_notes = self.return_rescue(case_id).case_notes
+        current_case_notes = case.case_notes
+
         if action:
-            for item in kwargs.values():
-                notes = f"{action} set to {item} by {sender} at {curr_time.to_time_string()}"
+            for key, item in kwargs.items():
+                notes = f"{action} set to {item} from {getattr(case, key)} by {sender} at {curr_time.to_time_string()}"
                 current_case_notes.append(notes)
         new_case = evolve(
             self._cases_by_id[case_id],

@@ -90,7 +90,12 @@
     "ircn": {
       "aliases:": [],
       "arguments": "[Board ID] [Valid IRC User]",
-      "use": "Set the updated client's IRC Name"
+      "use": "Set the updated client's IRC Name."
+    },
+    "system": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New System]",
+      "use": "Set the updated client's System."
     }
   },
   "Facts": {

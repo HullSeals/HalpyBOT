@@ -89,13 +89,13 @@ class Case:
         message = (
             f"Here's the self listing for Case ID {self.board_id}:\n "
             f"General Details: \n"
-            f"    Client: {self.client_name}\n"
-            f"    System: {self.system}\n"
-            f"    Platform: {plt}\n"
-            f"    Case Created: {created} ago\n"
-            f"    Case Updated: {updated} ago\n"
-            f"    Case Status: {self.status.name}\n"
-            f"    Client Welcomed: {'Yes' if self.welcomed else 'No'}\n"
+            f"   Client: {self.client_name}\n"
+            f"   System: {self.system}\n"
+            f"   Platform: {plt}\n"
+            f"   Case Created: {created} ago\n"
+            f"   Case Updated: {updated} ago\n"
+            f"   Case Status: {self.status.name}\n"
+            f"   Client Welcomed: {'Yes' if self.welcomed else 'No'}\n"
         )
         if self.irc_nick:
             message += f"   IRC Nickname: {self.irc_nick}\n"
@@ -121,7 +121,7 @@ class Case:
         if self.case_notes:
             case_notes = "\n      ".join(self.case_notes)
         else:
-            case_notes = "      None Yet!"
+            case_notes = "None Yet!"
         message += (
             f"Responder Details:\n"
             f"   Dispatchers: {', '.join(self.dispatchers) if self.dispatchers else 'None Yet!'}\n"
