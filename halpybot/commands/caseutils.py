@@ -144,7 +144,9 @@ async def cmd_ircn(ctx: Context, args: List[str]):
         return await ctx.reply(f"No case found for {args[0]!r}.")
     new_details = {"irc_nick": args[1]}
     action = "IRC Name"
-    await update_single_elem_case_prep(ctx, case, action, new_details)
+    update = await update_single_elem_case_prep(ctx, case, action, new_details)
+    if update:
+        return await ctx.reply(update)
 
 
 @Commands.command("system")
@@ -168,7 +170,9 @@ async def cmd_system(ctx: Context, args: List[str]):
     newsys = await sys_cleaner(newsys)
     new_details = {"system": newsys}
     action = "Client System"
-    await update_single_elem_case_prep(ctx, case, action, new_details)
+    update = await update_single_elem_case_prep(ctx, case, action, new_details)
+    if update:
+        return await ctx.reply(update)
 
 
 @Commands.command("status")
@@ -195,7 +199,11 @@ async def cmd_status(ctx: Context, args: List[str]):
         return await ctx.reply("Invalid case status provided.")
     new_details = {"status": status}
     action = "Case Status"
-    await update_single_elem_case_prep(ctx, case, action, new_details, enum=True)
+    update = await update_single_elem_case_prep(
+        ctx, case, action, new_details, enum=True
+    )
+    if update:
+        return await ctx.reply(update)
 
 
 @Commands.command("hull")
@@ -222,7 +230,9 @@ async def cmd_hull(ctx: Context, args: List[str]):
         return await ctx.reply(f"{args[1]!r} isn't a valid hull percentage")
     new_details = {"hull_percent": percent}
     action = "Hull Percentage"
-    await update_single_elem_case_prep(ctx, case, action, new_details)
+    update = await update_single_elem_case_prep(ctx, case, action, new_details)
+    if update:
+        return await ctx.reply(update)
 
 
 @Commands.command("changetype")
@@ -259,4 +269,8 @@ async def cmd_changetype(ctx: Context, args: List[str]):
         return await ctx.reply("Invalid New Case Type Given.")
     new_details = {"case_type": new_type}
     action = "Case Type"
-    await update_single_elem_case_prep(ctx, case, action, new_details, enum=True)
+    update = await update_single_elem_case_prep(
+        ctx, case, action, new_details, enum=True
+    )
+    if update:
+        return await ctx.reply(update)

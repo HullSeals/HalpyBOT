@@ -9,7 +9,7 @@ See license.md
 """
 from __future__ import annotations
 import re
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Optional
 from ..models import Case, Platform, CaseType, Context
 from ... import config
 
@@ -100,7 +100,7 @@ async def get_case(ctx: Context, case_arg: str) -> Case:
 
 async def update_single_elem_case_prep(
     ctx: Context, case: Case, action: str, new_details, enum: bool = False
-):
+) -> Optional[str]:
     """
     Send the updated case details to the board, and handle errors
     NOTE: Can only handle a single updated value at a time.
@@ -112,9 +112,7 @@ async def update_single_elem_case_prep(
     try:
         await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
     except ValueError:
-        return await ctx.reply(
-            f"{action} is already set to {new_item.name if enum else new_item}."
-        )
+        return f"{action} is already set to {new_item.name if enum else new_item}."
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,
