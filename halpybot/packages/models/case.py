@@ -112,14 +112,14 @@ class Case:
             message += f"   IRC Nickname: {self.irc_nick}\n"
         if self.closed_to:
             message += f"   Case Closed To: {self.closed_to}\n"  # TODO: Translate to Seal Name (#333)
-        elif self.planet:
+        if self.case_type == CaseType.FISH:
             message += (
                 f"KF Details:\n"
                 f"   Planet: {self.planet}\n"
                 f"   Coordinates: {self.pcoords}\n"
                 f"   Case Type: {self.kftype}\n"
             )
-        elif self.can_synth:
+        elif self.case_type in (CaseType.BLACK, CaseType.BLUE):
             message += (
                 f"Code Black Details:\n"
                 f"   Hull Remaining: {self.hull_percent}\n"

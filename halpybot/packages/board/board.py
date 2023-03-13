@@ -19,6 +19,8 @@ Licensed under the GNU General Public License
 See license.md
 """
 from __future__ import annotations
+
+import enum
 import typing
 import functools
 import itertools
@@ -120,11 +122,13 @@ class Board:
 
         if action:
             for key, item in kwargs.items():
+                oldkey = getattr(case, key)
                 if getattr(case, key) == item:
                     raise ValueError(f"{action} is already set to {item}.")
-                if type(item, tuple):
+                if isinstance(item, enum.Enum):
                     item = item.name
-                notes = f"{action} set to {item} from {getattr(case, key)} by {sender} at {curr_time.to_time_string()}"
+                    oldkey = getattr(case, key).name
+                notes = f"{action} set to {item} from {oldkey} by {sender} at {curr_time.to_time_string()}"
                 current_case_notes.append(notes)
         new_case = evolve(
             self._cases_by_id[case_id],
