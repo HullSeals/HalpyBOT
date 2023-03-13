@@ -7,22 +7,14 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-from typing import List, Union
+from typing import List
 from pendulum import now
 from halpybot import config
 from ..packages.command import Commands, get_help_text
 from ..packages.edsm import sys_cleaner
-from ..packages.models import Context, User, NoUserFound, Case, Status
+from ..packages.models import Context, User, NoUserFound, Case, Status, CaseType
 from ..packages.checks import Require, Drilled
-
-
-async def get_case(ctx: Context, case_arg: str) -> Case:
-    """Fetch a case from the Board"""
-    try:
-        caseref: Union[str, int] = int(case_arg)
-    except ValueError:
-        caseref = case_arg
-    return ctx.bot.board.return_rescue(caseref)
+from ..packages.case import get_case, update_single_elem_case_prep
 
 
 @Commands.command("go")
@@ -140,7 +132,7 @@ async def cmd_ircn(ctx: Context, args: List[str]):
     Usage: !ircn [board ID] [valid IRC user]
     Aliases: n/a
     """
-    if not args:
+    if len(args) < 2:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "ircn"))
     try:
         await User.get_info(ctx.bot, args[1])
@@ -152,15 +144,7 @@ async def cmd_ircn(ctx: Context, args: List[str]):
         return await ctx.reply(f"No case found for {args[0]!r}.")
     new_details = {"irc_nick": args[1]}
     action = "IRC Name"
-    try:
-        await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
-    except ValueError as val_err:
-        return await ctx.reply(str(val_err))
-    for channel in config.channels.rescue_channels:
-        await ctx.bot.message(
-            channel,
-            f"IRC Name for case {case.board_id} set to {args[1]!r} from {case.irc_nick!r}.",
-        )
+    await update_single_elem_case_prep(ctx, case, action, new_details)
 
 
 @Commands.command("system")
@@ -184,15 +168,7 @@ async def cmd_system(ctx: Context, args: List[str]):
     newsys = await sys_cleaner(newsys)
     new_details = {"system": newsys}
     action = "Client System"
-    try:
-        await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
-    except ValueError as val_err:
-        return await ctx.reply(str(val_err))
-    for channel in config.channels.rescue_channels:
-        await ctx.bot.message(
-            channel,
-            f"System for case {case.board_id} set to {newsys!r} from {case.system!r}",
-        )
+    await update_single_elem_case_prep(ctx, case, action, new_details)
 
 
 @Commands.command("status")
@@ -206,7 +182,7 @@ async def cmd_status(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "active"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "status"))
     try:
         case: Case = await get_case(ctx, args[0])
     except KeyError:
@@ -219,12 +195,68 @@ async def cmd_status(ctx: Context, args: List[str]):
         return await ctx.reply("Invalid case status provided.")
     new_details = {"status": status}
     action = "Case Status"
+    await update_single_elem_case_prep(ctx, case, action, new_details, enum=True)
+
+
+@Commands.command("hull")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_hull(ctx: Context, args: List[str]):
+    """
+    Change the starting hull percentage of a case
+
+    Usage: !hull [board ID] [new hull %]
+    Aliases: n/a
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "hull"))
     try:
-        await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    try:
+        percent = int(args[1])
+        if not 0 <= percent <= 100:
+            raise ValueError  # Mock a Value Error for invalid Hull Percentage
     except ValueError:
-        return await ctx.reply(f"{action} is already set to {status.name}.")
-    for channel in config.channels.rescue_channels:
-        await ctx.bot.message(
-            channel,
-            f"Status for case {case.board_id} set to {status.name!r} from {case.status.name!r}",
-        )
+        return await ctx.reply(f"{args[1]!r} isn't a valid hull percentage")
+    new_details = {"hull_percent": percent}
+    action = "Hull Percentage"
+    await update_single_elem_case_prep(ctx, case, action, new_details)
+
+
+@Commands.command("changetype")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_changetype(ctx: Context, args: List[str]):
+    """
+    Change the case type between Seal, KF, Black, or Blue.
+
+    Usage: !hull [board ID] [new type]
+    Aliases: n/a
+
+    SEAL = 1
+    BLACK = 2
+    BLUE = 3
+    FISH = 4
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "changetype"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    potential_type = args[1].casefold()
+    if potential_type == "seal":
+        new_type = CaseType.SEAL
+    elif potential_type in ("kf", "fisher", "fish", "kingfish", "kingfisher"):
+        new_type = CaseType.FISH
+    elif potential_type == "blue":
+        new_type = CaseType.BLUE
+    elif potential_type in ("black", "cb"):
+        new_type = CaseType.BLACK
+    else:
+        return await ctx.reply("Invalid New Case Type Given.")
+    new_details = {"case_type": new_type}
+    action = "Case Type"
+    await update_single_elem_case_prep(ctx, case, action, new_details, enum=True)

@@ -100,7 +100,17 @@
     "status": {
       "aliases:": [],
       "arguments": "[Board ID] [New Status]",
-      "use": "Set the updated case status. \nValid options include 'ACTIVE', 'DELAYED', and 'INACTIVE'."
+      "use": "Set the updated case status.\nValid options include 'ACTIVE', 'DELAYED', and 'INACTIVE'."
+    },
+    "hull": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Hull %]",
+      "use": "Set the updated case hull percentage."
+    },
+    "casetype": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Case Type]",
+      "use": "Set the updated case type.\nValid options include 'Seal', 'Black', 'Blue', and 'Fish'."
     }
   },
   "Facts": {

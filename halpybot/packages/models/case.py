@@ -33,6 +33,15 @@ class Status(Enum):
     INACTIVE = 3
 
 
+class CaseType(Enum):
+    """What Type of Seal Case"""
+
+    SEAL = 1
+    BLACK = 2
+    BLUE = 3
+    FISH = 4
+
+
 @define(frozen=True)
 class KFCoords:
     """KingFisher Coordinate Object"""
@@ -51,6 +60,7 @@ class Case:
     system: str
     platform: Platform
     board_id: int
+    case_type: CaseType
     creation_time: DateTime = field(factory=lambda: now(tz="utc"))
     updated_time: DateTime = field(factory=lambda: now(tz="utc"))
     status: Status = Status.ACTIVE
