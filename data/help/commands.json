@@ -111,6 +111,11 @@
       "aliases:": [],
       "arguments": "[Board ID] [New Case Type]",
       "use": "Set the updated case type.\nValid options include 'Seal', 'Black', 'Blue', and 'Fish'."
+    },
+    "platform": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Case Platform]",
+      "use": "Set the updated case platform.\nValid options include 'Odyssey', 'Live', 'Legacy', 'Xbox' and 'PlayStation'."
     }
   },
   "Facts": {

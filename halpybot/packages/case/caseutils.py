@@ -9,6 +9,7 @@ See license.md
 """
 from __future__ import annotations
 import re
+from enum import Enum
 from typing import TYPE_CHECKING, Union, Optional
 from ..models import Case, Platform, CaseType, Context
 from ... import config
@@ -99,23 +100,28 @@ async def get_case(ctx: Context, case_arg: str) -> Case:
 
 
 async def update_single_elem_case_prep(
-    ctx: Context, case: Case, action: str, new_details, enum: bool = False
+    ctx: Context,
+    case: Case,
+    action: str,
+    new_key: str,
+    new_item: Union[str, Enum, int],
+    enum: bool = False,
 ) -> Optional[str]:
     """
     Send the updated case details to the board, and handle errors
-    NOTE: Can only handle a single updated value at a time.
     """
-    # Get the to-be-updated element
-    first_updated = next(iter((new_details.items())))
-    new_key = first_updated[0]
-    new_item = first_updated[1]
+    # Assemble the final kwargs dict
+    new_details = {new_key: new_item}
+    if enum:
+        new_item = new_item.name
+    new_item = new_item.replace("_", " ")
     try:
         await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
     except ValueError:
-        return f"{action} is already set to {new_item.name if enum else new_item}."
+        return f"{action} is already set to {new_item!r}."
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,
-            f"{action} for case {case.board_id} set to {new_item.name if enum else new_item!r} "
-            f"from {getattr(case, new_key).name if enum else getattr(case, new_key)!r}",
+            f"{action} for case {case.board_id} set to {new_item!r} "
+            f"from {getattr(case, new_key).name.replace('_', ' ') if enum else getattr(case, new_key)!r}",
         )

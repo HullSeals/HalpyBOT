@@ -116,20 +116,27 @@ class Board:
         """
         Modify an existing case
         """
-        case = self.return_rescue(case_id)
+        # Gather the Case Information
+        case: Case = self.return_rescue(case_id)
         curr_time = now(tz="UTC")
         current_case_notes = case.case_notes
 
+        # Prep the new notes
         if action:
             for key, item in kwargs.items():
                 oldkey = getattr(case, key)
                 if getattr(case, key) == item:
                     raise ValueError(f"{action} is already set to {item}.")
+                # Translate Enums into Human-Notes
                 if isinstance(item, enum.Enum):
                     item = item.name
                     oldkey = getattr(case, key).name
+                    item = item.replace("_", " ")
+                    oldkey = oldkey.replace("_", " ")
                 notes = f"{action} set to {item} from {oldkey} by {sender} at {curr_time.to_time_string()}"
                 current_case_notes.append(notes)
+
+        # Update the Case
         new_case = evolve(
             self._cases_by_id[case_id],
             updated_time=curr_time,

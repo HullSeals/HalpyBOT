@@ -12,7 +12,15 @@ from pendulum import now
 from halpybot import config
 from ..packages.command import Commands, get_help_text
 from ..packages.edsm import sys_cleaner
-from ..packages.models import Context, User, NoUserFound, Case, Status, CaseType
+from ..packages.models import (
+    Context,
+    User,
+    NoUserFound,
+    Case,
+    Status,
+    CaseType,
+    Platform,
+)
 from ..packages.checks import Require, Drilled
 from ..packages.case import get_case, update_single_elem_case_prep
 
@@ -142,9 +150,9 @@ async def cmd_ircn(ctx: Context, args: List[str]):
         case: Case = await get_case(ctx, args[0])
     except KeyError:
         return await ctx.reply(f"No case found for {args[0]!r}.")
-    new_details = {"irc_nick": args[1]}
-    action = "IRC Name"
-    update = await update_single_elem_case_prep(ctx, case, action, new_details)
+    update = await update_single_elem_case_prep(
+        ctx=ctx, case=case, action="IRC Name", new_key="irc_nick", new_item=args[1]
+    )
     if update:
         return await ctx.reply(update)
 
@@ -168,9 +176,9 @@ async def cmd_system(ctx: Context, args: List[str]):
         return await ctx.reply(f"No case found for {args[0]!r}.")
     newsys: str = " ".join(args[1:])
     newsys = await sys_cleaner(newsys)
-    new_details = {"system": newsys}
-    action = "Client System"
-    update = await update_single_elem_case_prep(ctx, case, action, new_details)
+    update = await update_single_elem_case_prep(
+        ctx=ctx, case=case, action="Client System", new_key="system", new_item=newsys
+    )
     if update:
         return await ctx.reply(update)
 
@@ -197,10 +205,13 @@ async def cmd_status(ctx: Context, args: List[str]):
             raise KeyError  # Mock a KeyError. This command can't close a case.
     except KeyError:
         return await ctx.reply("Invalid case status provided.")
-    new_details = {"status": status}
-    action = "Case Status"
     update = await update_single_elem_case_prep(
-        ctx, case, action, new_details, enum=True
+        ctx=ctx,
+        case=case,
+        action="Case Status",
+        new_key="status",
+        new_item=status,
+        enum=True,
     )
     if update:
         return await ctx.reply(update)
@@ -222,15 +233,21 @@ async def cmd_hull(ctx: Context, args: List[str]):
         case: Case = await get_case(ctx, args[0])
     except KeyError:
         return await ctx.reply(f"No case found for {args[0]!r}.")
+    if case.case_type not in (CaseType.BLACK, CaseType.BLUE, CaseType.SEAL):
+        return await ctx.reply("Hull can't be changed for non-Seal case")
     try:
         percent = int(args[1])
         if not 0 <= percent <= 100:
             raise ValueError  # Mock a Value Error for invalid Hull Percentage
     except ValueError:
         return await ctx.reply(f"{args[1]!r} isn't a valid hull percentage")
-    new_details = {"hull_percent": percent}
-    action = "Hull Percentage"
-    update = await update_single_elem_case_prep(ctx, case, action, new_details)
+    update = await update_single_elem_case_prep(
+        ctx=ctx,
+        case=case,
+        action="Hull Percentage",
+        new_key="hull_percent",
+        new_item=percent,
+    )
     if update:
         return await ctx.reply(update)
 
@@ -267,10 +284,61 @@ async def cmd_changetype(ctx: Context, args: List[str]):
         new_type = CaseType.BLACK
     else:
         return await ctx.reply("Invalid New Case Type Given.")
-    new_details = {"case_type": new_type}
-    action = "Case Type"
     update = await update_single_elem_case_prep(
-        ctx, case, action, new_details, enum=True
+        ctx=ctx,
+        case=case,
+        action="Case Type",
+        new_key="case_type",
+        new_item=new_type,
+        enum=True,
+    )
+    if update:
+        return await ctx.reply(update)
+
+
+@Commands.command("platform")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_platform(ctx: Context, args: List[str]):
+    """
+    Change the platform a case is on.
+
+    Usage: !platform [board ID] [new type]
+    Aliases: n/a
+
+    ODYSSEY = 1
+    XBOX = 2
+    PLAYSTATION = 3
+    LEGACY_HORIZONS = 4
+    LIVE_HORIZONS = 5
+    UNKNOWN = 6
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "platform"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    potential_plt = args[1].casefold()
+    if potential_plt in ("odyssey", "ody", "pc", "pc-o"):
+        new_plt = Platform.ODYSSEY
+    elif potential_plt in ("xbx", "xb", "xbox"):
+        new_plt = Platform.XBOX
+    elif potential_plt in ("ps4", "ps", "playstation"):
+        new_plt = Platform.PLAYSTATION
+    elif potential_plt in ("live", "horizons-live"):
+        new_plt = Platform.LIVE_HORIZONS
+    elif potential_plt in ("legacy", "legacy-horizons"):
+        new_plt = Platform.LEGACY_HORIZONS
+    else:
+        return await ctx.reply("Invalid New Case Type Given.")
+    update = await update_single_elem_case_prep(
+        ctx=ctx,
+        case=case,
+        action="Case Platform",
+        new_key="platform",
+        new_item=new_plt,
+        enum=True,
     )
     if update:
         return await ctx.reply(update)
