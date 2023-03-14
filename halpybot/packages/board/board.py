@@ -129,10 +129,8 @@ class Board:
                     raise ValueError(f"{action} is already set to {item}.")
                 # Translate Enums into Human-Notes
                 if isinstance(item, enum.Enum):
-                    item = item.name
-                    oldkey = getattr(case, key).name
-                    item = item.replace("_", " ")
-                    oldkey = oldkey.replace("_", " ")
+                    item = item.name.replace("_", " ")
+                    oldkey = getattr(case, key).name.replace("_", " ")
                 notes = f"{action} set to {item} from {oldkey} by {sender} at {curr_time.to_time_string()}"
                 current_case_notes.append(notes)
 
