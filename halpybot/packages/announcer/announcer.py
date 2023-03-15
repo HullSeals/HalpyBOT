@@ -131,6 +131,12 @@ class AlreadyExistsError(AnnouncementError):
     """
 
 
+class KFCoordsError(AnnouncementError):
+    """
+    Given Kingfisher Coordinates were not Floatable
+    """
+
+
 class Announcer:
     """The Announcer - Send Messages to All Points"""
 
@@ -185,6 +191,9 @@ class Announcer:
         except AlreadyExistsError as aee:
             logger.exception("Case Already Exists Matching")
             raise AlreadyExistsError from aee
+        except KFCoordsError:
+            logger.exception("KFCoords were invalid!")
+            raise KFCoordsError
         except Exception as announcement_exception:
             logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
@@ -263,7 +272,11 @@ class Announcement:
             try:
                 args["Board_ID"] = await create_case(args, codemap, client)
             except ValueError as val_err:
-                raise AlreadyExistsError("Case Already Exists") from val_err
+                if str(val_err) == "KF Coordinates Improperly Formatted":
+                    raise KFCoordsError from val_err
+                else:
+                    raise AlreadyExistsError("Case Already Exists") from val_err
+
         # Finally, format and return
         formatted_content = "".join(self.content)
         announcement = formatted_content.format(**args)

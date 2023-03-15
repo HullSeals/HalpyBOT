@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from enum import Enum
 from typing import TYPE_CHECKING, Union, Optional
-from ..models import Case, Platform, CaseType, Context
+from ..models import Case, Platform, CaseType, Context, KFCoords
 from ... import config
 
 if TYPE_CHECKING:
@@ -70,11 +70,17 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
             }
         )
     if case_type == CaseType.FISH:  # kf
+        coords = args["Coords"].split(",")
+        try:
+            xcoord = float(coords[0].strip())
+            ycoord = float(coords[1].strip())
+        except ValueError:
+            raise ValueError("KF Coordinates Improperly Formatted")
         evolve_args.update(
             {
                 "case_type": case_type,
                 "planet": args["Planet"],
-                "pcoords": args["Coords"],
+                "pcoords": KFCoords(xcoord, ycoord),
                 "kftype": args["KFType"],
             }
         )
