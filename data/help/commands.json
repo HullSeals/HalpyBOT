@@ -116,6 +116,26 @@
       "aliases:": [],
       "arguments": "[Board ID] [New Case Platform]",
       "use": "Set the updated case platform.\nValid options include 'Odyssey', 'Live', 'Legacy', 'Xbox' and 'PlayStation'."
+    },
+    "notes": {
+      "aliases:": ["addnote", "updatenotes"],
+      "arguments": "[Board ID] [New Case Note]",
+      "use": "Adds a new line to the case notes."
+    },
+    "listnotes": {
+      "aliases:": [],
+      "arguments": "[Board ID]",
+      "use": "List the case notes for the given case."
+    },
+    "delnote": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Note Index]",
+      "use": "List the case notes for the given case."
+    },
+    "editnote": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Note Index] [New Note Content]",
+      "use": "Edit the case notes for the given case and note index."
     }
   },
   "Facts": {

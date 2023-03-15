@@ -25,6 +25,7 @@ from ..packages.checks import Require, Drilled
 from ..packages.case import get_case, update_single_elem_case_prep
 
 
+# FACT WRAPPERS
 @Commands.command("go")
 async def cmd_go(ctx: Context, args: List[str]):
     """
@@ -61,6 +62,7 @@ async def cmd_go(ctx: Context, args: List[str]):
     )
 
 
+# BOARD AND CASE LISTING
 @Commands.command("listboard")
 @Require.permission(Drilled)
 async def cmd_listboard(ctx: Context, args: List[str]):
@@ -103,6 +105,7 @@ async def cmd_listcase(ctx: Context, args: List[str]):
     return await ctx.redirect(f"{case}")
 
 
+# CASE MANAGEMENT
 @Commands.command("rename")
 @Require.permission(Drilled)
 @Require.channel()
@@ -342,3 +345,108 @@ async def cmd_platform(ctx: Context, args: List[str]):
     )
     if update:
         return await ctx.reply(update)
+
+
+# NOTES MANAGEMENT
+@Commands.command("notes", "updatenotes", "addnote")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_notes(ctx: Context, args: List[str]):
+    """
+    Append a new entry to the Notes
+
+    Usage: !notes [board ID] [new note line]
+    Aliases: updatenotes, addnote
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "notes"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    new_notes = f"{' '.join(args[1:])} - {ctx.sender} ({now(tz='UTC')})"
+    notes: List[str] = case.case_notes
+    notes.append(new_notes)
+    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+    return await ctx.reply(f"Notes for case {case.board_id} updated.")
+
+
+@Commands.command("listnotes")
+@Require.permission(Drilled)
+async def cmd_listnotes(ctx: Context, args: List[str]):
+    """
+    List out just the case notes to DMs
+
+    Usage: !listnotes [board ID]
+    Aliases: n/a
+    """
+    if not args:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "notes"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if not case.case_notes:
+        return await ctx.reply(f"No Notes Found for case {case.board_id}")
+    notes: str = ""
+    for line_num, note in enumerate(case.case_notes, start=1):
+        notes += f"{line_num}: {note}\n"
+    return await ctx.redirect(notes)
+
+
+@Commands.command("delnote")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_delnote(ctx: Context, args: List[str]):
+    """
+    Delete a line of the notes for a given case
+
+    Usage: !delnote [board ID] [note index]
+    TODO: Can we get an "Are you sure?" check here?
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "delnote"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if not case.case_notes:
+        return await ctx.reply(f"No Notes Found for case {case.board_id}")
+    try:
+        del_index = int(args[1])
+        del_index -= 1  # Human Indexes Start at 1. Translate it to proper array.
+    except ValueError:
+        return await ctx.reply("Invalid Note Index provided!")
+    notes: List[str] = case.case_notes
+    del notes[del_index]
+    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+    return await ctx.reply(f"Notes for case {case.board_id} updated.")
+
+
+@Commands.command("editnote")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_editnote(ctx: Context, args: List[str]):
+    """
+    Alter a line of the notes for a given case
+
+    Usage: !editnote [board ID] [note index] [new note content]
+    TODO: Can we get an "Are you sure?" check here?
+    """
+    if len(args) < 3:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "editnote"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if not case.case_notes:
+        return await ctx.reply(f"No Notes Found for case {case.board_id}")
+    try:
+        note_index = int(args[1])
+        note_index -= 1  # Human Indexes Start at 1. Translate it to proper array.
+    except ValueError:
+        return await ctx.reply("Invalid Note Index provided!")
+    notes: List[str] = case.case_notes
+    notes[note_index] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
+    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+    return await ctx.reply(f"Notes for case {case.board_id} updated.")
