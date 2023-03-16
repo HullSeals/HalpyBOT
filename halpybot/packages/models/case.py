@@ -50,6 +50,15 @@ class KFCoords:
     y: float
 
 
+class KFType(Enum):
+    """Kingfisher Case Subtypes"""
+
+    LIFT = 0
+    GOLF = 1
+    PUCK = 2
+    PICK = 3
+
+
 @define(frozen=True, str=False)
 class Case:
     """The Case Object - Tracking All The Things!"""
@@ -83,7 +92,7 @@ class Case:
     # For Kingfisher Cases
     planet: Optional[str] = None
     pcoords: Optional[KFCoords] = None
-    kftype: Optional[str] = None
+    kftype: Optional[KFType] = None
 
     def __str__(self) -> str:
         """Format case information in a ready-to-be-sent format
@@ -117,7 +126,7 @@ class Case:
                 f"KF Details:\n"
                 f"   Planet: {self.planet}\n"
                 f"   Coordinates: {self.pcoords}\n"
-                f"   Case Type: {self.kftype}\n"
+                f"   Case Type: {self.kftype.name}\n"
             )
         elif self.case_type in (CaseType.BLACK, CaseType.BLUE):
             message += (

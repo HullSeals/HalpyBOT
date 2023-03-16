@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from enum import Enum
 from typing import TYPE_CHECKING, Union, Optional
-from ..models import Case, Platform, CaseType, Context, KFCoords
+from ..models import Case, Platform, CaseType, Context, KFCoords, KFType
 from ... import config
 
 if TYPE_CHECKING:
@@ -81,7 +81,7 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
                 "case_type": case_type,
                 "planet": args["Planet"],
                 "pcoords": KFCoords(xcoord, ycoord),
-                "kftype": args["KFType"],
+                "kftype": getattr(KFType, args["KFType"].upper()),
             }
         )
     else:  # Must be standard Seal

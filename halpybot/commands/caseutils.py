@@ -27,6 +27,7 @@ from ..packages.models import (
     CaseType,
     Platform,
     KFCoords,
+    KFType,
 )
 from ..packages.checks import Require, Drilled
 from ..packages.case import get_case, update_single_elem_case_prep
@@ -315,7 +316,7 @@ async def cmd_changetype(ctx: Context, args: List[str]):
     """
     Change the case type between Seal, KF, Black, or Blue.
 
-    Usage: !hull [board ID] [new type]
+    Usage: !changetype [board ID] [new type]
     Aliases: n/a
 
     SEAL = 1
@@ -523,6 +524,46 @@ async def cmd_synth(ctx: Context, args: List[str]):
         action="Synth Status",
         new_key="can_synth",
         new_item=new_synth,
+    )
+    if update:
+        return await ctx.reply(update)
+
+
+@Commands.command("kftype")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_changetype(ctx: Context, args: List[str]):
+    """
+    Change the case type between KF subtypes.
+
+    Usage: !kftype [board ID] [new type]
+    Aliases: n/a
+
+    LIFT = 0
+    GOLF = 1
+    PUCK = 2
+    PICK = 3
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "kftype"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if case.case_type != CaseType.FISH:
+        return await ctx.reply("KFType can't be changed for non-Fisher case")
+    potential_type = args[1].casefold()
+    try:
+        new_type = getattr(KFType, potential_type.upper())
+    except AttributeError:
+        return await ctx.reply("Invalid New KF Subtype Given.")
+    update = await update_single_elem_case_prep(
+        ctx=ctx,
+        case=case,
+        action="Kingfisher Type",
+        new_key="kftype",
+        new_item=new_type,
+        enum=True,
     )
     if update:
         return await ctx.reply(update)

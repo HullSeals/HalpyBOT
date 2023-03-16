@@ -11,7 +11,7 @@ See license.md
 from .edsm_classes import Coordinates, Location, SystemInfo
 from .user import User, UserError, NoUserFound
 from .context import Context, HelpArguments
-from .case import Case, Platform, KFCoords, Status, CaseType
+from .case import Case, Platform, KFCoords, Status, CaseType, KFType
 from .seal import Seal
 
 __all__ = [
@@ -28,5 +28,6 @@ __all__ = [
     "KFCoords",
     "Status",
     "CaseType",
+    "KFType",
     "Seal",
 ]
