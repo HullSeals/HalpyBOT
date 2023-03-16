@@ -12,7 +12,12 @@ from typing import List
 from pendulum import now
 from halpybot import config
 from ..packages.command import Commands, get_help_text
-from ..packages.edsm import sys_cleaner
+from ..packages.edsm import (
+    sys_cleaner,
+    checklandmarks,
+    NoResultsEDSM,
+    EDSMConnectionError,
+)
 from ..packages.models import (
     Context,
     User,
@@ -209,7 +214,6 @@ async def cmd_system(ctx: Context, args: List[str]):
 
     Usage: !rename [board ID] [new system]
     Aliases: n/a
-    TODO: Can we call Landmark from here?
     """
     if len(args) < 2:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "system"))
@@ -223,7 +227,16 @@ async def cmd_system(ctx: Context, args: List[str]):
         ctx=ctx, case=case, action="Client System", new_key="system", new_item=newsys
     )
     if update:
-        return await ctx.reply(update)
+        await ctx.reply(update)
+    try:
+        landmark, distance, direction = await checklandmarks(newsys)
+    except (NoResultsEDSM, EDSMConnectionError):
+        return await ctx.reply(
+            f"{newsys} not found in EDSM or unable to connect to EDSM."
+        )
+    return await ctx.reply(
+        f"The closest landmark system is {landmark}, {distance} LY {direction} of {newsys}."
+    )
 
 
 @Commands.command("status")
@@ -586,6 +599,7 @@ async def cmd_delnote(ctx: Context, args: List[str]):
         target_line = case.case_notes[del_index]
     except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
+    await ctx.reply(f"Removing line {target_line!r}")
     notes: List[str] = case.case_notes
     del notes[del_index]
     await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
@@ -616,6 +630,7 @@ async def cmd_editnote(ctx: Context, args: List[str]):
         target_line = case.case_notes[note_index]
     except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
+    await ctx.reply(f"Editing line {target_line!r} to the provided text.")
     notes: List[str] = case.case_notes
     notes[note_index] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
     await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
