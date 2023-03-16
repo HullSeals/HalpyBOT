@@ -110,7 +110,7 @@ async def update_single_elem_case_prep(
     case: Case,
     action: str,
     new_key: str,
-    new_item: Union[str, Enum, int],
+    new_item: Union[str, Enum, int, KFCoords],
     enum: bool = False,
 ) -> Optional[str]:
     """

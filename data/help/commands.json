@@ -136,6 +136,16 @@
       "aliases:": [],
       "arguments": "[Board ID] [Note Index] [New Note Content]",
       "use": "Edit the case notes for the given case and note index."
+    },
+    "planet": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Planet]",
+      "use": "Edit the planet for a given KF Case."
+    },
+    "casecoords": {
+      "aliases:": [],
+      "arguments": "[Board ID] [X Coordinate] [Y Coordinate]",
+      "use": "Edit the planetary coordinates for a given KF Case."
     }
   },
   "Facts": {

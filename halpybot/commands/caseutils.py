@@ -20,6 +20,7 @@ from ..packages.models import (
     Status,
     CaseType,
     Platform,
+    KFCoords,
 )
 from ..packages.checks import Require, Drilled
 from ..packages.case import get_case, update_single_elem_case_prep
@@ -342,6 +343,67 @@ async def cmd_platform(ctx: Context, args: List[str]):
         new_key="platform",
         new_item=new_plt,
         enum=True,
+    )
+    if update:
+        return await ctx.reply(update)
+
+
+@Commands.command("planet")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_planet(ctx: Context, args: List[str]):
+    """
+    Change the planet of an active KF case
+
+    Usage: !planet [board ID] [new system]
+    Aliases: n/a
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "planet"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if case.case_type != CaseType.FISH:
+        return await ctx.reply("Planet can't be changed for non-Fisher case")
+    newplan = await sys_cleaner(" ".join(args[1:]))
+    update = await update_single_elem_case_prep(
+        ctx=ctx, case=case, action="Client Planet", new_key="planet", new_item=newplan
+    )
+    if update:
+        return await ctx.reply(update)
+
+
+@Commands.command("casecoords")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_planet(ctx: Context, args: List[str]):
+    """
+    Change the coords of an active KF case
+
+    Usage: !casecoords [board ID] [X Coordinate Float] [Y Coordinate Float]
+    Aliases: n/a
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "casecoords"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if case.case_type != CaseType.FISH:
+        return await ctx.reply("Coordinates can't be changed for non-Fisher case")
+    try:
+        xcoord = float(args[1].strip())
+        ycoord = float(args[2].strip())
+    except ValueError:
+        raise ValueError("KF Coordinates Improperly Formatted")
+    newcoords = KFCoords(xcoord, ycoord)
+    update = await update_single_elem_case_prep(
+        ctx=ctx,
+        case=case,
+        action="Client Coordinates",
+        new_key="pcoords",
+        new_item=newcoords,
     )
     if update:
         return await ctx.reply(update)
