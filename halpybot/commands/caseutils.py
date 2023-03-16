@@ -529,10 +529,48 @@ async def cmd_synth(ctx: Context, args: List[str]):
         return await ctx.reply(update)
 
 
+@Commands.command("canopy")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_canopy(ctx: Context, args: List[str]):
+    """
+    Toggle if the canopy is broken for a given case.
+
+    Usage: !canopy [board ID] [Yes/True/No/False]
+    Aliases: n/a
+    """
+    # Gather Case
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "synth"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+
+    # Gather Args
+    if args[1].casefold() in ("yes", "true", "broken"):
+        canopy_broken = True
+    elif args[1].casefold() in ("no", "false", "intact"):
+        canopy_broken = False
+    else:
+        return await ctx.reply("Invalid Canopy Status given.")
+    if case.case_type not in (CaseType.BLACK, CaseType.BLUE):
+        return await ctx.reply("Canopy Status Can't Be Changed for Non-CB Cases!")
+    update = await update_single_elem_case_prep(
+        ctx=ctx,
+        case=case,
+        action="Canopy Status",
+        new_key="canopy_broken",
+        new_item=canopy_broken,
+    )
+    if update:
+        return await ctx.reply(update)
+
+
 @Commands.command("kftype")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_changetype(ctx: Context, args: List[str]):
+async def cmd_changekftype(ctx: Context, args: List[str]):
     """
     Change the case type between KF subtypes.
 
