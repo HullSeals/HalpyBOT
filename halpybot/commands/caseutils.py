@@ -71,23 +71,60 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     """
     Send a user the key details of every case on the board in DMs
 
-    Usage: !listboard
+    Usage: !listboard [Platform or Case Type]
     Aliases: n/a
-    TODO: Can we filter this to be more specific given args?
     """
+    # Get the Case Board
     caseboard = ctx.bot.board.by_id
     if not caseboard:
         return await ctx.redirect("The case board is empty!")
-    message = "Here's the current case board:\n"
-    for case in caseboard.values():
-        hskf = "Seal" if case.hull_percent else "Fisher" if case.planet else "Unknown"
+    # Process Args (If Exist)
+    if args:
+        platforms = [
+            member.name.casefold().replace("_horizons", "") for member in Platform
+        ]
+        casetypes = [member.name.casefold() for member in CaseType]
+        list_filter = args[0].casefold()
+        if list_filter not in casetypes and list_filter not in platforms:
+            list_filter = None
+    else:
+        list_filter = None
+
+    filtered_cases = [
+        case
+        for case in caseboard.values()
+        if (not list_filter)
+        or (
+            list_filter
+            in (
+                case.platform.name.casefold().replace("_horizons", ""),
+                case.case_type.name.casefold(),
+            )
+        )
+    ]
+
+    message = "Here's the current case board:\n\n"
+    for case in filtered_cases:
+        hskf = (
+            "Seal"
+            if case.case_type in (CaseType.SEAL, CaseType.BLUE, CaseType.BLACK)
+            else "Fisher"
+            if case.case_type == CaseType.FISH
+            else "Unknown"
+        )
         long_ago = now(tz="utc").diff(case.updated_time).in_words()
         plt = case.platform.name.replace("_", " ")
         message += (
             f"Case {case.board_id}: Client: {case.client_name}, Platform: {plt}, "
             f"Type: {hskf}, Status: {case.status.name}, Updated: {long_ago} ago.\n"
         )
-    return await ctx.redirect(f"{message}{len(caseboard)} Cases on the Board.")
+
+    message += f"\n{len(caseboard)} Cases on the Board."
+    if list_filter:
+        message += (
+            f" Showing {len(filtered_cases)} that match(es) the filter {list_filter!r}."
+        )
+    return await ctx.redirect(message)
 
 
 @Commands.command("listcase")
@@ -437,7 +474,42 @@ async def cmd_oxtime(ctx: Context, args: List[str]):
         case=case,
         action="O2 Timer",
         new_key="o2_timer",
-        new_item=args[2].strip(),
+        new_item=args[1].strip(),
+    )
+    if update:
+        return await ctx.reply(update)
+
+
+@Commands.command("synth")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_synth(ctx: Context, args: List[str]):
+    """
+    Toggle if a CMDR has synths available for a given case.
+
+    Usage: !synth [board ID] [Yes/True/No/False]
+    Aliases: n/a
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "synth"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if args[1].casefold() in ("yes", "true"):
+        new_synth = True
+    elif args[1].casefold() in ("no", "false"):
+        new_synth = False
+    else:
+        return await ctx.reply("Invalid synth ability given.")
+    if new_synth == case.can_synth:
+        return await ctx.reply(f"Synth available already set to {new_synth}")
+    update = await update_single_elem_case_prep(
+        ctx=ctx,
+        case=case,
+        action="Synth Status",
+        new_key="can_synth",
+        new_item=new_synth,
     )
     if update:
         return await ctx.reply(update)
@@ -509,9 +581,10 @@ async def cmd_delnote(ctx: Context, args: List[str]):
     if not case.case_notes:
         return await ctx.reply(f"No Notes Found for case {case.board_id}")
     try:
-        del_index = int(args[1])
-        del_index -= 1  # Human Indexes Start at 1. Translate it to proper array.
-    except ValueError:
+        # Human Indexes Start at 1. Translate it to proper array.
+        del_index = int(args[1]) - 1
+        target_line = case.case_notes[del_index]
+    except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
     notes: List[str] = case.case_notes
     del notes[del_index]
@@ -538,9 +611,10 @@ async def cmd_editnote(ctx: Context, args: List[str]):
     if not case.case_notes:
         return await ctx.reply(f"No Notes Found for case {case.board_id}")
     try:
-        note_index = int(args[1])
-        note_index -= 1  # Human Indexes Start at 1. Translate it to proper array.
-    except ValueError:
+        # Human Indexes Start at 1. Translate it to proper array.
+        note_index = int(args[1]) - 1
+        target_line = case.case_notes[note_index]
+    except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
     notes: List[str] = case.case_notes
     notes[note_index] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"

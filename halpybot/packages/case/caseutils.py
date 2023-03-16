@@ -64,7 +64,7 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
             {
                 "case_type": case_type,
                 "canopy_broken": True,
-                "can_synth": args["CanSynth"],
+                "can_synth": True if args["CanSynth"] == "Yes" else False,
                 "o2_timer": args["Oxygen"],
                 "hull_percent": int(args["Hull"]),
             }

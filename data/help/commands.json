@@ -74,7 +74,7 @@
     },
     "listboard": {
       "aliases:": [],
-      "arguments": "",
+      "arguments": "[Case Type or Platform]",
       "use": "Print out the current cases on the Board."
     },
     "listcase": {
@@ -151,6 +151,11 @@
       "aliases:": [],
       "arguments": "[Board ID] [O2 Time in NN:NN]",
       "use": "Change the remaining oxygen timer for a case."
+    },
+    "synth": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Yes/True/No/False]",
+      "use": "Toggle if a CMDR has synths available for a given case."
     }
   },
   "Facts": {

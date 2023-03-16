@@ -73,7 +73,7 @@ class Case:
 
     # Da Optionalz
     irc_nick: Optional[str] = None
-    can_synth: Optional[str] = None
+    can_synth: Optional[bool] = None
     o2_timer: Optional[str] = None
 
     # For Seal Cases
