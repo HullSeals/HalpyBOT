@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+import re
 from typing import List
 from pendulum import now
 from halpybot import config
@@ -72,6 +73,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
     Usage: !listboard
     Aliases: n/a
+    TODO: Can we filter this to be more specific given args?
     """
     caseboard = ctx.bot.board.by_id
     if not caseboard:
@@ -377,7 +379,7 @@ async def cmd_planet(ctx: Context, args: List[str]):
 @Commands.command("casecoords")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_planet(ctx: Context, args: List[str]):
+async def cmd_coords(ctx: Context, args: List[str]):
     """
     Change the coords of an active KF case
 
@@ -395,8 +397,8 @@ async def cmd_planet(ctx: Context, args: List[str]):
     try:
         xcoord = float(args[1].strip())
         ycoord = float(args[2].strip())
-    except ValueError:
-        raise ValueError("KF Coordinates Improperly Formatted")
+    except ValueError as val_err:
+        raise ValueError("KF Coordinates Improperly Formatted") from val_err
     newcoords = KFCoords(xcoord, ycoord)
     update = await update_single_elem_case_prep(
         ctx=ctx,
@@ -404,6 +406,38 @@ async def cmd_planet(ctx: Context, args: List[str]):
         action="Client Coordinates",
         new_key="pcoords",
         new_item=newcoords,
+    )
+    if update:
+        return await ctx.reply(update)
+
+
+@Commands.command("o2time")
+@Require.permission(Drilled)
+@Require.channel()
+async def cmd_oxtime(ctx: Context, args: List[str]):
+    """
+    Change the remaining oxygen timer for a case
+
+    Usage: !o2time [board ID] [O2 Time in NN:NN]
+    Aliases: n/a
+    """
+    if len(args) < 2:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "o2time"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[0]!r}.")
+    if case.case_type not in (CaseType.BLACK, CaseType.BLUE):
+        return await ctx.reply("O2 Timer Irrelevant - Canopy Not Breached.")
+    pattern = r"^\d{2}:\d{2}$"
+    if not re.match(pattern, args[2].strip()):
+        return await ctx.reply("Invalid O2 Time Given. Does not match pattern ##:##.")
+    update = await update_single_elem_case_prep(
+        ctx=ctx,
+        case=case,
+        action="O2 Timer",
+        new_key="o2_timer",
+        new_item=args[2].strip(),
     )
     if update:
         return await ctx.reply(update)

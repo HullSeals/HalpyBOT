@@ -146,6 +146,11 @@
       "aliases:": [],
       "arguments": "[Board ID] [X Coordinate] [Y Coordinate]",
       "use": "Edit the planetary coordinates for a given KF Case."
+    },
+    "o2time": {
+      "aliases:": [],
+      "arguments": "[Board ID] [O2 Time in NN:NN]",
+      "use": "Change the remaining oxygen timer for a case."
     }
   },
   "Facts": {
