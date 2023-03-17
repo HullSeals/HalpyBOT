@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+import functools
 import re
 from typing import List
 from pendulum import now
@@ -31,6 +32,32 @@ from ..packages.models import (
 )
 from ..packages.checks import Require, Drilled
 from ..packages.case import get_case, update_single_elem_case_prep
+
+
+# Decorators
+class CaseUtils:
+    """Utilities for Wrapping EDSM Commands"""
+
+    @staticmethod
+    def gather_case(len_args_expected: int):
+        """Process gathering Case details for a command expecting a number of args"""
+
+        def decorator(function):
+            @functools.wraps(function)
+            async def guarded(ctx, args: List[str]):
+                if len(args) < len_args_expected:
+                    return await ctx.reply(
+                        get_help_text(ctx.bot.commandsfile, ctx.command)
+                    )
+                try:
+                    case: Case = await get_case(ctx, args[0])
+                except KeyError:
+                    return await ctx.reply(f"No case found for {args[0]!r}.")
+                return await function(ctx, args, case)
+
+            return guarded
+
+        return decorator
 
 
 # FACT WRAPPERS
@@ -135,19 +162,14 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
 @Commands.command("listcase")
 @Require.permission(Drilled)
-async def cmd_listcase(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(1)
+async def cmd_listcase(ctx: Context, args: List[str], case: Case):
     """
     Send a user the key details of a case on the board in DMs
 
     Usage: !listcase [board ID]
     Aliases: n/a
     """
-    if not args:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "listcase"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.redirect(f"No case found for {args[0]!r}.")
     return await ctx.redirect(f"{case}")
 
 
@@ -155,19 +177,14 @@ async def cmd_listcase(ctx: Context, args: List[str]):
 @Commands.command("rename")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_renamecase(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
     """
     Rename the user of an active case
 
     Usage: !rename [board ID] [new name]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "rename"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     try:
         await ctx.bot.board.rename_case(args[1], case, ctx.sender)
     except (AssertionError, ValueError) as err:
@@ -182,23 +199,18 @@ async def cmd_renamecase(ctx: Context, args: List[str]):
 @Commands.command("ircn")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_ircn(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_ircn(ctx: Context, args: List[str], case: Case):
     """
     Rename the user of an active case
 
     Usage: !ircn [board ID] [valid IRC user]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "ircn"))
     try:
         await User.get_info(ctx.bot, args[1])
     except (AttributeError, NoUserFound):
         return await ctx.reply("That's not an IRC user!")
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     update = await update_single_elem_case_prep(
         ctx=ctx, case=case, action="IRC Name", new_key="irc_nick", new_item=args[1]
     )
@@ -209,19 +221,14 @@ async def cmd_ircn(ctx: Context, args: List[str]):
 @Commands.command("system")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_system(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_system(ctx: Context, args: List[str], case: Case):
     """
     Change the system of an active case
 
     Usage: !rename [board ID] [new system]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "system"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     newsys: str = " ".join(args[1:])
     newsys = await sys_cleaner(newsys)
     update = await update_single_elem_case_prep(
@@ -243,19 +250,14 @@ async def cmd_system(ctx: Context, args: List[str]):
 @Commands.command("status")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_status(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_status(ctx: Context, args: List[str], case: Case):
     """
     Change the activity status of a case
 
     Usage: !status [board ID] [new status]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "status"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     try:
         status = Status[args[1].upper()]
         if status == Status.CLOSED:
@@ -277,19 +279,14 @@ async def cmd_status(ctx: Context, args: List[str]):
 @Commands.command("hull")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_hull(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_hull(ctx: Context, args: List[str], case: Case):
     """
     Change the starting hull percentage of a case
 
     Usage: !hull [board ID] [new hull %]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "hull"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if case.case_type not in (CaseType.BLACK, CaseType.BLUE, CaseType.SEAL):
         return await ctx.reply("Hull can't be changed for non-Seal case")
     try:
@@ -312,7 +309,8 @@ async def cmd_hull(ctx: Context, args: List[str]):
 @Commands.command("changetype")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_changetype(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_changetype(ctx: Context, args: List[str], case: Case):
     """
     Change the case type between Seal, KF, Black, or Blue.
 
@@ -324,12 +322,6 @@ async def cmd_changetype(ctx: Context, args: List[str]):
     BLUE = 3
     FISH = 4
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "changetype"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     potential_type = args[1].casefold()
     if potential_type == "seal":
         new_type = CaseType.SEAL
@@ -356,7 +348,8 @@ async def cmd_changetype(ctx: Context, args: List[str]):
 @Commands.command("platform")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_platform(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_platform(ctx: Context, args: List[str], case: Case):
     """
     Change the platform a case is on.
 
@@ -370,12 +363,6 @@ async def cmd_platform(ctx: Context, args: List[str]):
     LIVE_HORIZONS = 5
     UNKNOWN = 6
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "platform"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     potential_plt = args[1].casefold()
     if potential_plt in ("odyssey", "ody", "pc", "pc-o"):
         new_plt = Platform.ODYSSEY
@@ -404,19 +391,14 @@ async def cmd_platform(ctx: Context, args: List[str]):
 @Commands.command("planet")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_planet(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_planet(ctx: Context, args: List[str], case: Case):
     """
     Change the planet of an active KF case
 
     Usage: !planet [board ID] [new system]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "planet"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if case.case_type != CaseType.FISH:
         return await ctx.reply("Planet can't be changed for non-Fisher case")
     newplan = await sys_cleaner(" ".join(args[1:]))
@@ -430,19 +412,14 @@ async def cmd_planet(ctx: Context, args: List[str]):
 @Commands.command("casecoords")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_coords(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(3)
+async def cmd_coords(ctx: Context, args: List[str], case: Case):
     """
     Change the coords of an active KF case
 
     Usage: !casecoords [board ID] [X Coordinate Float] [Y Coordinate Float]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "casecoords"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if case.case_type != CaseType.FISH:
         return await ctx.reply("Coordinates can't be changed for non-Fisher case")
     try:
@@ -465,19 +442,14 @@ async def cmd_coords(ctx: Context, args: List[str]):
 @Commands.command("o2time")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_oxtime(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
     """
     Change the remaining oxygen timer for a case
 
     Usage: !o2time [board ID] [O2 Time in NN:NN]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "o2time"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if case.case_type not in (CaseType.BLACK, CaseType.BLUE):
         return await ctx.reply("O2 Timer Irrelevant - Canopy Not Breached.")
     pattern = r"^\d{2}:\d{2}$"
@@ -497,19 +469,14 @@ async def cmd_oxtime(ctx: Context, args: List[str]):
 @Commands.command("synth")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_synth(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_synth(ctx: Context, args: List[str], case: Case):
     """
     Toggle if a CMDR has synths available for a given case.
 
     Usage: !synth [board ID] [Yes/True/No/False]
     Aliases: n/a
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "synth"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if args[1].casefold() in ("yes", "true"):
         new_synth = True
     elif args[1].casefold() in ("no", "false"):
@@ -532,21 +499,14 @@ async def cmd_synth(ctx: Context, args: List[str]):
 @Commands.command("canopy")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_canopy(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_canopy(ctx: Context, args: List[str], case: Case):
     """
     Toggle if the canopy is broken for a given case.
 
     Usage: !canopy [board ID] [Yes/True/No/False]
     Aliases: n/a
     """
-    # Gather Case
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "synth"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
-
     # Gather Args
     if args[1].casefold() in ("yes", "true", "broken"):
         canopy_broken = True
@@ -570,7 +530,8 @@ async def cmd_canopy(ctx: Context, args: List[str]):
 @Commands.command("kftype")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_changekftype(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
     """
     Change the case type between KF subtypes.
 
@@ -582,12 +543,6 @@ async def cmd_changekftype(ctx: Context, args: List[str]):
     PUCK = 2
     PICK = 3
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "kftype"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if case.case_type != CaseType.FISH:
         return await ctx.reply("KFType can't be changed for non-Fisher case")
     potential_type = args[1].casefold()
@@ -611,19 +566,14 @@ async def cmd_changekftype(ctx: Context, args: List[str]):
 @Commands.command("notes", "updatenotes", "addnote")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_notes(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_notes(ctx: Context, args: List[str], case: Case):
     """
     Append a new entry to the Notes
 
     Usage: !notes [board ID] [new note line]
     Aliases: updatenotes, addnote
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "notes"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     new_notes = f"{' '.join(args[1:])} - {ctx.sender} ({now(tz='UTC')})"
     notes: List[str] = case.case_notes
     notes.append(new_notes)
@@ -633,19 +583,14 @@ async def cmd_notes(ctx: Context, args: List[str]):
 
 @Commands.command("listnotes")
 @Require.permission(Drilled)
-async def cmd_listnotes(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(1)
+async def cmd_listnotes(ctx: Context, args: List[str], case: Case):
     """
     List out just the case notes to DMs
 
     Usage: !listnotes [board ID]
     Aliases: n/a
     """
-    if not args:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "notes"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if not case.case_notes:
         return await ctx.reply(f"No Notes Found for case {case.board_id}")
     notes: str = ""
@@ -657,19 +602,14 @@ async def cmd_listnotes(ctx: Context, args: List[str]):
 @Commands.command("delnote")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_delnote(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(2)
+async def cmd_delnote(ctx: Context, args: List[str], case: Case):
     """
     Delete a line of the notes for a given case
 
     Usage: !delnote [board ID] [note index]
     TODO: Can we get an "Are you sure?" check here?
     """
-    if len(args) < 2:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "delnote"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if not case.case_notes:
         return await ctx.reply(f"No Notes Found for case {case.board_id}")
     try:
@@ -688,19 +628,14 @@ async def cmd_delnote(ctx: Context, args: List[str]):
 @Commands.command("editnote")
 @Require.permission(Drilled)
 @Require.channel()
-async def cmd_editnote(ctx: Context, args: List[str]):
+@CaseUtils.gather_case(3)
+async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     """
     Alter a line of the notes for a given case
 
     Usage: !editnote [board ID] [note index] [new note content]
     TODO: Can we get an "Are you sure?" check here?
     """
-    if len(args) < 3:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "editnote"))
-    try:
-        case: Case = await get_case(ctx, args[0])
-    except KeyError:
-        return await ctx.reply(f"No case found for {args[0]!r}.")
     if not case.case_notes:
         return await ctx.reply(f"No Notes Found for case {case.board_id}")
     try:
