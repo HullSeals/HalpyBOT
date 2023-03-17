@@ -11,8 +11,8 @@ from typing import List
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
 from ..packages.models import Context
-from ..packages.edsm import sys_cleaner
 from ..packages.announcer.announcer import get_edsm_data
+from ..packages.utils import sys_cleaner
 
 
 @Commands.command("drillcase")

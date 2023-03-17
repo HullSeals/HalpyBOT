@@ -11,15 +11,9 @@ See license.md
 from .facthandler import (
     Fact,
     FactHandler,
-    FactHandlerError,
-    FactUpdateError,
-    InvalidFactException,
 )
 
 __all__ = [
     "Fact",
     "FactHandler",
-    "FactHandlerError",
-    "FactUpdateError",
-    "InvalidFactException",
 ]

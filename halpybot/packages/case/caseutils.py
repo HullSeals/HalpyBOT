@@ -64,7 +64,7 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
             {
                 "case_type": case_type,
                 "canopy_broken": True,
-                "can_synth": True if args["CanSynth"].casefold() == "yes" else False,
+                "can_synth": args["CanSynth"].casefold() == "yes",
                 "o2_timer": args["Oxygen"],
                 "hull_percent": int(args["Hull"]),
             }
@@ -74,8 +74,8 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
         try:
             xcoord = float(coords[0].strip())
             ycoord = float(coords[1].strip())
-        except ValueError:
-            raise ValueError("KF Coordinates Improperly Formatted")
+        except ValueError as kf_err:
+            raise ValueError("KF Coordinates Improperly Formatted") from kf_err
         evolve_args.update(
             {
                 "case_type": case_type,

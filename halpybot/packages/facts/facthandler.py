@@ -15,26 +15,9 @@ import re
 from loguru import logger
 from sqlalchemy import text, engine
 from halpybot import config
+from ..exceptions import FactUpdateError, InvalidFactException, FactHandlerError
 from ..database import NoDatabaseConnection, test_database_connection
 from ..command import Commands
-
-
-class FactHandlerError(Exception):
-    """
-    Base class for fact handler exceptions
-    """
-
-
-class FactUpdateError(FactHandlerError):
-    """
-    Unable to update a fact attribute to the database
-    """
-
-
-class InvalidFactException(FactHandlerError):
-    """
-    Raised when an invalid fact is created
-    """
 
 
 class Fact:

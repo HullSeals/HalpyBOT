@@ -15,14 +15,21 @@ from typing import List, Dict, Optional, TYPE_CHECKING, TypedDict, Union
 from loguru import logger
 from attrs import define
 from ..case import create_case
+from ..exceptions import (
+    NoNearbyEDSM,
+    NoResultsEDSM,
+    EDSMLookupError,
+    AlreadyExistsError,
+    KFCoordsError,
+    AnnouncementError,
+)
+from ..utils import (
+    sys_cleaner,
+)
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
-    NoResultsEDSM,
-    EDSMLookupError,
     checkdssa,
-    sys_cleaner,
-    NoNearbyEDSM,
 )
 from ..models import Platform
 
@@ -119,24 +126,6 @@ async def get_edsm_data(
         return "\nUnable to query EDSM."
 
 
-class AnnouncementError(Exception):
-    """
-    Could not announce request
-    """
-
-
-class AlreadyExistsError(AnnouncementError):
-    """
-    Case from Announcement already exists
-    """
-
-
-class KFCoordsError(AnnouncementError):
-    """
-    Given Kingfisher Coordinates were not Floatable
-    """
-
-
 class Announcer:
     """The Announcer - Send Messages to All Points"""
 
@@ -191,9 +180,9 @@ class Announcer:
         except AlreadyExistsError as aee:
             logger.exception("Case Already Exists Matching")
             raise AlreadyExistsError from aee
-        except KFCoordsError:
+        except KFCoordsError as kf_err:
             logger.exception("KFCoords were invalid!")
-            raise KFCoordsError
+            raise KFCoordsError from kf_err
         except Exception as announcement_exception:
             logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
@@ -274,8 +263,7 @@ class Announcement:
             except ValueError as val_err:
                 if str(val_err) == "KF Coordinates Improperly Formatted":
                     raise KFCoordsError from val_err
-                else:
-                    raise AlreadyExistsError("Case Already Exists") from val_err
+                raise AlreadyExistsError("Case Already Exists") from val_err
 
         # Finally, format and return
         formatted_content = "".join(self.content)

@@ -25,40 +25,18 @@ import cattr
 from attrs import define, field
 from attr import ib
 from halpybot import config
+from ..exceptions import (
+    EDSMConnectionError,
+    EDSMReturnError,
+    NoResultsEDSM,
+    NoNearbyEDSM,
+)
 from ..models import Coordinates, Location
 from ..models import edsm_classes
-from ..utils import web_get
-
-
-class EDSMLookupError(Exception):
-    """
-    Base class for lookup errors
-    """
-
-
-class NoResultsEDSM(EDSMLookupError):
-    """
-    No results for the given query were found with the EDSM API
-    """
-
-
-class EDSMConnectionError(EDSMLookupError):
-    """
-    Request failed due to an exception that occurred
-    while connecting to the EDSM API
-    """
-
-
-class NoNearbyEDSM(EDSMLookupError):
-    """
-    No results for the given query were found with the EDSM API within a specified distance.
-    """
-
-
-class EDSMReturnError(EDSMLookupError):
-    """
-    EDSM returned a reply, however the reply did not include key data needed to continue.
-    """
+from ..utils import (
+    web_get,
+    sys_cleaner,
+)
 
 
 @define(frozen=True)
@@ -759,71 +737,3 @@ async def get_nearby_system(sys_name: str) -> typing.Tuple[bool, typing.Optional
         except aiohttp.ClientError:
             logger.exception("EDSM: Error in `get_nearby_system()` lookup.")
     return False, None
-
-
-async def sys_cleaner(sys_name: str) -> str:
-    """
-    Attempt to match a given system string to the procedurally generated system naming convention.
-
-    Args:
-        sys_name (str): The given string which should be a system name.
-
-    Returns:
-        (str): The processed string, possibly matched to a procedurally generated naming convention.
-    """
-    orig_sys = sys_name
-    sys_name = " ".join(sys_name.split())
-    sys_name = sys_name.upper()
-
-    # Remove any appended "SYSTEM" from the input.
-    if sys_name.endswith("SYSTEM"):
-        sys_name = (sys_name[:-6]).strip()
-
-    try:
-        if "-" in sys_name:
-            sys_name_list = sys_name.split()
-            sys_name = ""
-            for index, block in enumerate(sys_name_list):
-                sys_name += block + " "
-                if "-" in block:
-                    sys_name += sys_name_list[index + 1]
-                    break
-
-            swaps = {"0": "O", "1": "I", "5": "S", "8": "B"}
-            unswaps = {value: key for key, value in swaps.items()}
-            sys_name_parts = sys_name.split()
-
-            # Final part is either LN or LN-N, so [1:] is N or N-N
-            letter = sys_name_parts[-1][0]
-            tmp = swaps[letter] if letter in swaps else letter
-            for char in sys_name_parts[-1][1:]:
-                if char in unswaps:
-                    tmp += unswaps[char]
-                else:
-                    tmp += char
-            sys_name_parts[-1] = tmp
-
-            # This part it LL-L
-            tmp = ""
-            for char in sys_name_parts[-2]:
-                if char in swaps:
-                    tmp += swaps[char]
-                else:
-                    tmp += char
-            sys_name_parts[-2] = tmp
-
-            sys_name = " ".join(sys_name_parts)
-    except IndexError:
-        logger.info(
-            "System cleaner thought {sys_name} was proc-gen and could not correct formatting",
-            sys_name=sys_name,
-        )
-        return sys_name.strip()
-    if sys_name == orig_sys:
-        return sys_name.strip()
-    logger.debug(
-        "System cleaner produced {sys_name} from {orig_sys}",
-        sys_name=sys_name,
-        orig_sys=orig_sys,
-    )
-    return sys_name.strip()

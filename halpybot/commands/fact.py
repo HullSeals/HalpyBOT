@@ -11,17 +11,19 @@ See license.md
 from typing import List, Optional
 from loguru import logger
 from halpybot import config
+from ..packages.exceptions import (
+    FactUpdateError,
+    InvalidFactException,
+    FactHandlerError,
+)
+from ..packages.utils import (
+    strip_non_ascii,
+)
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
-from ..packages.facts import (
-    Fact,
-    FactUpdateError,
-    FactHandlerError,
-    InvalidFactException,
-)
+from ..packages.facts import Fact
 from ..packages.checks import Require, Moderator, Admin, Cyberseal
 from ..packages.database import NoDatabaseConnection
-from ..packages.utils import strip_non_ascii
 
 
 async def splitter(fact_payload):

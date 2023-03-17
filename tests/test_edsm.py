@@ -13,22 +13,24 @@ import pytest
 import aiohttp
 from halpybot import config
 import halpybot.packages.edsm.edsm
+from halpybot.packages.exceptions import (
+    EDSMReturnError,
+    NoResultsEDSM,
+    EDSMConnectionError,
+    NoNearbyEDSM,
+)
 from halpybot.packages.edsm import (
     GalaxySystem,
     Commander,
     checkdistance,
     checkdssa,
     checklandmarks,
-    NoResultsEDSM,
     calc_distance,
     calc_direction,
     get_nearby_system,
-    EDSMConnectionError,
-    sys_cleaner,
-    NoNearbyEDSM,
-    EDSMReturnError,
 )
 from halpybot.packages.models import Coordinates
+from halpybot.packages.utils import sys_cleaner
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx

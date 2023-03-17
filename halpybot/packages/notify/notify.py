@@ -13,24 +13,7 @@ from typing import List
 from loguru import logger
 from boto3.exceptions import Boto3Error
 from halpybot import config
-
-
-class SNSError(Exception):
-    """
-    Base class for Halpy-SNS exceptions
-    """
-
-
-class NotificationFailure(SNSError):
-    """
-    Raised when unable to send notification
-    """
-
-
-class SubscriptionError(SNSError):
-    """
-    Could not add user to notification group
-    """
+from ..exceptions import SNSError, SubscriptionError, NotificationFailure
 
 
 async def list_topics() -> List[str]:

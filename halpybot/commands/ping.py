@@ -16,9 +16,10 @@ from ..packages.command import Commands
 from ..packages.checks import Require, Cyberseal
 from ..packages.database import NoDatabaseConnection
 from ..packages.database.connection import test_database_connection
-from ..packages.edsm import GalaxySystem, EDSMLookupError
+from ..packages.edsm import GalaxySystem
 from ..packages.models import Context
 from ..packages.utils import web_get
+from ..packages.exceptions import EDSMLookupError
 
 
 @Commands.command("ping")
@@ -54,7 +55,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
         final = round(latencycheck - start, 3)
         await ctx.reply(f"Database Latency: {str(final)} seconds")
     else:
-        await ctx.reply(latencycheck)
+        await ctx.reply(str(latencycheck))
 
 
 @Commands.command("edsmping")

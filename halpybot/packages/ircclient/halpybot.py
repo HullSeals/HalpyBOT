@@ -18,6 +18,7 @@ from sqlalchemy import create_engine, engine
 from halpybot import config
 from .. import utils
 from .. import notify
+from ..exceptions import NotificationFailure
 from ..announcer import Announcer
 from ..board import Board
 from ._listsupport import ListHandler
@@ -284,11 +285,11 @@ async def crash_notif(
         message = f"HalpyBOT has shut down due to {crashtype}. Investigate immediately. Error Text: {condition}"
         try:
             if not config.notify.enabled:
-                raise notify.NotificationFailure
+                raise NotificationFailure
             await notify.send_notification(topic, message, subject)
             # Only trip the fuse if a notification is passed
             config.system_monitoring.set_failure_button(True)
-        except notify.NotificationFailure:
+        except NotificationFailure:
             logger.exception("Unable to send the notification!")
     logger.critical(
         "{crashtype} detected. Shutting down for my own protection! {condition}",
@@ -304,17 +305,17 @@ def configure_client() -> HalpyBOT:
     """
     # dynamically determine which auth method to use.
     if isinstance(config.irc.sasl, SaslExternal):
-        auth_kwargs = dict(
-            sasl_mechanism="EXTERNAL",
-            sasl_identity=config.irc.sasl.identity,
-            tls_client_cert=config.irc.sasl.cert,
-        )
+        auth_kwargs = {
+            "sasl_mechanism": "EXTERNAL",
+            "sasl_identity": config.irc.sasl.identity,
+            "tls_client_cert": config.irc.sasl.cert,
+        }
     elif isinstance(config.irc.sasl, SaslPlain):
-        auth_kwargs = dict(
-            sasl_username=config.irc.sasl.username,
-            sasl_identity=config.irc.sasl.identity,
-            sasl_password=config.irc.sasl.password.get_secret_value(),
-        )
+        auth_kwargs = {
+            "sasl_username": config.irc.sasl.username,
+            "sasl_identity": config.irc.sasl.identity,
+            "sasl_password": config.irc.sasl.password.get_secret_value(),
+        }
     elif config.irc.sasl is None:
         logger.info("not using SASL auth.")
         auth_kwargs = {}

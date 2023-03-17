@@ -24,21 +24,10 @@ from __future__ import annotations
 from typing import Optional, Set, TYPE_CHECKING, List
 from attrs import define
 import cattr
+from ..exceptions import NoUserFound
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
-
-
-class UserError(Exception):
-    """
-    Base class for User Class errors
-    """
-
-
-class NoUserFound(UserError):
-    """
-    An exception occurred while sending a Discord Webhook
-    """
 
 
 @define(frozen=True)

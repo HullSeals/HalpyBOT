@@ -11,24 +11,7 @@ import aiohttp
 from loguru import logger
 from halpybot import config
 from .utils import web_get
-
-
-class YOURLSError(Exception):
-    """
-    Base class for YOURLS link errors
-    """
-
-
-class YOURLSNoResponse(YOURLSError):
-    """
-    An exception occurred while sending data to or receiving from a YOURLS API
-    """
-
-
-class YOURLSBadResponse(YOURLSError):
-    """
-    YOURLS returned an unprocessable response.
-    """
+from ..exceptions import YOURLSNoResponse, YOURLSBadResponse
 
 
 async def shorten(url: str) -> str:

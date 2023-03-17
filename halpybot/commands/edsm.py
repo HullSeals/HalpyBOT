@@ -7,189 +7,23 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-import functools
 from typing import List
-from loguru import logger
-from attrs import evolve
 from ..packages.edsm import (
     GalaxySystem,
     Commander,
-    EDSMLookupError,
-    EDSMConnectionError,
     checkdistance,
     checklandmarks,
     checkdssa,
-    sys_cleaner,
     diversions,
-    NoResultsEDSM,
-    NoNearbyEDSM,
-    EDSMReturnError,
 )
-from ..packages.command import Commands, get_help_text
+from ..packages.exceptions import NoNearbyEDSM
+from ..packages.utils import CommandUtils, sys_cleaner
+from ..packages.command import Commands
 from ..packages.models import Context
 
 
-async def cache_prep(ctx: Context, args: List[str]):
-    """Check if Cache Override should be set"""
-    cache_override = False
-    if len(args) == 0:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
-    if args[0] == "--new":
-        cache_override = True
-        del args[0]
-        ctx = evolve(ctx, message=" ".join(args))
-        if not ctx.message:
-            return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
-    message = ctx.message.strip()
-    return message, cache_override
-
-
-class EDSMUtils:
-    """Utilities for Wrapping EDSM Commands"""
-
-    @staticmethod
-    def sys_exceptions():
-        """Handle the various possible EDSM Exceptions for system calculations"""
-
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                system, cache_override = await cache_prep(ctx, args)
-                cleaned_sys = await sys_cleaner(system)
-                try:
-                    return await function(ctx, cleaned_sys, cache_override)
-                except NoResultsEDSM:
-                    return await ctx.reply(
-                        f"No system and/or commander named {system} was found in the EDSM database."
-                    )
-                except EDSMReturnError:
-                    logger.exception("Received a malformed reply from EDSM.")
-                    return await ctx.reply(
-                        f"Received a reply from EDSM about {system}, but could not process the return."
-                    )
-                except EDSMLookupError:
-                    logger.exception("Failed to query EDSM for coordinate details.")
-                    return await ctx.reply(
-                        "Failed to query EDSM for coordinate details."
-                    )
-
-            return guarded
-
-        return decorator
-
-    @staticmethod
-    def cmdr_exceptions():
-        """Handle the various possible EDSM Exceptions for CMDR calculations"""
-
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                cmdr, cache_override = await cache_prep(ctx, args)
-                try:
-                    return await function(ctx, cmdr, cache_override)
-                except NoResultsEDSM:
-                    return await ctx.reply(
-                        f"No CMDR named {cmdr} was found in the EDSM database."
-                    )
-                except EDSMReturnError:
-                    logger.exception("Received malformed reply from EDSM.")
-                    return await ctx.reply(
-                        f"Received a reply from EDSM about {cmdr}, but could not process the return."
-                    )
-                except EDSMConnectionError:
-                    logger.exception("Failed to query EDSM for commander data.")
-                    return await ctx.reply("Failed to query EDSM for commander data.")
-
-            return guarded
-
-        return decorator
-
-    @staticmethod
-    def coords_exceptions():
-        """Handle the various possible EDSM Exceptions for coordinate calculations"""
-
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                if len(args) <= 2:  # Minimum Number of Args is 3.
-                    return await ctx.reply(
-                        get_help_text(ctx.bot.commandsfile, ctx.command)
-                    )
-                xcoord = args[0].strip()
-                ycoord = args[1].strip()
-                zcoord = args[2].strip()
-                try:
-                    float(xcoord)
-                    float(ycoord)
-                    float(zcoord)
-                except ValueError:
-                    return await ctx.reply("All coordinates must be numeric.")
-                try:
-                    return await function(ctx, xcoord, ycoord, zcoord)
-                except NoResultsEDSM:
-                    return await ctx.reply(
-                        "No system was found in the EDSM database for the given coordinates."
-                    )
-                except EDSMReturnError:
-                    logger.exception("Received a malformed reply from EDSM.")
-                    return await ctx.reply(
-                        "Received a reply from EDSM about the given coordinates, "
-                        "but could not process the return."
-                    )
-                except EDSMLookupError:
-                    logger.exception("Failed to query EDSM for coordinate details.")
-                    return await ctx.reply(
-                        "Failed to query EDSM for coordinate details."
-                    )
-
-            return guarded
-
-        return decorator
-
-    @staticmethod
-    def dist_exceptions():
-        """Handle the various possible EDSM Exceptions for Distance calculations"""
-
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                if len(args) <= 1:  # Minimum Number of Args is 2.
-                    return await ctx.reply(
-                        get_help_text(ctx.bot.commandsfile, ctx.command)
-                    )
-                cache_override = False
-                if args[0] == "--new":
-                    cache_override = True
-                    del args[0]
-                    if not args:
-                        return await ctx.reply(
-                            get_help_text(ctx.bot.commandsfile, ctx.command)
-                        )
-                try:
-                    return await function(ctx, args, cache_override)
-                except NoResultsEDSM:
-                    return await ctx.reply(
-                        "No system and/or commander was found in the EDSM database "
-                        "for one of the points."
-                    )
-                except EDSMReturnError:
-                    logger.exception("Received a malformed reply from EDSM.")
-                    return await ctx.reply(
-                        "Received a reply from EDSM, but could not process the return."
-                    )
-                except EDSMLookupError:
-                    logger.exception("Failed to query EDSM for system or CMDR details.")
-                    return await ctx.reply(
-                        "Failed to query EDSM for system or CMDR details."
-                    )
-
-            return guarded
-
-        return decorator
-
-
 @Commands.command("lookup", "syslookup")
-@EDSMUtils.sys_exceptions()
+@CommandUtils.sys_exceptions()
 async def cmd_systemlookup(ctx: Context, cleaned_sys, cache_override):
     """
     Check EDSM for the existence of a system.
@@ -203,7 +37,7 @@ async def cmd_systemlookup(ctx: Context, cleaned_sys, cache_override):
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
-@EDSMUtils.cmdr_exceptions()
+@CommandUtils.cmdr_exceptions()
 async def cmd_cmdrlocate(ctx: Context, cmdr, cache_override):
     """
     Check EDSM for the existence and location of a CMDR.
@@ -220,7 +54,7 @@ async def cmd_cmdrlocate(ctx: Context, cmdr, cache_override):
 
 
 @Commands.command("distance", "dist")
-@EDSMUtils.dist_exceptions()
+@CommandUtils.dist_exceptions()
 async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     """
     Check EDSM for the distance between two known points.
@@ -247,7 +81,7 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
 
 
 @Commands.command("landmark")
-@EDSMUtils.sys_exceptions()
+@CommandUtils.sys_exceptions()
 async def cmd_landmarklookup(ctx: Context, cleaned_sys, cache_override):
     """
     Calculate the closest landmark system to a known EDSM system.
@@ -274,7 +108,7 @@ async def cmd_landmarklookup(ctx: Context, cleaned_sys, cache_override):
 
 
 @Commands.command("dssa")
-@EDSMUtils.sys_exceptions()
+@CommandUtils.sys_exceptions()
 async def cmd_dssalookup(ctx: Context, cleaned_sys, cache_override):
     """
     Calculate the closest DSSA Carrier to a known EDSM system.
@@ -293,7 +127,7 @@ async def cmd_dssalookup(ctx: Context, cleaned_sys, cache_override):
 
 
 @Commands.command("coordcheck", "coords")
-@EDSMUtils.coords_exceptions()
+@CommandUtils.coords_exceptions()
 async def cmd_coordslookup(ctx, xcoord, ycoord, zcoord):
     """
     Check EDSM for a nearby EDSM known system to a set of coordinates.
@@ -312,7 +146,7 @@ async def cmd_coordslookup(ctx, xcoord, ycoord, zcoord):
 
 
 @Commands.command("diversion")
-@EDSMUtils.sys_exceptions()
+@CommandUtils.sys_exceptions()
 async def cmd_diversionlookup(ctx: Context, cleaned_sys, cache_override):
     """
     Calculate the 5 closest FDEV-placed structures with repair capability to a known EDSM location.
