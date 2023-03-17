@@ -1,5 +1,5 @@
 """
-CommandUtils.py - Commands involving the management of Seal cases
+caseutils.py - Commands involving the management of Seal cases
 
 Copyright (c) The Hull Seals,
 All rights reserved.
