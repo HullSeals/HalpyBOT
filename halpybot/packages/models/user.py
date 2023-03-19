@@ -21,7 +21,7 @@ See license.md
 
 
 from __future__ import annotations
-from typing import Optional, Set, TYPE_CHECKING
+from typing import Optional, Set, TYPE_CHECKING, List
 from attrs import define
 import cattr
 
@@ -118,7 +118,7 @@ class User:
         return f"{host}.hullseals.space"
 
     @classmethod
-    async def get_channels(cls, bot: HalpyBOT, nick: str) -> Optional[list]:
+    async def get_channels(cls, bot: HalpyBOT, nick: str) -> List[str]:
         """Get a list of channels a user is on
 
         Args:

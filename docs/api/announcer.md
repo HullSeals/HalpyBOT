@@ -24,7 +24,7 @@ channels.
 {
     "type": "Case Type",
     "parameters": {
-      "Platform": "Platform. Either PC, XB, or PS.",
+      "Platform": "Platform Identifying Integer",
       "CMDR": "Client name",
       "Seal": "Seal name",
       "System": "System name. EDSM query will be ran with this parameter if enabled.",
@@ -48,7 +48,7 @@ ONLY include the parameters required for the specific type of announcement:
 {
     "type": "KFCASE",
     "parameters": {
-        "Platform": "PC",
+        "Platform": "1",
         "CMDR": "Rik079",
         "System": "Sol",
         "Planet": "Mercury",

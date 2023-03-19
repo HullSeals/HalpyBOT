@@ -130,7 +130,7 @@ async def cmd_part(ctx: Context, args: List[str]):
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "partchannel"))
     try:
         await ctx.bot.part(message=f"Parted by {ctx.sender}", channel=args[0])
-        return await ctx.redirect(f"Bot parted channel {args[0]}")
+        return await ctx.bot.message(ctx.sender, f"Bot parted channel {args[0]}")
     except pydle.client.NotInChannel:
         return await ctx.reply("Bot is not in that channel!")
     except ValueError:

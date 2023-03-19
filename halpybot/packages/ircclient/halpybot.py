@@ -10,11 +10,11 @@ See license.md
 import json
 import os
 import signal
-from typing import Optional
+from typing import Optional, Dict, Union, List
 import asyncio
 import pydle
 from loguru import logger
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, engine
 from halpybot import config
 from .. import utils
 from .. import notify
@@ -23,6 +23,7 @@ from ..board import Board
 from ._listsupport import ListHandler
 from ..command import Commands, CommandGroup
 from ..facts import FactHandler
+from ..models import HelpArguments
 from ...halpyconfig import SaslExternal, SaslPlain
 
 
@@ -38,45 +39,45 @@ class HalpyBOT(pydle.Client, ListHandler):
         self._dbconfig = (
             f"{config.database.connection_string}/{config.database.database}"
         )
-        self._engine = create_engine(
+        self._engine: engine.Engine = create_engine(
             self._dbconfig,
             pool_pre_ping=True,
             pool_recycle=3600,
             connect_args={"connect_timeout": config.database.timeout},
         )
-        self._langcodes = utils.language_codes()
+        self._langcodes: Dict[str, str] = utils.language_codes()
         with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
             self._commandsfile = json.load(jsonfile)
-        self._board = Board(id_range=10)
-        self._announcer = Announcer()
+        self._board: Board = Board(id_range=10)
+        self._announcer: Announcer = Announcer()
 
     @property
-    def commandhandler(self):
+    def commandhandler(self) -> Optional[CommandGroup]:
         """Command/fact handler object that messages are passed to"""
         return self._commandhandler
 
     @property
-    def engine(self):
+    def engine(self) -> engine.Engine:
         """Database Connection Engine"""
         return self._engine
 
     @property
-    def langcodes(self):
+    def langcodes(self) -> Dict[str, str]:
         """Language Codes"""
         return self._langcodes
 
     @property
-    def commandsfile(self):
+    def commandsfile(self) -> Dict[str, Dict[str, HelpArguments]]:
         """Commands Help File"""
         return self._commandsfile
 
     @property
-    def board(self):
+    def board(self) -> Board:
         """Return the Case Board"""
         return self._board
 
     @property
-    def announcer(self):
+    def announcer(self) -> Announcer:
         """Return the Announcer"""
         return self._announcer
 
@@ -133,7 +134,7 @@ class HalpyBOT(pydle.Client, ListHandler):
             await self.join(channel, force=True)
         await utils.task_starter(self)
 
-    async def on_message(self, target, by, message):
+    async def on_message(self, target: str, by: str, message: str):
         """Handle an IRC message
 
         Invoked from Pydle on a new message. Message is passed to
@@ -176,7 +177,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         else:
             await self.message(sender, message)
 
-    async def on_unknown(self, message):
+    async def on_unknown(self, message: str):
         """Unknown Command"""
         logger.warning(f"Unknown Command Received: {message}")
 
@@ -189,7 +190,9 @@ class HalpyBOT(pydle.Client, ListHandler):
             f"OPER {config.irc.operline} {config.irc.operline_password.get_secret_value()}\r\n"
         )
 
-    async def join(self, channel, password=None, force: bool = False):
+    async def join(
+        self, channel: str, password: Optional[str] = None, force: bool = False
+    ):
         """Join a channel
 
         We do not allow Halpy to join a non-existent channel,
@@ -208,7 +211,7 @@ class HalpyBOT(pydle.Client, ListHandler):
         if channel not in config.channels.channel_list:
             config.channels.channel_list.append(channel)
 
-    async def part(self, channel, message=None):
+    async def part(self, channel: str, message: Optional[str] = None):
         """Part a channel
 
         Args:
@@ -217,25 +220,50 @@ class HalpyBOT(pydle.Client, ListHandler):
 
         """
         await super().part(channel, message)
-        chlist = config.channels.channel_list
+        chlist: List[str] = config.channels.channel_list
         if channel in chlist:
             chlist.remove(channel)
-            config.channels.channel_list = " ".join(chlist)
 
-    async def on_join(self, channel, user):
+    async def on_join(self, channel: str, user: str):
         """Greet Case Users"""
         await super().on_join(channel, user)
         for board_id, case in self.board.by_id.items():
             if user in (case.irc_nick, case.client_name):
+                if case.welcomed:
+                    return await self.message(
+                        channel,
+                        f"Client {user} reconnected. Welcome back! (Case {board_id})",
+                    )
                 return await self.message(
                     channel,
-                    f"{user} connected successfully. Welcome! Please "
+                    f"Client {user} connected successfully. Welcome! Please "
                     f"wait for a dispatcher to respond to your case. "
-                    f"(Case ID: {board_id})",
+                    f"(Case {board_id})",
                 )
 
+    async def on_part(self, channel: str, user: str, message: Optional[str] = None):
+        """Notify of Departing Case Users"""
+        await super().on_part(channel, user, message)
+        for board_id, case in self.board.by_id.items():
+            if user in (case.irc_nick, case.client_name):
+                return await self.message(
+                    channel, f"Client {user} left the channel. (Case {board_id})"
+                )
 
-async def crash_notif(crashtype, condition):
+    async def on_quit(self, user: str, message=None):
+        """Notify of Departing Case Users"""
+        await super().on_quit(user, message)
+        for board_id, case in self.board.by_id.items():
+            if user in (case.irc_nick, case.client_name):
+                for channel in config.channels.channel_list:
+                    return await self.message(
+                        channel, f"Client {user} left the server. (Case {board_id})"
+                    )
+
+
+async def crash_notif(
+    crashtype: str, condition: Union[ConnectionAbortedError, ConnectionResetError, str]
+):
     """
     Send a notification to the staff in the event of a failure in the bot.
 
@@ -270,7 +298,7 @@ async def crash_notif(crashtype, condition):
     os.kill(os.getpid(), signal.SIGTERM)
 
 
-def configure_client():
+def configure_client() -> HalpyBOT:
     """
     Configure the SASL Authentication System and establish the Client
     """

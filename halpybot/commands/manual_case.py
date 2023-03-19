@@ -18,7 +18,7 @@ from ..packages.models import Context, User
 from ..packages.announcer import send_webhook, WebhookSendError
 
 
-async def send_message(message_content, sender, embeds):
+async def send_message(message_content: str, sender: str, embeds):
     """
     Send a message to Discord
     """

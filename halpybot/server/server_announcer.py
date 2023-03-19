@@ -10,8 +10,8 @@ See license.md
 """
 
 from typing import Dict
-from aiohttp import web
-from ..packages.announcer import AnnouncementError
+from aiohttp import web, web_request
+from ..packages.announcer import AnnouncementError, AlreadyExistsError
 from ..packages.ircclient import HalpyBOT
 from .server import APIConnector
 from .auth import authenticate
@@ -21,7 +21,7 @@ routes = web.RouteTableDef()
 
 @routes.post("/announce")
 @authenticate()
-async def announce(request):
+async def announce(request: web_request.Request):
     """
     Collect and format a new announcer system message from a POST request.
 
@@ -45,6 +45,8 @@ async def announce(request):
             announcement=announcement, args=args, client=botclient
         )
         raise web.HTTPOk
+    except AlreadyExistsError:
+        raise web.HTTPConflict from AnnouncementError
     except AnnouncementError:
         raise web.HTTPInternalServerError from AnnouncementError
 

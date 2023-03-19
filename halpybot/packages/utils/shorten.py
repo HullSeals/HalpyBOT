@@ -31,7 +31,7 @@ class YOURLSBadResponse(YOURLSError):
     """
 
 
-async def shorten(url):
+async def shorten(url: str) -> str:
     """
     Shorten a given URL via a YOURLS passwordless API call
 

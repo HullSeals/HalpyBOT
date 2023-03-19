@@ -12,7 +12,7 @@ from sqlalchemy import text
 from ..models import Seal
 
 
-async def whois(engine: Engine, subject):
+async def whois(engine: Engine, subject: str) -> Seal:
     """Get a Seal's historical information from the Database.
 
     Args:

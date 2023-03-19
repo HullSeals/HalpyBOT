@@ -9,7 +9,7 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
 import json
 import re
 from loguru import logger
@@ -107,7 +107,7 @@ class Fact:
         self._raw_text = newtext
         self._write(db_engine)
 
-    def _parse_fact(self, fact_text: str):
+    def _parse_fact(self, fact_text: str) -> str:
         """Parse a fact
 
         Converts b/i/u to control character and parses default argument.
@@ -181,7 +181,7 @@ class FactHandler:
         and attaching it to a command handler.
 
         """
-        self._fact_cache = {}
+        self._fact_cache: Dict[Tuple[str, str], Fact] = {}
 
     async def get(self, name: str, lang: str = "en") -> Optional[Fact]:
         """Get a fact object by name
@@ -312,7 +312,7 @@ class FactHandler:
         # Reset the fact handler
         await self.fetch_facts(db_engine, preserve_current=True)
 
-    async def lang_by_fact(self, name: str):
+    async def lang_by_fact(self, name: str) -> List[str]:
         """Get a list of languages a fact exists in
 
         For a non-existent fact, this will return an empty list
@@ -330,7 +330,7 @@ class FactHandler:
                 langlist.append(fact[1])
         return langlist
 
-    async def get_fact_names(self):
+    async def get_fact_names(self) -> List[str]:
         """Get a list of unique facts
 
         The list is language-independent: if a fact exists in X
@@ -375,7 +375,7 @@ class FactHandler:
             )
             del self._fact_cache[name, lang]
 
-    def list(self, lang: Optional[str] = None) -> List[tuple]:
+    def list(self, lang: Optional[str] = None) -> list[tuple[str, str]] | list[str]:
         """Get a list of facts
 
         Get a list of all facts from internal memory.
@@ -395,7 +395,7 @@ class FactHandler:
                 langlist.append(fact[0])
         return langlist
 
-    async def fact_formatted(self, fact: tuple, arguments: List[str]):
+    async def fact_formatted(self, fact: tuple, arguments: List[str]) -> str:
         """Format a ready-to-be-sent fact
 
         If no arguments are supplied, we include the default one
@@ -411,7 +411,7 @@ class FactHandler:
             FactHandlerError: Fact was not found
 
         """
-        reqfact = self._fact_cache[fact]
+        reqfact: Fact = self._fact_cache[fact]
         # Sanity check
         if not reqfact:
             raise FactHandlerError(

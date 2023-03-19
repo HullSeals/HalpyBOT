@@ -10,12 +10,13 @@ See license.md
 
 from .edsm_classes import Coordinates, Location, SystemInfo
 from .user import User, UserError, NoUserFound
-from .context import Context
+from .context import Context, HelpArguments
 from .case import Case, Platform, KFCoords, Status
 from .seal import Seal
 
 __all__ = [
     "Context",
+    "HelpArguments",
     "User",
     "Coordinates",
     "Location",

@@ -7,9 +7,19 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-from typing import List
-from ..packages.command import Commands
-from ..packages.models import Context, User, NoUserFound
+from typing import List, Union
+from pendulum import now
+from ..packages.command import Commands, get_help_text
+from ..packages.models import Context, User, NoUserFound, Case
+
+
+async def get_case(ctx: Context, case_arg: str) -> Case:
+    """Fetch a case from the Board"""
+    try:
+        caseref: Union[str, int] = int(case_arg)
+    except ValueError:
+        caseref = case_arg
+    return ctx.bot.board.return_rescue(caseref)
 
 
 @Commands.command("go")
@@ -46,3 +56,43 @@ async def cmd_go(ctx: Context, args: List[str]):
     return await ctx.reply(
         await ctx.bot.facts.fact_formatted(fact=("go", "en"), arguments=args)
     )
+
+
+@Commands.command("listboard")
+async def cmd_listboard(ctx: Context, args: List[str]):
+    """
+    Send a user the key details of every case on the board in DMs
+
+    Usage: !listboard
+    Aliases: n/a
+    """
+    caseboard = ctx.bot.board.by_id
+    if not caseboard:
+        return await ctx.redirect("The case board is empty!")
+    message = "Here's the current case board:\n"
+    for case in caseboard.values():
+        hskf = "Seal" if case.hull_percent else "Fisher" if case.planet else "Unknown"
+        long_ago = now(tz="utc").diff(case.updated_time).in_words()
+        plt = case.platform.name.replace("_", " ")
+        message += (
+            f"Case {case.board_id}: Client: {case.client_name}, Platform: {plt}, "
+            f"Type: {hskf}, Status: {case.status.name}, Updated: {long_ago} ago.\n"
+        )
+    return await ctx.redirect(f"{message}{len(caseboard)} Cases on the Board.")
+
+
+@Commands.command("listcase")
+async def cmd_listcase(ctx: Context, args: List[str]):
+    """
+    Send a user the key details of a case on the board in DMs
+
+    Usage: !listcase [board ID]
+    Aliases: n/a
+    """
+    if not args:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "listcase"))
+    try:
+        case: Case = await get_case(ctx, args[0])
+    except KeyError:
+        return await ctx.redirect(f"No case found for {args[0]!r}.")
+    return await ctx.redirect(f"{case}")

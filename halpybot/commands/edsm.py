@@ -10,7 +10,7 @@ See license.md
 import functools
 from typing import List
 from loguru import logger
-
+from attrs import evolve
 from ..packages.edsm import (
     GalaxySystem,
     Commander,
@@ -37,7 +37,7 @@ async def cache_prep(ctx: Context, args: List[str]):
     if args[0] == "--new":
         cache_override = True
         del args[0]
-        ctx.message = " ".join(args)
+        ctx = evolve(ctx, message=" ".join(args))
         if not ctx.message:
             return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
     message = ctx.message.strip()

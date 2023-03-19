@@ -10,8 +10,9 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
+from attrs import evolve
 from ..packages.command import Commands
-from ..packages.models import Context, Platform
+from ..packages.models import Context, Platform, Case
 
 
 @Commands.command("nextid")
@@ -40,7 +41,22 @@ async def cmd_fullboard(ctx: Context, args: List[str]):
 @Commands.command("newcase")
 async def cmd_newcase(ctx: Context, args: List[str]):
     cmdr = args[0]
-    plt = Platform(int(args[1])).name
+    plt = Platform(int(args[1]))
     sys = args[2]
     case = await ctx.bot.board.add_case(client=cmdr, platform=plt, system=sys)
     return await ctx.reply(f"New case started: Board ID {case.board_id}")
+
+
+@Commands.command("debugwelcome")
+async def cmd_debugwelcome(ctx: Context, args: List[str]):
+    try:
+        caseref = int(args[0])
+    except ValueError:
+        caseref = args[0]
+    try:
+        case: Case = ctx.bot.board.return_rescue(caseref)
+    except KeyError:
+        return await ctx.reply("[DEBUG] No case found.")
+    mod_kwargs = {"welcomed": True}
+    await ctx.bot.board.mod_case(case.board_id, **mod_kwargs)
+    return await ctx.reply(f"[DEBUG] case {caseref} set to Welcomed.")

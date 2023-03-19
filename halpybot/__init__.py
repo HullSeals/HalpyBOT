@@ -17,5 +17,5 @@ config = HalpyConfig()
 __version__ = "2.0.0-alpha"
 
 DEFAULT_USER_AGENT = (
-    f"HalpyBot/{__version__}({config.irc.nickname})({config.user_agent.agent_comment}"
+    f"HalpyBot/{__version__}({config.irc.nickname})({config.user_agent.agent_comment})"
 )

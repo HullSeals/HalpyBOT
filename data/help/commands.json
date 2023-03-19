@@ -71,6 +71,16 @@
       "aliases:": [],
       "arguments": "",
       "use": "Check the time since the last case."
+    },
+    "listboard": {
+      "aliases:": [],
+      "arguments": "",
+      "use": "Print out the current cases on the Board."
+    },
+    "listcase": {
+      "aliases:": [],
+      "arguments": "[Board ID]",
+      "use": "List specific details of a current case."
     }
   },
   "Facts": {

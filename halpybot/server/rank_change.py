@@ -9,7 +9,7 @@ See license.md
 
 """
 
-from aiohttp import web
+from aiohttp import web, web_request
 from loguru import logger
 from sqlalchemy import text
 from .server import APIConnector
@@ -22,7 +22,7 @@ routes = web.RouteTableDef()
 
 @routes.post("/tail")
 @authenticate()
-async def tail(request):
+async def tail(request: web_request.Request):
     """
     Promote or Demote a Seal on the status of their training
 

@@ -20,9 +20,10 @@ See license.md
 """
 from __future__ import annotations
 import typing
+import functools
 import itertools
 from asyncio import Lock
-from contextlib import asynccontextmanager
+from attrs import evolve
 from pendulum import now, DateTime
 from ..models import Case, Platform
 
@@ -46,9 +47,21 @@ class Board:
     async def debug_load_board(self):
         """DEBUG: Load test data into the board"""
         self._cases_by_id = {
-            1: Case(board_id=1, client_name="Bob", platform="PC", system="Delkar"),
-            2: Case(board_id=2, client_name="Larry", platform="PC", system="Delkar"),
-            4: Case(board_id=3, client_name="John", platform="PC", system="Delkar"),
+            1: Case(
+                board_id=1, client_name="Bob", platform=Platform.XBOX, system="Delkar"
+            ),
+            2: Case(
+                board_id=2,
+                client_name="Larry",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
+            ),
+            4: Case(
+                board_id=3,
+                client_name="John",
+                platform=Platform.PLAYSTATION,
+                system="Delkar",
+            ),
         }
         self._case_alias_name = {"bob": 1, "larry": 2, "john": 4}
         return
@@ -57,15 +70,57 @@ class Board:
     async def debug_full_board(self):
         """DEBUG: Load test data into the board"""
         self._cases_by_id = {
-            1: Case(board_id=1, client_name="one", platform="PC", system="Delkar"),
-            2: Case(board_id=2, client_name="two", platform="PC", system="Delkar"),
-            3: Case(board_id=3, client_name="three", platform="PC", system="Delkar"),
-            4: Case(board_id=4, client_name="four", platform="PC", system="Delkar"),
-            5: Case(board_id=5, client_name="five", platform="PC", system="Delkar"),
-            6: Case(board_id=6, client_name="six", platform="PC", system="Delkar"),
-            7: Case(board_id=7, client_name="seven", platform="PC", system="Delkar"),
-            8: Case(board_id=8, client_name="eight", platform="PC", system="Delkar"),
-            9: Case(board_id=9, client_name="nine", platform="PC", system="Delkar"),
+            1: Case(
+                board_id=1,
+                client_name="one",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
+            ),
+            2: Case(
+                board_id=2, client_name="two", platform=Platform.XBOX, system="Delkar"
+            ),
+            3: Case(
+                board_id=3,
+                client_name="three",
+                platform=Platform.PLAYSTATION,
+                system="Delkar",
+            ),
+            4: Case(
+                board_id=4,
+                client_name="four",
+                platform=Platform.LIVE_HORIZONS,
+                system="Delkar",
+            ),
+            5: Case(
+                board_id=5,
+                client_name="five",
+                platform=Platform.LEGACY_HORIZONS,
+                system="Delkar",
+            ),
+            6: Case(
+                board_id=6,
+                client_name="six",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
+            ),
+            7: Case(
+                board_id=7,
+                client_name="seven",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
+            ),
+            8: Case(
+                board_id=8,
+                client_name="eight",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
+            ),
+            9: Case(
+                board_id=9,
+                client_name="nine",
+                platform=Platform.ODYSSEY,
+                system="Delkar",
+            ),
         }
         self._case_alias_name = {
             "one": 1,
@@ -127,10 +182,10 @@ class Board:
         raise KeyError(f"Key {key!r} not found.")
 
     def __contains__(self, key: typing.Union[str, int]) -> bool:
-        if isinstance(key, str):
-            return key.casefold() in self._case_alias_name
         if isinstance(key, int):
             return key in self._cases_by_id
+        if isinstance(key.casefold(), str):
+            return key in self._case_alias_name
         return False
 
     async def add_case(self, client: str, platform: Platform, system: str) -> Case:
@@ -140,30 +195,23 @@ class Board:
             case = Case(
                 board_id=new_id, client_name=client, platform=platform, system=system
             )
-            self._last_case_time = now(tz="utc")
-            if case.client_name in self._case_alias_name:
+            self._update_last_index()
+            if case.client_name.casefold() in self._case_alias_name:
                 raise ValueError("Case with Client Name Already Exists")
 
             self._cases_by_id[new_id] = case
-            self._case_alias_name[client] = new_id
+            self._case_alias_name[client.casefold()] = new_id
             return case
 
-    @asynccontextmanager
-    async def mod_case(self, case: Case):
+    @functools.wraps(evolve)
+    async def mod_case(self, case_id: int, **kwargs):
         """
-        Modify an existing case'
-        TODO: Is this thing on?
+        Modify an existing case
         """
-        async with self._modlock:
-            current_case = case.board_id
-            current_client = case.client_name
-            del self._cases_by_id[current_case]
-            del self._case_alias_name[current_client]
-            try:
-                yield case
-            finally:
-                self._cases_by_id[current_case] = case
-                self._case_alias_name[current_client] = current_case
+        new_case = evolve(
+            self._cases_by_id[case_id], updated_time=now(tz="UTC"), **kwargs
+        )
+        self._cases_by_id[case_id] = new_case
 
     async def del_case(self, case: Case):
         """Delete a Case from the Board"""
@@ -173,7 +221,7 @@ class Board:
         client = case.client_name
         async with self._modlock:
             del self._cases_by_id[board_id]
-            del self._case_alias_name[client]
+            del self._case_alias_name[client.casefold()]
 
     async def rename_case(self, new_name: str, case: Case):
         """Rename an actively referenced case"""
@@ -184,12 +232,13 @@ class Board:
         board_id = case.board_id
         old_name = case.client_name
         # Test Old Info
-        if new_name in self._case_alias_name:
+        if new_name.casefold() in self._case_alias_name:
             raise AssertionError(f"Case already exists under the name {new_name!r}")
-        if old_name == new_name:
+        if old_name.casefold() == new_name.casefold():
             raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
         # Update and Continue
-        case.client_name = new_name
+        name_kwarg = {"client_name": new_name}
+        await self.mod_case(board_id, **name_kwarg)
         async with self._modlock:
-            del self._case_alias_name[old_name]
-            self._case_alias_name[new_name] = board_id
+            del self._case_alias_name[old_name.casefold()]
+            self._case_alias_name[new_name.casefold()] = board_id

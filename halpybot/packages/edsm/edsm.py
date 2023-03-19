@@ -11,7 +11,6 @@ Special thanks to TheUnkn0wn1 for his assistance on this module! - https://githu
 """
 
 from __future__ import annotations
-
 import typing
 import math
 import asyncio
@@ -24,6 +23,7 @@ import aiohttp
 import numpy as np
 import cattr
 from attrs import define, field
+from attr import ib
 from halpybot import config
 from ..models import Coordinates, Location
 from ..models import edsm_classes
@@ -369,13 +369,13 @@ class Commander:
         )
 
 
+@define
 class Edsm:
     """Carrier, Landmark, and Diversion Systems, formatted for EDSM Usage"""
 
-    def __init__(self):
-        self._carriers: typing.Optional[typing.List[GalaxySystem]] = None
-        self._landmarks: typing.Optional[typing.List[GalaxySystem]] = None
-        self._diversions: typing.Optional[typing.List[EDDBSystem]] = None
+    _carriers: typing.Optional[typing.List[GalaxySystem]] = ib(default=None)
+    _landmarks: typing.Optional[typing.List[GalaxySystem]] = ib(default=None)
+    _diversions: typing.Optional[typing.List[EDDBSystem]] = ib(default=None)
 
     @property
     def landmarks(self):
@@ -417,7 +417,9 @@ class Edsm:
 calculators = Edsm()
 
 
-async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
+async def checkdistance(
+    sysa: str, sysb: str, cache_override: bool = False
+) -> typing.Tuple[str, str]:
     """Check distance between two EDSM points
 
     Both data points must be known to EDSM.
@@ -445,6 +447,8 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
         GalaxySystem.get_info(name=sysa, cache_override=cache_override),
         GalaxySystem.get_info(name=sysb, cache_override=cache_override),
     )
+    system1: GalaxySystem
+    system2: GalaxySystem
 
     if system1 is None:
         # not a system, maybe a commander?
@@ -478,13 +482,15 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
             f"database."
         )
 
-    distance = calc_distance(system_a, system_b)
-    distance = f"{distance:,}"
+    distance: float = calc_distance(system_a, system_b)
+    formatted_distance: str = f"{distance:,}"
     direction = await calc_direction(system_b.x, system_a.x, system_b.z, system_a.z)
-    return distance, direction
+    return formatted_distance, direction
 
 
-async def checklandmarks(edsm_sys_name, cache_override: bool = False):
+async def checklandmarks(
+    edsm_sys_name: str, cache_override: bool = False
+) -> typing.Tuple[str, str, str]:
     """Retrieve distance between EDSM point and landmark
 
     The landmarks used in this function are specified in landmarks.json
@@ -507,7 +513,7 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         NoResultsEDSM: No point was found for `edsm_sys_name`
 
     """
-    system = await sys_cleaner(edsm_sys_name)
+    system: str = await sys_cleaner(edsm_sys_name)
     # Set default values
     coords = await get_coordinates(system, cache_override)
     if coords:
@@ -524,14 +530,14 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
             )
             return minimum.name, f"{minimum_key:,}", direction
         raise NoNearbyEDSM(f"No major landmark systems within 10,000 ly of {system}.")
-    if not coords:
-        raise NoResultsEDSM(
-            f"No system and/or commander named {system} was found in the EDSM"
-            f" database."
-        )
+    raise NoResultsEDSM(
+        f"No system and/or commander named {system} was found in the EDSM" f" database."
+    )
 
 
-async def checkdssa(edsm_sys_name, cache_override: bool = False):
+async def checkdssa(
+    edsm_sys_name: str, cache_override: bool = False
+) -> typing.Tuple[str, str, str]:
     """Check distance to nearest DSSA carrier
 
     Last updated 2021-03-22 w/ 93 Carrier
@@ -541,14 +547,18 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
-        (str): Distance between point and DSSA carrier, in the format xx,yyy.zz
+        (tuple): A tuple with the following values:
+
+            - (str): The nearest DSSA Carrier's name
+            - (str): Distance between point and DSSA carrier, in the format xx,yyy.zz
+            - (str): The cardinal direction to the DSSA Carrier's system
 
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
                 by default.
         NoResultsEDSM: No point was found for `edsm_sys_name`.
     """
-    system = await sys_cleaner(edsm_sys_name)
+    system: str = await sys_cleaner(edsm_sys_name)
     coords = await get_coordinates(system, cache_override)
     if coords:
         distances = {
@@ -563,11 +573,9 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         )
         return minimum.name, f"{minimum_key:,}", direction
 
-    if not coords:
-        raise NoResultsEDSM(
-            f"No system and/or commander named {system} was found in the EDSM"
-            f" database."
-        )
+    raise NoResultsEDSM(
+        f"No system and/or commander named {system} was found in the EDSM" f" database."
+    )
 
 
 @define(frozen=True)
@@ -582,7 +590,7 @@ class Diversion:
 
 
 async def diversions(
-    edsm_sys_name, cache_override: bool = False
+    edsm_sys_name: str, cache_override: bool = False
 ) -> typing.List[Diversion]:
     """Check distance to the nearest diversion station
 
@@ -629,7 +637,7 @@ async def diversions(
     )
 
 
-def calc_distance(loc_a: Coordinates, loc_b: Coordinates):
+def calc_distance(loc_a: Coordinates, loc_b: Coordinates) -> float:
     """Calculate distance XYZ -> XYZ
 
     Only call this method directly when the coordinates of both points are known. If
@@ -651,7 +659,12 @@ def calc_distance(loc_a: Coordinates, loc_b: Coordinates):
     return float(dist)
 
 
-async def calc_direction(x_coord_1, x_coord_2, y_coord_1, y_coord_2):
+async def calc_direction(
+    x_coord_1: typing.Union[int, float],
+    x_coord_2: typing.Union[int, float],
+    y_coord_1: typing.Union[int, float],
+    y_coord_2: typing.Union[int, float],
+) -> str:
     """Calculate direction
 
     Uses some Fancy Math™ to determine the approximate
@@ -692,7 +705,9 @@ async def calc_direction(x_coord_1, x_coord_2, y_coord_1, y_coord_2):
     return result
 
 
-async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
+async def get_coordinates(
+    edsm_sys_name: str, cache_override: bool = False
+) -> typing.Optional[Coordinates]:
     """
     Get the coordinates of a given system in EDSM
 
@@ -703,20 +718,18 @@ async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
     Returns:
         ('Coordinates' or None): A coordinate class object if exists, else None.
     """
-    coords = None
-    sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
+    sys: typing.Optional[GalaxySystem] = await GalaxySystem.get_info(
+        name=edsm_sys_name, cache_override=cache_override
+    )
     if sys:
-        coords = sys.coords
-    if not sys:
-        cmdr = await Commander.location(
-            name=edsm_sys_name, cache_override=cache_override
-        )
-        if cmdr:
-            coords = cmdr.coordinates
-    return coords
+        return sys.coords
+    cmdr: typing.Optional[Location] = await Commander.location(
+        name=edsm_sys_name, cache_override=cache_override
+    )
+    return cmdr.coordinates if cmdr else None
 
 
-async def get_nearby_system(sys_name: str):
+async def get_nearby_system(sys_name: str) -> typing.Tuple[bool, typing.Optional[str]]:
     """
     Get a nearby system to a given system in EDSM
 
@@ -748,7 +761,7 @@ async def get_nearby_system(sys_name: str):
     return False, None
 
 
-async def sys_cleaner(sys_name: str):
+async def sys_cleaner(sys_name: str) -> str:
     """
     Attempt to match a given system string to the procedurally generated system naming convention.
 

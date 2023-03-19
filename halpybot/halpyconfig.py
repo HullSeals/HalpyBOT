@@ -144,7 +144,7 @@ class DiscordNotifications(BaseModel):
     """Discord Notification Config"""
 
     enabled: bool = False
-    webhook_id: Optional[str] = None
+    webhook_id: Optional[int] = None
     webhook_token: Optional[SecretStr] = None
     case_notify: Optional[constr(regex=r"<@&(\d+)>")] = None
     trained_role: Optional[constr(regex=r"<@&(\d+)>")] = None

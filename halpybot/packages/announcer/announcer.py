@@ -8,10 +8,13 @@ Licensed under the GNU General Public License
 See license.md
 
 """
-
+from __future__ import annotations
 import json
-from typing import List, Dict, Optional
+from pathlib import Path
+from typing import List, Dict, Optional, TYPE_CHECKING, TypedDict, Union
+from loguru import logger
 from attrs import define
+from ..case import create_case
 from ..edsm import (
     checklandmarks,
     get_nearby_system,
@@ -22,6 +25,9 @@ from ..edsm import (
     NoNearbyEDSM,
 )
 from ..models import Platform
+
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 
 cardinal_flip = {
     "North": "South",
@@ -40,10 +46,13 @@ platform_shorts = {
     Platform.PLAYSTATION: "PS",
     Platform.LEGACY_HORIZONS: "PCH",
     Platform.LIVE_HORIZONS: "PCL",
+    Platform.UNKNOWN: "UNK",
 }
 
 
-async def get_edsm_data(args: Dict, generalized: bool = False) -> Optional[str]:
+async def get_edsm_data(
+    args: Union[AnnouncerArgs, Dict[str, str]], generalized: bool = False
+) -> str:
     """Calculates and formats a ready-to-go string with EDSM info about a system
 
     Args:
@@ -116,19 +125,31 @@ class AnnouncementError(Exception):
     """
 
 
+class AlreadyExistsError(AnnouncementError):
+    """
+    Case from Announcement already exists
+    """
+
+
 class Announcer:
+    """The Announcer - Send Messages to All Points"""
+
     def __init__(self):
-        """Initialize the Announcer"""
+        """
+        Initialize the Announcer
+
+        TODO: This should be converted into a attrs.define dataclass in the future.
+        """
         self._announcements = {}
         # Load data
-        # TODO(theunknown1): load dataclass
-        with open(
-            "data/announcer/announcer.json", "r", encoding="UTF-8"
-        ) as announcer_json:
-            self._config = json.load(announcer_json)
-        # Create announcement objects and store them in dict
+        data_path = Path("data/announcer/announcer.json")
+        with data_path.open(encoding="UTF-8") as ann_file:
+            self._config = json.load(ann_file)
+        self._create_announcements()
+
+    def _create_announcements(self):
         for ann_type in self._config["AnnouncerType"]:
-            self._announcements[ann_type["ID"]] = Announcement(
+            ann = Announcement(
                 case_type=ann_type["ID"],
                 name=ann_type["Name"],
                 description=ann_type["Description"],
@@ -137,8 +158,9 @@ class Announcer:
                 content=ann_type["Content"],
                 type=ann_type["Type"],
             )
+            self._announcements[ann_type["ID"]] = ann
 
-    async def announce(self, announcement: str, args: Dict, client):
+    async def announce(self, announcement: str, args: Dict, client: HalpyBOT):
         """Announce a new case
 
         Args:
@@ -157,10 +179,34 @@ class Announcer:
         # noinspection PyBroadException
         # We want to catch everything
         try:
+            formatted = await ann.format(args, client)
             for channel in ann.channels:
-                await client.message(channel, await ann.format(args))
+                await client.message(channel, formatted)
+        except AlreadyExistsError as aee:
+            logger.exception("Case Already Exists Matching")
+            raise AlreadyExistsError from aee
         except Exception as announcement_exception:
+            logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
+
+
+class AnnouncerArgs(TypedDict):
+    """
+    Possible Values in the Announcer Payload
+    """
+
+    Short: Optional[str]
+    CMDR: Optional[str]
+    Platform: Union[Optional[int], Optional[str]]
+    System: Optional[str]
+    Planet: Optional[str]
+    Coords: Optional[str]
+    KFType: Optional[str]
+    Board_ID: Optional[int]
+    Seal: Optional[str]
+    CanSynth: Optional[str]
+    Hull: Optional[int]
+    Oxygen: Optional[str]
 
 
 @define
@@ -186,13 +232,14 @@ class Announcement:
     edsm: Optional[int] = None
     type: Optional[str] = None
 
-    async def format(self, args) -> str:
+    async def format(self, args: AnnouncerArgs, client: HalpyBOT) -> str:
         """Format announcement in a ready-to-be-sent format
 
         This includes the result of the EDSM query if specified in the config
 
         Args:
             *args: List of parameters to be formatted into the announcement
+            client: The BotClient, used to interact with the Case Board
 
         Returns:
             (str): Fully formatted announcement
@@ -201,8 +248,23 @@ class Announcement:
             IndexError: an invalid number of parameters was provided
 
         """
+        # Cleanup the system, if exists
         if "System" in args.keys():
             args["System"] = await sys_cleaner(args["System"])
+        # Set the platform relation to the Enum, if exists
+        if "Platform" in args.keys():
+            try:
+                codemap: Platform = Platform(int(args["Platform"]))
+            except ValueError:
+                codemap = Platform.UNKNOWN
+            args["Short"] = platform_shorts[codemap]
+            args["Platform"] = codemap.name.replace("_", " ")
+            # Create a case, if required
+            try:
+                args["Board_ID"] = await create_case(args, codemap, client)
+            except ValueError as val_err:
+                raise AlreadyExistsError("Case Already Exists") from val_err
+        # Finally, format and return
         formatted_content = "".join(self.content)
         announcement = formatted_content.format(**args)
         if self.edsm:

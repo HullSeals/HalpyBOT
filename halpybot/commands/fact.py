@@ -202,7 +202,8 @@ async def cmd_editfact(ctx: Context, args: List[str]):
         message = " ".join(args[1:])
         message = strip_non_ascii(message)
         message = str(message[0])
-        fact.text = message
+        await ctx.bot.facts.delete_fact(ctx.bot.engine, name, lang)
+        await ctx.bot.facts.add_fact(ctx.bot.engine, name, lang, message, ctx.sender)
         return await ctx.reply("Fact successfully edited.")
     except NoDatabaseConnection:
         logger.exception("No database connection! Fact not edited. ")

@@ -47,7 +47,14 @@ async def cmd_whois(ctx: Context, args: List[str]):
             "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
             "and has been involved with countless rescues."
         )
-    return await ctx.redirect(await whois_fetch(ctx.bot.engine, cmdr))
+    try:
+        seal: Seal = await whois(ctx.bot.engine, cmdr)
+    except (KeyError, ValueError):
+        return await ctx.redirect("No registered user found by that name!")
+    return await ctx.redirect(
+        f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history}"
+        f" {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
+    )
 
 
 @Commands.command("whoami")
@@ -61,4 +68,11 @@ async def cmd_whoami(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     cmdr = ctx.sender
-    return await ctx.redirect(await whois_fetch(ctx.bot.engine, cmdr))
+    try:
+        seal: Seal = await whois(ctx.bot.engine, cmdr)
+    except (KeyError, ValueError):
+        return await ctx.redirect("No registered user found by that name!")
+    return await ctx.redirect(
+        f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history}"
+        f" {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
+    )

@@ -17,7 +17,7 @@ from aiohttp import web
 from halpybot import config
 
 
-def get_hmac(msg):
+def get_hmac(msg: str) -> hmac.HMAC:
     """
     Calculate the HMAC value for message validation
 
