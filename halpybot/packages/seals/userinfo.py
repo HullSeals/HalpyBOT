@@ -9,7 +9,7 @@ See license.md
 """
 from sqlalchemy.engine import Engine
 from sqlalchemy import text
-from ..models import Seal
+from ..models import Seal, Platform
 
 
 async def whois(engine: Engine, subject: str) -> Seal:
@@ -36,12 +36,20 @@ async def whois(engine: Engine, subject: str) -> Seal:
     u_id, u_cases, u_name, u_aliases, u_regdate, u_dw2 = results[0]
     if u_id is None:
         raise ValueError
+    u_cmdrs = []
+    temp_names = u_name.split(";")
+    for name in temp_names:
+        new_name = name.split(",")
+        cmdr: str = new_name[0].strip()
+        new_plt = Platform(int(new_name[1].strip()))
+        formatted_cmdr = (cmdr, new_plt)
+        u_cmdrs.append(formatted_cmdr)
     return Seal(
         name=subject,
         seal_id=u_id,
         reg_date=u_regdate,
         dw2=u_dw2,
-        cmdrs=u_name,
+        cmdrs=u_cmdrs,
         irc_aliases=u_aliases,
         case_num=u_cases,
     )
