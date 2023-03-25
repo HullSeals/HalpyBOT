@@ -14,8 +14,8 @@ from halpybot import config
 from ..packages.exceptions import NoUserFound, NoResultsEDSM, EDSMConnectionError
 from ..packages.seals import whois
 from ..packages.utils import (
-    CommandUtils,
     sys_cleaner,
+    gather_case,
 )
 from ..packages.command import Commands
 from ..packages.edsm import (
@@ -98,7 +98,7 @@ async def rem_responder(ctx: Context, args: List[str], case: Case, resp_type: st
 
 # FACT WRAPPERS
 @Commands.command("go")
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_go(ctx: Context, args: List[str], case: Case):
     """
     Add an identified Seal as a responder to a case on the board.
@@ -150,7 +150,7 @@ async def cmd_welcome(ctx: Context, args: List[str]):
 @Commands.command("addresp", "newseal")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_addresp(ctx: Context, args: List[str], case: Case):
     """
     Add a new responder to a given case
@@ -165,7 +165,7 @@ async def cmd_addresp(ctx: Context, args: List[str], case: Case):
 @Commands.command("adddisp", "newspatch")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_adddisp(ctx: Context, args: List[str], case: Case):
     """
     Add a new dispatcher to a given case
@@ -180,7 +180,7 @@ async def cmd_adddisp(ctx: Context, args: List[str], case: Case):
 @Commands.command("remresp", "standdown", "stddn")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_remresp(ctx: Context, args: List[str], case: Case):
     """
     Remove a responder from a given case
@@ -195,7 +195,7 @@ async def cmd_remresp(ctx: Context, args: List[str], case: Case):
 @Commands.command("remdisp")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_remdisp(ctx: Context, args: List[str], case: Case):
     """
     Remove a dispatcher from a given case
@@ -272,7 +272,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
 @Commands.command("listcase")
 @Require.permission(Drilled)
-@CommandUtils.gather_case(1)
+@gather_case(1)
 async def cmd_listcase(ctx: Context, args: List[str], case: Case):
     """
     Send a user the key details of a case on the board in DMs
@@ -287,7 +287,7 @@ async def cmd_listcase(ctx: Context, args: List[str], case: Case):
 @Commands.command("rename")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
     """
     Rename the user of an active case
@@ -309,7 +309,7 @@ async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
 @Commands.command("ircn")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_ircn(ctx: Context, args: List[str], case: Case):
     """
     Rename the user of an active case
@@ -331,7 +331,7 @@ async def cmd_ircn(ctx: Context, args: List[str], case: Case):
 @Commands.command("system")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_system(ctx: Context, args: List[str], case: Case):
     """
     Change the system of an active case
@@ -360,7 +360,7 @@ async def cmd_system(ctx: Context, args: List[str], case: Case):
 @Commands.command("status")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_status(ctx: Context, args: List[str], case: Case):
     """
     Change the activity status of a case
@@ -389,7 +389,7 @@ async def cmd_status(ctx: Context, args: List[str], case: Case):
 @Commands.command("hull")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_hull(ctx: Context, args: List[str], case: Case):
     """
     Change the starting hull percentage of a case
@@ -419,7 +419,7 @@ async def cmd_hull(ctx: Context, args: List[str], case: Case):
 @Commands.command("changetype")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_changetype(ctx: Context, args: List[str], case: Case):
     """
     Change the case type between Seal, KF, Black, or Blue.
@@ -458,7 +458,7 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
 @Commands.command("platform")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_platform(ctx: Context, args: List[str], case: Case):
     """
     Change the platform a case is on.
@@ -501,7 +501,7 @@ async def cmd_platform(ctx: Context, args: List[str], case: Case):
 @Commands.command("planet")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_planet(ctx: Context, args: List[str], case: Case):
     """
     Change the planet of an active KF case
@@ -522,7 +522,7 @@ async def cmd_planet(ctx: Context, args: List[str], case: Case):
 @Commands.command("casecoords")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(3)
+@gather_case(3)
 async def cmd_coords(ctx: Context, args: List[str], case: Case):
     """
     Change the coords of an active KF case
@@ -552,7 +552,7 @@ async def cmd_coords(ctx: Context, args: List[str], case: Case):
 @Commands.command("o2time")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
     """
     Change the remaining oxygen timer for a case
@@ -579,7 +579,7 @@ async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
 @Commands.command("synth")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_synth(ctx: Context, args: List[str], case: Case):
     """
     Toggle if a CMDR has synths available for a given case.
@@ -609,7 +609,7 @@ async def cmd_synth(ctx: Context, args: List[str], case: Case):
 @Commands.command("canopy")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_canopy(ctx: Context, args: List[str], case: Case):
     """
     Toggle if the canopy is broken for a given case.
@@ -640,7 +640,7 @@ async def cmd_canopy(ctx: Context, args: List[str], case: Case):
 @Commands.command("kftype")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
     """
     Change the case type between KF subtypes.
@@ -676,7 +676,7 @@ async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
 @Commands.command("notes", "updatenotes", "addnote")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_notes(ctx: Context, args: List[str], case: Case):
     """
     Append a new entry to the Notes
@@ -695,7 +695,7 @@ async def cmd_notes(ctx: Context, args: List[str], case: Case):
 
 @Commands.command("listnotes")
 @Require.permission(Drilled)
-@CommandUtils.gather_case(1)
+@gather_case(1)
 async def cmd_listnotes(ctx: Context, args: List[str], case: Case):
     """
     List out just the case notes to DMs
@@ -714,7 +714,7 @@ async def cmd_listnotes(ctx: Context, args: List[str], case: Case):
 @Commands.command("delnote")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(2)
+@gather_case(2)
 async def cmd_delnote(ctx: Context, args: List[str], case: Case):
     """
     Delete a line of the notes for a given case
@@ -740,7 +740,7 @@ async def cmd_delnote(ctx: Context, args: List[str], case: Case):
 @Commands.command("editnote")
 @Require.permission(Drilled)
 @Require.channel()
-@CommandUtils.gather_case(3)
+@gather_case(3)
 async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     """
     Alter a line of the notes for a given case
