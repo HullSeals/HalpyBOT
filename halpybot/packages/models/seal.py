@@ -9,7 +9,7 @@ See license.md
 """
 from typing import Optional, List, Tuple
 from attrs import define
-from halpybot.packages.models import Platform
+from .case import Platform
 
 
 @define(frozen=True)

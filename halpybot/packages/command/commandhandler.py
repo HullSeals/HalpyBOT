@@ -277,7 +277,7 @@ class CommandGroup:
         """
         if not mains:
             return list(self._command_list.keys())
-        return [str(cmd) for cmd in self._command_list if self._command_list[cmd][1]]
+        return [str(cmd) for cmd, func in self._command_list.items() if func[1]]
 
 
 def get_help_text(

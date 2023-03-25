@@ -1,3 +1,14 @@
+"""
+exceptions.py - All Custom HalpyBOT Exceptions
+
+Copyright (c) The Hull Seals,
+All rights reserved.
+
+Licensed under the GNU General Public License
+See license.md
+"""
+
+
 class YOURLSError(Exception):
     """
     Base class for YOURLS link errors
