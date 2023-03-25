@@ -36,23 +36,15 @@ from ..packages.checks import Require, Drilled, Pup
 from ..packages.case import update_single_elem_case_prep, get_case
 
 
-# FACT WRAPPERS
-@Commands.command("go")
-@CommandUtils.gather_case(2)
-async def cmd_go(ctx: Context, args: List[str], case: Case):
-    """
-    Add an identified Seal as a responder to a case on the board.
-
-    Usage: !go [Case ID] [seals]
-    Aliases: n/a
-    """
+async def add_responder(ctx: Context, args: List[str], case: Case, resp_type: str):
+    """Add a Responder to a given Case"""
     # Clean out the list, only pass "full" args.
     del args[0]
     args = [x.strip(" ") for x in args]
     args = [ele for ele in args if ele.strip()]
 
     # Current Responders:
-    responders = case.responders
+    responders = getattr(case, resp_type)
     # Loop through the list, checking each to see if they are actually a user.
     for seal in args:
         if seal.endswith(",") or seal.endswith(":"):
@@ -76,9 +68,45 @@ async def cmd_go(ctx: Context, args: List[str], case: Case):
             val_seal: Seal = await whois(ctx.bot.engine, str(seal))
             if val_seal not in responders:
                 responders.append(val_seal)
-    res_kwarg = {"responders": responders}
+    res_kwarg = {resp_type: responders}
     await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
 
+
+async def rem_responder(ctx: Context, args: List[str], case: Case, resp_type: str):
+    """Remove a Responder from a given Case"""
+    # Clean out the list, only pass "full" args.
+    del args[0]
+    args = [x.strip(" ") for x in args]
+    args = [ele for ele in args if ele.strip()]
+
+    # Current Responders:
+    responders = getattr(case, resp_type)
+    # Loop through the list, checking each to see if they are actually a user.
+    for seal in args:
+        if seal.endswith(",") or seal.endswith(":"):
+            seal = seal[:-1]
+        # AttributeError is thrown if a user does not exist. Accept and move on.
+        try:
+            val_seal: Seal = await whois(ctx.bot.engine, str(seal))
+        except ValueError:
+            continue
+        if val_seal in responders:
+            responders.remove(val_seal)
+    res_kwarg = {resp_type: responders}
+    await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+
+
+# FACT WRAPPERS
+@Commands.command("go")
+@CommandUtils.gather_case(2)
+async def cmd_go(ctx: Context, args: List[str], case: Case):
+    """
+    Add an identified Seal as a responder to a case on the board.
+
+    Usage: !go [Case ID] [seals]
+    Aliases: n/a
+    """
+    await add_responder(ctx, args, case, resp_type="responders")
     return await ctx.reply(
         await ctx.bot.facts.fact_formatted(fact=("go", "en"), arguments=args)
     )
@@ -102,10 +130,10 @@ async def cmd_welcome(ctx: Context, args: List[str]):
                 case = test_case
                 break
     if not case:
-        await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
-        return await ctx.reply(
+        await ctx.reply(
             await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
         )
+        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
     spatches = case.dispatchers
     spatch: Seal = await whois(ctx.bot.engine, ctx.sender)
     if spatch not in spatches:
@@ -118,11 +146,65 @@ async def cmd_welcome(ctx: Context, args: List[str]):
     )
 
 
-# TODO RESPONDER MANAGEMENT:
-# Add Responder Outside !go
-# Add Spatch Outside Welcome
-# Rem Responder
-# Rem Spatch
+# RESPONDER MANAGEMENT:
+@Commands.command("addresp", "newseal")
+@Require.permission(Drilled)
+@Require.channel()
+@CommandUtils.gather_case(2)
+async def cmd_addresp(ctx: Context, args: List[str], case: Case):
+    """
+    Add a new responder to a given case
+
+    Usage: !addresp [board ID] [new responders]
+    Aliases: n/a
+    """
+    await add_responder(ctx, args, case, resp_type="responders")
+    return await ctx.reply(f"Responders for case {case.board_id} updated.")
+
+
+@Commands.command("adddisp", "newspatch")
+@Require.permission(Drilled)
+@Require.channel()
+@CommandUtils.gather_case(2)
+async def cmd_adddisp(ctx: Context, args: List[str], case: Case):
+    """
+    Add a new dispatcher to a given case
+
+    Usage: !adddisp [board ID] [new dispatchers]
+    Aliases: n/a
+    """
+    await add_responder(ctx, args, case, resp_type="dispatchers")
+    return await ctx.reply(f"Dispatchers for case {case.board_id} updated.")
+
+
+@Commands.command("remresp", "standdown", "stddn")
+@Require.permission(Drilled)
+@Require.channel()
+@CommandUtils.gather_case(2)
+async def cmd_remresp(ctx: Context, args: List[str], case: Case):
+    """
+    Remove a responder from a given case
+
+    Usage: !remresp [board ID] [new responders]
+    Aliases: n/a
+    """
+    await rem_responder(ctx, args, case, resp_type="responders")
+    return await ctx.reply(f"Responders for case {case.board_id} updated.")
+
+
+@Commands.command("remdisp")
+@Require.permission(Drilled)
+@Require.channel()
+@CommandUtils.gather_case(2)
+async def cmd_remdisp(ctx: Context, args: List[str], case: Case):
+    """
+    Remove a dispatcher from a given case
+
+    Usage: !remdisp [board ID] [new dispatchers]
+    Aliases: n/a
+    """
+    await rem_responder(ctx, args, case, resp_type="dispatchers")
+    return await ctx.reply(f"Dispatchers for case {case.board_id} updated.")
 
 
 # BOARD AND CASE LISTING
