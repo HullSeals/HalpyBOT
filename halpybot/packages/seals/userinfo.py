@@ -33,16 +33,14 @@ async def whois(engine: Engine, subject: str) -> Seal:
         results = result.fetchall()
     if not results:
         raise KeyError("No Results Given")
-    u_id, u_cases, u_name, u_aliases, u_regdate, u_dw2 = results[0]
+    u_id, u_cases, u_cmdrs, u_aliases, u_regdate, u_dw2 = results[0]
     if u_id is None:
         raise ValueError
+    temp_names = u_cmdrs.split(";")
     u_cmdrs = []
-    temp_names = u_name.split(";")
     for name in temp_names:
         new_name = name.split(",")
-        cmdr: str = new_name[0].strip()
-        new_plt = Platform(int(new_name[1].strip()))
-        formatted_cmdr = (cmdr, new_plt)
+        formatted_cmdr = (new_name[0].strip(), Platform(int(new_name[1].strip())))
         u_cmdrs.append(formatted_cmdr)
     return Seal(
         name=subject,

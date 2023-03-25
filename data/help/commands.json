@@ -156,6 +156,16 @@
       "aliases:": [],
       "arguments": "[Board ID] [Yes/True/No/False]",
       "use": "Toggle if a CMDR has synths available for a given case."
+    },
+    "go": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Responders]",
+      "use": "Add an identified Seal as a responder to a case on the board."
+    },
+    "welcome": {
+      "aliases:": [],
+      "arguments": "[Client Name or Board ID]",
+      "use": "Welcome a client and add an identified Seal as a Dispatch responder."
     }
   },
   "Facts": {

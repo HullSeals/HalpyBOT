@@ -8,10 +8,11 @@ Licensed under the GNU General Public License
 See license.md
 """
 import re
-from typing import List
+from typing import List, Optional
 from pendulum import now
 from halpybot import config
 from ..packages.exceptions import NoUserFound, NoResultsEDSM, EDSMConnectionError
+from ..packages.seals import whois
 from ..packages.utils import (
     CommandUtils,
     sys_cleaner,
@@ -29,46 +30,99 @@ from ..packages.models import (
     Platform,
     KFCoords,
     KFType,
+    Seal,
 )
-from ..packages.checks import Require, Drilled
-from ..packages.case import update_single_elem_case_prep
+from ..packages.checks import Require, Drilled, Pup
+from ..packages.case import update_single_elem_case_prep, get_case
 
 
 # FACT WRAPPERS
 @Commands.command("go")
-async def cmd_go(ctx: Context, args: List[str]):
+@CommandUtils.gather_case(2)
+async def cmd_go(ctx: Context, args: List[str], case: Case):
     """
-    Check if an assigned Seal is trained and Identified before sending.
+    Add an identified Seal as a responder to a case on the board.
 
-    Usage: !go [seals]
+    Usage: !go [Case ID] [seals]
     Aliases: n/a
     """
-    # If no args presented, skip the user check. This will be removed in later versions, args will be required.
-    if args:
-        # Clean out the list, only pass "full" args.
-        args = [x.strip(" ") for x in args]
-        args = [ele for ele in args if ele.strip()]
-        # Loop through the list, checking each to see if they are actually a user.
-        for seal in args:
-            user_level = 1
-            # AttributeError is thrown if a user does not exist. Accept and move on.
-            try:
-                whois = await User.get_info(ctx.bot, str(seal))
-                vhost = User.process_vhost(whois.hostname)
-            except (AttributeError, NoUserFound):
-                vhost = "notUser"
-            # There is no hard set "not a seal" vhost level.
-            if vhost is None:
-                user_level = 0
-            if user_level == 0:
-                await ctx.reply(
-                    f"{ctx.sender}: {str(seal)} is not identified as a trained seal. Have them check their "
-                    f"IRC setup?"
-                )
+    # Clean out the list, only pass "full" args.
+    del args[0]
+    args = [x.strip(" ") for x in args]
+    args = [ele for ele in args if ele.strip()]
+
+    # Current Responders:
+    responders = case.responders
+    # Loop through the list, checking each to see if they are actually a user.
+    for seal in args:
+        if seal.endswith(",") or seal.endswith(":"):
+            seal = seal[:-1]
+        user_level = 1
+        # AttributeError is thrown if a user does not exist. Accept and move on.
+        try:
+            chat_whois = await User.get_info(ctx.bot, str(seal))
+            vhost = User.process_vhost(chat_whois.hostname)
+        except (AttributeError, NoUserFound):
+            vhost = "notUser"
+        # There is no hard set "not a seal" vhost level.
+        if vhost is None:
+            user_level = 0
+        if user_level == 0:
+            await ctx.reply(
+                f"{ctx.sender}: {str(seal)} is not identified as a trained seal. Have them check their "
+                f"IRC setup?"
+            )
+        else:
+            val_seal: Seal = await whois(ctx.bot.engine, str(seal))
+            if val_seal not in responders:
+                responders.append(val_seal)
+    res_kwarg = {"responders": responders}
+    await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
 
     return await ctx.reply(
         await ctx.bot.facts.fact_formatted(fact=("go", "en"), arguments=args)
     )
+
+
+@Commands.command("welcome")
+@Require.permission(Pup)
+async def cmd_welcome(ctx: Context, args: List[str]):
+    """
+    Welcome the Client and add an identified Seal as a Dispatch responder.
+
+    Usage: !welcome [Case ID]
+    Aliases: n/a
+    """
+    case = None
+    try:
+        case: Optional[Case] = await get_case(ctx, args[0])
+    except KeyError:
+        for test_case in ctx.bot.board.by_id.values():
+            if args[0].casefold() in test_case.irc_nick.casefold():
+                case = test_case
+                break
+    if not case:
+        await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
+        return await ctx.reply(
+            await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
+        )
+    spatches = case.dispatchers
+    spatch: Seal = await whois(ctx.bot.engine, ctx.sender)
+    if spatch not in spatches:
+        spatches.append(spatch)
+    res_kwarg = {"welcomed": True, "dispatchers": spatches}
+    await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+    args = [case.irc_nick]
+    return await ctx.reply(
+        await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
+    )
+
+
+# TODO RESPONDER MANAGEMENT:
+# Add Responder Outside !go
+# Add Spatch Outside Welcome
+# Rem Responder
+# Rem Spatch
 
 
 # BOARD AND CASE LISTING
