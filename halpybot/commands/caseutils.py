@@ -684,7 +684,9 @@ async def cmd_notes(ctx: Context, args: List[str], case: Case):
     Usage: !notes [board ID] [new note line]
     Aliases: updatenotes, addnote
     """
-    new_notes = f"{' '.join(args[1:])} - {ctx.sender} ({now(tz='UTC')})"
+    new_notes = (
+        f"{' '.join(args[1:])} - {ctx.sender} ({now(tz='UTC').to_time_string()})"
+    )
     notes: List[str] = case.case_notes
     notes.append(new_notes)
     await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
@@ -756,6 +758,8 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Editing line {target_line!r} to the provided text.")
     notes: List[str] = case.case_notes
-    notes[note_index] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
+    notes[
+        note_index
+    ] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC').to_time_string()})"
     await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
     return await ctx.reply(f"Notes for case {case.board_id} updated.")

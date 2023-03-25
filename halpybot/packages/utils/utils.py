@@ -15,6 +15,7 @@ from typing import Dict, Optional, Union, TYPE_CHECKING, Any, List
 import aiohttp
 from attr import evolve
 from loguru import logger
+from pendulum import now
 from pydantic import SecretStr
 from halpybot import DEFAULT_USER_AGENT
 from halpybot.commands.notify import format_notification, notify
@@ -94,6 +95,39 @@ async def web_get(
         return responses
 
 
+async def new_case_check(botclient: HalpyBOT):
+    """
+    Check if a new case has not been welcomed yet.
+    """
+    board = botclient.board.by_id
+    for case in board.values():
+        if case.welcomed:
+            continue
+        await asyncio.gather(
+            *[
+                botclient.message(
+                    channel,
+                    f"Hey there, {case.irc_nick}! It seems we're a little short on Seals right now.\n"
+                    f"Just hold tight and someone should be with you shortly!",
+                )
+                for channel in config.channels.rescue_channels
+            ]
+        )
+        await asyncio.gather(
+            *[
+                botclient.message(
+                    channel,
+                    f"NEWCASE has not been welcomed. Seals, Please respond! Case ID: {case.board_id}",
+                )
+                for channel in config.channels.channel_list
+            ]
+        )
+        new_notes = f"NEWCASE not welcomed. Reminder sent. - {botclient.nickname} ({now(tz='UTC').to_time_string()})"
+        notes: List[str] = case.case_notes
+        notes.append(new_notes)
+        await botclient.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+
+
 async def task_starter(botclient: HalpyBOT):
     """
     Start the looping background tasks
@@ -127,6 +161,7 @@ async def _five_minute_task(botclient: HalpyBOT):
                     for channel in config.offline_mode.announce_channels
                 ]
             )
+        await new_case_check(botclient)
 
 
 # Reserved for Future Content
