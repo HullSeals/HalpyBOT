@@ -10,6 +10,7 @@ See license.md
 import re
 from typing import List, Optional
 from pendulum import now
+from loguru import logger
 from halpybot import config
 from ..packages.exceptions import NoUserFound, NoResultsEDSM, EDSMConnectionError
 from ..packages.seals import whois
@@ -298,6 +299,7 @@ async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
     try:
         await ctx.bot.board.rename_case(args[1], case, ctx.sender)
     except (AssertionError, ValueError) as err:
+        logger.warning(err)
         return await ctx.reply(str(err))
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
@@ -320,6 +322,7 @@ async def cmd_ircn(ctx: Context, args: List[str], case: Case):
     try:
         await User.get_info(ctx.bot, args[1])
     except (AttributeError, NoUserFound):
+        # Attribute Error thrown if user does not exist.
         return await ctx.reply("That's not an IRC user!")
     update = await update_single_elem_case_prep(
         ctx=ctx, case=case, action="IRC Name", new_key="irc_nick", new_item=args[1]
@@ -371,7 +374,9 @@ async def cmd_status(ctx: Context, args: List[str], case: Case):
     try:
         status = Status[args[1].upper()]
         if status == Status.CLOSED:
-            raise KeyError  # Mock a KeyError. This command can't close a case.
+            return await ctx.reply(
+                "Can't close a case with this command. Did you mean !close?"
+            )
     except KeyError:
         return await ctx.reply("Invalid case status provided.")
     update = await update_single_elem_case_prep(
