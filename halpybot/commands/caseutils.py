@@ -325,7 +325,7 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
     potential_type = args[1].casefold()
     if potential_type == "seal":
         new_type = CaseType.SEAL
-    elif potential_type in ("kf", "fisher", "fish", "kingfish", "kingfisher"):
+    elif potential_type in {"kf", "fisher", "fish", "kingfish", "kingfisher"}:
         new_type = CaseType.FISH
     elif potential_type == "blue":
         new_type = CaseType.BLUE
