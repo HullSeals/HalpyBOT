@@ -619,8 +619,7 @@ async def cmd_delnote(ctx: Context, args: List[str], case: Case):
     except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Removing line {target_line!r}")
-    notes: List[str] = case.case_notes
-    del notes[del_index]
+    del case.case_notes[del_index]
     await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
     return await ctx.reply(f"Notes for case {case.board_id} updated.")
 
@@ -645,6 +644,8 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Editing line {target_line!r} to the provided text.")
-    case.case_notes[note_index] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
+    case.case_notes[
+        note_index
+    ] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
     await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
     return await ctx.reply(f"Notes for case {case.board_id} updated.")
