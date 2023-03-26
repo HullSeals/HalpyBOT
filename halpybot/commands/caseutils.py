@@ -138,13 +138,13 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
     message = "Here's the current case board:\n\n"
     for case in filtered_cases:
-        hskf = (
-            "Seal"
-            if case.case_type in (CaseType.SEAL, CaseType.BLUE, CaseType.BLACK)
-            else "Fisher"
-            if case.case_type == CaseType.FISH
-            else "Unknown"
-        )
+        hskf_by_type = {
+            CaseType.SEAL: "Seal",
+            CaseType.BLACK: "Seal",
+            CaseType.BLUE: "Seal",
+            CaseType.FISH: "Fisher",
+        }
+        hskf = hskf_by_type.get(case.case_type, "Unknown")
         long_ago = now(tz="utc").diff(case.updated_time).in_words()
         plt = case.platform.name.replace("_", " ")
         message += (
