@@ -112,9 +112,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     if not caseboard:
         return await ctx.redirect("The case board is empty!")
     # Process Args (If Exist)
-    list_filter = None
-    if args:
-        list_filter = args[0].casefold()
+    list_filter = args[0].casefold() if args else None
     if not list_filter:
         filtered_cases = caseboard.values()
     else:
