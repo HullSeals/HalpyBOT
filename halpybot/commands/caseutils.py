@@ -112,29 +112,21 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     if not caseboard:
         return await ctx.redirect("The case board is empty!")
     # Process Args (If Exist)
+    list_filter = None
     if args:
-        platforms = [
-            member.name.casefold().replace("_horizons", "") for member in Platform
-        ]
-        casetypes = [member.name.casefold() for member in CaseType]
         list_filter = args[0].casefold()
-        if list_filter not in casetypes and list_filter not in platforms:
-            list_filter = None
+    if not list_filter:
+        filtered_cases = caseboard.values()
     else:
-        list_filter = None
-
-    filtered_cases = [
-        case
-        for case in caseboard.values()
-        if (not list_filter)
-        or (
-            list_filter
+        filtered_cases = (
+            case
+            for case in caseboard.values()
+            if list_filter
             in (
                 case.platform.name.casefold().replace("_horizons", ""),
                 case.case_type.name.casefold(),
             )
         )
-    ]
 
     message = "Here's the current case board:\n\n"
     for case in filtered_cases:
@@ -154,9 +146,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
     message += f"\n{len(caseboard)} Cases on the Board."
     if list_filter:
-        message += (
-            f" Showing {len(filtered_cases)} that match(es) the filter {list_filter!r}."
-        )
+        message += f" Showing {len(list(filtered_cases))} that match(es) the filter {list_filter!r}."
     return await ctx.redirect(message)
 
 
