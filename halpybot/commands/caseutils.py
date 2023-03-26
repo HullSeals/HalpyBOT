@@ -324,11 +324,9 @@ async def cmd_ircn(ctx: Context, args: List[str], case: Case):
     except (AttributeError, NoUserFound):
         # Attribute Error thrown if user does not exist.
         return await ctx.reply("That's not an IRC user!")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx, case=case, action="IRC Name", new_key="irc_nick", new_item=args[1]
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("system")
@@ -344,11 +342,9 @@ async def cmd_system(ctx: Context, args: List[str], case: Case):
     """
     newsys: str = " ".join(args[1:])
     newsys = await sys_cleaner(newsys)
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx, case=case, action="Client System", new_key="system", new_item=newsys
     )
-    if update:
-        await ctx.reply(update)
     try:
         landmark, distance, direction = await checklandmarks(newsys)
     except (NoResultsEDSM, EDSMConnectionError):
@@ -379,7 +375,7 @@ async def cmd_status(ctx: Context, args: List[str], case: Case):
             )
     except KeyError:
         return await ctx.reply("Invalid case status provided.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Case Status",
@@ -387,8 +383,6 @@ async def cmd_status(ctx: Context, args: List[str], case: Case):
         new_item=status,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("hull")
@@ -410,15 +404,13 @@ async def cmd_hull(ctx: Context, args: List[str], case: Case):
             raise ValueError  # Mock a Value Error for invalid Hull Percentage
     except ValueError:
         return await ctx.reply(f"{args[1]!r} isn't a valid hull percentage")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Hull Percentage",
         new_key="hull_percent",
         new_item=percent,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("changetype")
@@ -448,7 +440,7 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
         new_type = CaseType.BLACK
     else:
         return await ctx.reply("Invalid New Case Type Given.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Case Type",
@@ -456,8 +448,6 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
         new_item=new_type,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("platform")
@@ -491,7 +481,7 @@ async def cmd_platform(ctx: Context, args: List[str], case: Case):
         new_plt = Platform.LEGACY_HORIZONS
     else:
         return await ctx.reply("Invalid New Case Type Given.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Case Platform",
@@ -499,8 +489,6 @@ async def cmd_platform(ctx: Context, args: List[str], case: Case):
         new_item=new_plt,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("planet")
@@ -517,11 +505,9 @@ async def cmd_planet(ctx: Context, args: List[str], case: Case):
     if case.case_type != CaseType.FISH:
         return await ctx.reply("Planet can't be changed for non-Fisher case")
     newplan = await sys_cleaner(" ".join(args[1:]))
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx, case=case, action="Client Planet", new_key="planet", new_item=newplan
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("casecoords")
@@ -543,15 +529,13 @@ async def cmd_coords(ctx: Context, args: List[str], case: Case):
     except ValueError as val_err:
         raise ValueError("KF Coordinates Improperly Formatted") from val_err
     newcoords = KFCoords(xcoord, ycoord)
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Client Coordinates",
         new_key="pcoords",
         new_item=newcoords,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("o2time")
@@ -570,15 +554,13 @@ async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
     pattern = r"^\d{2}:\d{2}$"
     if not re.match(pattern, args[2].strip()):
         return await ctx.reply("Invalid O2 Time Given. Does not match pattern ##:##.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="O2 Timer",
         new_key="o2_timer",
         new_item=args[1].strip(),
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("synth")
@@ -600,15 +582,13 @@ async def cmd_synth(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Invalid synth ability given.")
     if new_synth == case.can_synth:
         return await ctx.reply(f"Synth available already set to {new_synth}")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Synth Status",
         new_key="can_synth",
         new_item=new_synth,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("canopy")
@@ -631,15 +611,13 @@ async def cmd_canopy(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Invalid Canopy Status given.")
     if case.case_type not in (CaseType.BLACK, CaseType.BLUE):
         return await ctx.reply("Canopy Status Can't Be Changed for Non-CB Cases!")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Canopy Status",
         new_key="canopy_broken",
         new_item=canopy_broken,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("kftype")
@@ -665,7 +643,7 @@ async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
         new_type = getattr(KFType, potential_type.upper())
     except AttributeError:
         return await ctx.reply("Invalid New KF Subtype Given.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Kingfisher Type",
@@ -673,8 +651,6 @@ async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
         new_item=new_type,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 # NOTES MANAGEMENT

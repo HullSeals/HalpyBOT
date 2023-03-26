@@ -112,7 +112,7 @@ async def update_single_elem_case_prep(
     new_key: str,
     new_item: Union[str, Enum, int, KFCoords],
     enum: bool = False,
-) -> Optional[str]:
+):
     """
     Send the updated case details to the board, and handle errors
     """
@@ -124,7 +124,7 @@ async def update_single_elem_case_prep(
     try:
         await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
     except ValueError:
-        return f"{action} is already set to {new_item!r}."
+        return await ctx.reply(f"{action} is already set to {new_item!r}.")
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,
