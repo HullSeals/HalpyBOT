@@ -10,7 +10,8 @@ See license.md
 from __future__ import annotations
 import re
 from enum import Enum
-from typing import TYPE_CHECKING, Union, Optional
+from typing import TYPE_CHECKING, Union
+from ..exceptions import KFCoordsError
 from ..models import Case, Platform, CaseType, Context, KFCoords, KFType
 from ... import config
 
@@ -75,7 +76,7 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
             xcoord = float(coords[0].strip())
             ycoord = float(coords[1].strip())
         except ValueError as kf_err:
-            raise ValueError("KF Coordinates Improperly Formatted") from kf_err
+            raise KFCoordsError("KF Coordinates Improperly Formatted") from kf_err
         evolve_args.update(
             {
                 "case_type": case_type,

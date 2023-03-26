@@ -260,9 +260,9 @@ class Announcement:
             # Create a case, if required
             try:
                 args["Board_ID"] = await create_case(args, codemap, client)
+            except KFCoordsError as kf_err:
+                raise KFCoordsError from kf_err  # Pass back to Webserver
             except ValueError as val_err:
-                if str(val_err) == "KF Coordinates Improperly Formatted":
-                    raise KFCoordsError from val_err
                 raise AlreadyExistsError("Case Already Exists") from val_err
 
         # Finally, format and return
