@@ -291,7 +291,7 @@ async def cmd_hull(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Hull can't be changed for non-Seal case")
     try:
         percent = int(args[1])
-        if not 0 <= percent <= 100:
+        if percent not in range(100):
             raise ValueError  # Mock a Value Error for invalid Hull Percentage
     except ValueError:
         return await ctx.reply(f"{args[1]!r} isn't a valid hull percentage")
@@ -620,7 +620,7 @@ async def cmd_delnote(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Removing line {target_line!r}")
     del case.case_notes[del_index]
-    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=case.case_notes)
     return await ctx.reply(f"Notes for case {case.board_id} updated.")
 
 
@@ -647,5 +647,5 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     case.case_notes[
         note_index
     ] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
-    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=case.case_notes)
     return await ctx.reply(f"Notes for case {case.board_id} updated.")
