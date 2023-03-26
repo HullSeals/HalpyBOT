@@ -166,7 +166,7 @@ def gather_case(len_args_expected: int):
                 case: Case = await get_case(ctx, args[0])
             except KeyError:
                 return await ctx.reply(f"No case found for {args[0]!r}.")
-            return await function(ctx, args, case)
+            return await function(ctx=ctx, args=args, case=case)
 
         return guarded
 
