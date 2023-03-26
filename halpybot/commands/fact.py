@@ -22,7 +22,13 @@ from ..packages.utils import (
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 from ..packages.facts import Fact
-from ..packages.checks import Require, Moderator, Admin, Cyberseal
+from ..packages.checks import (
+    needs_permission,
+    Moderator,
+    Admin,
+    Cyberseal,
+    needs_database,
+)
 from ..packages.database import NoDatabaseConnection
 
 
@@ -47,7 +53,7 @@ async def splitter(fact_payload):
 
 
 @Commands.command("factinfo")
-@Require.permission(Moderator)
+@needs_permission(Moderator)
 async def cmd_getfactdata(ctx: Context, args: List[str]):
     """
     Get information about a fact
@@ -74,8 +80,8 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
 
 
 @Commands.command("addfact")
-@Require.permission(Admin)
-@Require.database()
+@needs_permission(Admin)
+@needs_database()
 async def cmd_addfact(ctx: Context, args: List[str]):
     """
     Add a new fact to the database
@@ -117,8 +123,8 @@ async def cmd_addfact(ctx: Context, args: List[str]):
 
 
 @Commands.command("deletefact")
-@Require.permission(Admin)
-@Require.database()
+@needs_permission(Admin)
+@needs_database()
 async def cmd_deletefact(ctx: Context, args: List[str]):
     """
     Delete a fact.
@@ -182,8 +188,8 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
 
 
 @Commands.command("editfact", "updatefact")
-@Require.permission(Admin)
-@Require.database()
+@needs_permission(Admin)
+@needs_database()
 async def cmd_editfact(ctx: Context, args: List[str]):
     """
     Edit a fact
@@ -223,8 +229,8 @@ async def cmd_editfact(ctx: Context, args: List[str]):
 
 
 @Commands.command("ufi", "updatefactindex")
-@Require.permission(Cyberseal)
-@Require.database()
+@needs_permission(Cyberseal)
+@needs_database()
 async def cmd_ufi(ctx: Context, args: List[str]):
     """
     Manually update the fact cache.

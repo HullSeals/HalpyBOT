@@ -9,15 +9,15 @@ See license.md
 """
 from typing import List
 from ..packages.command import Commands, get_help_text
-from ..packages.checks import Require, Drilled
+from ..packages.checks import Drilled, needs_permission, in_channel
 from ..packages.models import Context
 from ..packages.announcer.announcer import get_edsm_data
 from ..packages.utils import sys_cleaner
 
 
 @Commands.command("drillcase")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 async def cmd_drillcase(ctx: Context, args: List[str]):
     """
     Manually create a new drill case, separated by Commas
@@ -43,8 +43,8 @@ async def cmd_drillcase(ctx: Context, args: List[str]):
 
 
 @Commands.command("drillkfcase")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 async def cmd_drillkfcase(ctx: Context, args: List[str]):
     """
     Manually create a new drill case, separated by Commas
@@ -72,8 +72,8 @@ async def cmd_drillkfcase(ctx: Context, args: List[str]):
 
 
 @Commands.command("drillcbcase")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 async def cmd_drillcbcase(ctx: Context, args: List[str]):
     """
     Manually create a new CB drill case, separated by Commas

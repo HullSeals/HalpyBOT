@@ -13,7 +13,7 @@ from typing import List
 from loguru import logger
 import aiohttp
 from ..packages.command import Commands
-from ..packages.checks import Require, Cyberseal
+from ..packages.checks import Cyberseal, needs_permission, needs_database
 from ..packages.database import NoDatabaseConnection
 from ..packages.database.connection import test_database_connection
 from ..packages.edsm import GalaxySystem
@@ -37,8 +37,8 @@ async def cmd_ping(ctx: Context, args: List[str]):
 
 
 @Commands.command("dbping")
-@Require.permission(Cyberseal)
-@Require.database()
+@needs_permission(Cyberseal)
+@needs_database()
 async def cmd_dbping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the Database.
@@ -59,7 +59,7 @@ async def cmd_dbping(ctx: Context, args: List[str]):
 
 
 @Commands.command("edsmping")
-@Require.permission(Cyberseal)
+@needs_permission(Cyberseal)
 async def cmd_edsmping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the EDSM API.

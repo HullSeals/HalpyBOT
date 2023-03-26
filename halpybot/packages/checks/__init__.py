@@ -8,10 +8,22 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .checks import Require, Pup, Drilled, Moderator, Admin, Cyberseal, Cybermgr, Owner
+from .checks import (
+    Pup,
+    Drilled,
+    Moderator,
+    Admin,
+    Cyberseal,
+    Cybermgr,
+    Owner,
+    needs_database,
+    needs_permission,
+    in_channel,
+    in_direct_message,
+    needs_aws,
+)
 
 __all__ = [
-    "Require",
     "Pup",
     "Drilled",
     "Moderator",
@@ -19,4 +31,9 @@ __all__ = [
     "Cyberseal",
     "Cybermgr",
     "Owner",
+    "needs_database",
+    "needs_permission",
+    "in_channel",
+    "in_direct_message",
+    "needs_aws",
 ]

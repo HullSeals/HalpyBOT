@@ -14,13 +14,13 @@ from loguru import logger
 import pendulum
 from halpybot import config
 from ..packages.utils import shorten
-from ..packages.checks import Require, Drilled, Pup
+from ..packages.checks import Drilled, Pup, needs_permission
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 
 
 @Commands.command("shorten")
-@Require.permission(Drilled)
+@needs_permission(Drilled)
 async def cmd_shorten(ctx: Context, args: List[str]):
     """
     Shorten a given URL with the configured YOURLS API
@@ -62,7 +62,7 @@ async def cmd_roll(ctx: Context, args: List[str]):
 
 
 @Commands.command("fireball")
-@Require.permission(Pup)
+@needs_permission(Pup)
 async def cmd_fireball(ctx: Context, args: List[str]):
     """
     FOR FIREBALL!

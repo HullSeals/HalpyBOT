@@ -33,7 +33,7 @@ from ..packages.models import (
     KFType,
     Seal,
 )
-from ..packages.checks import Require, Drilled, Pup
+from ..packages.checks import Drilled, Pup, needs_permission, in_channel
 from ..packages.case import update_single_elem_case_prep, get_case
 
 
@@ -114,7 +114,7 @@ async def cmd_go(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("welcome")
-@Require.permission(Pup)
+@needs_permission(Pup)
 async def cmd_welcome(ctx: Context, args: List[str]):
     """
     Welcome the Client and add an identified Seal as a Dispatch responder.
@@ -149,8 +149,8 @@ async def cmd_welcome(ctx: Context, args: List[str]):
 
 # RESPONDER MANAGEMENT:
 @Commands.command("addresp", "newseal")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_addresp(ctx: Context, args: List[str], case: Case):
     """
@@ -164,8 +164,8 @@ async def cmd_addresp(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("adddisp", "newspatch")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_adddisp(ctx: Context, args: List[str], case: Case):
     """
@@ -179,8 +179,8 @@ async def cmd_adddisp(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("remresp", "standdown", "stddn")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_remresp(ctx: Context, args: List[str], case: Case):
     """
@@ -194,8 +194,8 @@ async def cmd_remresp(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("remdisp")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_remdisp(ctx: Context, args: List[str], case: Case):
     """
@@ -210,7 +210,7 @@ async def cmd_remdisp(ctx: Context, args: List[str], case: Case):
 
 # BOARD AND CASE LISTING
 @Commands.command("listboard")
-@Require.permission(Drilled)
+@needs_permission(Drilled)
 async def cmd_listboard(ctx: Context, args: List[str]):
     """
     Send a user the key details of every case on the board in DMs
@@ -272,7 +272,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
 
 @Commands.command("listcase")
-@Require.permission(Drilled)
+@needs_permission(Drilled)
 @gather_case(1)
 async def cmd_listcase(ctx: Context, args: List[str], case: Case):
     """
@@ -286,8 +286,8 @@ async def cmd_listcase(ctx: Context, args: List[str], case: Case):
 
 # CASE MANAGEMENT
 @Commands.command("rename")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
     """
@@ -309,8 +309,8 @@ async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("ircn")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_ircn(ctx: Context, args: List[str], case: Case):
     """
@@ -330,8 +330,8 @@ async def cmd_ircn(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("system")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_system(ctx: Context, args: List[str], case: Case):
     """
@@ -357,8 +357,8 @@ async def cmd_system(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("status")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_status(ctx: Context, args: List[str], case: Case):
     """
@@ -386,8 +386,8 @@ async def cmd_status(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("hull")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_hull(ctx: Context, args: List[str], case: Case):
     """
@@ -414,8 +414,8 @@ async def cmd_hull(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("changetype")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_changetype(ctx: Context, args: List[str], case: Case):
     """
@@ -451,8 +451,8 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("platform")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_platform(ctx: Context, args: List[str], case: Case):
     """
@@ -492,8 +492,8 @@ async def cmd_platform(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("planet")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_planet(ctx: Context, args: List[str], case: Case):
     """
@@ -511,8 +511,8 @@ async def cmd_planet(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("casecoords")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(3)
 async def cmd_coords(ctx: Context, args: List[str], case: Case):
     """
@@ -539,8 +539,8 @@ async def cmd_coords(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("o2time")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
     """
@@ -564,8 +564,8 @@ async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("synth")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_synth(ctx: Context, args: List[str], case: Case):
     """
@@ -592,8 +592,8 @@ async def cmd_synth(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("canopy")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_canopy(ctx: Context, args: List[str], case: Case):
     """
@@ -621,8 +621,8 @@ async def cmd_canopy(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("kftype")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
     """
@@ -655,8 +655,8 @@ async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
 
 # NOTES MANAGEMENT
 @Commands.command("notes", "updatenotes", "addnote")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_notes(ctx: Context, args: List[str], case: Case):
     """
@@ -675,7 +675,7 @@ async def cmd_notes(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("listnotes")
-@Require.permission(Drilled)
+@needs_permission(Drilled)
 @gather_case(1)
 async def cmd_listnotes(ctx: Context, args: List[str], case: Case):
     """
@@ -693,8 +693,8 @@ async def cmd_listnotes(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("delnote")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(2)
 async def cmd_delnote(ctx: Context, args: List[str], case: Case):
     """
@@ -719,8 +719,8 @@ async def cmd_delnote(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("editnote")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 @gather_case(3)
 async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     """

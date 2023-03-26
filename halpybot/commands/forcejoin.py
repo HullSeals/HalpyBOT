@@ -10,15 +10,15 @@ See license.md
 
 from typing import List, Optional
 from halpybot import config
-from ..packages.checks import Require, Drilled
+from ..packages.checks import in_channel, Drilled, needs_permission
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 from ..packages.models import User
 
 
 @Commands.command("forcejoin")
-@Require.channel()
-@Require.permission(Drilled)
+@in_channel()
+@needs_permission(Drilled)
 async def cmd_sajoin(ctx: Context, args: List[str]):
     """
     Make the bot force a user to join a channel.
@@ -64,8 +64,8 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
 
 
 @Commands.command("rrjoin")
-@Require.channel()
-@Require.permission(Drilled)
+@in_channel()
+@needs_permission(Drilled)
 async def cmd_rrjoin(ctx: Context, args: List[str]):
     """
     Make the bot force a user to join the repair channel.

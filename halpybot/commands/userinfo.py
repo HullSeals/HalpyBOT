@@ -12,7 +12,7 @@ from sqlalchemy.engine import Engine
 from halpybot.packages.command.commandhandler import get_help_text
 from ..packages.seals import whois
 from ..packages.command import Commands
-from ..packages.checks import Require, Pup
+from ..packages.checks import needs_permission, needs_database, Pup
 from ..packages.models import Context, Seal
 
 
@@ -29,8 +29,8 @@ async def whois_fetch(engine: Engine, cmdr: str):
 
 
 @Commands.command("whois")
-@Require.permission(Pup)
-@Require.database()
+@needs_permission(Pup)
+@needs_database()
 async def cmd_whois(ctx: Context, args: List[str]):
     """
     List user information of a given user
@@ -51,8 +51,8 @@ async def cmd_whois(ctx: Context, args: List[str]):
 
 
 @Commands.command("whoami")
-@Require.permission(Pup)
-@Require.database()
+@needs_permission(Pup)
+@needs_database()
 async def cmd_whoami(ctx: Context, args: List[str]):
     """
     List user information of a given user
