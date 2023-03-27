@@ -113,27 +113,20 @@ async def cmd_listboard(ctx: Context, args: List[str]):
         return await ctx.redirect("The case board is empty!")
     # Process Args (If Exist)
     list_filter = args[0].casefold() if args else None
-    if not list_filter:
-        filtered_cases = caseboard.values()
-    else:
-        filtered_cases = (
-            case
-            for case in caseboard.values()
-            if list_filter
-            in (
-                case.platform.name.casefold().replace("_horizons", ""),
-                case.case_type.name.casefold(),
-            )
-        )
-
+    hskf_by_type = {
+        CaseType.SEAL: "Seal",
+        CaseType.BLACK: "Seal",
+        CaseType.BLUE: "Seal",
+        CaseType.FISH: "Fisher",
+    }
+    count = 0
     message = "Here's the current case board:\n\n"
-    for case in filtered_cases:
-        hskf_by_type = {
-            CaseType.SEAL: "Seal",
-            CaseType.BLACK: "Seal",
-            CaseType.BLUE: "Seal",
-            CaseType.FISH: "Fisher",
-        }
+    for case in caseboard.values():
+        if list_filter and list_filter not in (
+            case.platform.name.casefold().replace("_horizons", ""),
+            case.case_type.name.casefold(),
+        ):
+            continue
         hskf = hskf_by_type.get(case.case_type, "Unknown")
         long_ago = now(tz="utc").diff(case.updated_time).in_words()
         plt = case.platform.name.replace("_", " ")
@@ -141,10 +134,13 @@ async def cmd_listboard(ctx: Context, args: List[str]):
             f"Case {case.board_id}: Client: {case.client_name}, Platform: {plt}, "
             f"Type: {hskf}, Status: {case.status.name}, Updated: {long_ago} ago.\n"
         )
+        count += 1
 
     message += f"\n{len(caseboard)} Cases on the Board."
     if list_filter:
-        message += f" Showing {len(list(filtered_cases))} that match(es) the filter {list_filter!r}."
+        message += f" Showing {count} that match(es) the filter {list_filter!r}."
+    if count == 0:
+        message = f"No cases on the board that match the filter {list_filter!r}."
     return await ctx.redirect(message)
 
 
