@@ -26,15 +26,25 @@ async def test_case_list(bot_fx):
         message=f"{config.irc.command_prefix}listcase 1",
     )
     print(bot_fx.sent_messages[1])
-    assert bot_fx.sent_messages[1] == {
-        "message": "Here's the self listing for Case ID 1:\n"
-        " General Details: \n   Client: one\n   System: Delkar\n"
-        "   Platform: ODYSSEY\n   Case Created: 0.00 second ago\n"
-        "   Case Updated: 0.00 second ago\n   Case Status: ACTIVE\n"
-        "   Client Welcomed: No\nCode Black Details:\n   "
-        "Hull Remaining: None\n   Canopy Status: Intact\n   "
-        "O2 Reported Time: None\n   Synths Available: No\nResponder "
-        "Details:\n   Dispatchers: None Yet!\n   Responders: None Yet!\n"
-        "   Notes: \n      None Yet!",
-        "target": "generic_seal",
-    }
+    assert bot_fx.sent_messages[1].get("target") == "generic_seal"
+    assert (
+        bot_fx.sent_messages[1]
+        .get("message")
+        .startswith(
+            "Here's the self listing for Case ID 1:\n"
+            " General Details: \n   Client: one\n   System: Delkar\n"
+            "   Platform: ODYSSEY\n   Case Created:"
+        )
+    )
+    assert (
+        bot_fx.sent_messages[1]
+        .get("message")
+        .endswith(
+            "Case Status: ACTIVE\n"
+            "   Client Welcomed: No\nCode Black Details:\n   "
+            "Hull Remaining: None\n   Canopy Status: Intact\n   "
+            "O2 Reported Time: None\n   Synths Available: No\nResponder "
+            "Details:\n   Dispatchers: None Yet!\n   Responders: None Yet!\n"
+            "   Notes: \n      None Yet!"
+        )
+    )

@@ -780,3 +780,54 @@ async def test_coords_4(bot_fx):
         "message": "No systems known to EDSM within 100ly of 1000000000, 20000000000, 30000000000.",
         "target": "#bot-test",
     }
+
+
+@pytest.mark.asyncio
+async def test_diversion(bot_fx):
+    """Test the diversion command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config.irc.command_prefix}diversion Sol",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("Closest Diversion Stations to SOL:")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_dssa(bot_fx):
+    """Test the DSSA command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config.irc.command_prefix}dssa Sol",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("The closest DSSA Carrier is in")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_landmark(bot_fx):
+    """Test the landmark command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config.irc.command_prefix}landmark Sol",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("The closest landmark system is")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"

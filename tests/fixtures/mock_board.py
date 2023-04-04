@@ -11,6 +11,11 @@ See license.md
 from halpybot.packages.models import Platform, Case, CaseType
 
 
+async def mock_empty_board(bot_fx):
+    bot_fx.board._cases_by_id = {}
+    bot_fx.board._case_alias_name = {}
+
+
 async def mock_full_board_fx(bot_fx):
     bot_fx.board._cases_by_id = {
         1: Case(
