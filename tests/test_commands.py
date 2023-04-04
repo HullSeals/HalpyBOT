@@ -7,10 +7,15 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+from unittest.mock import patch
 
 import pytest
+from aiohttp import ClientResponse
+
+import halpybot.packages.utils
 from halpybot.packages.command import Commands
 from halpybot import config
+from halpybot.packages.utils import shorten
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
@@ -829,5 +834,40 @@ async def test_landmark(bot_fx):
         bot_fx.sent_messages[0]
         .get("message")
         .startswith("The closest landmark system is")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_fireball(bot_fx):
+    """Test the Fireball and Dice Rolling Commands"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_pup",
+        message=f"{config.irc.command_prefix}fireball",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("Kawoosh! some_pup cast a fireball on chat! Rolling for damage...")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+    assert bot_fx.sent_messages[1].get("message").startswith("some_pup:")
+
+
+@pytest.mark.asyncio
+async def test_roll_bad(bot_fx):
+    """Test the Fireball and Dice Rolling Commands"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_pup",
+        message=f"{config.irc.command_prefix}roll bacon",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("Use: ^roll #d# \nRoll the dice! (Up to 10 dice of any size)")
     )
     assert bot_fx.sent_messages[0].get("target") == "#bot-test"

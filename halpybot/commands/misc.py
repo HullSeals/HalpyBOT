@@ -48,17 +48,17 @@ async def cmd_roll(ctx: Context, args: List[str]):
     if not args:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
     dicesearch = re.search(r"^\d+d\d+$", args[0])
-    if dicesearch is not None:
-        dice = args[0].split("d")
-        if int(dice[0]) > 10:
-            return await ctx.reply("Can't roll more than 10 dice at a time!")
-        rolls = []
-        for roll in range(int(dice[0])):
-            dice_roll = random.randint(1, int(dice[1]))
-            rolls.append(dice_roll)
-        total = sum(rolls)
-        return await ctx.reply(f"{ctx.sender}: {total} {str(rolls)}")
-    return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
+    if dicesearch is None:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
+    dice = args[0].split("d")
+    if int(dice[0]) > 10:
+        return await ctx.reply("Can't roll more than 10 dice at a time!")
+    rolls = []
+    for roll in range(int(dice[0])):
+        dice_roll = random.randint(1, int(dice[1]))
+        rolls.append(dice_roll)
+    total = sum(rolls)
+    return await ctx.reply(f"{ctx.sender}: {total} {str(rolls)}")
 
 
 @Commands.command("fireball")
