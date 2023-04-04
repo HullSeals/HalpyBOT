@@ -15,6 +15,9 @@ from halpybot import config
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
 
+# noinspection PyUnresolvedReferences
+from .fixtures.mock_board import mock_full_board_fx
+
 config.offline_mode.enabled = False
 config.edsm.uri = "http://127.0.0.1:4000"
 
@@ -540,15 +543,16 @@ async def test_drillcb_unauth(bot_fx):
 @pytest.mark.asyncio
 async def test_go_valid(bot_fx):
     """Test the GO command"""
-    await bot_fx.facts.fetch_facts(bot_fx.engine, preserve_current=True)
+    await mock_full_board_fx(bot_fx)
+    await bot_fx.facts._from_local()
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config.irc.command_prefix}go some_pup",
+        message=f"{config.irc.command_prefix}go 1 Rixxan",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": "some_pup: You're up.",
+        "message": "Rixxan: You're up.",
         "target": "#bot-test",
     }
 
@@ -556,12 +560,13 @@ async def test_go_valid(bot_fx):
 @pytest.mark.asyncio
 async def test_go_guest(bot_fx):
     """Test the GO command"""
-    await bot_fx.facts.fetch_facts(bot_fx.engine, preserve_current=True)
+    await mock_full_board_fx(bot_fx)
+    await bot_fx.facts._from_local()
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config.irc.command_prefix}go guest_user",
+        message=f"{config.irc.command_prefix}go 1 guest_user",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "generic_seal: guest_user is not identified as a trained seal. Have them check their IRC setup?",
