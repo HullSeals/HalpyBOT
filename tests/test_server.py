@@ -7,12 +7,13 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+import json
 import aiohttp
 from aiohttp import web
 from aiohttp.test_utils import make_mocked_request
 import pytest
-
 from halpybot import DEFAULT_USER_AGENT, config
+from halpybot.server.auth import get_hmac
 from halpybot.server.server import server_root, APIConnector
 from tests.fixtures import TestBot
 
@@ -43,11 +44,15 @@ async def test_announce(bot_fx: TestBot):
             "Hull": "25",
         },
     }
-    hmac = "1b06dff4ed1755f17c108a5a501ff62352ae5f61cee3052dce74aae22326725e"
-    keyCheck = "85035ef5eee3c98b4898d2047012a20e828324cf3abf037db2f6de922a5049d2"
+    msg = json.dumps(body)
+    msg = "".join(msg.split())
+    mac = get_hmac(msg).hexdigest()
+    check = get_hmac(
+        config.api_connector.key_check_constant.get_secret_value()
+    ).hexdigest()
     async with aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(ssl=False),
-        headers={"User-Agent": DEFAULT_USER_AGENT, "hmac": hmac, "keyCheck": keyCheck},
+        headers={"User-Agent": DEFAULT_USER_AGENT, "hmac": mac, "keyCheck": check},
     ) as session:
         async with await session.post(
             f"http://127.0.0.1:{config.api_connector.port}/announce", json=body

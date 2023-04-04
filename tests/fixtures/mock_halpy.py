@@ -25,6 +25,8 @@ from halpybot.packages.ircclient import HalpyBOT
 class TestBot(HalpyBOT):
     """A Fully-Lobotimized Version of HalpyBOT"""
 
+    __test__ = False
+
     # First, Grab the stuff from the HalpyBOT class.
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
