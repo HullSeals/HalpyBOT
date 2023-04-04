@@ -32,7 +32,7 @@ async def test_announce(bot_fx: TestBot):
     runner = web.AppRunner(APIConnector)
     runner.app["botclient"] = bot_fx
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port=config.api_connector.port)
+    site = web.TCPSite(runner, "127.0.0.1", port=config.api_connector.port)
     await site.start()
     body = {
         "type": "SEALCASE",
@@ -56,7 +56,7 @@ async def test_announce(bot_fx: TestBot):
     await site.stop()
     assert bot_fx.sent_messages[0] == {
         "message": "xxxx PCLCASE -- NEWCASE xxxx\nCMDR: InHoomansLeftEar2 -- Platform: "
-                   "LIVE HORIZONS\nSystem: SOL -- Hull: 25\nxxxx Case ID: 1 xxxx\nSystem"
-                   " exists in EDSM, 0.0 LY South of Sol.",
+        "LIVE HORIZONS\nSystem: SOL -- Hull: 25\nxxxx Case ID: 1 xxxx\nSystem"
+        " exists in EDSM, 0.0 LY South of Sol.",
         "target": "#bot-test",
     }
