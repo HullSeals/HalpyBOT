@@ -1,5 +1,5 @@
 """
-test_server.py - Permission check module tests
+test_server.py - Server module tests
 
 Copyright (c) The Hull Seals,
 All rights reserved.
