@@ -11,7 +11,7 @@ See license.md
 
 from typing import Dict
 from aiohttp import web, web_request
-from ..packages.announcer import AnnouncementError, AlreadyExistsError, KFCoordsError
+from ..packages.exceptions import AnnouncementError, AlreadyExistsError, KFCoordsError
 from ..packages.ircclient import HalpyBOT
 from .server import APIConnector
 from .auth import authenticate

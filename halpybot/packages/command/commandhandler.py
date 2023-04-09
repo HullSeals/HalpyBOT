@@ -12,28 +12,11 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING, Dict, Optional, Tuple, Callable
 from loguru import logger
 from halpybot import config
+from ..exceptions import CommandHandlerError, CommandAlreadyExists
 from ..models import Context, HelpArguments
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
-
-
-class CommandException(Exception):
-    """
-    Base exception for all commands
-    """
-
-
-class CommandHandlerError(CommandException):
-    """
-    Base exception for command errors
-    """
-
-
-class CommandAlreadyExists(CommandHandlerError):
-    """
-    Raised when a command is registered twice
-    """
 
 
 class CommandGroup:

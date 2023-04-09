@@ -14,18 +14,7 @@ import aiohttp
 from loguru import logger
 
 from halpybot import DEFAULT_USER_AGENT
-
-
-class DiscordWebhookError(Exception):
-    """
-    Base class for Discord webhook errors
-    """
-
-
-class WebhookSendError(DiscordWebhookError):
-    """
-    An exception occurred while sending a Discord Webhook
-    """
+from halpybot.packages.exceptions import WebhookSendError
 
 
 async def send_webhook(

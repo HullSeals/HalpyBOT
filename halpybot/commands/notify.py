@@ -13,6 +13,7 @@ from loguru import logger
 from halpybot import config
 from ..packages import notify
 from ..packages.checks import Require, Moderator, Admin, Owner, Pup
+from ..packages.exceptions import NotificationFailure, SubscriptionError, SNSError
 from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.models import Context
 
@@ -65,7 +66,7 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     try:
         results = await notify.list_topics()
-    except notify.SNSError:
+    except SNSError:
         logger.exception("Unable to get group data from AWS.")
         return await ctx.reply(
             "Unable to retrieve group data from AWS servers, "
@@ -116,7 +117,7 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
             f"Following endpoints are subscribed to group {group}: {results}"
         )
 
-    except notify.SNSError:
+    except SNSError:
         logger.exception("Unable to get info from AWS.")
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
 
@@ -155,7 +156,7 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
             "Please specify a valid email address or phone number"
             "in international format."
         )
-    except notify.SubscriptionError:
+    except SubscriptionError:
         logger.exception("Unable to add subscription.")
         return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
@@ -180,7 +181,7 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     )
     try:
         await notify.send_notification(topic, message, subject)
-    except notify.NotificationFailure:
+    except NotificationFailure:
         logger.exception("Notification not sent! I hope it wasn't important...")
         return await ctx.reply("Unable to send the notification!")
     return await ctx.reply(
@@ -211,7 +212,7 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     )
     try:
         await notify.send_notification(topic, message, subject)
-    except notify.NotificationFailure:
+    except NotificationFailure:
         logger.exception("Notification not sent! I hope it wasn't important...")
         return await ctx.reply("Unable to send the notification!")
     return await ctx.reply(

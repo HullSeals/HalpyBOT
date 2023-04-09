@@ -14,8 +14,9 @@ import pendulum
 from halpybot import config
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Require, Drilled
+from ..packages.exceptions import WebhookSendError
 from ..packages.models import Context, User
-from ..packages.announcer import send_webhook, WebhookSendError
+from ..packages.announcer import send_webhook
 
 
 async def send_message(message_content: str, sender: str, embeds):

@@ -11,15 +11,18 @@ from __future__ import annotations
 import re
 import json
 import asyncio
-from typing import Dict, Optional, Union, TYPE_CHECKING, Any
+from typing import Dict, Optional, Union, TYPE_CHECKING, Any, List
 import aiohttp
+from attr import evolve
 from loguru import logger
 from pydantic import SecretStr
 from halpybot import DEFAULT_USER_AGENT
 from halpybot.commands.notify import format_notification, notify
+from halpybot.packages.exceptions import NotificationFailure
+from halpybot.packages.command import get_help_text
 from halpybot.packages.database import NoDatabaseConnection, test_database_connection
 from halpybot import config
-from halpybot.packages.models import User
+from halpybot.packages.models import User, Context
 
 if TYPE_CHECKING:
     from halpybot.packages.ircclient import HalpyBOT
@@ -51,6 +54,21 @@ def strip_non_ascii(string: str) -> tuple:
     """
     res = re.subn(r"[^\x00-\x7f]", r"", string)
     return res[0], bool(res != (string, 0))
+
+
+async def cache_prep(ctx: Context, args: List[str]):
+    """Check if Cache Override should be set"""
+    cache_override = False
+    if len(args) == 0:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
+    if args[0] == "--new":
+        cache_override = True
+        del args[0]
+        ctx = evolve(ctx, message=" ".join(args))
+        if not ctx.message:
+            return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
+    message = ctx.message.strip()
+    return message, cache_override
 
 
 async def web_get(
@@ -154,7 +172,75 @@ async def _one_week_task(botclient: HalpyBOT):
                 )
                 try:
                     await notify.send_notification(topic, message, subject)
-                except notify.NotificationFailure:
+                except NotificationFailure:
                     logger.exception(
                         "Notification not sent! I hope it wasn't important..."
                     )
+
+
+async def sys_cleaner(sys_name: str) -> str:
+    """
+    Attempt to match a given system string to the procedurally generated system naming convention.
+
+    Args:
+        sys_name (str): The given string which should be a system name.
+
+    Returns:
+        (str): The processed string, possibly matched to a procedurally generated naming convention.
+    """
+    orig_sys = sys_name
+    sys_name = " ".join(sys_name.split())
+    sys_name = sys_name.upper()
+
+    # Remove any appended "SYSTEM" from the input.
+    if sys_name.endswith("SYSTEM"):
+        sys_name = (sys_name[:-6]).strip()
+
+    try:
+        if "-" in sys_name:
+            sys_name_list = sys_name.split()
+            sys_name = ""
+            for index, block in enumerate(sys_name_list):
+                sys_name += block + " "
+                if "-" in block:
+                    sys_name += sys_name_list[index + 1]
+                    break
+
+            swaps = {"0": "O", "1": "I", "5": "S", "8": "B"}
+            unswaps = {value: key for key, value in swaps.items()}
+            sys_name_parts = sys_name.split()
+
+            # Final part is either LN or LN-N, so [1:] is N or N-N
+            letter = sys_name_parts[-1][0]
+            tmp = swaps[letter] if letter in swaps else letter
+            for char in sys_name_parts[-1][1:]:
+                if char in unswaps:
+                    tmp += unswaps[char]
+                else:
+                    tmp += char
+            sys_name_parts[-1] = tmp
+
+            # This part it LL-L
+            tmp = ""
+            for char in sys_name_parts[-2]:
+                if char in swaps:
+                    tmp += swaps[char]
+                else:
+                    tmp += char
+            sys_name_parts[-2] = tmp
+
+            sys_name = " ".join(sys_name_parts)
+    except IndexError:
+        logger.info(
+            "System cleaner thought {sys_name} was proc-gen and could not correct formatting",
+            sys_name=sys_name,
+        )
+        return sys_name.strip()
+    if sys_name == orig_sys:
+        return sys_name.strip()
+    logger.debug(
+        "System cleaner produced {sys_name} from {orig_sys}",
+        sys_name=sys_name,
+        orig_sys=orig_sys,
+    )
+    return sys_name.strip()
