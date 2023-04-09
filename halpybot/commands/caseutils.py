@@ -9,6 +9,7 @@ See license.md
 """
 import re
 from typing import List
+from attrs.converters import to_bool
 from pendulum import now
 from halpybot import config
 from ..packages.exceptions import NoUserFound, NoResultsEDSM, EDSMConnectionError
@@ -86,51 +87,35 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     if not caseboard:
         return await ctx.redirect("The case board is empty!")
     # Process Args (If Exist)
-    if args:
-        platforms = [
-            member.name.casefold().replace("_horizons", "") for member in Platform
-        ]
-        casetypes = [member.name.casefold() for member in CaseType]
-        list_filter = args[0].casefold()
-        if list_filter not in casetypes and list_filter not in platforms:
-            list_filter = None
-    else:
-        list_filter = None
-
-    filtered_cases = [
-        case
-        for case in caseboard.values()
-        if (not list_filter)
-        or (
-            list_filter
-            in (
-                case.platform.name.casefold().replace("_horizons", ""),
-                case.case_type.name.casefold(),
-            )
-        )
-    ]
-
+    list_filter = args[0].casefold() if args else None
+    hskf_by_type = {
+        CaseType.SEAL: "Seal",
+        CaseType.BLACK: "Seal",
+        CaseType.BLUE: "Seal",
+        CaseType.FISH: "Fisher",
+    }
+    count = 0
     message = "Here's the current case board:\n\n"
-    for case in filtered_cases:
-        hskf = (
-            "Seal"
-            if case.case_type in (CaseType.SEAL, CaseType.BLUE, CaseType.BLACK)
-            else "Fisher"
-            if case.case_type == CaseType.FISH
-            else "Unknown"
-        )
+    for case in caseboard.values():
+        if list_filter and list_filter not in (
+            case.platform.name.casefold().replace("_horizons", ""),
+            case.case_type.name.casefold(),
+        ):
+            continue
+        hskf = hskf_by_type.get(case.case_type, "Unknown")
         long_ago = now(tz="utc").diff(case.updated_time).in_words()
         plt = case.platform.name.replace("_", " ")
         message += (
             f"Case {case.board_id}: Client: {case.client_name}, Platform: {plt}, "
             f"Type: {hskf}, Status: {case.status.name}, Updated: {long_ago} ago.\n"
         )
+        count += 1
 
     message += f"\n{len(caseboard)} Cases on the Board."
     if list_filter:
-        message += (
-            f" Showing {len(filtered_cases)} that match(es) the filter {list_filter!r}."
-        )
+        message += f" Showing {count} that match(es) the filter {list_filter!r}."
+    if count == 0:
+        message = f"No cases on the board that match the filter {list_filter!r}."
     return await ctx.redirect(message)
 
 
@@ -265,7 +250,7 @@ async def cmd_hull(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Hull can't be changed for non-Seal case")
     try:
         percent = int(args[1])
-        if not 0 <= percent <= 100:
+        if percent not in range(100):
             raise ValueError  # Mock a Value Error for invalid Hull Percentage
     except ValueError:
         return await ctx.reply(f"{args[1]!r} isn't a valid hull percentage")
@@ -297,15 +282,19 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
     FISH = 4
     """
     potential_type = args[1].casefold()
-    if potential_type == "seal":
-        new_type = CaseType.SEAL
-    elif potential_type in ("kf", "fisher", "fish", "kingfish", "kingfisher"):
-        new_type = CaseType.FISH
-    elif potential_type == "blue":
-        new_type = CaseType.BLUE
-    elif potential_type in ("black", "cb"):
-        new_type = CaseType.BLACK
-    else:
+    type_lookup = {
+        "seal": CaseType.SEAL,
+        "kf": CaseType.FISH,
+        "fisher": CaseType.FISH,
+        "fish": CaseType.FISH,
+        "kingfish": CaseType.FISH,
+        "kingfisher": CaseType.FISH,
+        "blue": CaseType.BLUE,
+        "black": CaseType.BLACK,
+        "cb": CaseType.BLACK,
+    }
+    new_type = type_lookup.get(potential_type)
+    if new_type is None:
         return await ctx.reply("Invalid New Case Type Given.")
     update = await update_single_elem_case_prep(
         ctx=ctx,
@@ -337,18 +326,25 @@ async def cmd_platform(ctx: Context, args: List[str], case: Case):
     LIVE_HORIZONS = 5
     UNKNOWN = 6
     """
+    platform_lookup = {
+        "odyssey": Platform.ODYSSEY,
+        "ody": Platform.ODYSSEY,
+        "pc": Platform.ODYSSEY,
+        "pc-o": Platform.ODYSSEY,
+        "xbx": Platform.XBOX,
+        "xb": Platform.XBOX,
+        "xbox": Platform.XBOX,
+        "ps4": Platform.PLAYSTATION,
+        "ps": Platform.PLAYSTATION,
+        "playstation": Platform.PLAYSTATION,
+        "live": Platform.LIVE_HORIZONS,
+        "horizons-live": Platform.LIVE_HORIZONS,
+        "legacy": Platform.LEGACY_HORIZONS,
+        "legacy-horizons": Platform.LEGACY_HORIZONS,
+    }
     potential_plt = args[1].casefold()
-    if potential_plt in ("odyssey", "ody", "pc", "pc-o"):
-        new_plt = Platform.ODYSSEY
-    elif potential_plt in ("xbx", "xb", "xbox"):
-        new_plt = Platform.XBOX
-    elif potential_plt in ("ps4", "ps", "playstation"):
-        new_plt = Platform.PLAYSTATION
-    elif potential_plt in ("live", "horizons-live"):
-        new_plt = Platform.LIVE_HORIZONS
-    elif potential_plt in ("legacy", "legacy-horizons"):
-        new_plt = Platform.LEGACY_HORIZONS
-    else:
+    new_plt = platform_lookup.get(potential_plt)
+    if new_plt is None:
         return await ctx.reply("Invalid New Case Type Given.")
     update = await update_single_elem_case_prep(
         ctx=ctx,
@@ -451,20 +447,18 @@ async def cmd_synth(ctx: Context, args: List[str], case: Case):
     Usage: !synth [board ID] [Yes/True/No/False]
     Aliases: n/a
     """
-    if args[1].casefold() in ("yes", "true"):
-        new_synth = True
-    elif args[1].casefold() in ("no", "false"):
-        new_synth = False
-    else:
+    try:
+        new_stat = to_bool(args[1].casefold())
+    except ValueError:
         return await ctx.reply("Invalid synth ability given.")
-    if new_synth == case.can_synth:
-        return await ctx.reply(f"Synth available already set to {new_synth}")
+    if new_stat == case.can_synth:
+        return await ctx.reply(f"Synth available already set to {new_stat}")
     update = await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Synth Status",
         new_key="can_synth",
-        new_item=new_synth,
+        new_item=new_stat,
     )
     if update:
         return await ctx.reply(update)
@@ -482,12 +476,15 @@ async def cmd_canopy(ctx: Context, args: List[str], case: Case):
     Aliases: n/a
     """
     # Gather Args
-    if args[1].casefold() in ("yes", "true", "broken"):
-        canopy_broken = True
-    elif args[1].casefold() in ("no", "false", "intact"):
-        canopy_broken = False
-    else:
-        return await ctx.reply("Invalid Canopy Status given.")
+    try:
+        canopy_broken = to_bool(args[1].casefold())
+    except ValueError:
+        if args[1].casefold() == "broken":
+            canopy_broken = True
+        elif args[1].casefold() == "intact":
+            canopy_broken = False
+        else:
+            return await ctx.reply("Invalid Canopy Status given.")
     if case.case_type not in (CaseType.BLACK, CaseType.BLUE):
         return await ctx.reply("Canopy Status Can't Be Changed for Non-CB Cases!")
     update = await update_single_elem_case_prep(
@@ -593,9 +590,8 @@ async def cmd_delnote(ctx: Context, args: List[str], case: Case):
     except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Removing line {target_line!r}")
-    notes: List[str] = case.case_notes
-    del notes[del_index]
-    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+    del case.case_notes[del_index]
+    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=case.case_notes)
     return await ctx.reply(f"Notes for case {case.board_id} updated.")
 
 
@@ -619,7 +615,8 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Editing line {target_line!r} to the provided text.")
-    notes: List[str] = case.case_notes
-    notes[note_index] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
-    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+    case.case_notes[
+        note_index
+    ] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
+    await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=case.case_notes)
     return await ctx.reply(f"Notes for case {case.board_id} updated.")
