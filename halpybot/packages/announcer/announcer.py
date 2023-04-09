@@ -182,7 +182,7 @@ class Announcer:
             raise AlreadyExistsError from aee
         except KFCoordsError as kf_err:
             logger.exception("KFCoords were invalid!")
-            raise KFCoordsError from kf_err
+            raise
         except Exception as announcement_exception:
             logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
