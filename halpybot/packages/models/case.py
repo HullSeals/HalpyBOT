@@ -30,6 +30,16 @@ class Status(Enum):
     ACTIVE = 0
     CLOSED = 1
     DELAYED = 2
+    INACTIVE = 3
+
+
+class CaseType(Enum):
+    """What Type of Seal Case"""
+
+    SEAL = 1
+    BLACK = 2
+    BLUE = 3
+    FISH = 4
 
 
 @define(frozen=True)
@@ -38,6 +48,15 @@ class KFCoords:
 
     x: float
     y: float
+
+
+class KFType(Enum):
+    """Kingfisher Case Subtypes"""
+
+    LIFT = 0
+    GOLF = 1
+    PUCK = 2
+    PICK = 3
 
 
 @define(frozen=True, str=False)
@@ -50,6 +69,7 @@ class Case:
     system: str
     platform: Platform
     board_id: int
+    case_type: CaseType
     creation_time: DateTime = field(factory=lambda: now(tz="utc"))
     updated_time: DateTime = field(factory=lambda: now(tz="utc"))
     status: Status = Status.ACTIVE
@@ -62,7 +82,7 @@ class Case:
 
     # Da Optionalz
     irc_nick: Optional[str] = None
-    can_synth: Optional[str] = None
+    can_synth: Optional[bool] = None
     o2_timer: Optional[str] = None
 
     # For Seal Cases
@@ -72,7 +92,7 @@ class Case:
     # For Kingfisher Cases
     planet: Optional[str] = None
     pcoords: Optional[KFCoords] = None
-    kftype: Optional[str] = None
+    kftype: Optional[KFType] = None
 
     def __str__(self) -> str:
         """Format case information in a ready-to-be-sent format
@@ -89,26 +109,26 @@ class Case:
         message = (
             f"Here's the self listing for Case ID {self.board_id}:\n "
             f"General Details: \n"
-            f"    Client: {self.client_name}\n"
-            f"    System: {self.system}\n"
-            f"    Platform: {plt}\n"
-            f"    Case Created: {created} ago\n"
-            f"    Case Updated: {updated} ago\n"
-            f"    Case Status: {self.status.name}\n"
-            f"    Client Welcomed: {'Yes' if self.welcomed else 'No'}\n"
+            f"   Client: {self.client_name}\n"
+            f"   System: {self.system}\n"
+            f"   Platform: {plt}\n"
+            f"   Case Created: {created} ago\n"
+            f"   Case Updated: {updated} ago\n"
+            f"   Case Status: {self.status.name}\n"
+            f"   Client Welcomed: {'Yes' if self.welcomed else 'No'}\n"
         )
         if self.irc_nick:
             message += f"   IRC Nickname: {self.irc_nick}\n"
         if self.closed_to:
             message += f"   Case Closed To: {self.closed_to}\n"  # TODO: Translate to Seal Name (#333)
-        elif self.planet:
+        if self.case_type == CaseType.FISH:
             message += (
                 f"KF Details:\n"
                 f"   Planet: {self.planet}\n"
                 f"   Coordinates: {self.pcoords}\n"
-                f"   Case Type: {self.kftype}\n"
+                f"   Case Type: {self.kftype.name}\n"
             )
-        elif self.can_synth:
+        elif self.case_type in (CaseType.BLACK, CaseType.BLUE):
             message += (
                 f"Code Black Details:\n"
                 f"   Hull Remaining: {self.hull_percent}\n"
@@ -118,10 +138,14 @@ class Case:
             )
         else:
             message += f"Case Details:\n" f"   Hull Remaining: {self.hull_percent}\n"
+        if self.case_notes:
+            case_notes = "\n      ".join(self.case_notes)
+        else:
+            case_notes = "None Yet!"
         message += (
             f"Responder Details:\n"
             f"   Dispatchers: {', '.join(self.dispatchers) if self.dispatchers else 'None Yet!'}\n"
             f"   Responders: {', '.join(self.responders) if self.responders else 'None Yet!'}\n"
-            f"   Notes: {self.case_notes if self.case_notes else 'None Yet!'}"
+            f"   Notes: \n      {case_notes}"
         )
         return message

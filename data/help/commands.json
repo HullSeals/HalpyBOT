@@ -74,13 +74,88 @@
     },
     "listboard": {
       "aliases:": [],
-      "arguments": "",
+      "arguments": "[Case Type or Platform]",
       "use": "Print out the current cases on the Board."
     },
     "listcase": {
       "aliases:": [],
       "arguments": "[Board ID]",
       "use": "List specific details of a current case."
+    },
+    "rename": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Client Name]",
+      "use": "Rename the client for the given case."
+    },
+    "ircn": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Valid IRC User]",
+      "use": "Set the updated client's IRC Name."
+    },
+    "system": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New System]",
+      "use": "Set the updated client's System."
+    },
+    "status": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Status]",
+      "use": "Set the updated case status.\nValid options include 'ACTIVE', 'DELAYED', and 'INACTIVE'."
+    },
+    "hull": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Hull %]",
+      "use": "Set the updated case hull percentage."
+    },
+    "casetype": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Case Type]",
+      "use": "Set the updated case type.\nValid options include 'Seal', 'Black', 'Blue', and 'Fish'."
+    },
+    "platform": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Case Platform]",
+      "use": "Set the updated case platform.\nValid options include 'Odyssey', 'Live', 'Legacy', 'Xbox' and 'PlayStation'."
+    },
+    "notes": {
+      "aliases:": ["addnote", "updatenotes"],
+      "arguments": "[Board ID] [New Case Note]",
+      "use": "Adds a new line to the case notes."
+    },
+    "listnotes": {
+      "aliases:": [],
+      "arguments": "[Board ID]",
+      "use": "List the case notes for the given case."
+    },
+    "delnote": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Note Index]",
+      "use": "List the case notes for the given case."
+    },
+    "editnote": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Note Index] [New Note Content]",
+      "use": "Edit the case notes for the given case and note index."
+    },
+    "planet": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Planet]",
+      "use": "Edit the planet for a given KF Case."
+    },
+    "casecoords": {
+      "aliases:": [],
+      "arguments": "[Board ID] [X Coordinate] [Y Coordinate]",
+      "use": "Edit the planetary coordinates for a given KF Case."
+    },
+    "o2time": {
+      "aliases:": [],
+      "arguments": "[Board ID] [O2 Time in NN:NN]",
+      "use": "Change the remaining oxygen timer for a case."
+    },
+    "synth": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Yes/True/No/False]",
+      "use": "Toggle if a CMDR has synths available for a given case."
     }
   },
   "Facts": {

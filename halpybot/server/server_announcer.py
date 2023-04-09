@@ -11,7 +11,7 @@ See license.md
 
 from typing import Dict
 from aiohttp import web, web_request
-from ..packages.announcer import AnnouncementError, AlreadyExistsError
+from ..packages.announcer import AnnouncementError, AlreadyExistsError, KFCoordsError
 from ..packages.ircclient import HalpyBOT
 from .server import APIConnector
 from .auth import authenticate
@@ -47,6 +47,8 @@ async def announce(request: web_request.Request):
         raise web.HTTPOk
     except AlreadyExistsError:
         raise web.HTTPConflict from AnnouncementError
+    except KFCoordsError:
+        raise web.HTTPBadRequest from AnnouncementError
     except AnnouncementError:
         raise web.HTTPInternalServerError from AnnouncementError
 

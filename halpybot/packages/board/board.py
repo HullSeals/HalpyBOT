@@ -19,13 +19,15 @@ Licensed under the GNU General Public License
 See license.md
 """
 from __future__ import annotations
+
+import enum
 import typing
 import functools
 import itertools
 from asyncio import Lock
 from attrs import evolve
 from pendulum import now, DateTime
-from ..models import Case, Platform
+from ..models import Case, Platform, CaseType
 
 
 class Board:
@@ -41,108 +43,6 @@ class Board:
         self._last_case_time = None
         self._modlock = Lock()
         self._id_range: int = id_range
-
-    # TODO: Remove Debug Info
-    @property
-    async def debug_load_board(self):
-        """DEBUG: Load test data into the board"""
-        self._cases_by_id = {
-            1: Case(
-                board_id=1, client_name="Bob", platform=Platform.XBOX, system="Delkar"
-            ),
-            2: Case(
-                board_id=2,
-                client_name="Larry",
-                platform=Platform.ODYSSEY,
-                system="Delkar",
-            ),
-            4: Case(
-                board_id=3,
-                client_name="John",
-                platform=Platform.PLAYSTATION,
-                system="Delkar",
-            ),
-        }
-        self._case_alias_name = {"bob": 1, "larry": 2, "john": 4}
-        return
-
-    @property
-    async def debug_full_board(self):
-        """DEBUG: Load test data into the board"""
-        self._cases_by_id = {
-            1: Case(
-                board_id=1,
-                client_name="one",
-                platform=Platform.ODYSSEY,
-                system="Delkar",
-            ),
-            2: Case(
-                board_id=2, client_name="two", platform=Platform.XBOX, system="Delkar"
-            ),
-            3: Case(
-                board_id=3,
-                client_name="three",
-                platform=Platform.PLAYSTATION,
-                system="Delkar",
-            ),
-            4: Case(
-                board_id=4,
-                client_name="four",
-                platform=Platform.LIVE_HORIZONS,
-                system="Delkar",
-            ),
-            5: Case(
-                board_id=5,
-                client_name="five",
-                platform=Platform.LEGACY_HORIZONS,
-                system="Delkar",
-            ),
-            6: Case(
-                board_id=6,
-                client_name="six",
-                platform=Platform.ODYSSEY,
-                system="Delkar",
-            ),
-            7: Case(
-                board_id=7,
-                client_name="seven",
-                platform=Platform.ODYSSEY,
-                system="Delkar",
-            ),
-            8: Case(
-                board_id=8,
-                client_name="eight",
-                platform=Platform.ODYSSEY,
-                system="Delkar",
-            ),
-            9: Case(
-                board_id=9,
-                client_name="nine",
-                platform=Platform.ODYSSEY,
-                system="Delkar",
-            ),
-        }
-        self._case_alias_name = {
-            "one": 1,
-            "two": 2,
-            "three": 3,
-            "four": 4,
-            "five": 5,
-            "six": 6,
-            "seven": 7,
-            "eight": 8,
-            "nine": 9,
-        }
-        return
-
-    @property
-    async def debug_clear_board(self):
-        """DEBUG: clear test data from the board"""
-        self._cases_by_id = {}
-        self._case_alias_name = {}
-        return
-
-    # END DEBUG
 
     @property
     def _open_rescue_id(self) -> int:
@@ -188,12 +88,18 @@ class Board:
             return key in self._case_alias_name
         return False
 
-    async def add_case(self, client: str, platform: Platform, system: str) -> Case:
+    async def add_case(
+        self, client: str, platform: Platform, system: str, case_type: CaseType
+    ) -> Case:
         """Create a new Case given the client name"""
         async with self._modlock:
             new_id = self.open_rescue_id
             case = Case(
-                board_id=new_id, client_name=client, platform=platform, system=system
+                board_id=new_id,
+                client_name=client,
+                platform=platform,
+                system=system,
+                case_type=case_type,
             )
             self._update_last_index()
             if case.client_name.casefold() in self._case_alias_name:
@@ -204,12 +110,49 @@ class Board:
             return case
 
     @functools.wraps(evolve)
-    async def mod_case(self, case_id: int, **kwargs):
+    async def mod_case(
+        self, case_id: int, action: str = None, sender: str = None, **kwargs
+    ):
         """
         Modify an existing case
         """
+        # Gather the Case Information
+        case: Case = self.return_rescue(case_id)
+        curr_time = now(tz="UTC")
+        current_case_notes = case.case_notes
+
+        # Prep the new notes
+        if action:
+            for key, item in kwargs.items():
+                oldkey = getattr(case, key)
+                if getattr(case, key) == item:
+                    raise ValueError(f"{action} is already set to {item}.")
+                # Translate Enums into Human-Notes
+                if isinstance(item, enum.Enum):
+                    item = item.name.replace("_", " ")
+                    oldkey = getattr(case, key).name.replace("_", " ")
+                notes = f"{action} set to {item} from {oldkey} by {sender} at {curr_time.to_time_string()}"
+                current_case_notes.append(notes)
+
+        # Update the Case
         new_case = evolve(
-            self._cases_by_id[case_id], updated_time=now(tz="UTC"), **kwargs
+            self._cases_by_id[case_id],
+            updated_time=curr_time,
+            case_notes=current_case_notes,
+            **kwargs,
+        )
+        self._cases_by_id[case_id] = new_case
+
+    @functools.wraps(evolve)
+    async def mod_case_notes(self, case_id: int, new_notes: typing.List[str]):
+        """
+        Replace the notes of an existing rescue
+        """
+        # Update the Case
+        new_case = evolve(
+            self._cases_by_id[case_id],
+            updated_time=now(tz="UTC"),
+            case_notes=new_notes,
         )
         self._cases_by_id[case_id] = new_case
 
@@ -223,7 +166,7 @@ class Board:
             del self._cases_by_id[board_id]
             del self._case_alias_name[client.casefold()]
 
-    async def rename_case(self, new_name: str, case: Case):
+    async def rename_case(self, new_name: str, case: Case, sender: str):
         """Rename an actively referenced case"""
         # Make Sure we have a Case
         if not isinstance(case, Case):
@@ -238,7 +181,8 @@ class Board:
             raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
         # Update and Continue
         name_kwarg = {"client_name": new_name}
-        await self.mod_case(board_id, **name_kwarg)
+        action = "Client Name"
+        await self.mod_case(board_id, action, sender, **name_kwarg)
         async with self._modlock:
             del self._case_alias_name[old_name.casefold()]
             self._case_alias_name[new_name.casefold()] = board_id
