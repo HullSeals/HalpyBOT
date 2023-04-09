@@ -10,6 +10,7 @@ See license.md
 
 from typing import List
 from loguru import logger
+from attrs.converters import to_bool
 import pydle
 from halpybot import config
 from ..packages.checks import Require, Cyberseal
@@ -80,20 +81,22 @@ async def cmd_offline(ctx: Context, args: List[str]):
             f"{get_help_text(ctx.bot.commandsfile, 'settings offline')}\nCurrent "
             f"offline setting: {config.offline_mode.enabled}"
         )
-    if not args[0].casefold() in ("true", "false"):
+    try:
+        new_stat = to_bool(args[0].casefold())
+    except ValueError:
         return await ctx.reply("Error! Invalid parameters given. Status not changed.")
-
-    to_offline = args[0].casefold() == "true"
-
+    if new_stat == config.offline_mode.enabled:
+        return await ctx.reply(
+            f"Offline mode already set to {new_stat}. Status not changed."
+        )
     logger.info(
         "OFFLINE MODE CHANGE from {mode} to {new} by {sender}",
         mode=config.offline_mode.enabled,
-        new=to_offline,
+        new=new_stat,
         sender=ctx.sender,
     )
-    config.offline_mode.enabled = to_offline
-    # Write changes to config file
-    await ctx.reply(f"Warning! Offline Mode Status Changed to {to_offline}")
+    config.offline_mode.enabled = new_stat
+    await ctx.reply(f"Warning! Offline Mode Status Changed to {new_stat}")
 
 
 @Commands.command("joinchannel")
