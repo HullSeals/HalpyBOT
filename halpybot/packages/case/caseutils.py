@@ -121,7 +121,8 @@ async def update_single_elem_case_prep(
     new_details = {new_key: new_item}
     if enum:
         new_item = new_item.name
-    new_item = new_item.replace("_", " ")
+    if isinstance(new_item, str):
+        new_item = new_item.replace("_", " ")
     try:
         await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
     except ValueError:
