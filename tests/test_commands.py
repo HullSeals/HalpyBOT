@@ -7,15 +7,9 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-from unittest.mock import patch
-
 import pytest
-from aiohttp import ClientResponse
-
-import halpybot.packages.utils
 from halpybot.packages.command import Commands
 from halpybot import config
-from halpybot.packages.utils import shorten
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx

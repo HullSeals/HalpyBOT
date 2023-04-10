@@ -8,7 +8,8 @@ Licensed under the GNU General Public License
 See license.md
 """
 import re
-from typing import List
+from typing import List, Optional
+from attr.converters import to_bool
 from pendulum import now
 from loguru import logger
 from halpybot import config
@@ -575,7 +576,7 @@ async def cmd_synth(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Invalid synth ability given.")
     if new_stat == case.can_synth:
         return await ctx.reply(f"Synth available already set to {new_stat}")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Synth Status",

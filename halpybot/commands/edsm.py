@@ -29,7 +29,7 @@ from ..packages.models import Context
 
 
 @Commands.command("lookup", "syslookup")
-@sys_exceptions()
+@sys_exceptions
 async def cmd_systemlookup(ctx: Context, cleaned_sys, cache_override):
     """
     Check EDSM for the existence of a system.
@@ -43,7 +43,7 @@ async def cmd_systemlookup(ctx: Context, cleaned_sys, cache_override):
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
-@cmdr_exceptions()
+@cmdr_exceptions
 async def cmd_cmdrlocate(ctx: Context, cmdr, cache_override):
     """
     Check EDSM for the existence and location of a CMDR.
@@ -60,7 +60,7 @@ async def cmd_cmdrlocate(ctx: Context, cmdr, cache_override):
 
 
 @Commands.command("distance", "dist")
-@dist_exceptions()
+@dist_exceptions
 async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     """
     Check EDSM for the distance between two known points.
@@ -87,7 +87,7 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
 
 
 @Commands.command("landmark")
-@sys_exceptions()
+@sys_exceptions
 async def cmd_landmarklookup(ctx: Context, cleaned_sys, cache_override):
     """
     Calculate the closest landmark system to a known EDSM system.
@@ -114,7 +114,7 @@ async def cmd_landmarklookup(ctx: Context, cleaned_sys, cache_override):
 
 
 @Commands.command("dssa")
-@sys_exceptions()
+@sys_exceptions
 async def cmd_dssalookup(ctx: Context, cleaned_sys, cache_override):
     """
     Calculate the closest DSSA Carrier to a known EDSM system.
@@ -133,7 +133,7 @@ async def cmd_dssalookup(ctx: Context, cleaned_sys, cache_override):
 
 
 @Commands.command("coordcheck", "coords")
-@coords_exceptions()
+@coords_exceptions
 async def cmd_coordslookup(ctx, xcoord, ycoord, zcoord):
     """
     Check EDSM for a nearby EDSM known system to a set of coordinates.
@@ -152,7 +152,7 @@ async def cmd_coordslookup(ctx, xcoord, ycoord, zcoord):
 
 
 @Commands.command("diversion")
-@sys_exceptions()
+@sys_exceptions
 async def cmd_diversionlookup(ctx: Context, cleaned_sys, cache_override):
     """
     Calculate the 5 closest FDEV-placed structures with repair capability to a known EDSM location.

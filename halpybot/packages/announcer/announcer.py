@@ -180,7 +180,7 @@ class Announcer:
         except AlreadyExistsError as aee:
             logger.exception("Case Already Exists Matching")
             raise AlreadyExistsError from aee
-        except KFCoordsError as kf_err:
+        except KFCoordsError:
             logger.exception("KFCoords were invalid!")
             raise
         except Exception as announcement_exception:

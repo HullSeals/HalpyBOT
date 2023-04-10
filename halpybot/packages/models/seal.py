@@ -38,7 +38,11 @@ class Seal:
         for cmdrpair in self.cmdrs:
             cmdr = cmdrpair[0]
             plt: Platform = cmdrpair[1]
-            if plt.value in (1, 4, 5):
+            if plt in (
+                Platform.ODYSSEY,
+                Platform.LEGACY_HORIZONS,
+                Platform.LIVE_HORIZONS,
+            ):
                 pltstr = "PC"
             else:
                 pltstr = plt.name
