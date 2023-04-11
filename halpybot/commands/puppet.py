@@ -16,7 +16,7 @@ from ..packages.models import Context
 
 
 @Commands.command("say")
-@in_direct_message()
+@in_direct_message
 @needs_permission(Cyberseal, message="No.")
 async def cmd_say(ctx: Context, args: List[str]):
     """

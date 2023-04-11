@@ -17,7 +17,7 @@ from ..packages.models import User
 
 
 @Commands.command("forcejoin")
-@in_channel()
+@in_channel
 @needs_permission(Drilled)
 async def cmd_sajoin(ctx: Context, args: List[str]):
     """
@@ -64,7 +64,7 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
 
 
 @Commands.command("rrjoin")
-@in_channel()
+@in_channel
 @needs_permission(Drilled)
 async def cmd_rrjoin(ctx: Context, args: List[str]):
     """

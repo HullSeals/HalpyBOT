@@ -196,6 +196,13 @@
       "aliases:": [],
       "arguments": "[Board ID] [New Dispatchers]",
       "use": "Add a new dispatcher to a given case on the board."
+    },
+    "delcase": {
+      "aliases:": [
+        "remcase"
+      ],
+      "arguments": "[Board ID] [New Note (Optional)]",
+      "use": "Administratively removes a case from the board."
     }
   },
   "Facts": {

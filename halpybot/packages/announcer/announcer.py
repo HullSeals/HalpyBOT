@@ -31,7 +31,7 @@ from ..edsm import (
     get_nearby_system,
     checkdssa,
 )
-from ..models import Platform
+from ..models import Platform, Case
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
@@ -186,6 +186,15 @@ class Announcer:
         except Exception as announcement_exception:
             logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
+        if announcement == "PPWK":
+            cmdr: str = args.get("CMDR")
+            if not cmdr:
+                return
+            try:
+                case: Case = client.board.return_rescue(cmdr.casefold())
+            except KeyError:
+                return  # Case Must Not Have Been From Board.
+            await client.board.del_case(case)
 
 
 class AnnouncerArgs(TypedDict):

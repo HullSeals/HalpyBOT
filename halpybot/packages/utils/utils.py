@@ -123,9 +123,7 @@ async def new_case_check(botclient: HalpyBOT):
             ]
         )
         new_notes = f"NEWCASE not welcomed. Reminder sent. - {botclient.nickname} ({now(tz='UTC').to_time_string()})"
-        notes: List[str] = case.case_notes
-        notes.append(new_notes)
-        await botclient.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
+        case.case_notes.append(new_notes)
 
 
 async def task_starter(botclient: HalpyBOT):
