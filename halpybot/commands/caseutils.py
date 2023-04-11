@@ -13,7 +13,12 @@ from attr.converters import to_bool
 from pendulum import now
 from loguru import logger
 from halpybot import config
-from ..packages.exceptions import NoUserFound, NoResultsEDSM, EDSMConnectionError
+from ..packages.exceptions import (
+    NoUserFound,
+    NoResultsEDSM,
+    EDSMConnectionError,
+    CaseAlreadyExists,
+)
 from ..packages.seals import whois
 from ..packages.utils import (
     sys_cleaner,
@@ -283,9 +288,12 @@ async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
     """
     try:
         await ctx.bot.board.rename_case(args[1], case, ctx.sender)
-    except (AssertionError, ValueError) as err:
-        logger.warning(err)
-        return await ctx.reply(str(err))
+    except AssertionError as case_err:
+        logger.warning(case_err)
+        return await ctx.reply(f"Case Rename Failed. Names Match: {args[1]!r}")
+    except CaseAlreadyExists as case_err:
+        logger.warning(case_err)
+        return await ctx.reply(f"A case already exists for the name {args[1]!r}")
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,

@@ -9,6 +9,7 @@ See license.md
 """
 
 
+# YOURLS
 class YOURLSError(Exception):
     """
     Base class for YOURLS link errors
@@ -27,6 +28,7 @@ class YOURLSBadResponse(YOURLSError):
     """
 
 
+# Commands
 class CommandException(Exception):
     """
     Base exception for all commands
@@ -45,15 +47,10 @@ class CommandAlreadyExists(CommandHandlerError):
     """
 
 
+# Announcements
 class AnnouncementError(Exception):
     """
     Could not announce request
-    """
-
-
-class AlreadyExistsError(AnnouncementError):
-    """
-    Case from Announcement already exists
     """
 
 
@@ -63,6 +60,7 @@ class KFCoordsError(AnnouncementError):
     """
 
 
+# Facts
 class FactHandlerError(Exception):
     """
     Base class for fact handler exceptions
@@ -81,6 +79,7 @@ class InvalidFactException(FactHandlerError):
     """
 
 
+# Discord
 class DiscordWebhookError(Exception):
     """
     Base class for Discord webhook errors
@@ -93,6 +92,7 @@ class WebhookSendError(DiscordWebhookError):
     """
 
 
+# EDSM
 class EDSMLookupError(Exception):
     """
     Base class for lookup errors
@@ -124,6 +124,7 @@ class EDSMReturnError(EDSMLookupError):
     """
 
 
+# SNS
 class SNSError(Exception):
     """
     Base class for Halpy-SNS exceptions
@@ -142,6 +143,7 @@ class SubscriptionError(SNSError):
     """
 
 
+# User Class
 class UserError(Exception):
     """
     Base class for User Class errors
@@ -150,5 +152,24 @@ class UserError(Exception):
 
 class NoUserFound(UserError):
     """
-    An exception occurred while sending a Discord Webhook
+    No such user was found in the database.
+    """
+
+
+# Case
+class CaseError(Exception):
+    """
+    Base Class for Case errors
+    """
+
+
+class CaseAlreadyLocked(CaseError):
+    """
+    An attempt to modify a case was made after the case was already locked.
+    """
+
+
+class CaseAlreadyExists(CaseError):
+    """
+    A case already exists for the given CMDR Name
     """

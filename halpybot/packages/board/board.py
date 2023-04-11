@@ -27,7 +27,8 @@ import itertools
 from asyncio import Lock
 from attrs import evolve
 from pendulum import now, DateTime
-from ..models import Case, Platform, CaseType
+from ..exceptions import CaseAlreadyExists
+from ..models import Case, Platform, CaseType, Status
 
 
 class Board:
@@ -103,7 +104,7 @@ class Board:
             )
             self._update_last_index()
             if case.client_name.casefold() in self._case_alias_name:
-                raise ValueError("Case with Client Name Already Exists")
+                raise CaseAlreadyExists("Case with Client Name Already Exists")
 
             self._cases_by_id[new_id] = case
             self._case_alias_name[client.casefold()] = new_id
@@ -176,13 +177,16 @@ class Board:
         old_name = case.client_name
         # Test Old Info
         if new_name.casefold() in self._case_alias_name:
-            raise AssertionError(f"Case already exists under the name {new_name!r}")
+            raise CaseAlreadyExists
         if old_name.casefold() == new_name.casefold():
             raise AssertionError(f"Case Rename Failed. Names Match: {old_name!r}")
         # Update and Continue
         name_kwarg = {"client_name": new_name}
         action = "Client Name"
-        await self.mod_case(board_id, action, sender, **name_kwarg)
+        try:
+            await self.mod_case(board_id, action, sender, **name_kwarg)
+        except CaseAlreadyExists:
+            raise
         async with self._modlock:
             del self._case_alias_name[old_name.casefold()]
             self._case_alias_name[new_name.casefold()] = board_id

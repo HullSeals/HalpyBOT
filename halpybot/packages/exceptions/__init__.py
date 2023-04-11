@@ -16,7 +16,6 @@ from .exceptions import (
     CommandException,
     CommandAlreadyExists,
     AnnouncementError,
-    AlreadyExistsError,
     KFCoordsError,
     FactUpdateError,
     FactHandlerError,
@@ -33,6 +32,9 @@ from .exceptions import (
     NotificationFailure,
     UserError,
     NoUserFound,
+    CaseError,
+    CaseAlreadyLocked,
+    CaseAlreadyExists,
 )
 
 __all__ = [
@@ -43,7 +45,6 @@ __all__ = [
     "CommandAlreadyExists",
     "CommandHandlerError",
     "AnnouncementError",
-    "AlreadyExistsError",
     "KFCoordsError",
     "FactHandlerError",
     "FactUpdateError",
@@ -60,4 +61,7 @@ __all__ = [
     "NotificationFailure",
     "UserError",
     "NoUserFound",
+    "CaseError",
+    "CaseAlreadyLocked",
+    "CaseAlreadyExists",
 ]
