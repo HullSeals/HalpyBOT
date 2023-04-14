@@ -21,7 +21,7 @@ routes = web.RouteTableDef()
 
 
 @routes.post("/tail")
-@authenticate()
+@authenticate
 async def tail(request: web_request.Request):
     """
     Promote or Demote a Seal on the status of their training
