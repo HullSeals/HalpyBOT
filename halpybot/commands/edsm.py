@@ -69,11 +69,10 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     Aliases: dist
     """
     try:
-        # Parse systems/CMDRs from string
-        list_to_str = " ".join([str(elem) for elem in args])
-        points = list_to_str.split(":", 1)
-        pointa, pointb = "".join(points[0]).strip(), "".join(points[1]).strip()
-    except IndexError:
+        pointa, pointb = [
+            "".join(point).strip() for point in "".join(args).split(":", 1)
+        ]
+    except (ValueError, IndexError):
         return await ctx.reply("Please provide two points to look up, separated by a :")
     if not pointb:
         return await ctx.reply("Please provide two points to look up, separated by a :")
