@@ -758,7 +758,7 @@ async def cmd_remcase(ctx: Context, args: List[str], case: Case):
     Usage: !remcase [board ID]
     Aliases: delcase
     """
-    if len(args) < 1:
+    if not args:
         new_notes = (
             f"Admin Case Termination: {' '.join(args[1:])} - {ctx.sender}"
             f" ({now(tz='UTC').to_time_string()})"

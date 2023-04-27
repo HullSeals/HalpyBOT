@@ -111,7 +111,7 @@ def dist_exceptions(function):
 
     @functools.wraps(function)
     async def guarded(ctx, args: List[str]):
-        if len(args) < 1:  # Minimum Number of Args is 2.
+        if not args:
             return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
         cache_override = False
         if args[0] == "--new":

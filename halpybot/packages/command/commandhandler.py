@@ -232,7 +232,7 @@ class CommandGroup:
         if isinstance(cmd, CommandGroup):  # Command group
             subgroup = CommandGroup.get_group(name=cmd.name)
             # If no subcommand is provided, send a provisional help response
-            if len(arguments) < 1:
+            if not arguments:
                 return await command_context.reply(
                     f"Subcommands of {config.irc.command_prefix}"
                     f"{cmd.name}: "
