@@ -1,5 +1,5 @@
 """
-__init__.py - Initilization for the Seal user info module
+__init__.py - Initilization for the Seal Utilities
 
 Copyright (c) The Hull Seals,
 All rights reserved.
@@ -17,7 +17,13 @@ from .utils import (
     sys_cleaner,
 )
 from .shorten import shorten
-from .decorators import CommandUtils
+from .decorators import (
+    sys_exceptions,
+    cmdr_exceptions,
+    coords_exceptions,
+    dist_exceptions,
+    gather_case,
+)
 
 __all__ = [
     "strip_non_ascii",
@@ -26,6 +32,10 @@ __all__ = [
     "web_get",
     "task_starter",
     "cache_prep",
-    "CommandUtils",
     "sys_cleaner",
+    "sys_exceptions",
+    "cmdr_exceptions",
+    "coords_exceptions",
+    "dist_exceptions",
+    "gather_case",
 ]

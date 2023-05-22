@@ -84,138 +84,134 @@ _levels = {
 }
 
 
-class Require:
-    """Declare decorators to limit the use of commands"""
+def needs_permission(role: Permission, message: Optional[str] = None):
+    """Require permission for a command
 
-    @staticmethod
-    def permission(role: Permission, message: Optional[str] = None):
-        """Require permission for a command
+    Args:
+        role (Permission): Required authorization level:
+            `NONE`, `PUP`, `DRILLED`, `MODERATOR`, `ADMIN`, `CYBER`, `CYBERMGR`, `OWNER`
+        message (str): Message we send when user does not have authorization.
+            Default: `Access Denied.`
 
-        Args:
-            role (Permission): Required authorization level:
-                `NONE`, `PUP`, `DRILLED`, `MODERATOR`, `ADMIN`, `CYBER`, `CYBERMGR`, `OWNER`
-            message (str): Message we send when user does not have authorization.
-                Default: `Access Denied.`
+    """
 
-        """
+    def decorator(function):
+        @functools.wraps(function)
+        async def guarded(ctx, args: List[str]):
+            # Add Command Logger
+            command_logger = logger.bind(task="Command")
 
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                # Add Command Logger
-                command_logger = logger.bind(task="Command")
+            # Sanity check
+            if not isinstance(role, Permission):
+                raise ValueError("Permission must be of type 'Permission'")
+            # Define required level
+            required_level = role.level
+            # Get role
+            whois: Optional[User] = await User.get_info(ctx.bot, ctx.sender)
+            vhost = User.process_vhost(whois.hostname)
 
-                # Sanity check
-                if not isinstance(role, Permission):
-                    raise ValueError("Permission must be of type 'Permission'")
-                # Define required level
-                required_level = role.level
-                # Get role
-                whois: Optional[User] = await User.get_info(ctx.bot, ctx.sender)
-                vhost = User.process_vhost(whois.hostname)
+            if vhost is None:
+                command_logger.warning(
+                    "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
+                    sender=ctx.sender,
+                    host=whois.hostname,
+                    command=ctx.command,
+                    req=required_level,
+                    channel=ctx.channel,
+                )
+                return await ctx.reply(role.msg if message is None else message)
 
-                if vhost is None:
-                    command_logger.warning(
-                        "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
-                        sender=ctx.sender,
-                        host=whois.hostname,
-                        command=ctx.command,
-                        req=required_level,
-                        channel=ctx.channel,
-                    )
-                    return await ctx.reply(role.msg if message is None else message)
+            # Find user level that belongs to vhost
+            user_level = int(_levels[vhost])
+            # If permission is not correct, send deniedMessage
 
-                # Find user level that belongs to vhost
-                user_level = int(_levels[vhost])
-                # If permission is not correct, send deniedMessage
+            if user_level < required_level:
+                # Log it and send off for the dashboard
+                command_logger.warning(
+                    "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
+                    sender=ctx.sender,
+                    host=whois.hostname,
+                    command=ctx.command,
+                    req=required_level,
+                    channel=ctx.channel,
+                )
+                return await ctx.reply(role.msg if message is None else message)
 
-                if user_level < required_level:
-                    # Log it and send off for the dashboard
-                    command_logger.warning(
-                        "Permission Error: {sender}!@{host} used {command} (Req: {req}) in {channel}",
-                        sender=ctx.sender,
-                        host=whois.hostname,
-                        command=ctx.command,
-                        req=required_level,
-                        channel=ctx.channel,
-                    )
-                    return await ctx.reply(role.msg if message is None else message)
+            return await function(ctx, args)
 
-                return await function(ctx, args)
+        return guarded
 
-            return guarded
+    return decorator
 
-        return decorator
 
-    @staticmethod
-    def direct_message():
-        """Require command to be executed in a Direct Message with the bot"""
+def in_direct_message():
+    """Require command to be executed in a Direct Message with the bot"""
 
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                if ctx.in_channel:
-                    return await ctx.redirect(
-                        "You have to run that command in DMs with me!"
-                    )
-                return await function(ctx, args)
+    def decorator(function):
+        @functools.wraps(function)
+        async def guarded(ctx, args: List[str]):
+            if ctx.in_channel:
+                return await ctx.redirect(
+                    "You have to run that command in DMs with me!"
+                )
+            return await function(ctx, args)
 
-            return guarded
+        return guarded
 
-        return decorator
+    return decorator
 
-    @staticmethod
-    def channel():
-        """Require command to be executed in an IRC channel"""
 
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                if not ctx.in_channel:
-                    return await ctx.reply(
-                        "You have to run this command in a channel! Aborted."
-                    )
-                return await function(ctx, args)
+def in_channel():
+    """Require command to be executed in an IRC channel"""
 
-            return guarded
+    def decorator(function):
+        @functools.wraps(function)
+        async def guarded(ctx, args: List[str]):
+            if not ctx.in_channel:
+                return await ctx.reply(
+                    "You have to run this command in a channel! Aborted."
+                )
+            return await function(ctx, args)
 
-        return decorator
+        return guarded
 
-    @staticmethod
-    def aws():
-        """Require Amazon Web Services configuration data to be specified in config"""
+    return decorator
 
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                if not config.notify.enabled:
-                    return await ctx.reply(
-                        "Cannot comply: AWS Config data is required for this module."
-                    )
-                return await function(ctx, args)
 
-            return guarded
+def needs_aws():
+    """Require Amazon Web Services configuration data to be specified in config"""
 
-        return decorator
+    def decorator(function):
+        @functools.wraps(function)
+        async def guarded(ctx, args: List[str]):
+            if not config.notify.enabled:
+                return await ctx.reply(
+                    "Cannot comply: AWS Config data is required for this module."
+                )
+            return await function(ctx, args)
 
-    @staticmethod
-    def database():
-        """Require a valid database connection and not in offline mode"""
+        return guarded
 
-        def decorator(function):
-            @functools.wraps(function)
-            async def guarded(ctx, args: List[str]):
-                if config.offline_mode.enabled:
-                    logger.critical(config.offline_mode.enabled)
-                    return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
-                try:
-                    await test_database_connection(ctx.bot.engine)
-                except NoDatabaseConnection:
-                    return await ctx.reply(
-                        "Cannot comply: Database Error Detected. Entering OFFLINE mode."
-                    )
-                return await function(ctx, args)
+    return decorator
 
-            return guarded
 
-        return decorator
+def needs_database():
+    """Require a valid database connection and not in offline mode"""
+
+    def decorator(function):
+        @functools.wraps(function)
+        async def guarded(ctx, args: List[str]):
+            if config.offline_mode.enabled:
+                logger.critical(config.offline_mode.enabled)
+                return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
+            try:
+                await test_database_connection(ctx.bot.engine)
+            except NoDatabaseConnection:
+                return await ctx.reply(
+                    "Cannot comply: Database Error Detected. Entering OFFLINE mode."
+                )
+            return await function(ctx, args)
+
+        return guarded
+
+    return decorator

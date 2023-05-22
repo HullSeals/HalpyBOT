@@ -118,7 +118,10 @@
       "use": "Set the updated case platform.\nValid options include 'Odyssey', 'Live', 'Legacy', 'Xbox' and 'PlayStation'."
     },
     "notes": {
-      "aliases:": ["addnote", "updatenotes"],
+      "aliases:": [
+        "addnote",
+        "updatenotes"
+      ],
       "arguments": "[Board ID] [New Case Note]",
       "use": "Adds a new line to the case notes."
     },
@@ -156,6 +159,43 @@
       "aliases:": [],
       "arguments": "[Board ID] [Yes/True/No/False]",
       "use": "Toggle if a CMDR has synths available for a given case."
+    },
+    "go": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Responders]",
+      "use": "Add an identified Seal as a responder to a case on the board."
+    },
+    "welcome": {
+      "aliases:": [],
+      "arguments": "[Client Name or Board ID]",
+      "use": "Welcome a client and add an identified Seal as a Dispatch responder."
+    },
+    "addresp": {
+      "aliases:": [
+        "newseal"
+      ],
+      "arguments": "[Board ID] [New Responders]",
+      "use": "Add a new responder to a given case on the board."
+    },
+    "adddisp": {
+      "aliases:": [
+        "newspatch"
+      ],
+      "arguments": "[Board ID] [New Dispatchers]",
+      "use": "Add a new dispatcher to a given case on the board."
+    },
+    "remresp": {
+      "aliases:": [
+        "standdown",
+        "stddn"
+      ],
+      "arguments": "[Board ID] [New Responders]",
+      "use": "Add a new responder to a given case on the board."
+    },
+    "remdisp": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Dispatchers]",
+      "use": "Add a new dispatcher to a given case on the board."
     }
   },
   "Facts": {

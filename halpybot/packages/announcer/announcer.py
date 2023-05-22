@@ -19,9 +19,9 @@ from ..exceptions import (
     NoNearbyEDSM,
     NoResultsEDSM,
     EDSMLookupError,
-    AlreadyExistsError,
     KFCoordsError,
     AnnouncementError,
+    CaseAlreadyExists,
 )
 from ..utils import (
     sys_cleaner,
@@ -177,10 +177,10 @@ class Announcer:
             formatted = await ann.format(args, client)
             for channel in ann.channels:
                 await client.message(channel, formatted)
-        except AlreadyExistsError as aee:
+        except CaseAlreadyExists as aee:
             logger.exception("Case Already Exists Matching")
-            raise AlreadyExistsError from aee
-        except KFCoordsError as kf_err:
+            raise CaseAlreadyExists from aee
+        except KFCoordsError:
             logger.exception("KFCoords were invalid!")
             raise
         except Exception as announcement_exception:
@@ -260,10 +260,10 @@ class Announcement:
             # Create a case, if required
             try:
                 args["Board_ID"] = await create_case(args, codemap, client)
-            except ValueError as val_err:
-                if str(val_err) == "KF Coordinates Improperly Formatted":
-                    raise KFCoordsError from val_err
-                raise AlreadyExistsError("Case Already Exists") from val_err
+            except KFCoordsError as kf_err:
+                raise KFCoordsError from kf_err  # Pass back to Webserver
+            except CaseAlreadyExists as val_err:
+                raise
 
         # Finally, format and return
         formatted_content = "".join(self.content)

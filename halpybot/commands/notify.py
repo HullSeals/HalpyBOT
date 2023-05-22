@@ -12,7 +12,16 @@ import pendulum
 from loguru import logger
 from halpybot import config
 from ..packages import notify
-from ..packages.checks import Require, Moderator, Admin, Owner, Pup
+from ..packages.checks import (
+    needs_permission,
+    needs_aws,
+    in_direct_message,
+    in_channel,
+    Moderator,
+    Admin,
+    Owner,
+    Pup,
+)
 from ..packages.exceptions import NotificationFailure, SubscriptionError, SNSError
 from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.models import Context
@@ -55,8 +64,8 @@ timer_filter = Timer(ttl=pendulum.Duration(minutes=config.notify.timer))
 
 
 @NotifyInfo.command("groups")
-@Require.permission(Moderator)
-@Require.aws()
+@needs_permission(Moderator)
+@needs_aws()
 async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     List the existing notification groups.
@@ -84,9 +93,9 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
 
 
 @NotifyInfo.command("details", "endpoints")
-@Require.permission(Owner)
-@Require.direct_message()
-@Require.aws()
+@needs_permission(Owner)
+@in_direct_message()
+@needs_aws()
 async def cmd_listnotify(ctx: Context, args: List[str]):
     """
     List contact details of particular groups.
@@ -123,9 +132,9 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
 
 
 @Commands.command("subnotify", "alertme", "addsub", "subscribe", "subscribenotify")
-@Require.permission(Admin)
-@Require.direct_message()
-@Require.aws()
+@needs_permission(Admin)
+@in_direct_message()
+@needs_aws()
 async def cmd_subscribe(ctx: Context, args: List[str]):
     """
     Add a user to a valid group
@@ -162,9 +171,9 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
 
 
 @Commands.command("summonstaff", "callstaff", "opsignal", "opsig")
-@Require.permission(Pup)
-@Require.channel()
-@Require.aws()
+@needs_permission(Pup)
+@in_channel()
+@needs_aws()
 @timer_filter
 async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
@@ -192,9 +201,9 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
 @Commands.command(
     "summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig"
 )
-@Require.permission(Pup)
-@Require.channel()
-@Require.aws()
+@needs_permission(Pup)
+@in_channel()
+@needs_aws()
 @timer_filter
 async def cmd_notifycybers(ctx: Context, args: List[str]):
     """

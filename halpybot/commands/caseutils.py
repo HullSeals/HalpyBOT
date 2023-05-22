@@ -8,14 +8,21 @@ Licensed under the GNU General Public License
 See license.md
 """
 import re
-from typing import List
-from attrs.converters import to_bool
+from typing import List, Optional
+from attr.converters import to_bool
 from pendulum import now
+from loguru import logger
 from halpybot import config
-from ..packages.exceptions import NoUserFound, NoResultsEDSM, EDSMConnectionError
+from ..packages.exceptions import (
+    NoUserFound,
+    NoResultsEDSM,
+    EDSMConnectionError,
+    CaseAlreadyExists,
+)
+from ..packages.seals import whois
 from ..packages.utils import (
-    CommandUtils,
     sys_cleaner,
+    gather_case,
 )
 from ..packages.command import Commands
 from ..packages.edsm import (
@@ -30,51 +37,186 @@ from ..packages.models import (
     Platform,
     KFCoords,
     KFType,
+    Seal,
 )
-from ..packages.checks import Require, Drilled
-from ..packages.case import update_single_elem_case_prep
+from ..packages.checks import Drilled, Pup, needs_permission, in_channel
+from ..packages.case import update_single_elem_case_prep, get_case
+
+
+async def add_responder(ctx: Context, args: List[str], case: Case, resp_type: str):
+    """Add a Responder to a given Case"""
+    # Clean out the list, only pass "full" args.
+    del args[0]
+    args = [x.strip(" ") for x in args]
+    args = [ele for ele in args if ele.strip()]
+
+    # Current Responders:
+    responders = getattr(case, resp_type)
+    # Loop through the list, checking each to see if they are actually a user.
+    for seal in args:
+        if seal.endswith(",") or seal.endswith(":"):
+            seal = seal[:-1]
+        user_level = 1
+        # AttributeError is thrown if a user does not exist. Accept and move on.
+        try:
+            chat_whois = await User.get_info(ctx.bot, str(seal))
+            vhost = User.process_vhost(chat_whois.hostname)
+        except (AttributeError, NoUserFound):
+            vhost = "notUser"
+        # There is no hard set "not a seal" vhost level.
+        if vhost is None:
+            user_level = 0
+        if user_level == 0:
+            await ctx.reply(
+                f"{ctx.sender}: {str(seal)} is not identified as a trained seal. Have them check their "
+                f"IRC setup?"
+            )
+        else:
+            val_seal: Seal = await whois(ctx.bot.engine, str(seal))
+            if val_seal not in responders:
+                responders.append(val_seal)
+    res_kwarg = {resp_type: responders}
+    await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+
+
+async def rem_responder(ctx: Context, args: List[str], case: Case, resp_type: str):
+    """Remove a Responder from a given Case"""
+    # Clean out the list, only pass "full" args.
+    del args[0]
+    args = [x.strip(" ") for x in args]
+    args = [ele for ele in args if ele.strip()]
+
+    # Current Responders:
+    responders = getattr(case, resp_type)
+    # Loop through the list, checking each to see if they are actually a user.
+    for seal in args:
+        if seal.endswith(",") or seal.endswith(":"):
+            seal = seal[:-1]
+        # AttributeError is thrown if a user does not exist. Accept and move on.
+        try:
+            val_seal: Seal = await whois(ctx.bot.engine, str(seal))
+        except ValueError:
+            continue
+        if val_seal in responders:
+            responders.remove(val_seal)
+    res_kwarg = {resp_type: responders}
+    await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
 
 
 # FACT WRAPPERS
 @Commands.command("go")
-async def cmd_go(ctx: Context, args: List[str]):
+@gather_case(2)
+async def cmd_go(ctx: Context, args: List[str], case: Case):
     """
-    Check if an assigned Seal is trained and Identified before sending.
+    Add an identified Seal as a responder to a case on the board.
 
-    Usage: !go [seals]
+    Usage: !go [Case ID] [seals]
     Aliases: n/a
     """
-    # If no args presented, skip the user check. This will be removed in later versions, args will be required.
-    if args:
-        # Clean out the list, only pass "full" args.
-        args = [x.strip(" ") for x in args]
-        args = [ele for ele in args if ele.strip()]
-        # Loop through the list, checking each to see if they are actually a user.
-        for seal in args:
-            user_level = 1
-            # AttributeError is thrown if a user does not exist. Accept and move on.
-            try:
-                whois = await User.get_info(ctx.bot, str(seal))
-                vhost = User.process_vhost(whois.hostname)
-            except (AttributeError, NoUserFound):
-                vhost = "notUser"
-            # There is no hard set "not a seal" vhost level.
-            if vhost is None:
-                user_level = 0
-            if user_level == 0:
-                await ctx.reply(
-                    f"{ctx.sender}: {str(seal)} is not identified as a trained seal. Have them check their "
-                    f"IRC setup?"
-                )
-
+    await add_responder(ctx, args, case, resp_type="responders")
     return await ctx.reply(
         await ctx.bot.facts.fact_formatted(fact=("go", "en"), arguments=args)
     )
 
 
+@Commands.command("welcome")
+@needs_permission(Pup)
+async def cmd_welcome(ctx: Context, args: List[str]):
+    """
+    Welcome the Client and add an identified Seal as a Dispatch responder.
+
+    Usage: !welcome [Case ID]
+    Aliases: n/a
+    """
+    case = None
+    try:
+        case: Optional[Case] = await get_case(ctx, args[0])
+    except KeyError:
+        for test_case in ctx.bot.board.by_id.values():
+            if args[0].casefold() in test_case.irc_nick.casefold():
+                case = test_case
+                break
+    if not case:
+        await ctx.reply(
+            await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
+        )
+        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
+    spatches = case.dispatchers
+    spatch: Seal = await whois(ctx.bot.engine, ctx.sender)
+    if spatch not in spatches:
+        spatches.append(spatch)
+    res_kwarg = {"welcomed": True, "dispatchers": spatches}
+    await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+    args = [case.irc_nick]
+    return await ctx.reply(
+        await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
+    )
+
+
+# RESPONDER MANAGEMENT:
+@Commands.command("addresp", "newseal")
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
+async def cmd_addresp(ctx: Context, args: List[str], case: Case):
+    """
+    Add a new responder to a given case
+
+    Usage: !addresp [board ID] [new responders]
+    Aliases: n/a
+    """
+    await add_responder(ctx, args, case, resp_type="responders")
+    return await ctx.reply(f"Responders for case {case.board_id} updated.")
+
+
+@Commands.command("adddisp", "newspatch")
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
+async def cmd_adddisp(ctx: Context, args: List[str], case: Case):
+    """
+    Add a new dispatcher to a given case
+
+    Usage: !adddisp [board ID] [new dispatchers]
+    Aliases: n/a
+    """
+    await add_responder(ctx, args, case, resp_type="dispatchers")
+    return await ctx.reply(f"Dispatchers for case {case.board_id} updated.")
+
+
+@Commands.command("remresp", "standdown", "stddn")
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
+async def cmd_remresp(ctx: Context, args: List[str], case: Case):
+    """
+    Remove a responder from a given case
+
+    Usage: !remresp [board ID] [new responders]
+    Aliases: n/a
+    """
+    await rem_responder(ctx, args, case, resp_type="responders")
+    return await ctx.reply(f"Responders for case {case.board_id} updated.")
+
+
+@Commands.command("remdisp")
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
+async def cmd_remdisp(ctx: Context, args: List[str], case: Case):
+    """
+    Remove a dispatcher from a given case
+
+    Usage: !remdisp [board ID] [new dispatchers]
+    Aliases: n/a
+    """
+    await rem_responder(ctx, args, case, resp_type="dispatchers")
+    return await ctx.reply(f"Dispatchers for case {case.board_id} updated.")
+
+
 # BOARD AND CASE LISTING
 @Commands.command("listboard")
-@Require.permission(Drilled)
+@needs_permission(Drilled)
 async def cmd_listboard(ctx: Context, args: List[str]):
     """
     Send a user the key details of every case on the board in DMs
@@ -120,8 +262,8 @@ async def cmd_listboard(ctx: Context, args: List[str]):
 
 
 @Commands.command("listcase")
-@Require.permission(Drilled)
-@CommandUtils.gather_case(1)
+@needs_permission(Drilled)
+@gather_case(1)
 async def cmd_listcase(ctx: Context, args: List[str], case: Case):
     """
     Send a user the key details of a case on the board in DMs
@@ -134,9 +276,9 @@ async def cmd_listcase(ctx: Context, args: List[str], case: Case):
 
 # CASE MANAGEMENT
 @Commands.command("rename")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
     """
     Rename the user of an active case
@@ -146,8 +288,12 @@ async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
     """
     try:
         await ctx.bot.board.rename_case(args[1], case, ctx.sender)
-    except (AssertionError, ValueError) as err:
-        return await ctx.reply(str(err))
+    except AssertionError as case_err:
+        logger.warning(case_err)
+        return await ctx.reply(f"Case Rename Failed. Names Match: {args[1]!r}")
+    except CaseAlreadyExists as case_err:
+        logger.warning(case_err)
+        return await ctx.reply(f"A case already exists for the name {args[1]!r}")
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,
@@ -156,9 +302,9 @@ async def cmd_renamecase(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("ircn")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_ircn(ctx: Context, args: List[str], case: Case):
     """
     Rename the user of an active case
@@ -169,18 +315,17 @@ async def cmd_ircn(ctx: Context, args: List[str], case: Case):
     try:
         await User.get_info(ctx.bot, args[1])
     except (AttributeError, NoUserFound):
+        # Attribute Error thrown if user does not exist.
         return await ctx.reply("That's not an IRC user!")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx, case=case, action="IRC Name", new_key="irc_nick", new_item=args[1]
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("system")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_system(ctx: Context, args: List[str], case: Case):
     """
     Change the system of an active case
@@ -190,11 +335,9 @@ async def cmd_system(ctx: Context, args: List[str], case: Case):
     """
     newsys: str = " ".join(args[1:])
     newsys = await sys_cleaner(newsys)
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx, case=case, action="Client System", new_key="system", new_item=newsys
     )
-    if update:
-        await ctx.reply(update)
     try:
         landmark, distance, direction = await checklandmarks(newsys)
     except (NoResultsEDSM, EDSMConnectionError):
@@ -207,9 +350,9 @@ async def cmd_system(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("status")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_status(ctx: Context, args: List[str], case: Case):
     """
     Change the activity status of a case
@@ -220,10 +363,12 @@ async def cmd_status(ctx: Context, args: List[str], case: Case):
     try:
         status = Status[args[1].upper()]
         if status == Status.CLOSED:
-            raise KeyError  # Mock a KeyError. This command can't close a case.
+            return await ctx.reply(
+                "Can't close a case with this command. Did you mean !close?"
+            )
     except KeyError:
         return await ctx.reply("Invalid case status provided.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Case Status",
@@ -231,14 +376,12 @@ async def cmd_status(ctx: Context, args: List[str], case: Case):
         new_item=status,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("hull")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_hull(ctx: Context, args: List[str], case: Case):
     """
     Change the starting hull percentage of a case
@@ -254,21 +397,19 @@ async def cmd_hull(ctx: Context, args: List[str], case: Case):
             raise ValueError  # Mock a Value Error for invalid Hull Percentage
     except ValueError:
         return await ctx.reply(f"{args[1]!r} isn't a valid hull percentage")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Hull Percentage",
         new_key="hull_percent",
         new_item=percent,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("changetype")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_changetype(ctx: Context, args: List[str], case: Case):
     """
     Change the case type between Seal, KF, Black, or Blue.
@@ -296,7 +437,7 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
     new_type = type_lookup.get(potential_type)
     if new_type is None:
         return await ctx.reply("Invalid New Case Type Given.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Case Type",
@@ -304,14 +445,12 @@ async def cmd_changetype(ctx: Context, args: List[str], case: Case):
         new_item=new_type,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("platform")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_platform(ctx: Context, args: List[str], case: Case):
     """
     Change the platform a case is on.
@@ -346,7 +485,7 @@ async def cmd_platform(ctx: Context, args: List[str], case: Case):
     new_plt = platform_lookup.get(potential_plt)
     if new_plt is None:
         return await ctx.reply("Invalid New Case Type Given.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Case Platform",
@@ -354,14 +493,12 @@ async def cmd_platform(ctx: Context, args: List[str], case: Case):
         new_item=new_plt,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("planet")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_planet(ctx: Context, args: List[str], case: Case):
     """
     Change the planet of an active KF case
@@ -372,17 +509,15 @@ async def cmd_planet(ctx: Context, args: List[str], case: Case):
     if case.case_type != CaseType.FISH:
         return await ctx.reply("Planet can't be changed for non-Fisher case")
     newplan = await sys_cleaner(" ".join(args[1:]))
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx, case=case, action="Client Planet", new_key="planet", new_item=newplan
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("casecoords")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(3)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(3)
 async def cmd_coords(ctx: Context, args: List[str], case: Case):
     """
     Change the coords of an active KF case
@@ -398,21 +533,19 @@ async def cmd_coords(ctx: Context, args: List[str], case: Case):
     except ValueError as val_err:
         raise ValueError("KF Coordinates Improperly Formatted") from val_err
     newcoords = KFCoords(xcoord, ycoord)
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Client Coordinates",
         new_key="pcoords",
         new_item=newcoords,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("o2time")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
     """
     Change the remaining oxygen timer for a case
@@ -425,21 +558,19 @@ async def cmd_oxtime(ctx: Context, args: List[str], case: Case):
     pattern = r"^\d{2}:\d{2}$"
     if not re.match(pattern, args[2].strip()):
         return await ctx.reply("Invalid O2 Time Given. Does not match pattern ##:##.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="O2 Timer",
         new_key="o2_timer",
         new_item=args[1].strip(),
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("synth")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_synth(ctx: Context, args: List[str], case: Case):
     """
     Toggle if a CMDR has synths available for a given case.
@@ -453,21 +584,19 @@ async def cmd_synth(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Invalid synth ability given.")
     if new_stat == case.can_synth:
         return await ctx.reply(f"Synth available already set to {new_stat}")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Synth Status",
         new_key="can_synth",
         new_item=new_stat,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("canopy")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_canopy(ctx: Context, args: List[str], case: Case):
     """
     Toggle if the canopy is broken for a given case.
@@ -487,21 +616,19 @@ async def cmd_canopy(ctx: Context, args: List[str], case: Case):
             return await ctx.reply("Invalid Canopy Status given.")
     if case.case_type not in (CaseType.BLACK, CaseType.BLUE):
         return await ctx.reply("Canopy Status Can't Be Changed for Non-CB Cases!")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Canopy Status",
         new_key="canopy_broken",
         new_item=canopy_broken,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 @Commands.command("kftype")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
     """
     Change the case type between KF subtypes.
@@ -521,7 +648,7 @@ async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
         new_type = getattr(KFType, potential_type.upper())
     except AttributeError:
         return await ctx.reply("Invalid New KF Subtype Given.")
-    update = await update_single_elem_case_prep(
+    await update_single_elem_case_prep(
         ctx=ctx,
         case=case,
         action="Kingfisher Type",
@@ -529,15 +656,13 @@ async def cmd_changekftype(ctx: Context, args: List[str], case: Case):
         new_item=new_type,
         enum=True,
     )
-    if update:
-        return await ctx.reply(update)
 
 
 # NOTES MANAGEMENT
 @Commands.command("notes", "updatenotes", "addnote")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_notes(ctx: Context, args: List[str], case: Case):
     """
     Append a new entry to the Notes
@@ -545,7 +670,9 @@ async def cmd_notes(ctx: Context, args: List[str], case: Case):
     Usage: !notes [board ID] [new note line]
     Aliases: updatenotes, addnote
     """
-    new_notes = f"{' '.join(args[1:])} - {ctx.sender} ({now(tz='UTC')})"
+    new_notes = (
+        f"{' '.join(args[1:])} - {ctx.sender} ({now(tz='UTC').to_time_string()})"
+    )
     notes: List[str] = case.case_notes
     notes.append(new_notes)
     await ctx.bot.board.mod_case_notes(case_id=case.board_id, new_notes=notes)
@@ -553,8 +680,8 @@ async def cmd_notes(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("listnotes")
-@Require.permission(Drilled)
-@CommandUtils.gather_case(1)
+@needs_permission(Drilled)
+@gather_case(1)
 async def cmd_listnotes(ctx: Context, args: List[str], case: Case):
     """
     List out just the case notes to DMs
@@ -571,9 +698,9 @@ async def cmd_listnotes(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("delnote")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(2)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(2)
 async def cmd_delnote(ctx: Context, args: List[str], case: Case):
     """
     Delete a line of the notes for a given case
@@ -596,9 +723,9 @@ async def cmd_delnote(ctx: Context, args: List[str], case: Case):
 
 
 @Commands.command("editnote")
-@Require.permission(Drilled)
-@Require.channel()
-@CommandUtils.gather_case(3)
+@needs_permission(Drilled)
+@in_channel()
+@gather_case(3)
 async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     """
     Alter a line of the notes for a given case
@@ -615,6 +742,7 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
     except (ValueError, IndexError):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Editing line {target_line!r} to the provided text.")
+
     case.case_notes[
         note_index
     ] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"

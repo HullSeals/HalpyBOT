@@ -10,7 +10,8 @@ See license.md
 from __future__ import annotations
 import re
 from enum import Enum
-from typing import TYPE_CHECKING, Union, Optional
+from typing import TYPE_CHECKING, Union
+from ..exceptions import KFCoordsError
 from ..models import Case, Platform, CaseType, Context, KFCoords, KFType
 from ... import config
 
@@ -75,7 +76,7 @@ async def create_case(args: AnnouncerArgs, codemap: Platform, client: HalpyBOT) 
             xcoord = float(coords[0].strip())
             ycoord = float(coords[1].strip())
         except ValueError as kf_err:
-            raise ValueError("KF Coordinates Improperly Formatted") from kf_err
+            raise KFCoordsError("KF Coordinates Improperly Formatted") from kf_err
         evolve_args.update(
             {
                 "case_type": case_type,
@@ -112,7 +113,7 @@ async def update_single_elem_case_prep(
     new_key: str,
     new_item: Union[str, Enum, int, KFCoords],
     enum: bool = False,
-) -> Optional[str]:
+):
     """
     Send the updated case details to the board, and handle errors
     """
@@ -120,11 +121,12 @@ async def update_single_elem_case_prep(
     new_details = {new_key: new_item}
     if enum:
         new_item = new_item.name
-    new_item = new_item.replace("_", " ")
+    if isinstance(new_item, str):
+        new_item = new_item.replace("_", " ")
     try:
         await ctx.bot.board.mod_case(case.board_id, action, ctx.sender, **new_details)
     except ValueError:
-        return f"{action} is already set to {new_item!r}."
+        return await ctx.reply(f"{action} is already set to {new_item!r}.")
     for channel in config.channels.rescue_channels:
         await ctx.bot.message(
             channel,

@@ -14,13 +14,13 @@ from loguru import logger
 import pendulum
 from halpybot import config
 from ..packages.utils import shorten
-from ..packages.checks import Require, Drilled, Pup
+from ..packages.checks import Drilled, Pup, needs_permission
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context
 
 
 @Commands.command("shorten")
-@Require.permission(Drilled)
+@needs_permission(Drilled)
 async def cmd_shorten(ctx: Context, args: List[str]):
     """
     Shorten a given URL with the configured YOURLS API
@@ -48,21 +48,21 @@ async def cmd_roll(ctx: Context, args: List[str]):
     if not args:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
     dicesearch = re.search(r"^\d+d\d+$", args[0])
-    if dicesearch is not None:
-        dice = args[0].split("d")
-        if int(dice[0]) > 10:
-            return await ctx.reply("Can't roll more than 10 dice at a time!")
-        rolls = []
-        for roll in range(int(dice[0])):
-            dice_roll = random.randint(1, int(dice[1]))
-            rolls.append(dice_roll)
-        total = sum(rolls)
-        return await ctx.reply(f"{ctx.sender}: {total} {str(rolls)}")
-    return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
+    if dicesearch is None:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "roll"))
+    dice = args[0].split("d")
+    if int(dice[0]) > 10:
+        return await ctx.reply("Can't roll more than 10 dice at a time!")
+    rolls = []
+    for roll in range(int(dice[0])):
+        dice_roll = random.randint(1, int(dice[1]))
+        rolls.append(dice_roll)
+    total = sum(rolls)
+    return await ctx.reply(f"{ctx.sender}: {total} {str(rolls)}")
 
 
 @Commands.command("fireball")
-@Require.permission(Pup)
+@needs_permission(Pup)
 async def cmd_fireball(ctx: Context, args: List[str]):
     """
     FOR FIREBALL!

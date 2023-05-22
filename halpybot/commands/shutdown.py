@@ -13,14 +13,14 @@ import os
 import signal
 from typing import List
 from loguru import logger
-from ..packages.checks import Require, Admin
+from ..packages.checks import in_direct_message, needs_permission, Admin
 from ..packages.command import Commands
 from ..packages.models import Context
 
 
 @Commands.command("shutdown", "restart", "sealpukku", "reboot")
-@Require.direct_message()
-@Require.permission(Admin)
+@in_direct_message()
+@needs_permission(Admin)
 async def cmd_shutdown(ctx: Context, args: List[str]):
     """
     Shut down the bot (restart if running as daemon)

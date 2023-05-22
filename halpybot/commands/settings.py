@@ -13,7 +13,7 @@ from loguru import logger
 from attrs.converters import to_bool
 import pydle
 from halpybot import config
-from ..packages.checks import Require, Cyberseal
+from ..packages.checks import needs_permission, in_channel, Cyberseal
 from ..packages.command import CommandGroup, Commands, get_help_text
 from ..packages.models import Context
 
@@ -22,7 +22,7 @@ Settings.add_group("bot_management", "settings")
 
 
 @Settings.command("nick")
-@Require.permission(Cyberseal)
+@needs_permission(Cyberseal)
 async def cmd_nick(ctx: Context, args: List[str]):
     """
     Change the nickname of the bot
@@ -42,7 +42,7 @@ async def cmd_nick(ctx: Context, args: List[str]):
 
 
 @Settings.command("prefix")
-@Require.permission(Cyberseal)
+@needs_permission(Cyberseal)
 async def cmd_prefix(ctx: Context, args: List[str]):
     """
     Oh boy, I hope you know what you're doing...
@@ -67,8 +67,8 @@ async def cmd_prefix(ctx: Context, args: List[str]):
 
 
 @Settings.command("offline")
-@Require.permission(Cyberseal)
-@Require.channel()
+@needs_permission(Cyberseal)
+@in_channel()
 async def cmd_offline(ctx: Context, args: List[str]):
     """
     Change the status of Offline mode.
@@ -100,7 +100,7 @@ async def cmd_offline(ctx: Context, args: List[str]):
 
 
 @Commands.command("joinchannel")
-@Require.permission(Cyberseal)
+@needs_permission(Cyberseal)
 async def cmd_joinchannel(ctx: Context, args: List[str]):
     """
     Make the bot join a channel. After restart, it will still be in the channel.
@@ -121,7 +121,7 @@ async def cmd_joinchannel(ctx: Context, args: List[str]):
 
 
 @Commands.command("partchannel")
-@Require.permission(Cyberseal)
+@needs_permission(Cyberseal)
 async def cmd_part(ctx: Context, args: List[str]):
     """
     Make the bot leave the channel it's currently in

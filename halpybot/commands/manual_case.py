@@ -13,7 +13,7 @@ from loguru import logger
 import pendulum
 from halpybot import config
 from ..packages.command import Commands, get_help_text
-from ..packages.checks import Require, Drilled
+from ..packages.checks import Drilled, needs_permission, in_channel
 from ..packages.exceptions import WebhookSendError
 from ..packages.models import Context, User
 from ..packages.announcer import send_webhook
@@ -38,8 +38,8 @@ async def send_message(message_content: str, sender: str, embeds):
 
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 async def cmd_manual_case(ctx: Context, args: List[str]):
     """
     Manually create a new case
@@ -106,8 +106,8 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
 
 
 @Commands.command("tsping", "wssping")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel()
 async def cmd_tsping(ctx: Context, args: List[str]):
     """
     Ping the 'Trained Seals' role on Discord. Annoying as duck and not to be used lightly

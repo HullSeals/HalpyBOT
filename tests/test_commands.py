@@ -7,13 +7,15 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-
 import pytest
 from halpybot.packages.command import Commands
 from halpybot import config
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
+
+# noinspection PyUnresolvedReferences
+from .fixtures.mock_board import mock_full_board_fx
 
 config.offline_mode.enabled = False
 config.edsm.uri = "http://127.0.0.1:4000"
@@ -540,15 +542,16 @@ async def test_drillcb_unauth(bot_fx):
 @pytest.mark.asyncio
 async def test_go_valid(bot_fx):
     """Test the GO command"""
-    await bot_fx.facts.fetch_facts(bot_fx.engine, preserve_current=True)
+    await mock_full_board_fx(bot_fx)
+    await bot_fx.facts._from_local()
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config.irc.command_prefix}go some_pup",
+        message=f"{config.irc.command_prefix}go 1 Rixxan",
     )
     assert bot_fx.sent_messages[0] == {
-        "message": "some_pup: You're up.",
+        "message": "Rixxan: You're up.",
         "target": "#bot-test",
     }
 
@@ -556,12 +559,13 @@ async def test_go_valid(bot_fx):
 @pytest.mark.asyncio
 async def test_go_guest(bot_fx):
     """Test the GO command"""
-    await bot_fx.facts.fetch_facts(bot_fx.engine, preserve_current=True)
+    await mock_full_board_fx(bot_fx)
+    await bot_fx.facts._from_local()
     await Commands.invoke_from_message(
         bot=bot_fx,
         channel="#bot-test",
         sender="generic_seal",
-        message=f"{config.irc.command_prefix}go guest_user",
+        message=f"{config.irc.command_prefix}go 1 guest_user",
     )
     assert bot_fx.sent_messages[0] == {
         "message": "generic_seal: guest_user is not identified as a trained seal. Have them check their IRC setup?",
@@ -775,3 +779,89 @@ async def test_coords_4(bot_fx):
         "message": "No systems known to EDSM within 100ly of 1000000000, 20000000000, 30000000000.",
         "target": "#bot-test",
     }
+
+
+@pytest.mark.asyncio
+async def test_diversion(bot_fx):
+    """Test the diversion command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config.irc.command_prefix}diversion Sol",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("Closest Diversion Stations to SOL:")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_dssa(bot_fx):
+    """Test the DSSA command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config.irc.command_prefix}dssa Sol",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("The closest DSSA Carrier is in")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_landmark(bot_fx):
+    """Test the landmark command"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_user",
+        message=f"{config.irc.command_prefix}landmark Sol",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("The closest landmark system is")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+
+
+@pytest.mark.asyncio
+async def test_fireball(bot_fx):
+    """Test the Fireball and Dice Rolling Commands"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_pup",
+        message=f"{config.irc.command_prefix}fireball",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("Kawoosh! some_pup cast a fireball on chat! Rolling for damage...")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"
+    assert bot_fx.sent_messages[1].get("message").startswith("some_pup:")
+
+
+@pytest.mark.asyncio
+async def test_roll_bad(bot_fx):
+    """Test the Fireball and Dice Rolling Commands"""
+    await Commands.invoke_from_message(
+        bot=bot_fx,
+        channel="#bot-test",
+        sender="some_pup",
+        message=f"{config.irc.command_prefix}roll bacon",
+    )
+    assert (
+        bot_fx.sent_messages[0]
+        .get("message")
+        .startswith("Use: ^roll #d# \nRoll the dice! (Up to 10 dice of any size)")
+    )
+    assert bot_fx.sent_messages[0].get("target") == "#bot-test"

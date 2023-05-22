@@ -7,10 +7,14 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-from typing import Optional
+from __future__ import annotations
+from typing import Optional, List, TYPE_CHECKING
 from enum import Enum
 from attrs import define, field
 from pendulum import now, DateTime
+
+if TYPE_CHECKING:
+    from halpybot.packages.models import Seal
 
 
 class Platform(Enum):
@@ -75,10 +79,10 @@ class Case:
     status: Status = Status.ACTIVE
     welcomed: bool = False
     # Filled As Case Continues
-    dispatchers: list = field(factory=list)
-    responders: list = field(factory=list)
+    dispatchers: List[Seal] = field(factory=list)
+    responders: List[Seal] = field(factory=list)
     case_notes: list = field(factory=list)
-    closed_to: Optional[int] = None
+    closed_to: Optional[Seal] = None
 
     # Da Optionalz
     irc_nick: Optional[str] = None
@@ -120,7 +124,7 @@ class Case:
         if self.irc_nick:
             message += f"   IRC Nickname: {self.irc_nick}\n"
         if self.closed_to:
-            message += f"   Case Closed To: {self.closed_to}\n"  # TODO: Translate to Seal Name (#333)
+            message += f"   Case Closed To: {self.closed_to.name}\n"
         if self.case_type == CaseType.FISH:
             message += (
                 f"KF Details:\n"
@@ -142,10 +146,20 @@ class Case:
             case_notes = "\n      ".join(self.case_notes)
         else:
             case_notes = "None Yet!"
+        responding_seals = ""
+        if self.responders:
+            for responder in self.responders:
+                responding_seals += f"{responder.name}, "
+            responding_seals = responding_seals[:-2]
+        responding_spatch = ""
+        if self.dispatchers:
+            for spatch in self.dispatchers:
+                responding_spatch += f"{spatch.name}, "
+            responding_spatch = responding_spatch[:-2]
         message += (
             f"Responder Details:\n"
-            f"   Dispatchers: {', '.join(self.dispatchers) if self.dispatchers else 'None Yet!'}\n"
-            f"   Responders: {', '.join(self.responders) if self.responders else 'None Yet!'}\n"
+            f"   Dispatchers: {responding_spatch if self.dispatchers else 'None Yet!'}\n"
+            f"   Responders: {responding_seals if self.responders else 'None Yet!'}\n"
             f"   Notes: \n      {case_notes}"
         )
         return message

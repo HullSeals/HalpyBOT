@@ -12,7 +12,7 @@ from sqlalchemy.engine import Engine
 from halpybot.packages.command.commandhandler import get_help_text
 from ..packages.seals import whois
 from ..packages.command import Commands
-from ..packages.checks import Require, Pup
+from ..packages.checks import needs_permission, needs_database, Pup
 from ..packages.models import Context, Seal
 
 
@@ -24,13 +24,13 @@ async def whois_fetch(engine: Engine, cmdr: str):
         return "No registered user found by that name!"
     return (
         f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}"
-        f"{seal.dw2_history} {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
+        f"{seal.dw2_history} {seal.format_cmdrs}and has been involved with {seal.case_num} rescues."
     )
 
 
 @Commands.command("whois")
-@Require.permission(Pup)
-@Require.database()
+@needs_permission(Pup)
+@needs_database()
 async def cmd_whois(ctx: Context, args: List[str]):
     """
     List user information of a given user
@@ -47,19 +47,12 @@ async def cmd_whois(ctx: Context, args: List[str]):
             "is a DW2 Veteran and Founder Seal with registered CMDRs of Arf! Arf! Arf!, "
             "and has been involved with countless rescues."
         )
-    try:
-        seal: Seal = await whois(ctx.bot.engine, cmdr)
-    except (KeyError, ValueError):
-        return await ctx.redirect("No registered user found by that name!")
-    return await ctx.redirect(
-        f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history}"
-        f" {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
-    )
+    return await ctx.redirect(await whois_fetch(ctx.bot.engine, cmdr))
 
 
 @Commands.command("whoami")
-@Require.permission(Pup)
-@Require.database()
+@needs_permission(Pup)
+@needs_database()
 async def cmd_whoami(ctx: Context, args: List[str]):
     """
     List user information of a given user
@@ -68,11 +61,4 @@ async def cmd_whoami(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     cmdr = ctx.sender
-    try:
-        seal: Seal = await whois(ctx.bot.engine, cmdr)
-    except (KeyError, ValueError):
-        return await ctx.redirect("No registered user found by that name!")
-    return await ctx.redirect(
-        f"CMDR {seal.name} has a Seal ID of {seal.seal_id}, registered on {seal.reg_date}{seal.dw2_history}"
-        f" {seal.cmdrs}, and has been involved with {seal.case_num} rescues."
-    )
+    return await ctx.redirect(await whois_fetch(ctx.bot.engine, cmdr))
