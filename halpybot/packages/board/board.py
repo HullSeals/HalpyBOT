@@ -183,10 +183,7 @@ class Board:
         # Update and Continue
         name_kwarg = {"client_name": new_name}
         action = "Client Name"
-        try:
-            await self.mod_case(board_id, action, sender, **name_kwarg)
-        except CaseAlreadyExists:
-            raise
+        await self.mod_case(board_id, action, sender, **name_kwarg)
         async with self._modlock:
             del self._case_alias_name[old_name.casefold()]
             self._case_alias_name[new_name.casefold()] = board_id
