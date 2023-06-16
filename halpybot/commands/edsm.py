@@ -7,6 +7,8 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+import math
+import re
 from typing import List
 from ..packages.edsm import (
     GalaxySystem,
@@ -25,7 +27,8 @@ from ..packages.utils import (
     coords_exceptions,
 )
 from ..packages.command import Commands
-from ..packages.models import Context
+from ..packages.models import Context, Case
+from ..packages.case import get_case
 
 
 @Commands.command("lookup", "syslookup")
@@ -65,21 +68,44 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     """
     Check EDSM for the distance between two known points.
 
-    Usage: !distance <--new> [system/cmdr 1] : [system/cmdr 2]
+    Usage: !distance <--new> [system/cmdr 1] : [system/cmdr 2] : [jump range (Optional)]
     Aliases: dist
     """
     try:
         # Parse systems/CMDRs from string
         list_to_str = " ".join([str(elem) for elem in args])
-        points = list_to_str.split(":", 1)
+        points = list_to_str.split(":")
         pointa, pointb = "".join(points[0]).strip(), "".join(points[1]).strip()
     except IndexError:
         return await ctx.reply("Please provide two points to look up, separated by a :")
     if not pointb:
         return await ctx.reply("Please provide two points to look up, separated by a :")
+    try:  # Assume pointa is actually a CaseID, check if that case exists and get its system
+        case: Case = await get_case(ctx, pointa)
+        pointa = case.system
+    except KeyError:
+        pass
+    try:  # Assume pointb is actually a CaseID, check if that case exists and get its system
+        case: Case = await get_case(ctx, pointb)
+        pointb = case.system
+    except KeyError:
+        pass
     distance, direction = await checkdistance(
         pointa, pointb, cache_override=cache_override
     )
+    try:
+        range = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
+        jumps = math.ceil(float(distance.replace(",", "")) / range)
+        return await ctx.reply(
+            f"{await sys_cleaner(pointa)} is {distance} LY (~{jumps} Jumps) {direction} of "
+            f"{await sys_cleaner(pointb)}."
+        )
+    except IndexError:
+        pass
+    except ValueError:
+        return await ctx.reply(
+            "The Jump Range must be given as digits with optionally a decimal point."
+        )
     return await ctx.reply(
         f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
         f"{await sys_cleaner(pointb)}."

@@ -19,8 +19,8 @@
       "aliases": [
         "dist"
       ],
-      "arguments": "[point 1] : [point 2]",
-      "use": "Check the distance between two points in EDSM"
+      "arguments": "[point 1] : [point 2] : [jump range (Optional)]",
+      "use": "Check the distance between two points in EDSM and optionally calculate a rough jump count"
     },
     "landmark": {
       "aliases": [],
@@ -319,6 +319,11 @@
       "aliases": [],
       "arguments": "[url]",
       "use": "Shorten a provided URL"
+    },
+    "spansh": {
+      "aliases": [],
+      "arguments": "[jump range] [sysA] : [sysB]",
+      "use": "Returns jump counts from sysA to sysB"
     }
   },
   "Drill": {

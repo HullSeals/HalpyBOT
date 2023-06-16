@@ -28,6 +28,31 @@ class YOURLSBadResponse(YOURLSError):
     """
 
 
+# Spansh
+class SpanshError(Exception):
+    """
+    Base class for Spansh errors
+    """
+
+
+class SpanshNoResponse(SpanshError):
+    """
+    An exception occurred while sending data to or receiving from the Spansh API
+    """
+
+
+class SpanshBadResponse(SpanshError):
+    """
+    Spansh returned an unprocessable response
+    """
+
+
+class SpanshResponseTimedOut(SpanshError):
+    """
+    Spansh took too long to calculate a route
+    """
+
+
 # Commands
 class CommandException(Exception):
     """
