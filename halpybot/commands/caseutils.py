@@ -142,7 +142,13 @@ async def cmd_welcome(ctx: Context, args: List[str]):
         )
         return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
     spatches = case.dispatchers
-    spatch: Seal = await whois(ctx.bot.engine, ctx.sender)
+    try:
+        spatch: Seal = await whois(ctx.bot.engine, ctx.sender)
+    except ValueError as disp_no_exist:
+        await ctx.reply(
+            "Error! Dispatcher doesn't seem to exist in the database. Unable to comply."
+        )
+        raise ValueError from disp_no_exist
     if spatch not in spatches:
         spatches.append(spatch)
     res_kwarg = {"welcomed": True, "dispatchers": spatches}

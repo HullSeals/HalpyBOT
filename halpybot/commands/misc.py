@@ -17,8 +17,6 @@ from ..packages.utils import shorten, spansh, sys_cleaner
 from ..packages.checks import Drilled, Pup, needs_permission
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context, Case
-from ..packages.case import get_case
-from ..packages.edsm import Commander
 
 
 @Commands.command("shorten")
@@ -37,72 +35,6 @@ async def cmd_shorten(ctx: Context, args: List[str]):
     logger.info(f"{ctx.sender} requested shortening of {args[0]}")
     surl = await shorten(args[0])
     return await ctx.reply(f"{ctx.sender}: Here's your short URL: {surl}")
-
-
-@Commands.command("spansh")
-@needs_permission(Drilled)
-async def cmd_spansh(ctx: Context, args: List[str]):
-    """
-    Returns jump counts from sysA to sysB with a given jump range
-
-    Usage: !spansh [jump range] [sysA] : [sysB]
-    Aliases: n/a
-    """
-    if not args:
-        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "spansh"))
-    range = re.sub("(?i)LY", "", args.pop(0).replace(",", "."))
-    if args[0] in ["LY", "Ly", "lY", "ly"]:
-        args.pop(0)
-    try:
-        float(range)
-    except ValueError:
-        return await ctx.reply(
-            "Please provide a jump range followed by two systems separated by a :"
-        )
-    try:
-        list_to_str = " ".join([str(elem) for elem in args])
-        points = list_to_str.split(":", 1)
-        sysa, sysb = "".join(points[0]).strip(), "".join(points[1]).strip()
-        sysa_text = await sys_cleaner(sysa)
-        sysb_text = await sys_cleaner(sysb)
-    except IndexError:
-        return await ctx.reply(
-            "Please provide a jump range followed by two systems separated by a :"
-        )
-    if not sysb:
-        return await ctx.reply(
-            "Please provide a jump range followed by two systems separated by a :"
-        )
-    try:  # Assume sysa is actually a CMDR, check if they exit and share their location
-        cmdr = await Commander.location(name=sysa)
-        if cmdr.system is not None:
-            sysa = await sys_cleaner(cmdr.system)
-            sysa_text = f"{sysa_text} (in {sysa})"
-    except:
-        pass
-    try:  # Assume sysb is actually a CMDR, check if they exit and share their location
-        cmdr = await Commander.location(name=sysb)
-        if cmdr.system is not None:
-            sysb = await sys_cleaner(cmdr.system)
-            sysb_text = f"{sysb_text} (in {sysb})"
-    except:
-        pass
-    try:  # Assume sysa is actually a CaseID, check if that case exists and get its system
-        case: Case = await get_case(ctx, sysa)
-        sysa = await sys_cleaner(case.system)
-        sysa_text = f"Case {case.board_id} ({case.client_name} in {sysa})"
-    except KeyError:
-        pass
-    try:  # Assume sysb is actually a CaseID, check if that case exists and get its system
-        case: Case = await get_case(ctx, sysb)
-        sysb = await sys_cleaner(case.system)
-        sysb_text = f"Case {case.board_id} ({case.client_name} in {sysb})"
-    except KeyError:
-        pass
-    logger.info(
-        f"{ctx.sender} requested jumps counts from {sysa_text} to {sysb_text} with {range}LY range"
-    )
-    return await spansh(ctx, range, sysa, sysb, sysa_text, sysb_text)
 
 
 @Commands.command("roll")

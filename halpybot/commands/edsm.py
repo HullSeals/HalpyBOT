@@ -93,23 +93,22 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     distance, direction = await checkdistance(
         pointa, pointb, cache_override=cache_override
     )
+    if len(points) < 3:
+        return await ctx.reply(
+            f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
+            f"{await sys_cleaner(pointb)}."
+        )
     try:
-        range = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
-        jumps = math.ceil(float(distance.replace(",", "")) / range)
+        jump_range = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
+        jumps = math.ceil(float(distance.replace(",", "")) / jump_range)
         return await ctx.reply(
             f"{await sys_cleaner(pointa)} is {distance} LY (~{jumps} Jumps) {direction} of "
             f"{await sys_cleaner(pointb)}."
         )
-    except IndexError:
-        pass
     except ValueError:
         return await ctx.reply(
-            "The Jump Range must be given as digits with optionally a decimal point."
+            "The Jump Range must be given as digits with an optional jump range."
         )
-    return await ctx.reply(
-        f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
-        f"{await sys_cleaner(pointb)}."
-    )
 
 
 @Commands.command("landmark")

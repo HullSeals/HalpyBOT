@@ -8,35 +8,26 @@ Licensed under the GNU General Public License
 See license.md
 """
 from typing import List
-import aiohttp
 import asyncio
+import aiohttp
 from loguru import logger
-from halpybot import config
-from .utils import web_get
+from . import shorten, web_get
 from ..exceptions import SpanshNoResponse, SpanshBadResponse, SpanshResponseTimedOut
 from ..models import Context
 
 
 async def spansh_get_routes(
-    ctx: Context,
-    range: str,
-    sysa: str,
-    sysb: str,
-    sysa_text: str,
-    sysb_text: str,
-    normal_jobID: str,
-    neutron_jobID: str,
+    ctx: Context, jump_range: float, sysa: str, sysb: str, jobs: List[str]
 ) -> None:
     """
     Receives calculated Normal and Neutron Jump Counts from spansh.co.uk
 
     Args:
         ctx (Context): PYDLE Context
-        range (str): Ship's jump range
+        jump_range (str): Ship's jump range
         sysa (str): Starting system
         sysb (str): Client's/Target system
-        normal_jobID (str): spansh jobID for 100% efficency route
-        neutron_jobID (str): spansh jobID for 60% efficency route
+        jobs (list): A list of two Spansh processing jobs
 
     Returns:
         None
@@ -46,62 +37,46 @@ async def spansh_get_routes(
         SpanshBadResponse: Spansh returned an unprocessable response
         SpanshResponseTimedOut: Spansh took too long to calculate a route
     """
-    results_uri = f"https://spansh.co.uk/api/results"
-    page_uri = f"https://spansh.co.uk/plotter/results"
-    spansh_loop = True
-    spansh_loop_timeout = 20
-    while spansh_loop:
-        try:
-            responses = await web_get(f"{results_uri}/{normal_jobID}")
-        except aiohttp.ClientError as ex:
-            logger.exception("spansh did not respond (3)")
-            raise SpanshNoResponse from ex
-        if responses["status"] == "ok":
-            spansh_loop = False
-            normal_jumps = 0
-            for entry in responses["result"]["system_jumps"]:
-                normal_jumps += entry["jumps"]
-            print(f"{normal_jumps} normal jumps")
-            break
-        if spansh_loop_timeout <= 0:
-            logger.exception("spansh took too long to calculate a route (1)")
-            raise SpanshResponseTimedOut
-        spansh_loop_timeout -= 1
-        await asyncio.sleep(1)
-    spansh_loop = True
-    while spansh_loop:
-        try:
-            responses = await web_get(f"{results_uri}/{neutron_jobID}")
-        except aiohttp.ClientError as ex:
-            logger.exception("spansh did not respond (4)")
-            raise SpanshNoResponse from ex
-        if responses["status"] == "ok":
-            spansh_loop = False
-            neutron_jumps = 0
-            for entry in responses["result"]["system_jumps"]:
-                neutron_jumps += entry["jumps"]
-            print(f"{neutron_jumps} neutron jumps")
-            break
-        if spansh_loop_timeout <= 0:
-            logger.exception("spansh took too long to calculate a route (2)")
-            raise SpanshResponseTimedOut
-        spansh_loop_timeout -= 1
-        await asyncio.sleep(1)
+    results_uri = "https://spansh.co.uk/api/results"  # TODO: Config
+    page_uri = "https://spansh.co.uk/plotter/results"  # TODO: Config
+    spansh_loop_timeout = 20  # TODO: Config
+    job_results = []
+    for job in jobs:
+        while True:
+            try:
+                responses = await web_get(f"{results_uri}/{job}")
+            except aiohttp.ClientError as ex:
+                logger.exception("spansh did not respond (3)")  # TODO: Cleanup
+                raise SpanshNoResponse from ex
+            if responses["status"] == "ok":
+                jumps = 0
+                for entry in responses["result"]["system_jumps"]:
+                    jumps += entry["jumps"]
+                job_results.append(jumps)
+                break
+            if spansh_loop_timeout <= 0:
+                logger.exception("spansh took too long to calculate a route (1)")
+                raise SpanshResponseTimedOut
+            spansh_loop_timeout -= 1
+            await asyncio.sleep(1)
     await ctx.reply(
-        f"{ctx.sender}: It will take about {normal_jumps} normal jumps or {neutron_jumps} spansh jumps to get from {sysa_text} to {sysb_text} with a range of {range}LY."
+        f"{ctx.sender}: It will take about {job_results[1]} normal jumps or {job_results[0]} spansh jumps to get from {sysa} to {sysb} with a range of {jump_range} LY."
     )
-    await ctx.reply(f"spansh URL: {page_uri}/{neutron_jobID}")
+    sysa = sysa.replace(" ", "%20")
+    sysb = sysb.replace(" ", "%20")
+    short = await shorten(
+        f"{page_uri}/{jobs[0]}?efficiency=60&from={sysa}&to={sysb}&range={jump_range}"
+    )
+    return await ctx.reply(f"Here's a spansh URL: {short}")
 
 
-async def spansh(
-    ctx: Context, range: str, sysa: str, sysb: str, sysa_text: str, sysb_text: str
-):
+async def spansh(ctx: Context, jump_range: float, sysa: str, sysb: str):
     """
     Starts calculating the normal and Neutron Jump Count using spansh.co.uk
 
     Args:
         ctx (Context): PYDLE Context
-        range (str): Ship's jump range
+        jump_range (str): Ship's jump range
         sysa (str): Starting system
         sysb (str): Client's/Target system
 
@@ -112,10 +87,10 @@ async def spansh(
         SpanshNoResponse: spansh did not respond in time.
         SpanshBadResponse: Spansh returned an unprocessable response
     """
-    route_uri = f"https://spansh.co.uk/api/route"
+    route_uri = "https://spansh.co.uk/api/route"  # TODO: Config File
     params = {
         "efficiency": 100,
-        "range": range,
+        "range": jump_range,
         "from": sysa,
         "to": sysb,
     }
@@ -125,11 +100,10 @@ async def spansh(
         logger.exception("spansh Did Not Respond (1)")
         raise SpanshNoResponse from ex
     if "error" in responses:
-        return await ctx.reply(f"{responses['error']}")
+        return await ctx.reply(f"{responses['error']}")  # TODO: Obfuscate
     if "job" not in responses:
         raise SpanshBadResponse
-    normal_jobID = responses["job"]
-    print(normal_jobID)
+    normal_job_id = responses["job"]
     params["efficiency"] = 60
     try:
         responses = await web_get(route_uri, params)
@@ -137,14 +111,11 @@ async def spansh(
         logger.exception("spansh Did Not Respond (2)")
         raise SpanshNoResponse from ex
     if "error" in responses:
-        return await ctx.reply(f"{responses['error']}")
+        return await ctx.reply(f"{responses['error']}")  # TODO: Obfuscate
     if "job" not in responses:
         raise SpanshBadResponse
-    neutron_jobID = responses["job"]
-    print(neutron_jobID)
-    asyncio.create_task(
-        spansh_get_routes(
-            ctx, range, sysa, sysb, sysa_text, sysb_text, normal_jobID, neutron_jobID
-        )
-    )
-    return await ctx.reply(f"Spansh calculations have been started...")
+    neutron_job_id = responses["job"]
+    jobs = [neutron_job_id, normal_job_id]
+    asyncio.create_task(spansh_get_routes(ctx, jump_range, sysa, sysb, jobs))
+
+    return await ctx.reply("Spansh calculations have been started...")
