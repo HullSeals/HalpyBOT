@@ -68,7 +68,7 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     """
     Check EDSM for the distance between two known points.
 
-    Usage: !distance <--new> [system/cmdr 1] : [system/cmdr 2] : [jump range (Optional)]
+    Usage: !distance <--new> [System/CMDR/caseID 1] : [System/CMDR/caseID 2] : <Jump Range>
     Aliases: dist
     """
     try:
@@ -76,6 +76,9 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
         list_to_str = " ".join([str(elem) for elem in args])
         points = list_to_str.split(":")
         pointa, pointb = "".join(points[0]).strip(), "".join(points[1]).strip()
+        pointa_pretty, pointb_pretty = await sys_cleaner(pointa), await sys_cleaner(
+            pointb
+        )
     except IndexError:
         return await ctx.reply("Please provide two points to look up, separated by a :")
     if not pointb:
@@ -83,11 +86,13 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     try:  # Assume pointa is actually a CaseID, check if that case exists and get its system
         case: Case = await get_case(ctx, pointa)
         pointa = case.system
+        pointa_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
     except KeyError:
         pass
     try:  # Assume pointb is actually a CaseID, check if that case exists and get its system
         case: Case = await get_case(ctx, pointb)
         pointb = case.system
+        pointb_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
     except KeyError:
         pass
     distance, direction = await checkdistance(
@@ -95,19 +100,20 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     )
     if len(points) < 3:
         return await ctx.reply(
-            f"{await sys_cleaner(pointa)} is {distance} LY {direction} of "
-            f"{await sys_cleaner(pointb)}."
+            f"{pointa_pretty} is {distance} LY {direction} of " f"{pointb_pretty}."
         )
     try:
         jump_range = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
         jumps = math.ceil(float(distance.replace(",", "")) / jump_range)
+        if jump_range < 10 or jump_range > 500:
+            return await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
         return await ctx.reply(
-            f"{await sys_cleaner(pointa)} is {distance} LY (~{jumps} Jumps) {direction} of "
-            f"{await sys_cleaner(pointb)}."
+            f"{pointa_pretty} is {distance} LY (~{jumps} Jumps) {direction} of "
+            f"{pointb_pretty}."
         )
     except ValueError:
         return await ctx.reply(
-            "The Jump Range must be given as digits with an optional jump range."
+            "The Jump Range must be given as digits with an optional decimal point."
         )
 
 

@@ -19,7 +19,7 @@
       "aliases": [
         "dist"
       ],
-      "arguments": "[point 1] : [point 2] : [jump range (Optional)]",
+      "arguments": "[System/CMDR/caseID 1] : [System/CMDR/caseID 2] : <Jump Range>",
       "use": "Check the distance between two points in EDSM and optionally calculate a rough jump count"
     },
     "landmark": {
@@ -322,8 +322,8 @@
     },
     "spansh": {
       "aliases": [],
-      "arguments": "[jump range] [sysA] : [sysB]",
-      "use": "Returns jump counts from sysA to sysB"
+      "arguments": "[System/CMDR/caseID 1] : [System/CMDR/caseID 2] : [Jump Range]",
+      "use": "Returns jump counts from pointA to pointB"
     }
   },
   "Drill": {

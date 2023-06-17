@@ -220,6 +220,17 @@ class Yourls(BaseModel):
     pwd: SecretStr
 
 
+class Spansh(BaseModel):
+    """spansh calculator Config"""
+
+    enabled: bool = False
+    efficiency: int = 60
+    calculations_timeout: int = 20
+    route_uri: str = "https://spansh.co.uk/api/route"
+    results_uri: str = "https://spansh.co.uk/api/results"
+    page_uri: str = "https://spansh.co.uk/plotter/results"
+
+
 class HalpyConfig(BaseSettings):
     """HalpyBOT Configuration Main"""
 
@@ -238,6 +249,7 @@ class HalpyConfig(BaseSettings):
     system_monitoring: SystemMonitoring = SystemMonitoring()
     user_agent: UserAgent
     yourls: Optional[Yourls] = None
+    spansh: Optional[Spansh] = None
 
     class Config:
         """Environment/Config File Config"""
