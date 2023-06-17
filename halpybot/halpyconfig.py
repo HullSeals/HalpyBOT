@@ -226,9 +226,22 @@ class Spansh(BaseModel):
     enabled: bool = False
     efficiency: int = 60
     calculations_timeout: int = 20
-    route_uri: str = "https://spansh.co.uk/api/route"
-    results_uri: str = "https://spansh.co.uk/api/results"
-    page_uri: str = "https://spansh.co.uk/plotter/results"
+    uri: AnyHttpUrl = "https://spansh.co.uk"
+
+    @property
+    def route_endpoint(self) -> str:
+        """Start Calculations Endpoint URL"""
+        return f"{self.uri}/api/route"
+
+    @property
+    def results_endpoint(self) -> str:
+        """Calculation Results Endpoint URL"""
+        return f"{self.uri}/api/results"
+
+    @property
+    def page_endpoint(self) -> str:
+        """Calculation Results Webpage URL"""
+        return f"{self.uri}/plotter/results"
 
 
 class HalpyConfig(BaseSettings):

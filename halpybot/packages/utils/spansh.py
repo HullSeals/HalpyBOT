@@ -49,7 +49,7 @@ async def spansh_get_routes(
     for job in jobs:
         while True:
             try:
-                responses = await web_get(f"{config.spansh.results_uri}/{job}")
+                responses = await web_get(f"{config.spansh.results_endpoint}/{job}")
             except aiohttp.ClientError as ex:
                 logger.exception(
                     "spansh did not respond while trying to receive the calculation results"
@@ -79,7 +79,7 @@ async def spansh_get_routes(
     # Shorten the spansh results URL if the yourls module is enabled
     sysa = sysa[0].replace(" ", "%20")
     sysb = sysb[0].replace(" ", "%20")
-    short = f"{config.spansh.page_uri}/{jobs[1]}?efficiency=60&from={sysa}&to={sysb}&range={jump_range}"
+    short = f"{config.spansh.page_endpoint}/{jobs[1]}?efficiency=60&from={sysa}&to={sysb}&range={jump_range}"
     if config.yourls.enabled:
         short = await shorten(short)
     return await ctx.reply(f"Here's a spansh URL: {short}")
@@ -117,10 +117,10 @@ async def spansh(
             "to": sysb[0],
         }
         try:
-            responses = await web_get(config.spansh.route_uri, params)
+            responses = await web_get(config.spansh.route_endpoint, params)
         except aiohttp.ClientError as ex:
             logger.exception(
-                "spansh did not respond while trying to start the normal jump count calculation "
+                f"spansh did not respond while trying to start the {percent}% efficiency jump count calculation"
             )
             raise SpanshNoResponse from ex
         if "error" in responses:

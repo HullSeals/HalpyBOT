@@ -48,6 +48,7 @@ async def differentiate(ctx: Context, args: List[str]):
         # Parse systems/CMDRs from string
         list_to_str = " ".join([str(elem) for elem in args])
         points: List = list_to_str.split(":")
+        points[0], points[1] = points[0].strip(), points[1].strip()
     except IndexError:
         return await ctx.reply("Please provide two points to look up, separated by a :")
     if len(points) < 2:
@@ -121,7 +122,7 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
             return await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
         return await ctx.reply(
             f"{points[0][1]} is {distance} LY (~{jumps} Jumps) {direction} of "
-            f"{points[0][1]}."
+            f"{points[1][1]}."
         )
     except ValueError:
         return await ctx.reply(
