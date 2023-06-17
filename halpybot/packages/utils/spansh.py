@@ -115,52 +115,37 @@ async def spansh(
         SpanshNoResponse: spansh did not respond in time.
         SpanshBadResponse: Spansh returned an unprocessable response
     """
-    params = {
-        "efficiency": 100,
-        "range": jump_range,
-        "from": sysa,
-        "to": sysb,
-    }
-    try:
-        responses = await web_get(config.spansh.route_uri, params)
-    except aiohttp.ClientError as ex:
-        logger.exception(
-            "spansh did not respond while trying to start the normal jump count calculation "
-        )
-        raise SpanshNoResponse from ex
-    if "error" in responses:
-        logger.warning(f"Spansh encountered an error: {responses['error']}")
-        if responses["error"] == "Could not find starting system":
-            return await ctx.reply("Spansh was unable to find the Starting System.")
-        if responses["error"] == "Could not find finishing system":
-            return await ctx.reply("Spansh was unable to find the Target System.")
-        return await ctx.reply(
-            "Spansh encountered an error processing and was unable to continue."
-        )
-    if "job" not in responses:
-        raise SpanshBadResponse
-    normal_job_id = responses["job"]
-    params["efficiency"] = config.spansh.efficiency
-    try:
-        responses = await web_get(config.spansh.route_uri, params)
-    except aiohttp.ClientError as ex:
-        logger.exception(
-            "spansh did not respond while trying to start the neutron jump count calculation"
-        )
-        raise SpanshNoResponse from ex
-    if "error" in responses:
-        # Spansh was able to find the systems in the above request so they do exist and we shouldn't need to test for those errors again.
-        logger.warning(f"Spansh encountered an error: {responses['error']}")
-        return await ctx.reply(
-            "Spansh encountered an error processing and was unable to continue."
-        )
-    if "job" not in responses:
-        raise SpanshBadResponse
-    neutron_job_id = responses["job"]
-    jobs = [normal_job_id, neutron_job_id]
+    efficiency = [100, 60]
+    job_id = []
+    for percent in efficiency:
+        params = {
+            "efficiency": percent,
+            "range": jump_range,
+            "from": sysa,
+            "to": sysb,
+        }
+        try:
+            responses = await web_get(config.spansh.route_uri, params)
+        except aiohttp.ClientError as ex:
+            logger.exception(
+                "spansh did not respond while trying to start the normal jump count calculation "
+            )
+            raise SpanshNoResponse from ex
+        if "error" in responses:
+            logger.warning(f"Spansh encountered an error: {responses['error']}")
+            if responses["error"] == "Could not find starting system":
+                return await ctx.reply("Spansh was unable to find the Starting System.")
+            if responses["error"] == "Could not find finishing system":
+                return await ctx.reply("Spansh was unable to find the Target System.")
+            return await ctx.reply(
+                "Spansh encountered an error processing and was unable to continue."
+            )
+        if "job" not in responses:
+            raise SpanshBadResponse
+        job_id.append(responses["job"])
     asyncio.create_task(
         spansh_get_routes(
-            ctx, jump_range, sysa, sysb, pointa_pretty, pointb_pretty, jobs
+            ctx, jump_range, sysa, sysb, pointa_pretty, pointb_pretty, job_id
         )
     )
 
