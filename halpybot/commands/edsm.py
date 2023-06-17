@@ -31,6 +31,41 @@ from ..packages.models import Context, Case
 from ..packages.case import get_case
 
 
+async def differentiate(ctx: Context, args: List[str]):
+    """
+    Differentiate if a given set of two systems are CMDRs, Cases, or Systems.
+
+    Args:
+        ctx (Context): The Bot Context
+        args (List): A list of arguments from the bot.
+
+    Returns:
+        points (List): A List of points, in the format of:
+         - two sub-lists with detailed and pretty information
+         - an optional third Jump Range element.
+    """
+    try:
+        # Parse systems/CMDRs from string
+        list_to_str = " ".join([str(elem) for elem in args])
+        points: List = list_to_str.split(":")
+    except IndexError:
+        return await ctx.reply("Please provide two points to look up, separated by a :")
+    if len(points) < 2:
+        return await ctx.reply("Please provide two points to look up, separated by a :")
+    for i, point in enumerate(points):
+        if i == 2:
+            break
+        try:  # Assume pointa is actually a CaseID, check if that case exists and get its system
+            case: Case = await get_case(ctx, point)
+            temp_point = case.system
+            temp_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
+        except KeyError:  # Must not be a case, clean up and move along.
+            temp_pretty = await sys_cleaner(point)
+            temp_point = "".join(point).strip()
+        points[i] = [temp_point, temp_pretty]
+    return points
+
+
 @Commands.command("lookup", "syslookup")
 @sys_exceptions
 async def cmd_systemlookup(ctx: Context, cleaned_sys, cache_override):
@@ -71,36 +106,13 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     Usage: !distance <--new> [System/CMDR/caseID 1] : [System/CMDR/caseID 2] : <Jump Range>
     Aliases: dist
     """
-    try:
-        # Parse systems/CMDRs from string
-        list_to_str = " ".join([str(elem) for elem in args])
-        points = list_to_str.split(":")
-        pointa, pointb = "".join(points[0]).strip(), "".join(points[1]).strip()
-        pointa_pretty, pointb_pretty = await sys_cleaner(pointa), await sys_cleaner(
-            pointb
-        )
-    except IndexError:
-        return await ctx.reply("Please provide two points to look up, separated by a :")
-    if not pointb:
-        return await ctx.reply("Please provide two points to look up, separated by a :")
-    try:  # Assume pointa is actually a CaseID, check if that case exists and get its system
-        case: Case = await get_case(ctx, pointa)
-        pointa = case.system
-        pointa_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
-    except KeyError:
-        pass
-    try:  # Assume pointb is actually a CaseID, check if that case exists and get its system
-        case: Case = await get_case(ctx, pointb)
-        pointb = case.system
-        pointb_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
-    except KeyError:
-        pass
+    points = await differentiate(ctx=ctx, args=args)
     distance, direction = await checkdistance(
-        pointa, pointb, cache_override=cache_override
+        points[0][0], points[1][0], cache_override=cache_override
     )
     if len(points) < 3:
         return await ctx.reply(
-            f"{pointa_pretty} is {distance} LY {direction} of " f"{pointb_pretty}."
+            f"{points[0][1]} is {distance} LY {direction} of " f"{points[1][1]}."
         )
     try:
         jump_range = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
@@ -108,8 +120,8 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
         if jump_range < 10 or jump_range > 500:
             return await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
         return await ctx.reply(
-            f"{pointa_pretty} is {distance} LY (~{jumps} Jumps) {direction} of "
-            f"{pointb_pretty}."
+            f"{points[0][1]} is {distance} LY (~{jumps} Jumps) {direction} of "
+            f"{points[0][1]}."
         )
     except ValueError:
         return await ctx.reply(
