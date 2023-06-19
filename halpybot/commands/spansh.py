@@ -35,20 +35,6 @@ async def cmd_spansh(ctx: Context, args: List[str], cache_override):
     points = await differentiate(ctx=ctx, args=args)
     if len(points) != 3:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
-    try:
-        # Check if PointA or PointB are CMDRs
-        loc_a = await Commander.location(name=points[0][0])
-        if loc_a and loc_a.system is not None:
-            points[0][0] = await sys_cleaner(loc_a.system)
-            points[0][1] = f"{points[0][1]} (in {points[0][0]})"
-        loc_b = await Commander.location(name=points[1][0])
-        if loc_b and loc_b.system is not None:
-            points[1][0] = await sys_cleaner(loc_b.system)
-            points[1][1] = f"{points[1][1]} (in {points[1][0]})"
-    except EDSMLookupError:
-        logger.warning("EDSM appears to be down! Trying to continue regardless...")
-        await ctx.reply("Warning! EDSM appears to be down. Trying to continue.")
-        pass
 
     # Now, Format Jump Range And Send It
     try:

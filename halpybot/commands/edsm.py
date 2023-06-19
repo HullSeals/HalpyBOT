@@ -10,6 +10,7 @@ See license.md
 import math
 import re
 from typing import List
+from loguru import logger
 from ..packages.edsm import (
     GalaxySystem,
     Commander,
@@ -18,7 +19,7 @@ from ..packages.edsm import (
     checkdssa,
     diversions,
 )
-from ..packages.exceptions import NoNearbyEDSM
+from ..packages.exceptions import NoNearbyEDSM, EDSMLookupError
 from ..packages.utils import (
     sys_cleaner,
     sys_exceptions,
@@ -56,13 +57,21 @@ async def differentiate(ctx: Context, args: List[str]):
     for i, point in enumerate(points):
         if i == 2:
             break
-        try:  # Assume pointa is actually a CaseID, check if that case exists and get its system
+        try:  # Assume point is actually a CaseID, check if that case exists and get its system
             case: Case = await get_case(ctx, point)
             temp_point = case.system
             temp_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
         except KeyError:  # Must not be a case, clean up and move along.
-            temp_pretty = await sys_cleaner(point)
             temp_point = "".join(point).strip()
+            temp_pretty = await sys_cleaner(point)
+        try:  # Assume point is actually a CMDR, check if they exist and get their system
+            loc_cmdr = await Commander.location(name=point)
+            if loc_cmdr and loc_cmdr.system is not None:  # Seems to be a CMDR
+                temp_point = await sys_cleaner(loc_cmdr.system)
+                temp_pretty = f"{await sys_cleaner(point)} (in {temp_point})"
+        except EDSMLookupError:
+            logger.warning("EDSM appears to be down! Trying to continue regardless...")
+            await ctx.reply("Warning! EDSM appears to be down. Trying to continue.")
         points[i] = [temp_point, temp_pretty]
     return points
 
