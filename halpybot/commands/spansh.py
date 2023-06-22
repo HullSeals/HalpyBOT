@@ -34,7 +34,9 @@ async def cmd_spansh(ctx: Context, args: List[str], cache_override):
 
     try:
         points = await differentiate(ctx=ctx, args=args)
-    except DifferentiateArgsIssue:  # Arguments were malfirmed, user has already been informed, abort
+    except (
+        DifferentiateArgsIssue
+    ):  # Arguments were malfirmed, user has already been informed, abort
         return
     if len(points) != 3:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))

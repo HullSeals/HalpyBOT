@@ -120,7 +120,9 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     """
     try:
         points = await differentiate(ctx=ctx, args=args)
-    except DifferentiateArgsIssue:  # Arguments were malfirmed, user has already been informed, abort
+    except (
+        DifferentiateArgsIssue
+    ):  # Arguments were malfirmed, user has already been informed, abort
         return
     distance, direction = await checkdistance(
         points[0][0], points[1][0], cache_override=cache_override
