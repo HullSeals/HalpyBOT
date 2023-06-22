@@ -149,6 +149,12 @@ class EDSMReturnError(EDSMLookupError):
     """
 
 
+class DifferentiateArgsIssue(Exception):
+    """
+    The Arguments the differentiate function received were malformed.
+    """
+
+
 # SNS
 class SNSError(Exception):
     """

@@ -13,7 +13,7 @@ from loguru import logger
 from halpybot import config
 from .edsm import differentiate
 from ..packages.edsm import Commander
-from ..packages.exceptions import EDSMLookupError
+from ..packages.exceptions import EDSMLookupError, DifferentiateArgsIssue
 from ..packages.utils import spansh, dist_exceptions, sys_cleaner
 from ..packages.command import Commands, get_help_text
 from ..packages.models import Context, Case
@@ -32,7 +32,10 @@ async def cmd_spansh(ctx: Context, args: List[str], cache_override):
     if not config.spansh.enabled:
         return await ctx.reply("Unable to comply. SPANSH module not enabled.")
 
-    points = await differentiate(ctx=ctx, args=args)
+    try:
+        points = await differentiate(ctx=ctx, args=args)
+    except DifferentiateArgsIssue:  # Arguments were malfirmed, user has already been informed, abort
+        return
     if len(points) != 3:
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
 

@@ -19,7 +19,7 @@ from ..packages.edsm import (
     checkdssa,
     diversions,
 )
-from ..packages.exceptions import NoNearbyEDSM, EDSMLookupError
+from ..packages.exceptions import NoNearbyEDSM, EDSMLookupError, DifferentiateArgsIssue
 from ..packages.utils import (
     sys_cleaner,
     sys_exceptions,
@@ -51,9 +51,11 @@ async def differentiate(ctx: Context, args: List[str]):
         points: List = list_to_str.split(":")
         points[0], points[1] = points[0].strip(), points[1].strip()
     except IndexError:
-        return await ctx.reply("Please provide two points to look up, separated by a :")
-    if len(points) < 2:
-        return await ctx.reply("Please provide two points to look up, separated by a :")
+        await ctx.reply("Please provide two points to look up, separated by a :")
+        raise DifferentiateArgsIssue
+    if len(points) < 2 or len(points[0]) == 0 or len(points[1]) == 0:
+        await ctx.reply("Please provide two points to look up, separated by a :")
+        raise DifferentiateArgsIssue
     for i, point in enumerate(points):
         if i == 2:
             break
@@ -116,7 +118,10 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     Usage: !distance <--new> [System/CMDR/caseID 1] : [System/CMDR/caseID 2] : <Jump Range>
     Aliases: dist
     """
-    points = await differentiate(ctx=ctx, args=args)
+    try:
+        points = await differentiate(ctx=ctx, args=args)
+    except DifferentiateArgsIssue:  # Arguments were malfirmed, user has already been informed, abort
+        return
     distance, direction = await checkdistance(
         points[0][0], points[1][0], cache_override=cache_override
     )
