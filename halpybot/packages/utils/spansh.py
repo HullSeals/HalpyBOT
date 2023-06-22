@@ -19,9 +19,8 @@ from ..models import Context
 
 async def spansh_get_routes(
     ctx: Context,
+    points: List[str],
     jump_range: float,
-    sysa: List[str],
-    sysb: List[str],
     jobs: List[str],
 ) -> None:
     """
@@ -29,9 +28,8 @@ async def spansh_get_routes(
 
     Args:
         ctx (Context): PYDLE Context
+        points (list[list]): two sub-lists with detailed and pretty information
         jump_range (str): Ship's jump range
-        sysa (list): Starting system and pretty version, in a tuple
-        sysb (list): Client's/Target system and pretty version, in a tuple
         jobs (list): A list of two Spansh processing jobs
 
     Returns:
@@ -48,7 +46,7 @@ async def spansh_get_routes(
     job_results = []
     for job in jobs:
         while True:
-            try:
+            try:  # Receive current job status
                 responses = await web_get(f"{config.spansh.results_endpoint}/{job}")
             except aiohttp.ClientError as ex:
                 logger.exception(
@@ -56,52 +54,51 @@ async def spansh_get_routes(
                 )
                 raise SpanshNoResponse from ex
             if "error" in responses:
+                # Something went wrong, presumably on spansh's end since we checked all variables and there were no errors when creating the job
                 logger.warning(f"Spansh encountered an error: {responses['error']}")
                 return await ctx.reply(
                     "Spansh encountered an error processing and was unable to continue."
                 )
-            if (
-                responses["status"] == "ok"
-            ):  # Spansh has finised calculations for this job, add all inidvidual jump counts together
+            if responses["status"] == "ok":
+                # Spansh has finised calculations for this job, add all inidvidual jump counts together
                 jumps = 0
                 for entry in responses["result"]["system_jumps"]:
                     jumps += entry["jumps"]
                 job_results.append(jumps)
-                break
+                break  # Processing of this job has finished, start processing next job or respond with results
             if spansh_loop_timeout <= 0:
                 logger.exception("spansh took too long to calculate a route")
                 raise SpanshResponseTimedOut
-            spansh_loop_timeout -= 1
+            spansh_loop_timeout -= 1  # Wait 1 second to not send too many requests while waiting for spansh and update timeout counter
             await asyncio.sleep(1)
     await ctx.reply(
-        f"{ctx.sender}: It will take about {job_results[0]} normal jumps or {job_results[1]} spansh jumps to get from {sysa[1]} to {sysb[1]} with a range of {jump_range} LY."
-    )
-    # Shorten the spansh results URL if the yourls module is enabled
-    sysa = sysa[0].replace(" ", "%20")
-    sysb = sysb[0].replace(" ", "%20")
-    short = f"{config.spansh.page_endpoint}/{jobs[1]}?efficiency=60&from={sysa}&to={sysb}&range={jump_range}"
+        f"{ctx.sender}: It will take about {job_results[0]} normal jumps or {job_results[1]} spansh jumps to get from {points[0][1]} to {points[1][1]} with a range of {jump_range} LY."
+    )  # Mention user since it may have been multiple seconds since they sent the calculation request
+
+    # Encode spaces to be URL compatible
+    points[0][0] = points[0][0].replace(" ", "%20")
+    points[1][0] = points[1][0].replace(" ", "%20")
+    short = f"{config.spansh.page_endpoint}/{jobs[1]}?efficiency=60&from={points[0][0]}&to={points[1][0]}&range={jump_range}"  # Format spansh results URL with parameters
     if config.yourls.enabled:
-        short = await shorten(short)
+        short = await shorten(short)  # Shorten the URL if the yourls module is enabled
     return await ctx.reply(f"Here's a spansh URL: {short}")
 
 
 async def spansh(
     ctx: Context,
+    points: List[List[str]],
     jump_range: float,
-    sysa: List[str],
-    sysb: List[str],
-):
+) -> None:
     """
     Starts calculating the normal and Neutron Jump Count using spansh.co.uk
 
     Args:
         ctx (Context): PYDLE Context
+        points (list[list]): two sub-lists with detailed and pretty information
         jump_range (str): Ship's jump range
-        sysa (list): Starting system and pretty version, in a tuple
-        sysb (list): Client's/Target system and pretty version, in a tuple
 
     Returns:
-        ctx.reply()
+        None
 
     Raises:
         SpanshNoResponse: spansh did not respond in time.
@@ -110,31 +107,34 @@ async def spansh(
     efficiency = [100, 60]
     job_id = []
     for percent in efficiency:
+        # Create request parameters for both Normal and Neutron Jump Calculations
         params = {
             "efficiency": percent,
             "range": jump_range,
-            "from": sysa[0],
-            "to": sysb[0],
+            "from": points[0][0],
+            "to": points[1][0],
         }
-        try:
+        try:  # Try to start Jump Calculations
             responses = await web_get(config.spansh.route_endpoint, params)
         except aiohttp.ClientError as ex:
             logger.exception(
                 f"spansh did not respond while trying to start the {percent}% efficiency jump count calculation"
             )
             raise SpanshNoResponse from ex
-        if "error" in responses:
+        if "error" in responses:  # Process errors received from spansh
             logger.warning(f"Spansh encountered an error: {responses['error']}")
             if responses["error"] == "Could not find starting system":
                 return await ctx.reply("Spansh was unable to find the Starting System.")
             if responses["error"] == "Could not find finishing system":
                 return await ctx.reply("Spansh was unable to find the Target System.")
+            # Other possible errors are issues with Range or efficiency, those should not be possible as Range has been preprocessed and efficiencies are constants
             return await ctx.reply(
                 "Spansh encountered an error processing and was unable to continue."
             )
         if "job" not in responses:
+            # Spansh returned neither a job nor an error, something is wrong
             raise SpanshBadResponse
         job_id.append(responses["job"])
-    asyncio.create_task(spansh_get_routes(ctx, jump_range, sysa, sysb, job_id))
-
+    # Calculations have been started, start checking and processing results
+    asyncio.create_task(spansh_get_routes(ctx, points, jump_range, job_id))
     return await ctx.reply("Spansh calculations have been started...")

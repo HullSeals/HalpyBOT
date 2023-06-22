@@ -7,17 +7,14 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-import re
 from typing import List
 from loguru import logger
 from halpybot import config
 from .edsm import differentiate
-from ..packages.edsm import Commander
-from ..packages.exceptions import EDSMLookupError, DifferentiateArgsIssue
-from ..packages.utils import spansh, dist_exceptions, sys_cleaner
+from ..packages.exceptions import DifferentiateArgsIssue
+from ..packages.utils import spansh, dist_exceptions
 from ..packages.command import Commands, get_help_text
-from ..packages.models import Context, Case
-from ..packages.case import get_case
+from ..packages.models import Context
 
 
 @Commands.command("spansh")
@@ -31,27 +28,14 @@ async def cmd_spansh(ctx: Context, args: List[str], cache_override):
     """
     if not config.spansh.enabled:
         return await ctx.reply("Unable to comply. SPANSH module not enabled.")
-
     try:
-        points = await differentiate(ctx=ctx, args=args)
-    except (
-        DifferentiateArgsIssue
-    ):  # Arguments were malfirmed, user has already been informed, abort
+        points = await differentiate(ctx=ctx, args=args)  # Process provided arguments
+    except DifferentiateArgsIssue:
+        # Arguments were malfirmed, user has already been informed, abort
         return
-    if len(points) != 3:
+    if len(points) != 3:  # No Jump Range given
         return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
-
-    # Now, Format Jump Range And Send It
-    try:
-        jump_range = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
-    except ValueError:
-        return await ctx.reply(
-            "The Jump Range must be given as digits with an optional decimal point."
-        )
-    if jump_range < 10 or jump_range > 150:
-        return await ctx.reply("The Jump Range must be between 10 LY and 150 LY.")
-
     logger.info(
-        f"{ctx.sender} requested jumps counts from {points[0][0]} to {points[1][0]} with {jump_range} LY range"
+        f"{ctx.sender} requested jumps counts from {points[0][0]} to {points[1][0]} with {points[2]} LY range"
     )
-    return await spansh(ctx, jump_range, points[0], points[1])
+    return await spansh(ctx, [points[0], points[1]], points[2])

@@ -9,7 +9,7 @@ See license.md
 """
 import math
 import re
-from typing import List
+from typing import List, Union
 from loguru import logger
 from ..packages.edsm import (
     GalaxySystem,
@@ -32,7 +32,7 @@ from ..packages.models import Context, Case
 from ..packages.case import get_case
 
 
-async def differentiate(ctx: Context, args: List[str]):
+async def differentiate(ctx: Context, args: List[str]) -> List[Union[List[str], float]]:
     """
     Differentiate if a given set of two systems are CMDRs, Cases, or Systems.
 
@@ -44,9 +44,12 @@ async def differentiate(ctx: Context, args: List[str]):
         points (List): A List of points, in the format of:
          - two sub-lists with detailed and pretty information
          - an optional third Jump Range element.
+
+    Raises:
+        DifferentiateArgsIssue: Arguments are malformed
     """
     try:
-        # Parse systems/CMDRs from string
+        # Parse System/CMDR/caseID from string
         list_to_str = " ".join([str(elem) for elem in args])
         points: List = list_to_str.split(":")
         points[0], points[1] = points[0].strip(), points[1].strip()
@@ -58,6 +61,19 @@ async def differentiate(ctx: Context, args: List[str]):
         raise DifferentiateArgsIssue
     for i, point in enumerate(points):
         if i == 2:
+            # Two points have already been processed, if given index 2 should be Jump Range
+            try:  # Try to process Jump Range
+                points[i] = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
+            except ValueError:
+                # Jump Range must not be formatted correctly
+                await ctx.reply(
+                    "The Jump Range must be given as digits with an optional decimal point."
+                )
+                raise DifferentiateArgsIssue
+            if points[i] < 10 or points[i] > 500:
+                # Jump Range has values that don't really make sense
+                await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
+                raise DifferentiateArgsIssue
             break
         try:  # Assume point is actually a CaseID, check if that case exists and get its system
             case: Case = await get_case(ctx, point)
@@ -119,31 +135,23 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     Aliases: dist
     """
     try:
-        points = await differentiate(ctx=ctx, args=args)
-    except (
-        DifferentiateArgsIssue
-    ):  # Arguments were malfirmed, user has already been informed, abort
+        points = await differentiate(ctx=ctx, args=args)  # Process provided arguments
+    except DifferentiateArgsIssue:
+        # Arguments were malfirmed, user has already been informed, abort
         return
     distance, direction = await checkdistance(
         points[0][0], points[1][0], cache_override=cache_override
     )
-    if len(points) < 3:
+    if len(points) < 3:  # No Jump Range given, respond with Distance
         return await ctx.reply(
             f"{points[0][1]} is {distance} LY {direction} of " f"{points[1][1]}."
         )
-    try:
-        jump_range = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
-        jumps = math.ceil(float(distance.replace(",", "")) / jump_range)
-        if jump_range < 10 or jump_range > 500:
-            return await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
-        return await ctx.reply(
-            f"{points[0][1]} is {distance} LY (~{jumps} Jumps) {direction} of "
-            f"{points[1][1]}."
-        )
-    except ValueError:
-        return await ctx.reply(
-            "The Jump Range must be given as digits with an optional decimal point."
-        )
+    # Jump Range given, calculate Jump Count and return Count and Distance
+    jumps = math.ceil(float(distance.replace(",", "")) / points[2])
+    return await ctx.reply(
+        f"{points[0][1]} is {distance} LY (~{jumps} Jumps) {direction} of "
+        f"{points[1][1]}."
+    )
 
 
 @Commands.command("landmark")
