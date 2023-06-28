@@ -19,7 +19,7 @@ from ..packages.models import Context
 
 
 @Commands.command("shutdown", "restart", "sealpukku", "reboot")
-@in_direct_message()
+@in_direct_message
 @needs_permission(Admin)
 async def cmd_shutdown(ctx: Context, args: List[str]):
     """

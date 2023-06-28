@@ -31,7 +31,7 @@ from ..edsm import (
     get_nearby_system,
     checkdssa,
 )
-from ..models import Platform
+from ..models import Platform, Case
 
 if TYPE_CHECKING:
     from ..ircclient import HalpyBOT
@@ -129,6 +129,8 @@ async def get_edsm_data(
 class Announcer:
     """The Announcer - Send Messages to All Points"""
 
+    PPWK_CONST = "PPWK"
+
     def __init__(self):
         """
         Initialize the Announcer
@@ -186,6 +188,15 @@ class Announcer:
         except Exception as announcement_exception:
             logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
+        if announcement == self.PPWK_CONST:
+            cmdr: str = args.get("CMDR")
+            if not cmdr:
+                return
+            try:
+                case: Case = client.board.return_rescue(cmdr.casefold())
+            except KeyError:
+                return  # Case Must Not Have Been From Board.
+            await client.board.del_case(case)
 
 
 class AnnouncerArgs(TypedDict):

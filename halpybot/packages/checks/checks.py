@@ -144,74 +144,60 @@ def needs_permission(role: Permission, message: Optional[str] = None):
     return decorator
 
 
-def in_direct_message():
+def in_direct_message(function):
     """Require command to be executed in a Direct Message with the bot"""
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            if ctx.in_channel:
-                return await ctx.redirect(
-                    "You have to run that command in DMs with me!"
-                )
-            return await function(ctx, args)
+    @functools.wraps(function)
+    async def guarded(ctx, args: List[str]):
+        if ctx.in_channel:
+            return await ctx.redirect("You have to run that command in DMs with me!")
+        return await function(ctx, args)
 
-        return guarded
-
-    return decorator
+    return guarded
 
 
-def in_channel():
+def in_channel(function):
     """Require command to be executed in an IRC channel"""
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            if not ctx.in_channel:
-                return await ctx.reply(
-                    "You have to run this command in a channel! Aborted."
-                )
-            return await function(ctx, args)
+    @functools.wraps(function)
+    async def guarded(ctx, args: List[str]):
+        if not ctx.in_channel:
+            return await ctx.reply(
+                "You have to run this command in a channel! Aborted."
+            )
+        return await function(ctx, args)
 
-        return guarded
-
-    return decorator
+    return guarded
 
 
-def needs_aws():
+def needs_aws(function):
     """Require Amazon Web Services configuration data to be specified in config"""
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            if not config.notify.enabled:
-                return await ctx.reply(
-                    "Cannot comply: AWS Config data is required for this module."
-                )
-            return await function(ctx, args)
+    @functools.wraps(function)
+    async def guarded(ctx, args: List[str]):
+        if not config.notify.enabled:
+            return await ctx.reply(
+                "Cannot comply: AWS Config data is required for this module."
+            )
+        return await function(ctx, args)
 
-        return guarded
-
-    return decorator
+    return guarded
 
 
-def needs_database():
+def needs_database(function):
     """Require a valid database connection and not in offline mode"""
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(ctx, args: List[str]):
-            if config.offline_mode.enabled:
-                logger.critical(config.offline_mode.enabled)
-                return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
-            try:
-                await test_database_connection(ctx.bot.engine)
-            except NoDatabaseConnection:
-                return await ctx.reply(
-                    "Cannot comply: Database Error Detected. Entering OFFLINE mode."
-                )
-            return await function(ctx, args)
+    @functools.wraps(function)
+    async def guarded(ctx, args: List[str]):
+        if config.offline_mode.enabled:
+            logger.critical(config.offline_mode.enabled)
+            return await ctx.reply("Cannot comply: Bot is in OFFLINE mode.")
+        try:
+            await test_database_connection(ctx.bot.engine)
+        except NoDatabaseConnection:
+            return await ctx.reply(
+                "Cannot comply: Database Error Detected. Entering OFFLINE mode."
+            )
+        return await function(ctx, args)
 
-        return guarded
-
-    return decorator
+    return guarded

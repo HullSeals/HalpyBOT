@@ -39,7 +39,7 @@ async def send_message(message_content: str, sender: str, embeds):
 
 @Commands.command("manualcase", "mancase", "manualfish", "manfish")
 @needs_permission(Drilled)
-@in_channel()
+@in_channel
 async def cmd_manual_case(ctx: Context, args: List[str]):
     """
     Manually create a new case
@@ -107,7 +107,7 @@ async def cmd_manual_case(ctx: Context, args: List[str]):
 
 @Commands.command("tsping", "wssping")
 @needs_permission(Drilled)
-@in_channel()
+@in_channel
 async def cmd_tsping(ctx: Context, args: List[str]):
     """
     Ping the 'Trained Seals' role on Discord. Annoying as duck and not to be used lightly

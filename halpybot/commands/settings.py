@@ -68,7 +68,7 @@ async def cmd_prefix(ctx: Context, args: List[str]):
 
 @Settings.command("offline")
 @needs_permission(Cyberseal)
-@in_channel()
+@in_channel
 async def cmd_offline(ctx: Context, args: List[str]):
     """
     Change the status of Offline mode.

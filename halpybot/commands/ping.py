@@ -38,7 +38,7 @@ async def cmd_ping(ctx: Context, args: List[str]):
 
 @Commands.command("dbping")
 @needs_permission(Cyberseal)
-@needs_database()
+@needs_database
 async def cmd_dbping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the Database.

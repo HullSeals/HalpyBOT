@@ -81,7 +81,7 @@ async def cmd_getfactdata(ctx: Context, args: List[str]):
 
 @Commands.command("addfact")
 @needs_permission(Admin)
-@needs_database()
+@needs_database
 async def cmd_addfact(ctx: Context, args: List[str]):
     """
     Add a new fact to the database
@@ -124,7 +124,7 @@ async def cmd_addfact(ctx: Context, args: List[str]):
 
 @Commands.command("deletefact")
 @needs_permission(Admin)
-@needs_database()
+@needs_database
 async def cmd_deletefact(ctx: Context, args: List[str]):
     """
     Delete a fact.
@@ -189,7 +189,7 @@ async def cmd_listfacts(ctx: Context, args: List[str]):
 
 @Commands.command("editfact", "updatefact")
 @needs_permission(Admin)
-@needs_database()
+@needs_database
 async def cmd_editfact(ctx: Context, args: List[str]):
     """
     Edit a fact
@@ -230,7 +230,7 @@ async def cmd_editfact(ctx: Context, args: List[str]):
 
 @Commands.command("ufi", "updatefactindex")
 @needs_permission(Cyberseal)
-@needs_database()
+@needs_database
 async def cmd_ufi(ctx: Context, args: List[str]):
     """
     Manually update the fact cache.

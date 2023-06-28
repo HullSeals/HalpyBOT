@@ -17,7 +17,7 @@ from ..packages.utils import sys_cleaner
 
 @Commands.command("drillcase")
 @needs_permission(Drilled)
-@in_channel()
+@in_channel
 async def cmd_drillcase(ctx: Context, args: List[str]):
     """
     Manually create a new drill case, separated by Commas
@@ -44,7 +44,7 @@ async def cmd_drillcase(ctx: Context, args: List[str]):
 
 @Commands.command("drillkfcase")
 @needs_permission(Drilled)
-@in_channel()
+@in_channel
 async def cmd_drillkfcase(ctx: Context, args: List[str]):
     """
     Manually create a new drill case, separated by Commas
@@ -73,7 +73,7 @@ async def cmd_drillkfcase(ctx: Context, args: List[str]):
 
 @Commands.command("drillcbcase")
 @needs_permission(Drilled)
-@in_channel()
+@in_channel
 async def cmd_drillcbcase(ctx: Context, args: List[str]):
     """
     Manually create a new CB drill case, separated by Commas
