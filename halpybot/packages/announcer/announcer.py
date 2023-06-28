@@ -129,6 +129,8 @@ async def get_edsm_data(
 class Announcer:
     """The Announcer - Send Messages to All Points"""
 
+    PPWK_CONST = "PPWK"
+
     def __init__(self):
         """
         Initialize the Announcer
@@ -186,7 +188,7 @@ class Announcer:
         except Exception as announcement_exception:
             logger.exception("An announcement exception occurred!")
             raise AnnouncementError(Exception) from announcement_exception
-        if announcement == "PPWK":
+        if announcement == self.PPWK_CONST:
             cmdr: str = args.get("CMDR")
             if not cmdr:
                 return
