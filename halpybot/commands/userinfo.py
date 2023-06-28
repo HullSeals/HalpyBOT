@@ -30,7 +30,7 @@ async def whois_fetch(engine: Engine, cmdr: str):
 
 @Commands.command("whois")
 @needs_permission(Pup)
-@needs_database()
+@needs_database
 async def cmd_whois(ctx: Context, args: List[str]):
     """
     List user information of a given user
@@ -52,7 +52,7 @@ async def cmd_whois(ctx: Context, args: List[str]):
 
 @Commands.command("whoami")
 @needs_permission(Pup)
-@needs_database()
+@needs_database
 async def cmd_whoami(ctx: Context, args: List[str]):
     """
     List user information of a given user

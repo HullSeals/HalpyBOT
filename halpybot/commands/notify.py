@@ -65,7 +65,7 @@ timer_filter = Timer(ttl=pendulum.Duration(minutes=config.notify.timer))
 
 @NotifyInfo.command("groups")
 @needs_permission(Moderator)
-@needs_aws()
+@needs_aws
 async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     List the existing notification groups.
@@ -94,8 +94,8 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
 
 @NotifyInfo.command("details", "endpoints")
 @needs_permission(Owner)
-@in_direct_message()
-@needs_aws()
+@in_direct_message
+@needs_aws
 async def cmd_listnotify(ctx: Context, args: List[str]):
     """
     List contact details of particular groups.
@@ -133,8 +133,8 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
 
 @Commands.command("subnotify", "alertme", "addsub", "subscribe", "subscribenotify")
 @needs_permission(Admin)
-@in_direct_message()
-@needs_aws()
+@in_direct_message
+@needs_aws
 async def cmd_subscribe(ctx: Context, args: List[str]):
     """
     Add a user to a valid group
@@ -172,8 +172,8 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
 
 @Commands.command("summonstaff", "callstaff", "opsignal", "opsig")
 @needs_permission(Pup)
-@in_channel()
-@needs_aws()
+@in_channel
+@needs_aws
 @timer_filter
 async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
@@ -202,8 +202,8 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     "summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig"
 )
 @needs_permission(Pup)
-@in_channel()
-@needs_aws()
+@in_channel
+@needs_aws
 @timer_filter
 async def cmd_notifycybers(ctx: Context, args: List[str]):
     """

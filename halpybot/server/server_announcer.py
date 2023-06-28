@@ -20,7 +20,7 @@ routes = web.RouteTableDef()
 
 
 @routes.post("/announce")
-@authenticate()
+@authenticate
 async def announce(request: web_request.Request):
     """
     Collect and format a new announcer system message from a POST request.

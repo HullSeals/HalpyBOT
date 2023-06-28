@@ -144,19 +144,6 @@ class Board:
         )
         self._cases_by_id[case_id] = new_case
 
-    @functools.wraps(evolve)
-    async def mod_case_notes(self, case_id: int, new_notes: typing.List[str]):
-        """
-        Replace the notes of an existing rescue
-        """
-        # Update the Case
-        new_case = evolve(
-            self._cases_by_id[case_id],
-            updated_time=now(tz="UTC"),
-            case_notes=new_notes,
-        )
-        self._cases_by_id[case_id] = new_case
-
     async def del_case(self, case: Case):
         """Delete a Case from the Board"""
         if not isinstance(case, Case):
