@@ -9,7 +9,7 @@ See license.md
 """
 import math
 import re
-from typing import List, Union
+from typing import List
 from loguru import logger
 from ..packages.edsm import (
     GalaxySystem,
@@ -28,11 +28,11 @@ from ..packages.utils import (
     coords_exceptions,
 )
 from ..packages.command import Commands
-from ..packages.models import Context, Case
+from ..packages.models import Context, Case, Points, Point
 from ..packages.case import get_case
 
 
-async def differentiate(ctx: Context, args: List[str]) -> List[Union[List[str], float]]:
+async def differentiate(ctx: Context, args: List[str]) -> Points:
     """
     Differentiate if a given set of two systems are CMDRs, Cases, or Systems.
 
@@ -41,9 +41,7 @@ async def differentiate(ctx: Context, args: List[str]) -> List[Union[List[str], 
         args (List): A list of arguments from the bot.
 
     Returns:
-        points (List): A List of points, in the format of:
-         - two sub-lists with detailed and pretty information
-         - an optional third Jump Range element.
+        Points (Points): A Points object containing two Point objects and an optional Jump range
 
     Raises:
         DifferentiateArgsIssue: Arguments are malformed
@@ -51,46 +49,56 @@ async def differentiate(ctx: Context, args: List[str]) -> List[Union[List[str], 
     try:
         # Parse System/CMDR/caseID from string
         list_to_str = " ".join([str(elem) for elem in args])
-        points: List = list_to_str.split(":")
-        points[0], points[1] = points[0].strip(), points[1].strip()
-    except IndexError:
+        list_points: List = list_to_str.split(":")
+        point_a: Point = Point(list_points[0].strip())
+        point_b: Point = Point(list_points[1].strip())
+        points: Points = Points(point_a, point_b)
+    except IndexError as err:
+        await ctx.reply("Please provide two points to look up, separated by a :")
+        raise DifferentiateArgsIssue from err
+
+    # Sanity Check, because we're insane.
+    if len(list_points) < 2 or not point_a.name or not point_b.name:
         await ctx.reply("Please provide two points to look up, separated by a :")
         raise DifferentiateArgsIssue
-    if len(points) < 2 or len(points[0]) == 0 or len(points[1]) == 0:
-        await ctx.reply("Please provide two points to look up, separated by a :")
-        raise DifferentiateArgsIssue
-    for i, point in enumerate(points):
-        if i == 2:
-            # Two points have already been processed, if given index 2 should be Jump Range
-            try:  # Try to process Jump Range
-                points[i] = float(re.sub("(?i)LY", "", "".join(points[2])).strip())
-            except ValueError:
-                # Jump Range must not be formatted correctly
-                await ctx.reply(
-                    "The Jump Range must be given as digits with an optional decimal point."
-                )
-                raise DifferentiateArgsIssue
-            if points[i] < 10 or points[i] > 500:
-                # Jump Range has values that don't really make sense
-                await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
-                raise DifferentiateArgsIssue
-            break
-        try:  # Assume point is actually a CaseID, check if that case exists and get its system
-            case: Case = await get_case(ctx, point)
+
+    # Define Jump Count
+    if len(list_points) == 3:
+        try:
+            points.jump_range = float(
+                re.sub("(?i)LY", "", "".join(list_points[2])).strip()
+            )
+        except ValueError as val_err:
+            # Jump Range must not be formatted correctly
+            await ctx.reply(
+                "The Jump Range must be given as digits with an optional decimal point."
+            )
+            raise DifferentiateArgsIssue from val_err
+        if points.jump_range < 10 or points.jump_range > 500:
+            # Jump Range has values that don't really make sense
+            await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
+            raise DifferentiateArgsIssue
+
+    for point in [point_a, point_b]:
+        # Check if Point is CaseID
+        try:
+            case: Case = await get_case(ctx, point.name)
             temp_point = case.system
             temp_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
-        except KeyError:  # Must not be a case, clean up and move along.
-            temp_point = "".join(point).strip()
-            temp_pretty = await sys_cleaner(point)
-        try:  # Assume point is actually a CMDR, check if they exist and get their system
-            loc_cmdr = await Commander.location(name=point)
-            if loc_cmdr and loc_cmdr.system is not None:  # Seems to be a CMDR
+        except KeyError:
+            temp_point = "".join(point.name).strip()
+            temp_pretty = await sys_cleaner(point.name)
+        # Check if point is CMDR
+        try:
+            loc_cmdr = await Commander.location(name=point.name)
+            # Looks like CMDR's back on the menu, boys!
+            if loc_cmdr and loc_cmdr.system is not None:
                 temp_point = await sys_cleaner(loc_cmdr.system)
-                temp_pretty = f"{await sys_cleaner(point)} (in {temp_point})"
+                temp_pretty = f"{await sys_cleaner(point.name)} (in {temp_point})"
         except EDSMLookupError:
             logger.warning("EDSM appears to be down! Trying to continue regardless...")
             await ctx.reply("Warning! EDSM appears to be down. Trying to continue.")
-        points[i] = [temp_point, temp_pretty]
+        point.name, point.pretty = temp_point, temp_pretty
     return points
 
 
@@ -135,23 +143,25 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     Aliases: dist
     """
     try:
-        points = await differentiate(ctx=ctx, args=args)  # Process provided arguments
+        # Process provided arguments
+        points: Points = await differentiate(ctx=ctx, args=args)
     except DifferentiateArgsIssue:
         # Arguments were malformed, user has already been informed, abort
-        return
+        return await ctx.reply("Error encountered in Dist command, not continuing")
 
     distance, direction = await checkdistance(
-        points[0][0], points[1][0], cache_override=cache_override
+        points.point_a.name, points.point_b.name, cache_override=cache_override
     )
-    if len(points) < 3:  # No Jump Range given, respond with Distance
+    if not points.jump_range:  # No Jump Range given, respond with Distance
         return await ctx.reply(
-            f"{points[0][1]} is {distance} LY {direction} of " f"{points[1][1]}."
+            f"{points.point_a.pretty} is {distance} LY {direction} of "
+            f"{points.point_b.pretty}."
         )
     # Jump Range given, calculate Jump Count and return Count and Distance
-    jumps = math.ceil(float(distance.replace(",", "")) / points[2])
+    jumps = math.ceil(float(distance.replace(",", "")) / points.jump_range)
     return await ctx.reply(
-        f"{points[0][1]} is {distance} LY (~{jumps} Jumps) {direction} of "
-        f"{points[1][1]}."
+        f"{points.point_a.pretty} is {distance} LY (~{jumps} Jumps) {direction} of "
+        f"{points.point_b.pretty}."
     )
 
 

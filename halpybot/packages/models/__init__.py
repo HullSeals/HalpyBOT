@@ -8,7 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from .edsm_classes import Coordinates, Location, SystemInfo
+from .edsm_classes import Coordinates, Location, SystemInfo, Point, Points
 from .user import User
 from .context import Context, HelpArguments
 from .case import Case, Platform, KFCoords, Status, CaseType, KFType
@@ -28,4 +28,6 @@ __all__ = [
     "CaseType",
     "KFType",
     "Seal",
+    "Point",
+    "Points",
 ]

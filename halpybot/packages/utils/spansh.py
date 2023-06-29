@@ -14,13 +14,12 @@ from loguru import logger
 from halpybot import config
 from . import shorten, web_get
 from ..exceptions import SpanshNoResponse, SpanshBadResponse, SpanshResponseTimedOut
-from ..models import Context
+from ..models import Context, Points
 
 
 async def spansh_get_routes(
     ctx: Context,
-    points: List[str],
-    jump_range: float,
+    points: Points,
     jobs: List[str],
 ) -> None:
     """
@@ -28,8 +27,7 @@ async def spansh_get_routes(
 
     Args:
         ctx (Context): PYDLE Context
-        points (list[list]): two sub-lists with detailed and pretty information
-        jump_range (str): Ship's jump range
+        points (Points): A pair of EDSM valid point locations and names, with a jump range
         jobs (list): A list of two Spansh processing jobs
 
     Returns:
@@ -54,7 +52,8 @@ async def spansh_get_routes(
                 )
                 raise SpanshNoResponse from ex
             if "error" in responses:
-                # Something went wrong, presumably on spansh's end since we checked all variables and there were no errors when creating the job
+                # Something went wrong, presumably on spansh's end since we checked all variables
+                # and there were no errors when creating the job
                 logger.warning(f"Spansh encountered an error: {responses['error']}")
                 return await ctx.reply(
                     "Spansh encountered an error processing and was unable to continue."
@@ -69,33 +68,31 @@ async def spansh_get_routes(
             if spansh_loop_timeout <= 0:
                 logger.exception("spansh took too long to calculate a route")
                 raise SpanshResponseTimedOut
-            spansh_loop_timeout -= 1  # Wait 1 second to not send too many requests while waiting for spansh and update timeout counter
+            # Wait 1 second to not send too many requests while waiting for spansh and update timeout counter
+            spansh_loop_timeout -= 1
             await asyncio.sleep(1)
     await ctx.reply(
-        f"{ctx.sender}: It will take about {job_results[0]} normal jumps or {job_results[1]} spansh jumps to get from {points[0][1]} to {points[1][1]} with a range of {jump_range} LY."
+        f"{ctx.sender}: It will take about {job_results[0]} normal jumps or {job_results[1]} spansh jumps to get from "
+        f"{points.point_a.pretty} to {points.point_b.pretty} with a range of {points.jump_range} LY."
     )  # Mention user since it may have been multiple seconds since they sent the calculation request
 
     # Encode spaces to be URL compatible
-    points[0][0] = points[0][0].replace(" ", "%20")
-    points[1][0] = points[1][0].replace(" ", "%20")
-    short = f"{config.spansh.page_endpoint}/{jobs[1]}?efficiency=60&from={points[0][0]}&to={points[1][0]}&range={jump_range}"  # Format spansh results URL with parameters
+    url_a = points.point_a.name.replace(" ", "%20")
+    url_b = points.point_b.name.replace(" ", "%20")
+    # Format spansh results URL with parameters
+    short = f"{config.spansh.page_endpoint}/{jobs[1]}?efficiency=60&from={url_a}&to={url_b}&range={points.jump_range}"
     if config.yourls.enabled:
         short = await shorten(short)  # Shorten the URL if the yourls module is enabled
     return await ctx.reply(f"Here's a spansh URL: {short}")
 
 
-async def spansh(
-    ctx: Context,
-    points: List[List[str]],
-    jump_range: float,
-) -> None:
+async def spansh(ctx: Context, points: Points) -> None:
     """
     Starts calculating the normal and Neutron Jump Count using spansh.co.uk
 
     Args:
         ctx (Context): PYDLE Context
-        points (list[list]): two sub-lists with detailed and pretty information
-        jump_range (str): Ship's jump range
+        points (Points): A pair of EDSM valid point locations and names, with a jump range
 
     Returns:
         None
@@ -110,9 +107,9 @@ async def spansh(
         # Create request parameters for both Normal and Neutron Jump Calculations
         params = {
             "efficiency": percent,
-            "range": jump_range,
-            "from": points[0][0],
-            "to": points[1][0],
+            "range": points.jump_range,
+            "from": points.point_a.name,
+            "to": points.point_b.name,
         }
         try:  # Try to start Jump Calculations
             responses = await web_get(config.spansh.route_endpoint, params)
@@ -127,7 +124,8 @@ async def spansh(
                 return await ctx.reply("Spansh was unable to find the Starting System.")
             if responses["error"] == "Could not find finishing system":
                 return await ctx.reply("Spansh was unable to find the Target System.")
-            # Other possible errors are issues with Range or efficiency, those should not be possible as Range has been preprocessed and efficiencies are constants
+            # Other possible errors are issues with Range or efficiency,
+            # those should not be possible as Range has been preprocessed and efficiencies are constants
             return await ctx.reply(
                 "Spansh encountered an error processing and was unable to continue."
             )
@@ -136,5 +134,5 @@ async def spansh(
             raise SpanshBadResponse
         job_id.append(responses["job"])
     # Calculations have been started, start checking and processing results
-    asyncio.create_task(spansh_get_routes(ctx, points, jump_range, job_id))
+    asyncio.create_task(spansh_get_routes(ctx, points, job_id))
     return await ctx.reply("Spansh calculations have been started...")
