@@ -13,10 +13,10 @@ from typing import List
 from loguru import logger
 import pendulum
 from halpybot import config
-from ..packages.utils import shorten, spansh, sys_cleaner
+from ..packages.utils import shorten
 from ..packages.checks import Drilled, Pup, needs_permission
 from ..packages.command import Commands, get_help_text
-from ..packages.models import Context, Case
+from ..packages.models import Context
 
 
 @Commands.command("shorten")
