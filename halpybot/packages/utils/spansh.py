@@ -24,7 +24,7 @@ def sanitize_system_name(name: str) -> str:
     Makes an effort to sanitize system input to help prevent SSRF or other web vulnerabilities
     """
     # Whitelist allowed characters (alphanumeric, hyphen, space)
-    allowed_chars = f"- {string.ascii_letters}{string.digits}"
+    allowed_chars = f"- {string.ascii_letters}{string.digits}+.'*()/#’,"
     # Remove any disallowed characters from the system name
     sanitized_name = "".join(c for c in name if c in allowed_chars)
     return sanitized_name.strip()
@@ -74,6 +74,7 @@ async def spansh_get_routes(
                     break
             except KeyError as keyerr:
                 logger.warning("Spansh returned an unprocessable response")
+                logger.warning(responses)
                 raise SpanshBadResponse from keyerr
             if spansh_loop_timeout <= 0:
                 logger.exception("spansh took too long to calculate a route")
