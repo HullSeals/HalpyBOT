@@ -30,6 +30,7 @@ def sanitize_system_name(name: str) -> str:
     return sanitized_name.strip()
 
 
+@logger.catch(message="Unexpected error encountered in the Spansh Get_Route Function.")
 async def spansh_get_routes(
     ctx: Context,
     points: Points,
