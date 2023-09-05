@@ -46,16 +46,12 @@ async def differentiate(ctx: Context, args: List[str]) -> Points:
     Raises:
         DifferentiateArgsIssue: Arguments are malformed
     """
-    try:
-        # Parse System/CMDR/caseID from string
-        list_to_str = " ".join([str(elem) for elem in args])
-        list_points: List = list_to_str.split(":")
-        point_a: Point = Point(list_points[0].strip())
-        point_b: Point = Point(list_points[1].strip())
-        points: Points = Points(point_a, point_b)
-    except IndexError as err:
-        await ctx.reply("Please provide two points to look up, separated by a :")
-        raise DifferentiateArgsIssue from err
+    # Parse System/CMDR/caseID from string
+    list_to_str = " ".join([str(elem) for elem in args])
+    list_points: List[str] = list_to_str.split(":")
+    point_a: Point = Point(list_points[0].strip())
+    point_b: Point = Point(list_points[1].strip())
+    points: Points = Points(point_a, point_b)
 
     # Sanity Check, because we're insane.
     if len(list_points) < 2 or not point_a.name or not point_b.name:
@@ -78,6 +74,9 @@ async def differentiate(ctx: Context, args: List[str]) -> Points:
             # Jump Range has values that don't really make sense
             await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
             raise DifferentiateArgsIssue
+    else:
+        await ctx.reply("Please provide two points to look up, separated by a :")
+        raise DifferentiateArgsIssue
 
     for point in [point_a, point_b]:
         # Check if Point is CaseID

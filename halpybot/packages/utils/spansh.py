@@ -55,33 +55,35 @@ async def spansh_get_routes(
     spansh_loop_timeout = config.spansh.calculations_timeout
     job_results = []
     for job in jobs:
-        while True:
-            try:  # Receive current job status
-                responses = await web_get(f"{config.spansh.results_endpoint}/{job}")
-            except aiohttp.ClientError as ex:
-                logger.exception(
-                    "spansh did not respond while trying to receive the calculation results"
+        try:
+            # Receive current job status with a timeout
+            responses = await asyncio.wait_for(
+                web_get(f"{config.spansh.results_endpoint}/{job}"),
+                timeout=spansh_loop_timeout,
+            )
+        except aiohttp.ClientError as ex:
+            logger.exception(
+                "spansh did not respond while trying to receive the calculation results"
+            )
+            raise SpanshNoResponse from ex
+        except asyncio.TimeoutError:
+            logger.exception("spansh took too long to respond")
+            raise SpanshResponseTimedOut
+        try:
+            if responses["status"] == "ok":
+                # Spansh has finished calculations for this job, add all individual jump counts together
+                jumps = sum(
+                    entry["jumps"] for entry in responses["result"]["system_jumps"]
                 )
-                raise SpanshNoResponse from ex
-            try:
-                if responses["status"] == "ok":
-                    # Spansh has finised calculations for this job, add all inidvidual jump counts together
-                    jumps = sum(
-                        entry["jumps"] for entry in responses["result"]["system_jumps"]
-                    )
-                    job_results.append(jumps)
-                    # Processing of this job has finished, start processing next job or respond with results
-                    break
-            except KeyError as keyerr:
+                job_results.append(jumps)
+            else:
                 logger.warning("Spansh returned an unprocessable response")
                 logger.warning(responses)
-                raise SpanshBadResponse from keyerr
-            if spansh_loop_timeout <= 0:
-                logger.exception("spansh took too long to calculate a route")
-                raise SpanshResponseTimedOut
-            # Wait 1 second to not send too many requests while waiting for spansh and update timeout counter
-            spansh_loop_timeout -= 1
-            await asyncio.sleep(1)
+        except KeyError as keyerr:
+            logger.warning("Spansh returned an unprocessable response")
+            logger.warning(responses)
+            raise SpanshBadResponse from keyerr
+
     # Mention user since it may have been multiple seconds since they sent the calculation request
     await ctx.reply(
         f"{ctx.sender}: It will take about {job_results[0]} normal jumps or {job_results[1]} spansh jumps to get from "
