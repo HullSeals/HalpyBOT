@@ -17,6 +17,7 @@ from .utils import (
     sys_cleaner,
 )
 from .shorten import shorten
+from .spansh import spansh
 from .decorators import (
     sys_exceptions,
     cmdr_exceptions,
@@ -29,6 +30,7 @@ __all__ = [
     "strip_non_ascii",
     "language_codes",
     "shorten",
+    "spansh",
     "web_get",
     "task_starter",
     "cache_prep",

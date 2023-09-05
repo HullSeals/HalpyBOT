@@ -28,6 +28,31 @@ class YOURLSBadResponse(YOURLSError):
     """
 
 
+# Spansh
+class SpanshError(Exception):
+    """
+    Base class for Spansh errors
+    """
+
+
+class SpanshNoResponse(SpanshError):
+    """
+    An exception occurred while sending data to or receiving from the Spansh API
+    """
+
+
+class SpanshBadResponse(SpanshError):
+    """
+    Spansh returned an unprocessable response
+    """
+
+
+class SpanshResponseTimedOut(SpanshError):
+    """
+    Spansh took too long to calculate a route
+    """
+
+
 # Commands
 class CommandException(Exception):
     """
@@ -121,6 +146,12 @@ class NoNearbyEDSM(EDSMLookupError):
 class EDSMReturnError(EDSMLookupError):
     """
     EDSM returned a reply, however the reply did not include key data needed to continue.
+    """
+
+
+class DifferentiateArgsIssue(Exception):
+    """
+    The Arguments the differentiate function received were malformed.
     """
 
 

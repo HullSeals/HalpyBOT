@@ -33,7 +33,7 @@ async def shorten(url: str) -> str:
     try:
         tgt_uri = f"{config.yourls.uri}/yourls-api.php"
         params = {
-            "signature": config.yourls.pwd,
+            "signature": config.yourls.pwd.get_secret_value(),
             "action": "shorturl",
             "format": "json",
             "url": url,

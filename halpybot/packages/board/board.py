@@ -28,7 +28,7 @@ from asyncio import Lock
 from attrs import evolve
 from pendulum import now, DateTime
 from ..exceptions import CaseAlreadyExists
-from ..models import Case, Platform, CaseType, Status
+from ..models import Case, Platform, CaseType
 
 
 class Board:

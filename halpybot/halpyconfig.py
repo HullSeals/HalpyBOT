@@ -220,6 +220,30 @@ class Yourls(BaseModel):
     pwd: SecretStr
 
 
+class Spansh(BaseModel):
+    """spansh calculator Config"""
+
+    enabled: bool = False
+    efficiency: int = 60
+    calculations_timeout: int = 20
+    uri: AnyHttpUrl = "https://spansh.co.uk"
+
+    @property
+    def route_endpoint(self) -> str:
+        """Start Calculations Endpoint URL"""
+        return f"{self.uri}/api/route"
+
+    @property
+    def results_endpoint(self) -> str:
+        """Calculation Results Endpoint URL"""
+        return f"{self.uri}/api/results"
+
+    @property
+    def page_endpoint(self) -> str:
+        """Calculation Results Webpage URL"""
+        return f"{self.uri}/plotter/results"
+
+
 class HalpyConfig(BaseSettings):
     """HalpyBOT Configuration Main"""
 
@@ -238,6 +262,7 @@ class HalpyConfig(BaseSettings):
     system_monitoring: SystemMonitoring = SystemMonitoring()
     user_agent: UserAgent
     yourls: Optional[Yourls] = None
+    spansh: Optional[Spansh] = None
 
     class Config:
         """Environment/Config File Config"""

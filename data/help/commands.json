@@ -19,8 +19,8 @@
       "aliases": [
         "dist"
       ],
-      "arguments": "[point 1] : [point 2]",
-      "use": "Check the distance between two points in EDSM"
+      "arguments": "[System/CMDR/caseID 1] : [System/CMDR/caseID 2] : <Jump Range>",
+      "use": "Check the distance between two points in EDSM and optionally calculate a rough jump count"
     },
     "landmark": {
       "aliases": [],
@@ -326,6 +326,11 @@
       "aliases": [],
       "arguments": "[url]",
       "use": "Shorten a provided URL"
+    },
+    "spansh": {
+      "aliases": [],
+      "arguments": "[System/CMDR/caseID 1] : [System/CMDR/caseID 2] : [Jump Range]",
+      "use": "Returns jump counts from pointA to pointB"
     }
   },
   "Drill": {

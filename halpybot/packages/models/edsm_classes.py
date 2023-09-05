@@ -64,3 +64,20 @@ class Galaxy:
 
     name: str
     coords: Coordinates
+
+
+@define()
+class Point:
+    """An EDSM Valid System and a Cleaner Name"""
+
+    name: str
+    pretty: Optional[str] = None
+
+
+@define()
+class Points:
+    """A pair of valid EDSM Points"""
+
+    point_a: Point
+    point_b: Point
+    jump_range: Optional[float] = None
