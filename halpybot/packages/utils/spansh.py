@@ -56,40 +56,39 @@ async def spansh_get_routes(
     spansh_loop_timeout = config.spansh.calculations_timeout
     job_results = []
     for job in jobs:
-        try:
-            # Receive current job status with a timeout
-            responses = await asyncio.wait_for(
-                web_get(f"{config.spansh.results_endpoint}/{job}"),
-                timeout=spansh_loop_timeout,
-            )
-        except aiohttp.ClientError as ex:
-            logger.exception(
-                "spansh did not respond while trying to receive the calculation results"
-            )
-            raise SpanshNoResponse from ex
-        except asyncio.TimeoutError:
-            logger.exception("spansh took too long to respond")
-            raise SpanshResponseTimedOut
-        try:
-            if responses["status"] == "ok":
-                # Spansh has finished calculations for this job, add all individual jump counts together
-                jumps = sum(
-                    entry["jumps"] for entry in responses["result"]["system_jumps"]
+        process_job = True
+        while process_job:
+            try:  # Receive current job status
+                responses = await asyncio.wait_for(
+                    web_get(f"{config.spansh.results_endpoint}/{job}"),
+                    timeout=spansh_loop_timeout,
                 )
-                job_results.append(jumps)
-            else:
+            except aiohttp.ClientError as ex:
+                logger.exception(
+                    "Spansh did not respond while trying to receive the calculation results"
+                )
+                raise SpanshNoResponse from ex
+            except asyncio.TimeoutError as ex:
+                logger.exception("Spansh took too long to respond")
+                raise SpanshResponseTimedOut from ex
+            try:
+                if responses["status"] == "ok":
+                    # Spansh has finished calculations for this job, add all individual jump counts together
+                    jumps = sum(
+                        entry["jumps"] for entry in responses["result"]["system_jumps"]
+                    )
+                    job_results.append(jumps)
+                    # Processing of this job has finished, exit the loop
+                    process_job = False
+            except KeyError as keyerr:
                 logger.warning("Spansh returned an unprocessable response")
                 logger.warning(responses)
-        except KeyError as keyerr:
-            logger.warning("Spansh returned an unprocessable response")
-            logger.warning(responses)
-            raise SpanshBadResponse from keyerr
-
+                raise SpanshBadResponse from keyerr
     # Mention user since it may have been multiple seconds since they sent the calculation request
-    await ctx.reply(
+    response = (
         f"{ctx.sender}: It will take about {job_results[0]} normal jumps or {job_results[1]} spansh jumps to get from "
         f"{points.point_a.pretty} to {points.point_b.pretty} with a range of {points.jump_range} LY."
-    )  # Mention user since it may have been multiple seconds since they sent the calculation request
+    )
 
     # Encode spaces to be URL compatible
     url_a = quote(sanitize_system_name(points.point_a.name))
@@ -98,7 +97,7 @@ async def spansh_get_routes(
     short = f"{config.spansh.page_endpoint}/{jobs[1]}?efficiency=60&from={url_a}&to={url_b}&range={points.jump_range}"
     if config.yourls.enabled:
         short = await shorten(short)  # Shorten the URL if the yourls module is enabled
-    return await ctx.reply(f"Here's a spansh URL: {short}")
+    return await ctx.reply(f"{response}\nHere's a spansh URL: {short}")
 
 
 async def spansh(ctx: Context, points: Points) -> None:
