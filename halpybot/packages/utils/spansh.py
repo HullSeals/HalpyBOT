@@ -61,7 +61,7 @@ async def spansh_get_routes(
             try:  # Receive current job status
                 responses = await asyncio.wait_for(
                     web_get(f"{config.spansh.results_endpoint}/{job}"),
-                    timeout=spansh_loop_timeout,
+                    timeout=10,  # Mirror web_get timeout value, just to be sane.
                 )
             except aiohttp.ClientError as ex:
                 logger.exception(
@@ -79,11 +79,19 @@ async def spansh_get_routes(
                     )
                     job_results.append(jumps)
                     # Processing of this job has finished, exit the loop
-                    process_job = False
+                    break
             except KeyError as keyerr:
                 logger.warning("Spansh returned an unprocessable response")
                 logger.warning(responses)
                 raise SpanshBadResponse from keyerr
+            if spansh_loop_timeout <= 0:
+                logger.exception("spansh took too long to calculate a route")
+                raise SpanshResponseTimedOut
+            # Wait 1 second to not send too many requests while waiting for spansh and update timeout counter
+            # While this doesn't stop a concurrent flood, spansh can handle 100+ req/sec from Each EDMC,
+            # so this is nothing to them.
+            spansh_loop_timeout -= 1
+            await asyncio.sleep(1)
     # Mention user since it may have been multiple seconds since they sent the calculation request
     response = (
         f"{ctx.sender}: It will take about {job_results[0]} normal jumps or {job_results[1]} spansh jumps to get from "

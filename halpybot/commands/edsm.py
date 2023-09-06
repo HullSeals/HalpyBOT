@@ -49,12 +49,14 @@ async def differentiate(ctx: Context, args: List[str]) -> Points:
     # Parse System/CMDR/caseID from string
     list_to_str = " ".join([str(elem) for elem in args])
     list_points: List[str] = list_to_str.split(":")
+    if len(list_points) < 2:
+        await ctx.reply("Please provide two points to look up, separated by a :")
+        raise DifferentiateArgsIssue
     point_a: Point = Point(list_points[0].strip())
     point_b: Point = Point(list_points[1].strip())
     points: Points = Points(point_a, point_b)
 
-    # Sanity Check, because we're insane.
-    if len(list_points) < 2 or not point_a.name or not point_b.name:
+    if not point_a.name or not point_b.name:
         await ctx.reply("Please provide two points to look up, separated by a :")
         raise DifferentiateArgsIssue
 
@@ -74,9 +76,6 @@ async def differentiate(ctx: Context, args: List[str]) -> Points:
             # Jump Range has values that don't really make sense
             await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
             raise DifferentiateArgsIssue
-    else:
-        await ctx.reply("Please provide two points to look up, separated by a :")
-        raise DifferentiateArgsIssue
 
     for point in [point_a, point_b]:
         # Check if Point is CaseID
