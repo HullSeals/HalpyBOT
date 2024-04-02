@@ -3,7 +3,7 @@ pure-sasl==0.6.2
 setuptools==69.2.0
 mysql-connector-python==8.3.0
 mysqlclient==2.2.4
-numpy==1.24.4
+numpy==1.26.4
 pytest==8.1.1
 boto3==1.34.76
 aiohttp~=3.9.3
