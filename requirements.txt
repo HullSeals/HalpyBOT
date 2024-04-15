@@ -6,7 +6,7 @@ mysqlclient==2.2.4
 numpy==1.24.4
 pytest==8.1.1
 boto3==1.34.76
-aiohttp~=3.9.3
+aiohttp~=3.9.4
 tweepy==4.14.0
 GitPython~=3.1.43
 requests==2.31.0
