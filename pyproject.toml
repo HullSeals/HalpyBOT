@@ -14,7 +14,7 @@ repository = "https://github.com/HullSeals/HalpyBOT"
 python = ">=3.8,<3.10"
 pydle = {extras = ["sasl"], version = "^1.0.1"}
 mysqlclient = "^2.2.4"
-numpy = "^1.26.4"
+numpy = "^1.24.4"
 boto3 = "^1.34.76"
 aiohttp = "^3.9.5"
 gitpython = "^3.1.43"
