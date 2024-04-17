@@ -8,6 +8,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from halpybot.packages.models import Platform, Case, CaseType
 
 

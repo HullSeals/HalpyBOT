@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from typing import List
 from sqlalchemy.engine import Engine
 from halpybot.packages.command.commandhandler import get_help_text

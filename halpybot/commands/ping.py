@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 import json
 import time
 from typing import List

@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 import pytest
 from halpybot.packages.command import Commands
 from halpybot import config

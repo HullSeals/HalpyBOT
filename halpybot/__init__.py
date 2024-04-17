@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from .halpyconfig import HalpyConfig
 
 # this is where the magic happens. 😇

@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from typing import List
 from loguru import logger
 from halpybot import config

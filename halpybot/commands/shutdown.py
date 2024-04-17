@@ -8,7 +8,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-
 import os
 import signal
 from typing import List

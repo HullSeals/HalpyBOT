@@ -9,6 +9,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 import os.path
 import json
 import sys

@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 import re
 from typing import List, Optional
 from attr.converters import to_bool
@@ -745,9 +746,9 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
         return await ctx.reply("Invalid Note Index provided!")
     await ctx.reply(f"Editing line {target_line!r} to the provided text.")
 
-    case.case_notes[
-        note_index
-    ] = f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
+    case.case_notes[note_index] = (
+        f"{' '.join(args[2:])} - {ctx.sender} ({now(tz='UTC')})"
+    )
     return await ctx.reply(f"Notes for case {case.board_id} updated.")
 
 

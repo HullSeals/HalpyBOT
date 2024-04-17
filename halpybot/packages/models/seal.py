@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from typing import Optional, List, Tuple
 from attrs import define
 from .case import Platform

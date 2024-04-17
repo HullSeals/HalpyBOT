@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from __future__ import annotations
 from typing import Optional, List, TYPE_CHECKING
 from enum import Enum

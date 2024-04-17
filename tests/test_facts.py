@@ -9,6 +9,7 @@ See license.md
 
 Testing will always DISABLE offline mode. You must have access to a Seal-type DB for testing.
 """
+
 import pytest
 from halpybot.packages.command import Commands
 from halpybot import config

@@ -8,6 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 
 """
+
 from __future__ import annotations
 import json
 from pathlib import Path

@@ -19,7 +19,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-
 from __future__ import annotations
 from typing import Optional, Set, TYPE_CHECKING, List
 from attrs import define

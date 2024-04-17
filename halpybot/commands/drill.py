@@ -7,6 +7,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from typing import List
 from ..packages.command import Commands, get_help_text
 from ..packages.checks import Drilled, needs_permission, in_channel

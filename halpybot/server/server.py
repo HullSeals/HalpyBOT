@@ -8,6 +8,7 @@ Licensed under the GNU General Public License
 See license.md
 
 """
+
 from typing import Type, Union
 from loguru import logger
 import pendulum

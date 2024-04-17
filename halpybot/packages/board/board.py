@@ -18,6 +18,7 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 from __future__ import annotations
 
 import enum
