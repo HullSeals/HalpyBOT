@@ -8,16 +8,19 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+import json
 import time
 from typing import List
 from loguru import logger
 import aiohttp
 from ..packages.command import Commands
-from ..packages.checks import Require, Cyberseal
-from ..packages.database import latency, NoDatabaseConnection
-from ..packages.edsm import GalaxySystem, EDSMLookupError, EDSMConnectionError
+from ..packages.checks import Cyberseal, needs_permission, needs_database
+from ..packages.database import NoDatabaseConnection
+from ..packages.database.connection import test_database_connection
+from ..packages.edsm import GalaxySystem
 from ..packages.models import Context
 from ..packages.utils import web_get
+from ..packages.exceptions import EDSMLookupError
 
 
 @Commands.command("ping")
@@ -29,11 +32,14 @@ async def cmd_ping(ctx: Context, args: List[str]):
     Usage: !ping
     Aliases: n/a
     """
-    await ctx.reply("Pong!")
+    if args:
+        return await ctx.reply(" ".join(args).strip())
+    return await ctx.reply("Pong!")
 
 
 @Commands.command("dbping")
-@Require.permission(Cyberseal)
+@needs_permission(Cyberseal)
+@needs_database
 async def cmd_dbping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the Database.
@@ -43,18 +49,18 @@ async def cmd_dbping(ctx: Context, args: List[str]):
     """
     start = time.time()
     try:
-        latencycheck = await latency()
+        latencycheck = await test_database_connection(ctx.bot.engine)
     except NoDatabaseConnection:
         return await ctx.reply("Unable: No connection.")
     if isinstance(latencycheck, float):
-        final = round(latencycheck - start, 2)
+        final = round(latencycheck - start, 3)
         await ctx.reply(f"Database Latency: {str(final)} seconds")
     else:
-        await ctx.reply(latencycheck)
+        await ctx.reply(str(latencycheck))
 
 
 @Commands.command("edsmping")
-@Require.permission(Cyberseal)
+@needs_permission(Cyberseal)
 async def cmd_edsmping(ctx: Context, args: List[str]):
     """
     Reply with the latency between the Bot and the EDSM API.
@@ -82,13 +88,26 @@ async def cmd_serverstat(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     try:
-        uri = "https://hosting.zaonce.net/launcher-status/status.json"
+        uri = (
+            "https://launcher-4586754895.elitedangerous.com/launcher-status/status.json"
+        )
         responses = await web_get(uri)
     except aiohttp.ClientError as server_stat_error:
         logger.exception("Error in Elite Server Status lookup.")
-        raise EDSMConnectionError(
+        await ctx.reply(
+            "The Elite servers are unreachable. Can't connect to the Elite API."
+        )
+        raise TypeError(
             "Unable to verify Elite Status, having issues connecting to the Elite API."
         ) from server_stat_error
+    except json.decoder.JSONDecodeError as server_response_error:
+        logger.exception("Error in Elite server status lookup.")
+        await ctx.reply(
+            "The Elite servers are not responding properly. Elite API responded with garbled data."
+        )
+        raise TypeError(
+            "Unable to verify Elite Status, Elite API responded with an invalid reply."
+        ) from server_response_error
     if len(responses) == 0:
         return await ctx.reply("ERROR! Elite returned an empty reply.")
     message = responses["text"]

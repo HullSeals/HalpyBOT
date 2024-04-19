@@ -3,7 +3,7 @@
 /halpy/
 
 # Config files
-/config/config.ini
+/.env
 /data/announcer/announcer.json
 /CLI/BackupFactUpdater/config.ini
 CLI/DSSAUpdater/config.ini
@@ -12,15 +12,26 @@ CLI/DSSAUpdater/config.ini
 CLI/DSSAUpdater/files/*.json
 CLI/DSSAUpdater/files/*.csv
 
+# Data Files
+/data/edsm/*.json
+
 # Logging
-/logs/*
+/logs/*.log
 
 # Python cache
 **/__pycache__
 
 #ideas and venv
 /.idea
+/.fleet
 
 #IDE
 /.vscode
 halpybot.json
+.pylintrc
+
+# Lock files
+poetry.lock
+
+# Distribution Releases
+/dist/*

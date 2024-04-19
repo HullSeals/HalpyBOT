@@ -9,43 +9,14 @@ See license.md
 """
 
 import re as REEE  # 🤫
+from typing import List
 from loguru import logger
-import boto3
-import boto3.exceptions
-
-from ..configmanager import config
-
-
-class SNSError(Exception):
-    """
-    Base class for Halpy-SNS exceptions
-    """
+from boto3.exceptions import Boto3Error
+from halpybot import config
+from ..exceptions import SNSError, SubscriptionError, NotificationFailure
 
 
-class NotificationFailure(SNSError):
-    """
-    Raised when unable to send notification
-    """
-
-
-class SubscriptionError(SNSError):
-    """
-    Could not add user to notification group
-    """
-
-
-if config["Notify"]["secret"] and config["Notify"]["access"]:
-    SNS = boto3.client(
-        "sns",
-        region_name=config["Notify"]["region"],  # AWS Region.
-        aws_access_key_id=config["Notify"]["access"],  # AWS IAM Access Key
-        aws_secret_access_key=config["Notify"]["secret"],
-    )  # AWS IAM Secret
-else:
-    SNS = None
-
-
-async def list_topics():
+async def list_topics() -> List[str]:
     """Subscribe
 
     List all SNS topics on the given account.
@@ -62,17 +33,17 @@ async def list_topics():
     """
     # List all SNS Topics on the Acct
     try:
-        response = SNS.list_topics()
-    except boto3.exceptions.Boto3Error as boto_exception:
+        response = config.notify.sns.list_topics()
+    except Boto3Error as boto_exception:
         raise SNSError(boto_exception) from boto_exception
     topics = response["Topics"]
     topic_list = []
     for topic, topic_type in enumerate(topics):
-        topic_list.append(topics[topic]["TopicArn"].split(":")[5])
+        topic_list.append(topic_type["TopicArn"].split(":")[5])
     return topic_list
 
 
-async def subscribe(topic, endpoint):
+async def subscribe(topic: str, endpoint: str):
     """Subscribe
 
     Adds a given email or phone number to the notification pool.
@@ -81,16 +52,13 @@ async def subscribe(topic, endpoint):
         topic (str): The group the message is being sent to.
         endpoint (str): The Phone Number or Email for the group.
 
-    Returns:
-        (str or None): Protocol if successful
-
     Raises:
         ValueError: Value is neither a phone number nor email adress
         SubscriptionError: Parameters are valid but subscription could not be registered
 
     """
 
-    mail = r"^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,24}$"
+    mail = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     sms = r"^\+?[1-9]\d{1,14}$"
     protocol = None
 
@@ -106,8 +74,10 @@ async def subscribe(topic, endpoint):
         raise ValueError
 
     try:
-        SNS.subscribe(TopicArn=topic, Protocol=protocol, Endpoint=endpoint)
-    except boto3.exceptions.Boto3Error as boto_exception:
+        config.notify.sns.subscribe(
+            TopicArn=topic, Protocol=protocol, Endpoint=endpoint
+        )
+    except Boto3Error as boto_exception:
         logger.info(
             "NOTIFY: Invalid Email or Phone provided: {endpoint}. Aborting.",
             endpoint=endpoint,
@@ -115,7 +85,7 @@ async def subscribe(topic, endpoint):
         raise SubscriptionError(boto_exception) from boto_exception
 
 
-async def list_sub_by_topic(topic_arn):
+async def list_sub_by_topic(topic_arn: str) -> List[str]:
     """List Subscribers
 
     List subscriptions by topic.
@@ -131,17 +101,17 @@ async def list_sub_by_topic(topic_arn):
 
     """
     try:
-        response = SNS.list_subscriptions_by_topic(TopicArn=topic_arn)
-    except boto3.exceptions.Boto3Error as boto_exception:
+        response = config.notify.sns.list_subscriptions_by_topic(TopicArn=topic_arn)
+    except Boto3Error as boto_exception:
         raise SNSError(boto_exception) from boto_exception
     subscriptions = response["Subscriptions"]
     sublist = []
     for sub, subtype in enumerate(subscriptions):
-        sublist.append(subscriptions[sub]["Endpoint"])
+        sublist.append(subtype["Endpoint"])
     return sublist
 
 
-async def send_notification(topic, message, subject):
+async def send_notification(topic: str, message: str, subject: str):
     """Send notification to a group
 
     Send Notifications to the specified group. Abuse this and I hunt you.
@@ -156,6 +126,6 @@ async def send_notification(topic, message, subject):
 
     """
     try:
-        SNS.publish(TopicArn=topic, Message=message, Subject=subject)
-    except boto3.exceptions.Boto3Error as boto_exception:
+        config.notify.sns.publish(TopicArn=topic, Message=message, Subject=subject)
+    except Boto3Error as boto_exception:
         raise NotificationFailure(boto_exception) from boto_exception

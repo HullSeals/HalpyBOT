@@ -8,7 +8,6 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from . import delayedboard
 from . import edsm
 from . import fact
 from . import forcejoin
@@ -24,9 +23,9 @@ from . import bot_help
 from . import caseutils
 from . import drill
 from . import misc
+from . import spansh
 
 __all__ = [
-    "delayedboard",
     "edsm",
     "fact",
     "forcejoin",
@@ -42,4 +41,5 @@ __all__ = [
     "caseutils",
     "drill",
     "misc",
+    "spansh",
 ]

@@ -2,7 +2,7 @@
 > For the Hull Seals, with a boot to the head
 Rixxan
 
-start.py - HalpyBOT startup script
+__main__.py - HalpyBOT startup script
 
 Copyright (c) The Hull Seals,
 All rights reserved.
@@ -11,17 +11,18 @@ Licensed under the GNU General Public License
 See license.md
 """
 
+import asyncio
+import os
+import signal
 from logging import Handler, basicConfig, getLevelName
 import sys
-import threading
-from os import path, mkdir
 from loguru import logger
 from aiohttp import web
 
 # noinspection PyUnresolvedReferences
 from halpybot import commands
-from halpybot.packages.configmanager import config
-from halpybot.packages.ircclient import client
+from halpybot import config
+from halpybot.packages.ircclient import configure_client
 from halpybot.server import APIConnector
 
 
@@ -35,16 +36,16 @@ class InterceptHandler(Handler):
 
 
 def logging_format():
+    """
+    Configure the logging system, utilizing Loguru
+    """
     # Configure Logging File Name and Levels
-    logFile: str = config["Logging"]["log_file"]
-    CLI_level = config["Logging"]["cli_level"]
-    file_level = config["Logging"]["file_level"]
+    cli_level = config.logging.cli_level
+    file_level = config.logging.file_level
 
     # Attempt to create log folder and path if it doesn't exist
     try:
-        logFolder = path.dirname(logFile)
-        if not path.exists(logFolder):
-            mkdir(logFolder)
+        config.logging.log_file.parent.mkdir(exist_ok=True)
     except PermissionError:
         logger.exception(
             "Unable to create log folder. Does this user have appropriate permissions?"
@@ -52,9 +53,9 @@ def logging_format():
         sys.exit()
 
     # Set the log format
-    FORMATTER = (
-        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra} | <cyan>{"
-        "name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level> "
+    formatter = (
+        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra} | "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
     )
     # Hook logging intercept
     basicConfig(handlers=[InterceptHandler()], level=0)
@@ -64,9 +65,9 @@ def logging_format():
 
     # Add File Logger
     logger.add(
-        logFile,
+        config.logging.log_file,
         level=file_level,
-        format=FORMATTER,
+        format=formatter,
         rotation="500 MB",
         compression="zip",
         retention=90,
@@ -78,7 +79,7 @@ def logging_format():
     logger.add(
         "logs/connection.log",
         level=file_level,
-        format=FORMATTER,
+        format=formatter,
         rotation="500 MB",
         compression="zip",
         retention=90,
@@ -90,7 +91,7 @@ def logging_format():
     logger.add(
         "logs/command_access.log",
         level=file_level,
-        format=FORMATTER,
+        format=formatter,
         rotation="500 MB",
         compression="zip",
         retention=90,
@@ -99,28 +100,37 @@ def logging_format():
     )
 
     # Add CLI Logger
-    logger.add(sys.stdout, level=CLI_level, format=FORMATTER)
+    logger.add(sys.stdout, level=cli_level, format=formatter)
 
 
-def _start_bot():
-    """Starts HalpyBOT with the specified config values."""
-    client.run(
-        hostname=config["IRC"]["server"],
-        port=config["IRC"]["port"],
-        tls=config.getboolean("IRC", "usessl"),
-        tls_verify=False,
-    )
-
-
-if __name__ == "__main__":
-    # Either the Bot, Webserver, or both need to be in their own threads isolated
-    # This is due to how aiohttp handles asyncio and not sharing well
+async def main():
+    """
+    The main startup script for HalpyBOT, called by the entry point
+    """
     logging_format()
-    bthread = threading.Thread(target=_start_bot, name="BotThread", daemon=True)
-    bthread.start()
-    sthread = threading.Thread(
-        target=web.run_app(app=APIConnector, port=int(config["API Connector"]["port"])),
-        name="ServerThread",
-        daemon=True,
+    client = configure_client()
+    runner = web.AppRunner(APIConnector)
+    runner.app["botclient"] = client
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port=config.api_connector.port)
+    await site.start()
+    loop = asyncio.get_event_loop()
+    asyncio.ensure_future(
+        client.connect(
+            hostname=config.irc.server.host,
+            port=config.irc.server.port,
+            tls=config.irc.use_ssl,
+            tls_verify=config.irc.tls_verify,
+        ),
+        loop=loop,
     )
-    sthread.start()
+    while True:
+        await asyncio.sleep(3600)
+
+
+# Global Entry Point
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        os.kill(os.getpid(), signal.SIGTERM)

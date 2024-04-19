@@ -8,18 +8,17 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from typing import List
-
-from ..packages.checks import Require, Drilled
+from typing import List, Optional
+from halpybot import config
+from ..packages.checks import in_channel, Drilled, needs_permission
 from ..packages.command import Commands, get_help_text
-from ..packages.models import User
-from ..packages.configmanager import config
 from ..packages.models import Context
+from ..packages.models import User
 
 
 @Commands.command("forcejoin")
-@Require.channel()
-@Require.permission(Drilled)
+@in_channel
+@needs_permission(Drilled)
 async def cmd_sajoin(ctx: Context, args: List[str]):
     """
     Make the bot force a user to join a channel.
@@ -28,20 +27,20 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) <= 1:
-        return await ctx.reply(get_help_text("forcejoin"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "forcejoin"))
 
     # Convert channel name to lower case to avoid issues with the already-in-channel check
     args[1] = args[1].casefold()
 
-    botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
+    botuser: Optional[User] = await User.get_info(ctx.bot, ctx.bot.nickname)
 
     # Shockingly, I couldn't find an easier way to do this. If you find one, let me know.
     try:
-        channels = await User.get_channels(ctx.bot, args[0])
+        channels: List[str] = await User.get_channels(ctx.bot, args[0])
     except AttributeError:
         return await ctx.reply(f"User {args[0]} doesn't appear to exist...")
 
-    if args[1] not in config["Force join command"]["joinable"].casefold():
+    if args[1] not in config.forced_join.joinable:
         return await ctx.reply("I can't move people there.")
 
     if args[1] in channels:
@@ -65,8 +64,8 @@ async def cmd_sajoin(ctx: Context, args: List[str]):
 
 
 @Commands.command("rrjoin")
-@Require.channel()
-@Require.permission(Drilled)
+@in_channel
+@needs_permission(Drilled)
 async def cmd_rrjoin(ctx: Context, args: List[str]):
     """
     Make the bot force a user to join the repair channel.
@@ -75,7 +74,7 @@ async def cmd_rrjoin(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("rrjoin"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "rrjoin"))
 
     botuser = await User.get_info(ctx.bot, ctx.bot.nickname)
 

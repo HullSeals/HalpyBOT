@@ -8,16 +8,17 @@ Licensed under the GNU General Public License
 See license.md
 
 """
+
 from typing import Type, Union
-from datetime import datetime
 from loguru import logger
+import pendulum
 import git
-from aiohttp.web import Request, StreamResponse
+from aiohttp.web import Request, StreamResponse, Response
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound
 from halpybot import __version__, DEFAULT_USER_AGENT
-from ..packages.configmanager import config
-from ..packages.ircclient import client as botclient
+from halpybot import config
+from ..packages.ircclient import HalpyBOT
 
 
 routes = web.RouteTableDef()
@@ -30,55 +31,56 @@ class HalpyServer(web.Application):
         """A method to filter out spam requests that would otherwise result
         in a large error message and log them neatly"""
         # Add Connection Logger
-        connection_logger = logger.bind(task="API")
-        # If they don't provide authentication, we log it and return 400
-        request_method = request.method
-        request_path = request.path
+        with logger.contextualize(task="API"):
+            # If they don't provide authentication, we log it and return 400
+            request_method = request.method
+            request_path = request.path
 
-        if request_method == "POST":
-            if (
-                request.headers.get("hmac") is None
-                or request.headers.get("keyCheck") is None
-            ):
-                connection_logger.info("Request submitted with incomplete auth headers")
-                return HTTPBadRequest
+            if request_method == "POST":
+                if (
+                    request.headers.get("hmac") is None
+                    or request.headers.get("keyCheck") is None
+                ):
+                    logger.info("Request submitted with incomplete auth headers")
+                    return HTTPBadRequest
 
-        no_method = True
-        registered_routes = self.router.routes()
-        for route in registered_routes:
-            if route.method == request_method:
-                no_method = False
-                # The amount of time I spent looking through the documentation for where they keep the list of routes
-                # The route.resource.canonical SHOULD (tm) be the path for the route
-                if route.resource.canonical == request_path:
-                    return None
-        if no_method:
-            connection_logger.info("API request made for not used method")
-            return HTTPMethodNotAllowed(
-                request_method, list({route.method for route in routes})
-            )
-        connection_logger.info("API request made with unused path")
+            no_method = True
+            registered_routes = self.router.routes()
+            for route in registered_routes:
+                if route.method == request_method:
+                    no_method = False
+                    # The amount of time I spent looking through the documentation for where they keep the list of routes
+                    # The route.resource.canonical SHOULD (tm) be the path for the route
+                    if route.resource.canonical == request_path:
+                        return None
+            if no_method:
+                logger.info("API request made for not used method")
+                return HTTPMethodNotAllowed(
+                    request_method, list({route.method for route in routes})
+                )
+            logger.info("API request made with unused path")
         return HTTPNotFound()
 
     async def _handle(self, request: Request) -> StreamResponse:
         # Add Connection Logger
-        connection_logger = logger.bind(task="API")
-        try:
-            request_error = await self.__filter_request(request)
-            if request_error is not None:
-                connection_logger.info(
-                    "Invalid request submitted by {host} not processed",
-                    host=request.host,
-                )
-                raise request_error
-            response = await super()._handle(request)
-            return response
-        except web.HTTPError as ex:
-            return ex
+        with logger.contextualize(task="API"):
+            try:
+                request_error = await self.__filter_request(request)
+                if request_error is not None:
+                    logger.info(
+                        "Invalid request submitted by {host} not processed",
+                        host=request.host,
+                    )
+                    raise request_error
+                response = await super()._handle(request)
+                response.headers.add("Server", "HalpyBOT")
+                return response
+            except web.HTTPError as ex:
+                return ex
 
 
 @web.middleware
-async def compression_middleware(request, handler):
+async def compression_middleware(request: Request, handler) -> Response:
     """Enable compression to improve our responses"""
     response = await handler(request)
     response.enable_compression()
@@ -86,7 +88,7 @@ async def compression_middleware(request, handler):
 
 
 @routes.get("/")
-async def server_root(request):
+async def server_root(request: Request) -> Response:
     """
     Get the key information about the Bot
 
@@ -104,7 +106,8 @@ async def server_root(request):
         sha = f" build {sha}"
     except git.InvalidGitRepositoryError:
         sha = ""
-    server_status_nick = botclient.nickname  # FIXME unsynchronized cross-thread read
+    botclient: HalpyBOT = request.app["botclient"]
+    server_status_nick = botclient.nickname
     if server_status_nick == "<unregistered>":
         server_status_nick = "Not Connected"
     response = {
@@ -112,8 +115,8 @@ async def server_root(request):
         "version": f"{__version__}{sha}",
         "bot_nick": server_status_nick,
         "irc_connected": "True" if botclient.connected else "False",
-        "offline_mode": config["Offline Mode"]["enabled"],
-        "timestamp": datetime.utcnow().replace(microsecond=0).isoformat(),
+        "offline_mode": config.offline_mode.enabled,
+        "timestamp": pendulum.now(tz="utc").replace(microsecond=0).isoformat(),
     }
     return web.json_response(response)
 

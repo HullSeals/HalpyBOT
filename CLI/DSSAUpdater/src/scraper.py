@@ -42,7 +42,7 @@ def scrape_spreadsheet(path: str, sheetlink: str, timestamp: str):
     anomalies = []
 
     # First, we request the spreadsheet from the link and let BS do its thing
-    html = requests.get(sheetlink).text
+    html = requests.get(sheetlink, timeout=10).text
     tables = BeautifulSoup(html, "lxml").find_all("table")
 
     # Store the results

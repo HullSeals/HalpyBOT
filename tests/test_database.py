@@ -10,22 +10,17 @@ See license.md
 
 import time
 import pytest
-from halpybot.packages.database import latency
-from halpybot.packages.configmanager import config
-
-pytestmark = pytest.mark.skipif(
-    config["Offline Mode"]["enabled"] == "True",
-    reason="Offline Mode Enabled on database-touching tests! "
-    "Please disable it to continue",
-)
+from halpybot.packages.database import test_database_connection
+from halpybot import config
 
 
 @pytest.mark.asyncio
-async def test_latency():
+async def test_db(bot_fx):
     """Test the Database Latency.
 
     If it's above 15, the connection is unusable."""
+    config.offline_mode.enabled = False
     start = time.time()
-    connection = await latency()
+    connection = await test_database_connection(bot_fx.engine)
     final = round(connection - start, 2)
     assert final < 15

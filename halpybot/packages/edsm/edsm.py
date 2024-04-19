@@ -11,7 +11,6 @@ Special thanks to TheUnkn0wn1 for his assistance on this module! - https://githu
 """
 
 from __future__ import annotations
-
 import typing
 import math
 import asyncio
@@ -23,72 +22,53 @@ from loguru import logger
 import aiohttp
 import numpy as np
 import cattr
-from attr import dataclass, define, field
+from attrs import define, field
+from attr import ib
+from halpybot import config
+from ..exceptions import (
+    EDSMConnectionError,
+    EDSMReturnError,
+    NoResultsEDSM,
+    NoNearbyEDSM,
+)
 from ..models import Coordinates, Location
 from ..models import edsm_classes
-from ..configmanager import config
-from ..utils import web_get
+from ..utils import (
+    web_get,
+    sys_cleaner,
+)
 
 
-class EDSMLookupError(Exception):
-    """
-    Base class for lookup errors
-    """
-
-
-class NoResultsEDSM(EDSMLookupError):
-    """
-    No results for the given query were found with the EDSM API
-    """
-
-
-class EDSMConnectionError(EDSMLookupError):
-    """
-    Request failed due to an exception that occurred
-    while connecting to the EDSM API
-    """
-
-
-class NoNearbyEDSM(EDSMLookupError):
-    """
-    No results for the given query were found with the EDSM API within a specified distance
-    """
-
-
-class EDSMReturnError(EDSMLookupError):
-    """
-    EDSM returned a reply, however the reply did not include key data needed to continue.
-    """
-
-
-@dataclass
+@define(frozen=True)
 class EDSMQuery:
+    """
+    Formulate an EDSM Query and save the time the query was run.
+    """
+
     object: typing.Union[GalaxySystem, Commander, None]
     time: time()
 
 
-@dataclass
+@define(frozen=True)
 class EDDBSystem:
-    """EDDB system object
+    """
+    EDDB system object
 
     System info received from the EDDB formatter packaged in CLI.
-
     """
 
     name: str
     dist_star: int
     system_name: str
-    x_coord: float
-    y_coord: float
-    z_coord: float
+    coords: Coordinates
 
 
-@dataclass
+@define(frozen=True)
 class GalaxySystem:
-    """EDSM system object
+    """
+    EDSM system object
 
     System info received from the EDSM API.
-
     """
 
     name: str
@@ -98,6 +78,9 @@ class GalaxySystem:
 
     @classmethod
     def from_api(cls, api: edsm_classes.Galaxy) -> GalaxySystem:
+        """
+        EDSM Response to System lookup
+        """
         return cls(name=api.name, coords=api.coords)
 
     @classmethod
@@ -127,13 +110,13 @@ class GalaxySystem:
         if name in cls._lookupCache and not cache_override:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name].time
-            cachetime = int(config["EDSM"]["timeCached"])
+            cachetime = config.edsm.time_cached
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name].object
 
         # Else, get the system from EDSM
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['system_endpoint']}"
+            uri = config.edsm.system_endpoint
             params = {
                 "systemName": name,
                 "showCoordinates": 1,
@@ -205,7 +188,7 @@ class GalaxySystem:
         """
         # Else, get the system from EDSM
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['sphere_endpoint']}"
+            uri = config.edsm.sphere_endpoint
             params = {
                 "x": x_coord,
                 "y": y_coord,
@@ -231,12 +214,12 @@ class GalaxySystem:
         return sysname, dist
 
 
-@dataclass(frozen=True)
+@define(frozen=True)
 class Commander:
-    """EDSM commander object
+    """
+    EDSM commander object
 
     Commander info received from the EDSM API
-
     """
 
     # The Four Things We Care About
@@ -250,6 +233,9 @@ class Commander:
 
     @classmethod
     def from_api(cls, name: str, api: edsm_classes.Commander) -> Commander:
+        """
+        EDSM Response to CMDR Lookup
+        """
         return cls(
             msgnum=api.msgnum,
             name=name,
@@ -285,12 +271,12 @@ class Commander:
         if name.strip().upper() in cls._lookupCache and not cache_override:
             # If less than five minutes ago return stored object
             lookuptime = cls._lookupCache[name.strip().upper()].time
-            cachetime = int(config["EDSM"]["timeCached"])
+            cachetime = config.edsm.time_cached
             if time() < lookuptime + cachetime:
                 return cls._lookupCache[name.strip().upper()].object
 
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['getpos_endpoint']}"
+            uri = config.edsm.getpos_endpoint
             params = {"commanderName": name, "showCoordinates": 1}
             responses = await web_get(uri, params)
         except (aiohttp.ClientError, KeyError) as get_cmdr_error:
@@ -361,35 +347,46 @@ class Commander:
         )
 
 
+@define
 class Edsm:
-    def __init__(self):
-        self._carriers: typing.Optional[typing.List[GalaxySystem]] = None
-        self._landmarks: typing.Optional[typing.List[GalaxySystem]] = None
-        self._diversions: typing.Optional[typing.List[EDDBSystem]] = None
+    """Carrier, Landmark, and Diversion Systems, formatted for EDSM Usage"""
+
+    _carriers: typing.Optional[typing.List[GalaxySystem]] = ib(default=None)
+    _landmarks: typing.Optional[typing.List[GalaxySystem]] = ib(default=None)
+    _diversions: typing.Optional[typing.List[EDDBSystem]] = ib(default=None)
 
     @property
     def landmarks(self):
+        """Load pre-defined Landmark systems from file"""
         if self._landmarks:
             return self._landmarks
         landmark_target = Path() / "data" / "edsm" / "landmarks.json"
+        if not landmark_target.is_file():
+            raise FileNotFoundError
         landmarks = json.loads(landmark_target.read_text())
         self._landmarks = cattr.structure(landmarks, typing.List[GalaxySystem])
         return self._landmarks
 
     @property
     def carriers(self):
+        """Load pre-defined DSSA Carrier systems from file"""
         if self._carriers:
             return self._carriers
         carrier_target = Path() / "data" / "edsm" / "dssa.json"
+        if not carrier_target.is_file():
+            raise FileNotFoundError
         carriers = json.loads(carrier_target.read_text())
         self._carriers = cattr.structure(carriers, typing.List[GalaxySystem])
         return self._carriers
 
     @property
     def diversions(self):
+        """Load pre-defined diversion systems from file"""
         if self._diversions:
             return self._diversions
         diversions_target = Path() / "data" / "edsm" / "diversions.json"
+        if not diversions_target.is_file():
+            raise FileNotFoundError
         loaded_diversions = json.loads(diversions_target.read_text())
         self._diversions = cattr.structure(loaded_diversions, typing.List[EDDBSystem])
         return self._diversions
@@ -398,7 +395,9 @@ class Edsm:
 calculators = Edsm()
 
 
-async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
+async def checkdistance(
+    sysa: str, sysb: str, cache_override: bool = False
+) -> typing.Tuple[str, str]:
     """Check distance between two EDSM points
 
     Both data points must be known to EDSM.
@@ -426,6 +425,8 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
         GalaxySystem.get_info(name=sysa, cache_override=cache_override),
         GalaxySystem.get_info(name=sysb, cache_override=cache_override),
     )
+    system1: GalaxySystem
+    system2: GalaxySystem
 
     if system1 is None:
         # not a system, maybe a commander?
@@ -459,15 +460,15 @@ async def checkdistance(sysa: str, sysb: str, cache_override: bool = False):
             f"database."
         )
 
-    distance = calc_distance(
-        system_a.x, system_b.x, system_a.y, system_b.y, system_a.z, system_b.z
-    )
-    distance = f"{distance:,}"
+    distance: float = calc_distance(system_a, system_b)
+    formatted_distance: str = f"{distance:,}"
     direction = await calc_direction(system_b.x, system_a.x, system_b.z, system_a.z)
-    return distance, direction
+    return formatted_distance, direction
 
 
-async def checklandmarks(edsm_sys_name, cache_override: bool = False):
+async def checklandmarks(
+    edsm_sys_name: str, cache_override: bool = False
+) -> typing.Tuple[str, str, str]:
     """Retrieve distance between EDSM point and landmark
 
     The landmarks used in this function are specified in landmarks.json
@@ -490,22 +491,13 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
         NoResultsEDSM: No point was found for `edsm_sys_name`
 
     """
-    system = await sys_cleaner(edsm_sys_name)
+    system: str = await sys_cleaner(edsm_sys_name)
     # Set default values
-
     coords = await get_coordinates(system, cache_override)
     if coords:
-        maxdist = config["EDSM"]["Maximum landmark distance"]
+        maxdist = config.edsm.maximum_landmark_distance
         distances = {
-            calc_distance(
-                coords.x,
-                item.coords.x,
-                coords.y,
-                item.coords.y,
-                coords.z,
-                item.coords.z,
-            ): item
-            for item in calculators.landmarks
+            calc_distance(coords, item.coords): item for item in calculators.landmarks
         }
         minimum_key = min(distances)
         minimum = distances[minimum_key]
@@ -516,15 +508,14 @@ async def checklandmarks(edsm_sys_name, cache_override: bool = False):
             )
             return minimum.name, f"{minimum_key:,}", direction
         raise NoNearbyEDSM(f"No major landmark systems within 10,000 ly of {system}.")
-
-    if not coords:
-        raise NoResultsEDSM(
-            f"No system and/or commander named {system} was found in the EDSM"
-            f" database."
-        )
+    raise NoResultsEDSM(
+        f"No system and/or commander named {system} was found in the EDSM" f" database."
+    )
 
 
-async def checkdssa(edsm_sys_name, cache_override: bool = False):
+async def checkdssa(
+    edsm_sys_name: str, cache_override: bool = False
+) -> typing.Tuple[str, str, str]:
     """Check distance to nearest DSSA carrier
 
     Last updated 2021-03-22 w/ 93 Carrier
@@ -534,29 +525,22 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         cache_override (bool): Disregard caching rules and get directly from EDSM, if true.
 
     Returns:
-        (str): Distance between point and DSSA carrier, in the format xx,yyy.zz
+        (tuple): A tuple with the following values:
+
+            - (str): The nearest DSSA Carrier's name
+            - (str): Distance between point and DSSA carrier, in the format xx,yyy.zz
+            - (str): The cardinal direction to the DSSA Carrier's system
 
     Raises:
         EDSMConnectionError: Connection could not be established. Timeout is 10 seconds
                 by default.
         NoResultsEDSM: No point was found for `edsm_sys_name`.
-
-
     """
-    system = await sys_cleaner(edsm_sys_name)
+    system: str = await sys_cleaner(edsm_sys_name)
     coords = await get_coordinates(system, cache_override)
-
     if coords:
         distances = {
-            calc_distance(
-                coords.x,
-                item.coords.x,
-                coords.y,
-                item.coords.y,
-                coords.z,
-                item.coords.z,
-            ): item
-            for item in calculators.carriers
+            calc_distance(coords, item.coords): item for item in calculators.carriers
         }
 
         minimum_key = min(distances)
@@ -567,15 +551,15 @@ async def checkdssa(edsm_sys_name, cache_override: bool = False):
         )
         return minimum.name, f"{minimum_key:,}", direction
 
-    if not coords:
-        raise NoResultsEDSM(
-            f"No system and/or commander named {system} was found in the EDSM"
-            f" database."
-        )
+    raise NoResultsEDSM(
+        f"No system and/or commander named {system} was found in the EDSM" f" database."
+    )
 
 
-@define
+@define(frozen=True)
 class Diversion:
+    """Format for finding Diversion systems"""
+
     name: str
     system_name: str
     local_direction: str
@@ -583,10 +567,9 @@ class Diversion:
     item: float = field(converter=float)
 
 
-Diversions = typing.List[Diversion]
-
-
-async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
+async def diversions(
+    edsm_sys_name: str, cache_override: bool = False
+) -> typing.List[Diversion]:
     """Check distance to the nearest diversion station
 
     Last updated 2022-05-23 w/ 7,384 Qualified Stations
@@ -606,32 +589,23 @@ async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
 
     """
     coords = await get_coordinates(edsm_sys_name, cache_override)
-
     if coords:
         distances = {
-            calc_distance(
-                coords.x,
-                item.x_coord,
-                coords.y,
-                item.y_coord,
-                coords.z,
-                item.z_coord,
-            ): item
-            for item in calculators.diversions
+            calc_distance(coords, item.coords): item for item in calculators.diversions
         }
         local_tup = []
         for value in range(5):
             item = sorted(list(distances.keys()))[value]
             local_min = distances[item]
             local_direction = await calc_direction(
-                coords.x, local_min.x_coord, coords.z, local_min.z_coord
+                coords.x, local_min.coords.x, coords.z, local_min.coords.z
             )
             next_nearest = Diversion(
                 name=local_min.name,
                 dist_star=local_min.dist_star,
                 system_name=local_min.system_name,
                 local_direction=local_direction,
-                item=f"{item}",
+                item=float(item),
             )
             local_tup.append(next_nearest)
         return local_tup
@@ -641,33 +615,34 @@ async def diversions(edsm_sys_name, cache_override: bool = False) -> Diversions:
     )
 
 
-def calc_distance(x_coord_1, x_coord_2, y_coord_1, y_coord_2, z_coord_1, z_coord_2):
+def calc_distance(loc_a: Coordinates, loc_b: Coordinates) -> float:
     """Calculate distance XYZ -> XYZ
 
     Only call this method directly when the coordinates of both points are known. If
     only the point names are known, use `edsm/checkdistance` instead.
 
     Args:
-        x_coord_1 (int or float): X-coordinate of point A
-        x_coord_2 (int or float): X-coordinate of point B
-        y_coord_1 (int or float): Y-coordinate of point A
-        y_coord_2 (int or float): Y-coordinate of point B
-        z_coord_1 (int or float): Z-coordinate of point A
-        z_coord_2 (int or float): Z-coordinate of point B
+        loc_a (Coordinates): EDSM object coordinates
+        loc_b (Coordinates): EDSM object coordinates
 
     Returns:
         (float): Distance between two points
 
     """
-    point_1 = np.array([x_coord_1, y_coord_1, z_coord_1])
-    point_2 = np.array([x_coord_2, y_coord_2, z_coord_2])
+    point_1 = np.array([loc_a.x, loc_a.y, loc_a.z])
+    point_2 = np.array([loc_b.x, loc_b.y, loc_b.z])
     squared_dist = np.sum((point_1 - point_2) ** 2, axis=0)
     dist = np.sqrt(squared_dist)
     dist = np.around(dist, decimals=2)
     return float(dist)
 
 
-async def calc_direction(x_coord_1, x_coord_2, y_coord_1, y_coord_2):
+async def calc_direction(
+    x_coord_1: typing.Union[int, float],
+    x_coord_2: typing.Union[int, float],
+    y_coord_1: typing.Union[int, float],
+    y_coord_2: typing.Union[int, float],
+) -> str:
     """Calculate direction
 
     Uses some Fancy Math™ to determine the approximate
@@ -708,7 +683,9 @@ async def calc_direction(x_coord_1, x_coord_2, y_coord_1, y_coord_2):
     return result
 
 
-async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
+async def get_coordinates(
+    edsm_sys_name: str, cache_override: bool = False
+) -> typing.Optional[Coordinates]:
     """
     Get the coordinates of a given system in EDSM
 
@@ -719,20 +696,18 @@ async def get_coordinates(edsm_sys_name: str, cache_override: bool = False):
     Returns:
         ('Coordinates' or None): A coordinate class object if exists, else None.
     """
-    coords = None
-    sys = await GalaxySystem.get_info(name=edsm_sys_name, cache_override=cache_override)
+    sys: typing.Optional[GalaxySystem] = await GalaxySystem.get_info(
+        name=edsm_sys_name, cache_override=cache_override
+    )
     if sys:
-        coords = sys.coords
-    if not sys:
-        cmdr = await Commander.location(
-            name=edsm_sys_name, cache_override=cache_override
-        )
-        if cmdr:
-            coords = cmdr.coordinates
-    return coords
+        return sys.coords
+    cmdr: typing.Optional[Location] = await Commander.location(
+        name=edsm_sys_name, cache_override=cache_override
+    )
+    return cmdr.coordinates if cmdr else None
 
 
-async def get_nearby_system(sys_name: str):
+async def get_nearby_system(sys_name: str) -> typing.Tuple[bool, typing.Optional[str]]:
     """
     Get a nearby system to a given system in EDSM
 
@@ -747,7 +722,7 @@ async def get_nearby_system(sys_name: str):
     name_to_check = await sys_cleaner(sys_name)
     for _ in range(5):
         try:
-            uri = f"{config['EDSM']['uri']}/{config['EDSM']['systems_endpoint']}"
+            uri = config.edsm.systems_endpoint
             params = {"systemName": name_to_check}
             responses = await web_get(uri, params)
             if responses:
@@ -762,67 +737,3 @@ async def get_nearby_system(sys_name: str):
         except aiohttp.ClientError:
             logger.exception("EDSM: Error in `get_nearby_system()` lookup.")
     return False, None
-
-
-async def sys_cleaner(sys_name: str):
-    """
-    Attempt to match a given system string to the procedurally generated system naming convention.
-
-    Args:
-        sys_name (str): The given string which should be a system name.
-
-    Returns:
-        (str): The processed string, possibly matched to a procedurally generated naming convention.
-    """
-    orig_sys = sys_name
-    sys_name = " ".join(sys_name.split())
-    sys_name = sys_name.upper()
-
-    try:
-        if "-" in sys_name:
-            sys_name_list = sys_name.split()
-            sys_name = ""
-            for index, block in enumerate(sys_name_list):
-                sys_name += block + " "
-                if "-" in block:
-                    sys_name += sys_name_list[index + 1]
-                    break
-
-            swaps = {"0": "O", "1": "I", "5": "S", "8": "B"}
-            unswaps = {value: key for key, value in swaps.items()}
-            sys_name_parts = sys_name.split()
-
-            # Final part is either LN or LN-N, so [1:] is N or N-N
-            letter = sys_name_parts[-1][0]
-            tmp = swaps[letter] if letter in swaps else letter
-            for char in sys_name_parts[-1][1:]:
-                if char in unswaps:
-                    tmp += unswaps[char]
-                else:
-                    tmp += char
-            sys_name_parts[-1] = tmp
-
-            # This part it LL-L
-            tmp = ""
-            for char in sys_name_parts[-2]:
-                if char in swaps:
-                    tmp += swaps[char]
-                else:
-                    tmp += char
-            sys_name_parts[-2] = tmp
-
-            sys_name = " ".join(sys_name_parts)
-    except IndexError:
-        logger.info(
-            "System cleaner thought {sys_name} was proc-gen and could not correct formatting",
-            sys_name=sys_name,
-        )
-        return sys_name.strip()
-    if sys_name == orig_sys:
-        return sys_name.strip()
-    logger.debug(
-        "System cleaner produced {sys_name} from {orig_sys}",
-        sys_name=sys_name,
-        orig_sys=orig_sys,
-    )
-    return sys_name.strip()

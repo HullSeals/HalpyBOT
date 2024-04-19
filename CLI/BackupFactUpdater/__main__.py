@@ -14,11 +14,10 @@ import json
 import sys
 import pathlib
 import configparser
-import mysql.connector
+from sqlalchemy import create_engine, text, exc
 
 
-# noinspection PyBroadException
-def run():
+def run_facts():
     """Run the Backup Fact Updater"""
     rootpath = pathlib.PurePath(__file__).parent.parent.parent
     rootpath = str(rootpath).replace("\\", "/")
@@ -26,13 +25,15 @@ def run():
     config = configparser.ConfigParser()
     config.read(rf"{rootpath}/CLI/BackupFactUpdater/config.ini")
 
-    dbconfig = {
-        "user": config.get("Database", "user"),
-        "password": config.get("Database", "password"),
-        "host": config.get("Database", "host"),
-        "database": config.get("Database", "database"),
-        "connect_timeout": int(config.get("Database", "timeout")),
-    }
+    dbconfig = (
+        f'mysql+mysqldb://{config["Database"]["user"]}:{config["Database"]["password"]}@'
+        f'{config["Database"]["host"]}/{config["Database"]["database"]}'
+    )
+
+    engine = create_engine(
+        dbconfig,
+        connect_args={"connect_timeout": int(config["Database"]["timeout"])},
+    )
 
     print("=============\nHalpyBOT fact file updater\n=============")
     print("\n")
@@ -54,23 +55,25 @@ def run():
         with open(json_path, "r", encoding="UTF-8") as jsonfile:
             print("20% Opening backup file...")
             resdict = json.load(jsonfile)
-        database_connection = mysql.connector.connect(**dbconfig)
         print("40% Connection started...")
-        cursor = database_connection.cursor()
-        cursor.execute(f"SELECT factName, factLang, factText FROM {table}")
-        print("60% Got data, parsing...")
-        for (name, lang, text) in cursor:
-            resdict[f"{name}-{lang}"] = text
-        database_connection.close()
+        with engine.connect() as conn:
+            result = conn.execute(
+                text(
+                    f"SELECT factName, factLang, factText FROM {table}",
+                )
+            )
+            print("60% Got data, parsing...")
+            for name, lang, facttext in result:
+                resdict[f"{name}-{lang}"] = facttext
         print("80% Writing to file...")
         with open(json_path, "w+", encoding="UTF-8") as jsonfile:
             json.dump(resdict, jsonfile, indent=4)
             print(
                 "100% Done. Confirm that the update was successful, and have a great day!"
             )
-    except mysql.connector.Error:
+    except exc.OperationalError:
         print("MySQL encountered an error. Aborting!")
 
 
 if __name__ == "__main__":
-    run()
+    run_facts()

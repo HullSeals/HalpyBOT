@@ -14,15 +14,10 @@ import hashlib
 import json
 from loguru import logger
 from aiohttp import web
-
-from ..packages.configmanager import config
-
-
-client_secret = config["API Connector"]["key"]
-check_constant = config["API Connector"]["key_check_constant"]
+from halpybot import config
 
 
-def get_hmac(msg):
+def get_hmac(msg: str) -> hmac.HMAC:
     """
     Calculate the HMAC value for message validation
 
@@ -33,50 +28,46 @@ def get_hmac(msg):
         A new hmac object
     """
     return hmac.new(
-        bytes(client_secret, "utf8"), msg=msg.encode("utf8"), digestmod=hashlib.sha256
+        bytes(config.api_connector.key.get_secret_value(), "utf8"),
+        msg=msg.encode("utf8"),
+        digestmod=hashlib.sha256,
     )
 
 
-const_key_check = hmac.new(
-    bytes(client_secret, "utf8"),
-    msg=check_constant.encode("utf8"),
-    digestmod=hashlib.sha256,
-)
-
-
-def authenticate():
+def authenticate(function):
     """Validate a response coming in and check it against our config"""
 
-    def decorator(function):
-        @functools.wraps(function)
-        async def guarded(request):
-            # Add Connection Logger
-            connection_logger = logger.bind(task="API")
-
+    @functools.wraps(function)
+    async def guarded(request):
+        # Add Connection Logger
+        with logger.contextualize(task="API"):
             data = await request.json()
             clientmac = request.headers.get("hmac")
             key_check = request.headers.get("keyCheck")
 
             msg = json.dumps(data)
-            msg = "".join(
-                msg.split()
-            )  # Remove all whitespace for the purpose of ensuring identical inputs to HMAC
-
+            # Remove all whitespace for the purpose of ensuring identical inputs to HMAC
+            msg = "".join(msg.split())
             mac = get_hmac(msg)
-            check = const_key_check
-            # Check to see if the key is correct using static message. If wrong, return 401 unauthorised
+            check = hmac.new(
+                bytes(config.api_connector.key.get_secret_value(), "utf8"),
+                msg=config.api_connector.key_check_constant.get_secret_value().encode(
+                    "utf8"
+                ),
+                digestmod=hashlib.sha256,
+            )
+            # Check to see if the key is correct using static message.
+            # If wrong, return 401 unauthorised
             if not hmac.compare_digest(key_check, check.hexdigest()):
-                connection_logger.warning(
+                logger.warning(
                     "Failed authentication. Incorrect key or key verification message"
                 )
                 raise web.HTTPUnauthorized()
             # If the key is correct but HMAC is different, the body has been altered in transit and should be rejected
             if not hmac.compare_digest(clientmac, mac.hexdigest()):
-                connection_logger.warning("Failed authentication. Bad request body")
+                logger.warning("Failed authentication. Bad request body")
                 raise web.HTTPUnprocessableEntity()
-            connection_logger.info("Successfully authenticated API request")
-            return await function(request)
+            logger.info("Successfully authenticated API request")
+        return await function(request)
 
-        return guarded
-
-    return decorator
+    return guarded

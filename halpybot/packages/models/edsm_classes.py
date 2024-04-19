@@ -14,10 +14,10 @@ See license.md
 """
 
 from typing import Optional
-from attr import dataclass
+from attrs import define
 
 
-@dataclass
+@define(frozen=True)
 class Coordinates:
     """EDSM object coordinates dictionary"""
 
@@ -26,7 +26,7 @@ class Coordinates:
     z: float
 
 
-@dataclass
+@define(frozen=True)
 class SystemInfo:
     """EDSM system information dictionary"""
 
@@ -39,7 +39,7 @@ class SystemInfo:
     economy: str
 
 
-@dataclass
+@define(frozen=True)
 class Location:
     """EDSM location object"""
 
@@ -48,7 +48,7 @@ class Location:
     time: Optional[str]
 
 
-@dataclass
+@define(frozen=True)
 class Commander:
     """The Commander keys we care about"""
 
@@ -58,9 +58,26 @@ class Commander:
     date: Optional[str]
 
 
-@dataclass
+@define(frozen=True)
 class Galaxy:
     """Galaxy Keys we care about"""
 
     name: str
     coords: Coordinates
+
+
+@define()
+class Point:
+    """An EDSM Valid System and a Cleaner Name"""
+
+    name: str
+    pretty: Optional[str] = None
+
+
+@define()
+class Points:
+    """A pair of valid EDSM Points"""
+
+    point_a: Point
+    point_b: Point
+    jump_range: Optional[float] = None

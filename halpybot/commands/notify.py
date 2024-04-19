@@ -8,23 +8,65 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-import time
 from typing import List
+import pendulum
 from loguru import logger
+from halpybot import config
 from ..packages import notify
-from ..packages.checks import Require, Moderator, Admin, Owner, Pup
+from ..packages.checks import (
+    needs_permission,
+    needs_aws,
+    in_direct_message,
+    in_channel,
+    Moderator,
+    Admin,
+    Owner,
+    Pup,
+)
+from ..packages.exceptions import NotificationFailure, SubscriptionError, SNSError
 from ..packages.command import CommandGroup, Commands, get_help_text
-from ..packages.configmanager import config
 from ..packages.models import Context
-
 
 NotifyInfo = CommandGroup()
 NotifyInfo.add_group("notifyinfo", "notificationinfo")
 
 
+class Timer:
+    """Decorator Timer Class"""
+
+    def __init__(self, ttl: pendulum.Duration):
+        self.ttl = ttl
+        self.last_call = None
+
+    def __call__(self, func):
+        async def wrapper(ctx, *args, **kwargs):
+            """Decorator to Determine if a function is to be run by timer"""
+            should_call: bool = False
+            if self.last_call is None:
+                should_call = True
+            if (
+                self.last_call is not None
+                and pendulum.now(tz="utc") > self.last_call + self.ttl
+            ):
+                should_call = True
+            if should_call:
+                self.last_call = pendulum.now(tz="utc")
+                return await func(ctx, *args, **kwargs)
+            next_valid = self.last_call + self.ttl
+            return await ctx.reply(
+                f"Someone already called less than {config.notify.timer} minutes ago."
+                f" Hang on, staff is responding. Try again at {next_valid.to_time_string()} UTC."
+            )
+
+        return wrapper
+
+
+timer_filter = Timer(ttl=pendulum.Duration(minutes=config.notify.timer))
+
+
 @NotifyInfo.command("groups")
-@Require.permission(Moderator)
-@Require.aws()
+@needs_permission(Moderator)
+@needs_aws
 async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     List the existing notification groups.
@@ -34,7 +76,7 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
     """
     try:
         results = await notify.list_topics()
-    except notify.SNSError:
+    except SNSError:
         logger.exception("Unable to get group data from AWS.")
         return await ctx.reply(
             "Unable to retrieve group data from AWS servers, "
@@ -52,9 +94,9 @@ async def cmd_listgroups(ctx: Context, args: List[str]):
 
 
 @NotifyInfo.command("details", "endpoints")
-@Require.permission(Owner)
-@Require.direct_message()
-@Require.aws()
+@needs_permission(Owner)
+@in_direct_message
+@needs_aws
 async def cmd_listnotify(ctx: Context, args: List[str]):
     """
     List contact details of particular groups.
@@ -62,36 +104,38 @@ async def cmd_listnotify(ctx: Context, args: List[str]):
     Usage: !notifyinfo details [group]
     Aliases: notifyinfo endpoints
     """
-    if len(args) == 0:
-        return await ctx.reply(get_help_text("notifyinfo details"))
+    if not args:
+        return await ctx.reply(
+            get_help_text(ctx.bot.commandsfile, "notifyinfo details")
+        )
 
     group = args[0].casefold().strip()
 
-    if group in ["staff", "moderators", "hull-seals-staff"]:
-        group = "staff"
-    elif group in ["cybers", "cyberseals"]:
-        group = "cybers"
+    if group in {"staff", "moderators", "hull-seals-staff"}:
+        group = config.notify.staff
+    elif group in {"cybers", "cyberseals"}:
+        group = config.notify.cybers
     else:
-        return await ctx.reply(f"Invalid group given: {group}.")
+        return await ctx.reply(f"Invalid group given: {group!r}.")
 
     try:
-        results = await notify.list_sub_by_topic(config["Notify"][group])
-        if len(results) == 0:
+        results = await notify.list_sub_by_topic(group)
+        if not results:
             return await ctx.reply("No users currently subscribed to that group.")
         results = str(results)
         return await ctx.reply(
             f"Following endpoints are subscribed to group {group}: {results}"
         )
 
-    except notify.SNSError:
+    except SNSError:
         logger.exception("Unable to get info from AWS.")
         return await ctx.reply("Unable to get info from AWS. Maybe on Console?")
 
 
 @Commands.command("subnotify", "alertme", "addsub", "subscribe", "subscribenotify")
-@Require.permission(Admin)
-@Require.direct_message()
-@Require.aws()
+@needs_permission(Admin)
+@in_direct_message
+@needs_aws
 async def cmd_subscribe(ctx: Context, args: List[str]):
     """
     Add a user to a valid group
@@ -101,35 +145,37 @@ async def cmd_subscribe(ctx: Context, args: List[str]):
     """
 
     if len(args) <= 1:
-        return await ctx.reply(get_help_text("addsub"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "addsub"))
 
     group = args[0].casefold().strip()
 
-    if group in ["staff", "moderators", "hull-seals-staff"]:
-        group = "staff"
-    elif group in ["cybers", "cyberseals"]:
-        group = "cybers"
+    if group in {"staff", "moderators", "hull-seals-staff"}:
+        group = config.notify.staff
+    elif group in {"cybers", "cyberseals"}:
+        group = config.notify.cybers
+
     else:
         return await ctx.reply(
             "Please specify a valid group, for example: 'moderators', 'cyberseals'"
         )
     try:
-        await notify.subscribe(config["Notify"][group], args[1])
+        await notify.subscribe(group, args[1])
         return await ctx.reply(f"Subscription {args[1]} added to group {group}")
     except ValueError:
         return await ctx.reply(
             "Please specify a valid email address or phone number"
             "in international format."
         )
-    except notify.SubscriptionError:
+    except SubscriptionError:
         logger.exception("Unable to add subscription.")
         return await ctx.reply("Unable to add subscription, please contact Rixxan.")
 
 
 @Commands.command("summonstaff", "callstaff", "opsignal", "opsig")
-@Require.permission(Pup)
-@Require.channel()
-@Require.aws()
+@needs_permission(Pup)
+@in_channel
+@needs_aws
+@timer_filter
 async def cmd_notifystaff(ctx: Context, args: List[str]):
     """
     Send a notification to the Admins and Moderators.
@@ -138,33 +184,28 @@ async def cmd_notifystaff(ctx: Context, args: List[str]):
     Aliases: !callstaff, !opsig
     """
     if len(args) == 0:
-        return await ctx.reply(get_help_text("opsignal"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "opsignal"))
 
-    with NotificationLock() as lock:
-        if not lock.locked:
-
-            subject, topic, message = await format_notification(
-                "OpSignal", "staff", ctx.sender, args
-            )
-            try:
-                await notify.send_notification(topic, message, subject)
-            except notify.NotificationFailure:
-                logger.exception("Notification not sent! I hope it wasn't important...")
-                return await ctx.reply("Unable to send the notification!")
-            return await ctx.reply(
-                f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
-            )
-        return await ctx.reply(
-            "Someone already called less than 5 minutes ago. hang on, staff is responding."
-        )
+    subject, topic, message = await format_notification(
+        "OpSignal", "staff", ctx.sender, args
+    )
+    try:
+        await notify.send_notification(topic, message, subject)
+    except NotificationFailure:
+        logger.exception("Notification not sent! I hope it wasn't important...")
+        return await ctx.reply("Unable to send the notification!")
+    return await ctx.reply(
+        f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+    )
 
 
 @Commands.command(
     "summontech", "calltech", "shitsfucked", "shitsonfireyo", "cybersignal", "cybersig"
 )
-@Require.permission(Pup)
-@Require.channel()
-@Require.aws()
+@needs_permission(Pup)
+@in_channel
+@needs_aws
+@timer_filter
 async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
     Send a notification to the Cyberseals.
@@ -174,25 +215,19 @@ async def cmd_notifycybers(ctx: Context, args: List[str]):
     """
 
     if len(args) == 0:
-        return await ctx.reply(get_help_text("cybersignal"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "cybersignal"))
 
-    with NotificationLock() as lock:
-        if not lock.locked:
-
-            subject, topic, message = await format_notification(
-                "CyberSignal", "cybers", ctx.sender, args
-            )
-            try:
-                await notify.send_notification(topic, message, subject)
-            except notify.NotificationFailure:
-                logger.exception("Notification not sent! I hope it wasn't important...")
-                return await ctx.reply("Unable to send the notification!")
-            return await ctx.reply(
-                f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
-            )
-        return await ctx.reply(
-            "Someone already called less than 5 minutes ago. hang on, staff is responding."
-        )
+    subject, topic, message = await format_notification(
+        "CyberSignal", "cybers", ctx.sender, args
+    )
+    try:
+        await notify.send_notification(topic, message, subject)
+    except NotificationFailure:
+        logger.exception("Notification not sent! I hope it wasn't important...")
+        return await ctx.reply("Unable to send the notification!")
+    return await ctx.reply(
+        f"Message Sent to group {topic.split(':')[5]}. Please only send one message per issue!"
+    )
 
 
 async def format_notification(notify_type, group, sender, message):
@@ -209,25 +244,18 @@ async def format_notification(notify_type, group, sender, message):
         (tuple): Tuple with strings `subject`, `topic` and `message`
     """
     subject = f"HALPYBOT: {notify_type} Used"
-    topic = config["Notify"][f"{group}"]
+    # Sanity check, prevent sensitive information disclosure in case this field
+    # somehow gets injected.
+    if group not in config.notify.WHITELIST_GROUPS:
+        logger.critical("Attempt to access a blacklisted field in HalpyConfig.notify.")
+        raise AssertionError("unauthorized group.")
+    if group == "cybers":
+        topic = config.notify.cybers
+    elif group == "staff":
+        topic = config.notify.staff
+    else:
+        # this should be unreachable.
+        raise AssertionError(f"unreachable 'group' variant {group!r} reached.")
     message = " ".join(message)
     message = f"{notify_type} used by {sender}: {message}"
     return subject, topic, message
-
-
-class NotificationLock:
-
-    _timer = 0
-
-    def __init__(self):
-        """
-        Create new context manager for the timed notification lock
-        """
-        # Check if last staff call was < 5 min ago
-        if NotificationLock._timer != 0 and time.time() < NotificationLock._timer + int(
-            config["Notify"]["timer"]
-        ):
-            self.locked = True
-        else:
-            self.locked = False
-            NotificationLock._timer = time.time()

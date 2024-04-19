@@ -12,10 +12,11 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 import pathlib
 import sys
-from datetime import datetime
 import json
+import pendulum
 import pyperclip
 from tqdm import tqdm
 from src import DSSACarrier, scrape_spreadsheet
@@ -25,12 +26,12 @@ SHEET_LINK = (
     "1vTevQUcLThqo4emXE4nowJeasI07gFio4fETwevAXKIA18NhlDzbnZzRMVUOAT26OROfHG7fCXvTLgY/pubhtml?gid=0&single=true"
 )
 
-timestamp = datetime.now().strftime("%m%d%Y-%H%M%S")
+timestamp = pendulum.now(tz="utc").strftime("%m%d%Y-%H%M%S")
 
 # noinspection PyBroadException
 
 
-def run():
+def run_dssa():
     """Run the DSSA Updater"""
     rootpath = pathlib.PurePath(__file__).parent
     rootpath = str(rootpath).replace("\\", "/")
@@ -42,9 +43,7 @@ def run():
         + "=" * 20
         + "\n"
     )
-    print(
-        f"JSON and CSV files will be placed in folder: {filepath}"
-    )
+    print(f"JSON and CSV files will be placed in folder: {filepath}")
 
     carriers_good = []
     carriers_bad = []
@@ -58,11 +57,6 @@ def run():
     except FileNotFoundError:
         print(
             "Error: This isn't a directory I can access, are you running a relative dir?"
-        )
-        sys.exit()
-    except Exception:
-        print(
-            f"Oops, that was an error: {Exception}. Contact Rik if the issue persists"
         )
         sys.exit()
 
@@ -82,7 +76,7 @@ def run():
     # Create an object for all our carriers and get their locations
     try:
         for carrier in tqdm(carrierdata):
-            crobj = DSSACarrier(name=carrier["Name"], location=carrier["Location"])
+            crobj = DSSACarrier(name=carrier["Name"], location=carrier["Destination"])
             if not crobj.has_system:
                 needs_manual.append(crobj.name)
                 carriers_bad.append(
@@ -139,6 +133,6 @@ def run():
 
 if __name__ == "__main__":
     try:
-        run()
+        run_dssa()
     except KeyboardInterrupt:
         sys.exit()

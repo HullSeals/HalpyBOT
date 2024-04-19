@@ -10,8 +10,9 @@ See license.md
 """
 
 from typing import Dict
-from aiohttp import web
-from ..packages.announcer import Announcer, AnnouncementError
+from aiohttp import web, web_request
+from ..packages.exceptions import AnnouncementError, KFCoordsError, CaseAlreadyExists
+from ..packages.ircclient import HalpyBOT
 from .server import APIConnector
 from .auth import authenticate
 
@@ -19,8 +20,8 @@ routes = web.RouteTableDef()
 
 
 @routes.post("/announce")
-@authenticate()
-async def announce(request):
+@authenticate
+async def announce(request: web_request.Request):
     """
     Collect and format a new announcer system message from a POST request.
 
@@ -33,18 +34,23 @@ async def announce(request):
     Raises:
         HTTPOk or HTTPInternalServerError
     """
+    botclient: HalpyBOT = request.app["botclient"]
     if request.body_exists:
         request = await request.json()
     # Parse arguments
     announcement = request["type"]
     args: Dict = request["parameters"]
     try:
-        await MainAnnouncer.announce(announcement=announcement, args=args)
+        await botclient.announcer.announce(
+            announcement=announcement, args=args, client=botclient
+        )
         raise web.HTTPOk
+    except CaseAlreadyExists:
+        raise web.HTTPConflict from AnnouncementError
+    except KFCoordsError:
+        raise web.HTTPBadRequest from AnnouncementError
     except AnnouncementError:
         raise web.HTTPInternalServerError from AnnouncementError
 
-
-MainAnnouncer = Announcer()
 
 APIConnector.add_routes(routes)

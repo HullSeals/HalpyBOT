@@ -37,5 +37,11 @@
     "rr-en": "Reboot/Repair is a way for your ship to cannibalize working modules in an effort to repair damaged modules. (1/4) %n% To initiate Reboot/Repair, please navigate to the right-hand menu, and select 'Ship'. (2/4) %n% Select 'Reboot/Repair', wait for the timer to complete, then select 'Confirm' (3/4) %n% Ship will power down and reboot all modules/systems until complete. (4/4)",
     "go-en": "{{Mentioned seals, }}You're up.",
     "team-en": "Please add your Seal to your Team. Open your Comms Panel (top left option), and select the third tab. Then, select the Seal(s) you want, and select Invite to Team.",
-    "escapeneutron-en": "Guide to Escaping a Neutron Cone: (1/2) %n% Text: https://hullse.al/enText --- Video: https://hullse.al/enVid (2/2)"
+    "escapeneutron-en": "Guide to escaping Stellar Cones: https://hullse.al/neutronguide",
+    "ticket-en": "Please create a ticket here to ensure the appropriate staff members get notified: https://hullseals.space/support/create_ticket.php. A Hull Seals account is required.",
+    "f-en": "https://dev.hullseals.space/images/Unsuccessful_Rescue.png",
+    "pcfrcb-en": "Please REMAIN in the main menu, go into the Social menu, search for the Seals assigned to you in the search box in the top right corner, and click to add them.",
+    "mechanic-en": "You've not been around for a while, have you...",
+    "toby-en": "Gosh darnit Toby! Have a snish.",
+    "kaboom-en": "https://c.tenor.com/SqrZAbYtcq0AAAAM/madagscar-penguins.gif"
 }

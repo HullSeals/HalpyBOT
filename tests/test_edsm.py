@@ -11,43 +11,37 @@ See license.md
 from unittest.mock import patch
 import pytest
 import aiohttp
-from halpybot.packages.configmanager import config
+from halpybot import config
 import halpybot.packages.edsm.edsm
+from halpybot.packages.exceptions import (
+    EDSMReturnError,
+    NoResultsEDSM,
+    EDSMConnectionError,
+    NoNearbyEDSM,
+)
 from halpybot.packages.edsm import (
     GalaxySystem,
     Commander,
     checkdistance,
     checkdssa,
     checklandmarks,
-    NoResultsEDSM,
     calc_distance,
     calc_direction,
     get_nearby_system,
-    EDSMConnectionError,
-    sys_cleaner,
-    NoNearbyEDSM,
-    EDSMReturnError,
 )
+from halpybot.packages.models import Coordinates
+from halpybot.packages.utils import sys_cleaner
 
 # noinspection PyUnresolvedReferences
 from .fixtures.mock_edsm import mock_api_server_fx
 
-SAFE_IP = "http://127.0.0.1:4000"
-CONFIG_IP = config["EDSM"]["uri"]
-GOOD_IP = False
-
-if CONFIG_IP == SAFE_IP:
-    GOOD_IP = True
-
-pytestmark = pytest.mark.skipif(
-    GOOD_IP is not True, reason="Invalid EDSM IP in Config. Please update to continue."
-)
+config.edsm.uri = "http://127.0.0.1:4000"
 
 
 # Test System
 # 1: Existing sys
 @pytest.mark.asyncio
-async def test_sys(mock_api_server_fx):
+async def test_sys():
     """Test that EDSM returns a valid response for a given system"""
     sys = await GalaxySystem.get_info("Sol", cache_override=True)
     assert sys.name == "Sol"
@@ -173,7 +167,9 @@ async def test_distance_bad_dssa():
 
 def test_coords():
     """Test that the distance calculator responds the proper distance"""
-    coords = calc_distance(-1, 2, 3, 400, 500, 600)
+    sysa = Coordinates(x=-1, y=3, z=500)
+    sysb = Coordinates(x=2, y=400, z=600)
+    coords = calc_distance(sysa, sysb)
     assert coords == 409.41
 
 

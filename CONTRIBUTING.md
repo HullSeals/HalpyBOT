@@ -1,7 +1,7 @@
 # Contributing
 
 Before contributing to the project, please read the general Cyberseals code of conduct 
-[here](https://gitlab.com/hull-seals/welcome/-/blob/master/CONTRIBUTING.md#our-standards)
+[here](https://github.com/HullSeals/.github/blob/main/CONTRIBUTING.md#our-standards)
 
 ## Helping with the project
 
@@ -76,7 +76,7 @@ Otherwise, use the type of request:
 
 #### Non-commands
 
-This project uses [Google Style Python Docstrings](https://gist.github.com/redlotus/3bc387c2591e3e908c9b63b97b11d24e)for
+This project uses [Google Style Python Docstrings](https://gist.github.com/redlotus/3bc387c2591e3e908c9b63b97b11d24e) for
 non-commands
 (functions that do not directly interact with a command handler)
 

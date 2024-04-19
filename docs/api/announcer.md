@@ -18,13 +18,16 @@ If a "System" parameter is specified, and EDSM queries for the used announcement
 enabled, HalpyBOT will run an EDSM query on the "System" parameter and send its results to the specified
 channels.
 
+Parameters such as Platform or Hull Percentage can be either a String Literal or Integer, however, 
+using Integers is encouraged.
+
 ### Usage:
 
 ```json
 {
     "type": "Case Type",
     "parameters": {
-      "Platform": "Platform. Either PC, XB, or PS.",
+      "Platform": "Platform Identifying Integer",
       "CMDR": "Client name",
       "Seal": "Seal name",
       "System": "System name. EDSM query will be ran with this parameter if enabled.",
@@ -48,7 +51,7 @@ ONLY include the parameters required for the specific type of announcement:
 {
     "type": "KFCASE",
     "parameters": {
-        "Platform": "PC",
+        "Platform": 1,
         "CMDR": "Rik079",
         "System": "Sol",
         "Planet": "Mercury",

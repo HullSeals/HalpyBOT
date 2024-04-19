@@ -8,52 +8,47 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-from ..database import DatabaseConnection, NoDatabaseConnection
+from sqlalchemy.engine import Engine
+from sqlalchemy import text
+from ..models import Seal, Platform
 
 
-async def whois(subject):
+async def whois(engine: Engine, subject: str) -> Seal:
     """Get a Seal's historical information from the Database.
 
     Args:
+        engine (Engine): The database connection engine
         subject (str): The Seal's name being searched
 
     Returns:
-        (str): The details about the Seal, or an error string if not found.
+        (Seal): The Seal object
 
     """
-    # Set default values
-    u_id, u_cases, u_name, u_regdate, u_distant_worlds, u_distant_worlds_2 = (
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
-    try:
-
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            args = (subject, 0, 0, 0, 0, 0, 0)
-            # Instead of inline code, we call a stored procedure to put some of this work on the database.
-            cursor.callproc("spWhoIs", args)
-            for res in cursor.stored_results():
-                result = res.fetchall()
-            for res in result:
-                u_id, u_cases, u_name, u_regdate, u_distant_worlds = res
-                if u_distant_worlds == 1:
-                    u_distant_worlds_2 = (
-                        ", is a DW2 Veteran and Founder Seal with registered CMDRs of"
-                    )
-                else:
-                    u_distant_worlds_2 = ", with registered CMDRs of"
-
-    except NoDatabaseConnection:
-        return "Error searching user."
-
+    with engine.connect() as conn:
+        result = conn.execute(
+            text(
+                "CALL spWhoIs(:subject, @sealID, @casecnt, @sealnms, @ircnms, @joined, @dw2, @message)"
+            ),
+            {"subject": subject},
+        )
+        results = result.fetchall()
+    if not results:
+        raise KeyError("No Results Given")
+    u_id, u_cases, u_cmdrs, u_aliases, u_regdate, u_dw2 = results[0]
     if u_id is None:
-        return "No registered user found by that name!"
-    return (
-        f"CMDR {subject} has a Seal ID of {u_id}, registered on {u_regdate}{u_distant_worlds_2} {u_name}"
-        f", and has been involved with {u_cases} rescues."
+        raise ValueError
+    temp_names = u_cmdrs.split(";")
+    u_cmdrs = []
+    for name in temp_names:
+        new_name = name.split(",")
+        formatted_cmdr = (new_name[0].strip(), Platform(int(new_name[1].strip())))
+        u_cmdrs.append(formatted_cmdr)
+    return Seal(
+        name=subject,
+        seal_id=u_id,
+        reg_date=u_regdate,
+        dw2=u_dw2,
+        cmdrs=u_cmdrs,
+        irc_aliases=u_aliases,
+        case_num=u_cases,
     )

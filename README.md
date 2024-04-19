@@ -10,19 +10,19 @@ This bot is in ACTIVE DEVELOPMENT.
 
 ## Requirements
 * Python 3.8-3.9
-* Setuptools Python Library
-* pip Package Manager
+* Poetry Package Manager
 * Linux systems may require libmariadbclient-dev or libmysqlclient-dev
 
 ## Usage
-- To install, download the latest [release](https://gitlab.com/hull-seals/code/irc/halpybot/-/tags/) from our repository.
+- To install, download the latest [release](https://github.com/HullSeals/HalpyBOT/releases) from our repository.
 - Upload and extract the files to the directory or subdirectory you wish to install from.
-- Create your own config.ini to fit your server, following the example config file provided.
-- Install mandatory requirements with pip (`pip install -r requirements.txt`).
-- Run the bot (`start.py`) from the command line using Python.
+- Acquire the Diversions and DSSA datafiles from [Our Website](https://hullse.al/hbotassets), or build them yourself with our included CLI tools.
+- Create your own .env file to fit your server, following the example config file provided.
+- Install mandatory requirements with Poetry (`poetry install`).
+- Run the bot (`python halpybot`) from the command line using Python.
 
 ## Troubleshooting
-- Upon installation, be sure to replace the information in config.ini to match your own details.
+- Upon installation, be sure to replace the information in .env to match your own details.
 - Additionally, be sure to create a user account and SASL credentials for your IRC user.
 - One of the most common sources of issues is your TLS settings in the bot - check these!
 - If you are having issues, look through the closed bug reports.
@@ -44,17 +44,17 @@ work on the long awaited Dispatch Board project can finally begin.
 As always, bugfixes, speed, and stability updates are priorities as discovered, as well as general enhancements over time.
 
 # Contributing
-Interested in joining the Hull Seals Cyberseals? Read up on [the Welcome Board](https://gitlab.com/hull-seals/welcome).
+Interested in joining the Hull Seals Cyberseals? Read up on [the Welcome Board](https://github.com/HullSeals/.github).
 
 # Authors and Acknowledgements
 Project developers:
 
-* [Rik Overveld](https://gitlab.com/rik079)
-* [David Sangrey](https://gitlab.com/Rixxan)
-* [Feliksas](https://gitlab.com/feliksas)
-* [Ned Stevenson](https://gitlab.com/stuntphish)
+* [Rik Overveld](https://github.com/rik079)
+* [David Sangrey](https://github.com/Rixxan)
+* [Feliksas](https://github.com/feliksas)
+* [Ned Stevenson](https://github.com/stuntphish)
 
-Many thanks to all of our [Contributors](https://gitlab.com/hull-seals/welcome/blob/master/CONTRIBUTORS.md).
+Many thanks to all of our [Contributors](https://github.com/HullSeals/.github/blob/main/CONTRIBUTORS.md).
 
 # License
 This project is governed under the [GNU General Public License v3.0](LICENSE) license.

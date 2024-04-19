@@ -25,6 +25,8 @@ from halpybot.packages.ircclient import HalpyBOT
 class TestBot(HalpyBOT):
     """A Fully-Lobotimized Version of HalpyBOT"""
 
+    __test__ = False
+
     # First, Grab the stuff from the HalpyBOT class.
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -157,3 +159,8 @@ class TestBot(HalpyBOT):
         raise RuntimeWarning(
             "Connection to a server disallowed in instances of the mock bot."
         )
+
+    @property
+    def engine(self):
+        """Database Connection Engine"""
+        return self._engine

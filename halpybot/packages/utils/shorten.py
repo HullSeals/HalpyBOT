@@ -7,31 +7,15 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
+
 import aiohttp
 from loguru import logger
-from ..configmanager import config
+from halpybot import config
 from .utils import web_get
+from ..exceptions import YOURLSNoResponse, YOURLSBadResponse
 
 
-class YOURLSError(Exception):
-    """
-    Base class for YOURLS link errors
-    """
-
-
-class YOURLSNoResponse(YOURLSError):
-    """
-    An exception occurred while sending data to or receiving from a YOURLS API
-    """
-
-
-class YOURLSBadResponse(YOURLSError):
-    """
-    YOURLS returned an unprocessable response.
-    """
-
-
-async def shorten(url):
+async def shorten(url: str) -> str:
     """
     Shorten a given URL via a YOURLS passwordless API call
 
@@ -48,9 +32,9 @@ async def shorten(url):
         url = "https://" + url
 
     try:
-        tgt_uri = f"{config['YOURLS']['uri']}/yourls-api.php"
+        tgt_uri = f"{config.yourls.uri}/yourls-api.php"
         params = {
-            "signature": config["YOURLS"]["pwd"],
+            "signature": config.yourls.pwd.get_secret_value(),
             "action": "shorturl",
             "format": "json",
             "url": url,

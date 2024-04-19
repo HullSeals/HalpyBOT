@@ -7,28 +7,18 @@ All rights reserved.
 Licensed under the GNU General Public License
 See license.md
 """
-from typing import List
-from loguru import logger
-from ..packages.command import Commands, get_help_text
-from ..packages.checks import Require, Drilled
-from ..packages.models import Context
-from ..packages.edsm import (
-    checklandmarks,
-    EDSMLookupError,
-    checkdssa,
-    sys_cleaner,
-    NoResultsEDSM,
-    get_nearby_system,
-    NoNearbyEDSM,
-)
-from ..packages.announcer.announcer import cardinal_flip
 
-CACHE_OVERRIDE = False
+from typing import List
+from ..packages.command import Commands, get_help_text
+from ..packages.checks import Drilled, needs_permission, in_channel
+from ..packages.models import Context
+from ..packages.announcer.announcer import get_edsm_data
+from ..packages.utils import sys_cleaner
 
 
 @Commands.command("drillcase")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel
 async def cmd_drillcase(ctx: Context, args: List[str]):
     """
     Manually create a new drill case, separated by Commas
@@ -42,7 +32,7 @@ async def cmd_drillcase(ctx: Context, args: List[str]):
     args = [x.strip(" ") for x in args]
     args = [ele for ele in args if ele.strip()]
     if len(args) < 4:
-        return await ctx.reply(get_help_text("drillcase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "drillcase"))
     system = await sys_cleaner(args[2])
     await ctx.reply(
         f"xxxx DRILL -- DRILL -- DRILL xxxx\n"
@@ -54,8 +44,8 @@ async def cmd_drillcase(ctx: Context, args: List[str]):
 
 
 @Commands.command("drillkfcase")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel
 async def cmd_drillkfcase(ctx: Context, args: List[str]):
     """
     Manually create a new drill case, separated by Commas
@@ -69,7 +59,7 @@ async def cmd_drillkfcase(ctx: Context, args: List[str]):
     args = [x.strip(" ") for x in args]
     args = [ele for ele in args if ele.strip()]
     if len(args) < 6:
-        return await ctx.reply(get_help_text("drillkfcase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "drillkfcase"))
     system = await sys_cleaner(args[2])
     await ctx.reply(
         f"xxxx DRILL -- DRILL -- DRILL xxxx\n"
@@ -83,8 +73,8 @@ async def cmd_drillkfcase(ctx: Context, args: List[str]):
 
 
 @Commands.command("drillcbcase")
-@Require.permission(Drilled)
-@Require.channel()
+@needs_permission(Drilled)
+@in_channel
 async def cmd_drillcbcase(ctx: Context, args: List[str]):
     """
     Manually create a new CB drill case, separated by Commas
@@ -98,7 +88,7 @@ async def cmd_drillcbcase(ctx: Context, args: List[str]):
     args = [x.strip(" ") for x in args]
     args = [ele for ele in args if ele.strip()]
     if len(args) < 6:
-        return await ctx.reply(get_help_text("drillcbcase"))
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, "drillcbcase"))
     system = await sys_cleaner(args[2])
     await ctx.reply(
         f"xxxx DRILL -- DRILL -- DRILL xxxx\n"
@@ -120,41 +110,5 @@ async def lookup(system):
         (str) string with information about the existence of a system, plus
             distance and cardinal direction from the nearest landmark
     """
-    sys_name = system
-    try:
-        exact_sys = sys_name == system
-        landmark, distance, direction = await checklandmarks(sys_name)
-        # What we have is good, however, to make things look nice we need to flip the direction Drebin Style
-        direction = cardinal_flip[direction]
-        if exact_sys:
-            return f"System exists in EDSM, {distance} LY {direction} of {landmark}."
-        return (
-            f"{system} could not be found in EDSM. System closest in name found in EDSM was"
-            f" {sys_name}\n{sys_name} is {distance} LY {direction} of {landmark}. "
-        )
-    except NoNearbyEDSM:
-        dssa, distance, direction = await checkdssa(system)
-        return (
-            f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
-            f"{system}."
-        )
-    except NoResultsEDSM:
-        found_sys, close_sys = await get_nearby_system(sys_name)
-        if found_sys:
-            try:
-                landmark, distance, direction = await checklandmarks(close_sys)
-                return (
-                    f"{system} could not be found in EDSM. System closest in name found in EDSM was"
-                    f" {close_sys}\n{close_sys} is {distance} LY {direction} of {landmark}. "
-                )
-            except NoNearbyEDSM:
-                dssa, distance, direction = await checkdssa(close_sys)
-                return (
-                    f"{sys_name} could not be found in EDSM. System closest in name found in "
-                    f"EDSM was {close_sys}.\nThe closest DSSA Carrier is in "
-                    f"{dssa}, {distance} LY {direction} of {close_sys}. "
-                )
-        return "System Not Found in EDSM.\nPlease check system name with client "
-    except EDSMLookupError:
-        logger.exception("Something went wrong with EDSM.")
-        return "Unable to query EDSM"
+    args = {"System": system}
+    return await get_edsm_data(args)

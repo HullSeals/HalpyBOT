@@ -19,8 +19,8 @@
       "aliases": [
         "dist"
       ],
-      "arguments": "[point 1] : [point 2]",
-      "use": "Check the distance between two points in EDSM"
+      "arguments": "[System/CMDR/caseID 1] : [System/CMDR/caseID 2] : <Jump Range>",
+      "use": "Check the distance between two points in EDSM and optionally calculate a rough jump count"
     },
     "landmark": {
       "aliases": [],
@@ -66,6 +66,143 @@
       ],
       "arguments": "[case info]",
       "use": "Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
+    },
+    "last": {
+      "aliases:": [],
+      "arguments": "",
+      "use": "Check the time since the last case."
+    },
+    "listboard": {
+      "aliases:": [],
+      "arguments": "[Case Type or Platform]",
+      "use": "Print out the current cases on the Board."
+    },
+    "listcase": {
+      "aliases:": [],
+      "arguments": "[Board ID]",
+      "use": "List specific details of a current case."
+    },
+    "rename": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Client Name]",
+      "use": "Rename the client for the given case."
+    },
+    "ircn": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Valid IRC User]",
+      "use": "Set the updated client's IRC Name."
+    },
+    "system": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New System]",
+      "use": "Set the updated client's System."
+    },
+    "status": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Status]",
+      "use": "Set the updated case status.\nValid options include 'ACTIVE', 'DELAYED', and 'INACTIVE'."
+    },
+    "hull": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Hull %]",
+      "use": "Set the updated case hull percentage."
+    },
+    "casetype": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Case Type]",
+      "use": "Set the updated case type.\nValid options include 'Seal', 'Black', 'Blue', and 'Fish'."
+    },
+    "platform": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Case Platform]",
+      "use": "Set the updated case platform.\nValid options include 'Odyssey', 'Live', 'Legacy', 'Xbox' and 'PlayStation'."
+    },
+    "notes": {
+      "aliases:": [
+        "addnote",
+        "updatenotes"
+      ],
+      "arguments": "[Board ID] [New Case Note]",
+      "use": "Adds a new line to the case notes."
+    },
+    "listnotes": {
+      "aliases:": [],
+      "arguments": "[Board ID]",
+      "use": "List the case notes for the given case."
+    },
+    "delnote": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Note Index]",
+      "use": "List the case notes for the given case."
+    },
+    "editnote": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Note Index] [New Note Content]",
+      "use": "Edit the case notes for the given case and note index."
+    },
+    "planet": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Planet]",
+      "use": "Edit the planet for a given KF Case."
+    },
+    "casecoords": {
+      "aliases:": [],
+      "arguments": "[Board ID] [X Coordinate] [Y Coordinate]",
+      "use": "Edit the planetary coordinates for a given KF Case."
+    },
+    "o2time": {
+      "aliases:": [],
+      "arguments": "[Board ID] [O2 Time in NN:NN]",
+      "use": "Change the remaining oxygen timer for a case."
+    },
+    "synth": {
+      "aliases:": [],
+      "arguments": "[Board ID] [Yes/True/No/False]",
+      "use": "Toggle if a CMDR has synths available for a given case."
+    },
+    "go": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Responders]",
+      "use": "Add an identified Seal as a responder to a case on the board."
+    },
+    "welcome": {
+      "aliases:": [],
+      "arguments": "[Client Name or Board ID]",
+      "use": "Welcome a client and add an identified Seal as a Dispatch responder."
+    },
+    "addresp": {
+      "aliases:": [
+        "newseal"
+      ],
+      "arguments": "[Board ID] [New Responders]",
+      "use": "Add a new responder to a given case on the board."
+    },
+    "adddisp": {
+      "aliases:": [
+        "newspatch"
+      ],
+      "arguments": "[Board ID] [New Dispatchers]",
+      "use": "Add a new dispatcher to a given case on the board."
+    },
+    "remresp": {
+      "aliases:": [
+        "standdown",
+        "stddn"
+      ],
+      "arguments": "[Board ID] [New Responders]",
+      "use": "Add a new responder to a given case on the board."
+    },
+    "remdisp": {
+      "aliases:": [],
+      "arguments": "[Board ID] [New Dispatchers]",
+      "use": "Add a new dispatcher to a given case on the board."
+    },
+    "delcase": {
+      "aliases:": [
+        "remcase"
+      ],
+      "arguments": "[Board ID] [New Note (Optional)]",
+      "use": "Administratively removes a case from the board."
     }
   },
   "Facts": {
@@ -168,6 +305,8 @@
       "aliases": [
         "summontech",
         "calltech",
+        "shitsfucked",
+        "shitsonfireyo",
         "cybersig"
       ],
       "arguments": "[info]",
@@ -187,52 +326,11 @@
       "aliases": [],
       "arguments": "[url]",
       "use": "Shorten a provided URL"
-    }
-  },
-  "Delay": {
-    "delaystatus": {
-      "aliases": [
-        "checkstatus"
-      ],
-      "arguments": "",
-      "use": "Checks the system for Delayed Cases"
     },
-    "delaycase": {
+    "spansh": {
       "aliases": [],
-      "arguments": "[case status] [notes]",
-      "use": "Adds a new case to the Delayed system, and responds with a unique Case ID."
-    },
-    "updatestatus": {
-      "aliases": [],
-      "arguments": "[case ID] [case status]",
-      "use": "Updates the Status Code of a case - see the table of different status codes below!"
-    },
-    "updatenotes": {
-      "aliases": [],
-      "arguments": "[case ID] [new notes]",
-      "use": "Updates the Notes attached to a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
-    },
-    "updatecase": {
-      "aliases": [],
-      "arguments": "[case ID] (case status) (case notes)",
-      "use": "Updates both the Status Code and Notes of a case - this replaces the old notes entirely, so be sure to be complete in your new notes!"
-    },
-    "close": {
-      "aliases": [
-        "endcase"
-      ],
-      "arguments": "[case ID]",
-      "use": "Closes a case and removes it from the Delayed Case system. It's encouraged to update the notes before you close a case!"
-    },
-    "reopen": {
-      "aliases": [],
-      "arguments": "[case ID] [case status]",
-      "use": "Reopens a previously-closed case, if a case is improperly closed. Moderator only"
-    },
-    "checkstatus": {
-      "aliases": [],
-      "arguments": "",
-      "use": "Check if any cases are currently marked as 'Delayed' in the database."
+      "arguments": "[System/CMDR/caseID 1] : [System/CMDR/caseID 2] : [Jump Range]",
+      "use": "Returns jump counts from pointA to pointB"
     }
   },
   "Drill": {
@@ -311,6 +409,13 @@
       ],
       "arguments": "",
       "use": "Shut down the bot. Will restart the bot if configured under daemon processing."
+    }
+  },
+  "Fun": {
+    "roll": {
+      "aliases": [],
+      "arguments": "#d#",
+      "use": "Roll the dice! (Up to 10 dice of any size)"
     }
   }
 }

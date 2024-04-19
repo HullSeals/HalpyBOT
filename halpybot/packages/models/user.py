@@ -19,27 +19,17 @@ Licensed under the GNU General Public License
 See license.md
 """
 
-
 from __future__ import annotations
-from typing import Optional, Set
-from attr import dataclass
-import pydle
+from typing import Optional, Set, TYPE_CHECKING, List
+from attrs import define
 import cattr
+from ..exceptions import NoUserFound
+
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 
 
-class UserError(Exception):
-    """
-    Base class for User Class errors
-    """
-
-
-class NoUserFound(UserError):
-    """
-    An exception occurred while sending a Discord Webhook
-    """
-
-
-@dataclass(frozen=True)
+@define(frozen=True)
 class User:
     """IRC User info
 
@@ -65,11 +55,11 @@ class User:
     real_ip_address: Optional[str] = None
 
     @classmethod
-    async def get_info(cls, bot: pydle.Client, nickname: str) -> Optional[User]:
+    async def get_info(cls, bot: HalpyBOT, nickname: str) -> Optional[User]:
         """Get WHOIS info about a user
 
         Args:
-            bot (pydle.Client): IRC Client
+            bot (Halpybot): IRC Client
             nickname: User's nickname
 
         Returns:
@@ -77,8 +67,6 @@ class User:
 
         """
         # fetch the user object from pydle
-        if nickname.endswith(",") or nickname.endswith(":"):
-            nickname = nickname[:-1]
         data = await bot.whois(nickname)
         if data is None:
             raise NoUserFound
@@ -116,11 +104,11 @@ class User:
         return f"{host}.hullseals.space"
 
     @classmethod
-    async def get_channels(cls, bot: pydle.Client, nick: str) -> Optional[list]:
+    async def get_channels(cls, bot: HalpyBOT, nick: str) -> List[str]:
         """Get a list of channels a user is on
 
         Args:
-            bot (pydle.Client): IRC Client
+            bot (HalpyBOT): IRC Client
             nick (str): User's nickname
 
         Returns:

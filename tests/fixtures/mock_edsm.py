@@ -18,7 +18,7 @@ def mock_api_server_fx():
     """
     Returns a mock HTTP server with pre-built data resembling the EDSM API.
     """
-    with HTTPServer("127.0.0.1", "4000") as mock:
+    with HTTPServer("127.0.0.1", 4000) as mock:
         mock.expect_request(
             "/api-v1/system",
             query_string="systemName=SOL&showCoordinates=1&showInformation=1",

@@ -9,19 +9,20 @@ See license.md
 
 """
 
-from aiohttp import web
+from aiohttp import web, web_request
 from loguru import logger
+from sqlalchemy import text
 from .server import APIConnector
 from .auth import authenticate
-from ..packages.database import DatabaseConnection, NoDatabaseConnection
-from ..packages.ircclient import client as botclient
+from ..packages.database import NoDatabaseConnection
+from ..packages.ircclient import HalpyBOT
 
 routes = web.RouteTableDef()
 
 
 @routes.post("/tail")
-@authenticate()
-async def tail(request):
+@authenticate
+async def tail(request: web_request.Request):
     """
     Promote or Demote a Seal on the status of their training
 
@@ -34,6 +35,7 @@ async def tail(request):
     Raises:
         HTTPOK or HTTPServiceUnavailable
     """
+    botclient: HalpyBOT = request.app["botclient"]
     if request.body_exists:
         request = await request.json()
     # Parse arguments
@@ -41,13 +43,15 @@ async def tail(request):
     subject = request["subject"]
     try:
         vhost = f"{subject}.{rank}.hullseals.space"
-        with DatabaseConnection() as database_connection:
-            cursor = database_connection.cursor()
-            cursor.execute(
-                "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = %s;", (subject,)
+        with botclient.engine.connect() as database_connection:
+            result = database_connection.execute(
+                text(
+                    "SELECT nick FROM ircDB.anope_db_NickAlias WHERE nc = :subject_name;"
+                ),
+                subject_name=subject,
             )
-            result = cursor.fetchall()
             for i in result:
+                logger.info(i)
                 await botclient.rawmsg("hs", "SETALL", i[0], vhost)
             raise web.HTTPOk
     except NoDatabaseConnection:

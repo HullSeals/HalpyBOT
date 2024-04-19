@@ -9,34 +9,14 @@ See license.md
 """
 
 from __future__ import annotations
-from typing import List
-import json
-import pydle
+from typing import List, TYPE_CHECKING, Dict, Optional, Tuple, Callable
 from loguru import logger
-from ..configmanager import config
-from ..models import Context
+from halpybot import config
+from ..exceptions import CommandHandlerError, CommandAlreadyExists
+from ..models import Context, HelpArguments
 
-
-with open("data/help/commands.json", "r", encoding="UTF-8") as jsonfile:
-    json_dict = json.load(jsonfile)
-
-
-class CommandException(Exception):
-    """
-    Base exception for all commands
-    """
-
-
-class CommandHandlerError(CommandException):
-    """
-    Base exception for command errors
-    """
-
-
-class CommandAlreadyExists(CommandHandlerError):
-    """
-    Raised when a command is registered twice
-    """
+if TYPE_CHECKING:
+    from ..ircclient import HalpyBOT
 
 
 class CommandGroup:
@@ -46,8 +26,8 @@ class CommandGroup:
 
     """
 
-    _grouplist = []
-    _root: CommandGroup = None
+    _grouplist: List[CommandGroup] = []
+    _root: Optional[CommandGroup] = None
 
     def __init__(self, is_root: bool = False):
         """Create new command group
@@ -61,10 +41,10 @@ class CommandGroup:
         """
         self._is_root = is_root
         self._group_name = ""
-        self._command_list = {}
+        self._command_list: Dict[str, Tuple[Callable, bool]] = {}
         self._fact_handler = None
         # Don't allow registration of multiple root groups
-        if CommandGroup._root is not None and is_root:
+        if CommandGroup._root and is_root:
             raise CommandHandlerError("Can only have one root group")
         if is_root:
             CommandGroup._root = self
@@ -107,7 +87,7 @@ class CommandGroup:
         return self._group_name
 
     async def invoke_from_message(
-        self, bot: pydle.Client, channel: str, sender: str, message: str
+        self, bot: HalpyBOT, channel: str, sender: str, message: str
     ):
         """Invoke a command or fact from a message
 
@@ -115,52 +95,45 @@ class CommandGroup:
         with arguments [1, "test"]
 
         Args:
-            bot (`pydle.Client`): botclient/pseudoclient the command was called from
+            bot (HalpyBOT): botclient/pseudoclient the command was called from
             channel (str): channel the message was sent in
             sender (str): user who invoked the command
             message (str): content of the message
 
         """
-        if message.startswith(config["IRC"]["commandPrefix"]):
-            # Start off with assigning all variables we need
-            parts = message[1:].split(" ")
-            command = parts[0].casefold()
-            args = parts[1:]
-            args = [x for x in args if x]
-            in_channel = bot.is_channel(channel)
-            ctx = Context(bot, channel, sender, in_channel, " ".join(args[0:]), command)
-            # Determines the language of an eventual fact
-            lang = command.split("-")[1] if "-" in command else "en"
+        if not message.startswith(config.irc.command_prefix):
+            return
 
-            # See if it's a command, and execute
-            if command in Commands._command_list:
-                try:
-                    return await self.invoke_command(
-                        command=command, command_context=ctx, arguments=args
-                    )
-                except CommandException:
-                    logger.exception("Failed to invoke the command!")
-                    await ctx.reply("Unable to execute command.")
+        # Start off with assigning all variables we need
+        parts = message[1:].split(" ")
+        command = parts[0].casefold()
+        args = [arg for arg in parts[1:] if arg]
+        in_channel = bot.is_channel(channel)
+        ctx = Context(bot, channel, sender, in_channel, " ".join(args[0:]), command)
+        # Determines the language of an eventual fact
+        lang = command.split("-")[1] if "-" in command else "en"
 
-            # Possible fact
+        # See if it's a command, and execute
+        if command in bot.commandhandler.command_list:
+            return await self.invoke_command(
+                command=command, command_context=ctx, arguments=args
+            )
 
-            # Ignore if we have no fact handler attached
-            if not self._fact_handler:
-                return
+        # Possible fact
+        # Ignore if we have no fact handler attached
+        if not self._fact_handler:
+            return
 
-            # Are we requesting a specific language?
-            if command.split("-")[0] in await self._fact_handler.get_fact_names():
-                factname = command.split("-")[0]
-
-                # Do we have a fact for this language?
-                if lang not in list(await self._fact_handler.lang_by_fact(factname)):
-                    lang = "en"
-
-                return await ctx.reply(
-                    await self._fact_handler.fact_formatted(
-                        fact=(command.split("-")[0], lang), arguments=args
-                    )
+        fact_name = command.split("-")[0]
+        if fact_name in await self._fact_handler.get_fact_names():
+            # Check for Language
+            if lang not in await self._fact_handler.lang_by_fact(fact_name):
+                lang = "en"
+            return await ctx.reply(
+                await self._fact_handler.fact_formatted(
+                    fact=(fact_name, lang), arguments=args
                 )
+            )
 
     def add_group(self, *names):
         """Attach group to root
@@ -202,7 +175,7 @@ class CommandGroup:
         """
 
         def decorator(function):
-            # Register every provided name
+            """Register every provided name"""
             for name in names:
                 self._register(name, function, bool(name == names[0]))
             # Set command attribute, so we can check if a function is an IRC-facing command or not
@@ -252,18 +225,17 @@ class CommandGroup:
                 in the command execution itself.
 
         """
-        command = command.casefold()
-        # Sanity check
-        if command not in self.command_list:
-            raise CommandHandlerError("(sub)command not found.")
-        cmd = self.command_list[command][0]
+        cmd = self.command_list.get(command.casefold())
+        if cmd is None:
+            raise CommandHandlerError(f"Command not found: {command}")
+        cmd = cmd[0]
         if isinstance(cmd, CommandGroup):  # Command group
-            subgroup = CommandGroup.get_group(name=cmd._group_name)
+            subgroup = CommandGroup.get_group(name=cmd.name)
             # If no subcommand is provided, send a provisional help response
-            if len(arguments) < 1:
+            if not arguments:
                 return await command_context.reply(
-                    f"Subcommands of {config['IRC']['commandPrefix']}"
-                    f"{cmd._group_name}: "
+                    f"Subcommands of {config.irc.command_prefix}"
+                    f"{cmd.name}: "
                     f"{', '.join(sub for sub in subgroup.get_commands(True))}"
                 )
             # Recursion, yay!
@@ -275,8 +247,23 @@ class CommandGroup:
         else:
             try:
                 await cmd(command_context, arguments)
-            except Exception as command_exception:
-                raise CommandException from command_exception
+            except Exception as cmd_ex:
+                error_type: dict = {
+                    AttributeError: "Walrus",
+                    IndexError: "Leopard",
+                    KeyError: "Bearded",
+                    NameError: "Harbor",
+                    SyntaxError: "Caspian",
+                    TypeError: "Spotted",
+                    ValueError: "Ringed",
+                }
+                set_error = (
+                    error_type[type(cmd_ex)] if type(cmd_ex) in error_type else "Harp"
+                )
+                logger.exception(f"Failed to invoke command. Code: {set_error}")
+                return await command_context.reply(
+                    f"Unable to execute command. Error code: {set_error}"
+                )
 
     def get_commands(self, mains: bool = False):
         """Get a list of registered commands in a group
@@ -290,29 +277,35 @@ class CommandGroup:
         """
         if not mains:
             return list(self._command_list.keys())
-        return [str(cmd) for cmd in self._command_list if self._command_list[cmd][1]]
+        return [str(cmd) for cmd, func in self._command_list.items() if func[1]]
 
 
-def get_help_text(search_command: str):
+def get_help_text(
+    commandsfile: Dict[str, Dict[str, HelpArguments]], search_command: str
+):
     """
     Retrieve the help text for usage and arguments of a command.
 
     Args:
+        commandsfile (json object): The commandsfile from Context
         search_command (str): The command being looked up in the dictionary
 
     Returns:
         (str or None): Help instructions for a given command, None if unsuccessful.
     """
     search_command = search_command.casefold()
-    for command_dict in json_dict.values():
+    for command_dict in commandsfile.values():
         for command, details in command_dict.items():
             command = command.casefold()
-            if command == search_command or search_command in details["aliases"]:
+            if command == search_command or (
+                "aliases" in details and search_command in details["aliases"]
+            ):
                 arguments = details["arguments"]
-                aliases = details["aliases"]
+                aliases = details.get("aliases")
+                aliases = f"\nAliases: {', '.join(aliases)}" if aliases else ""
                 usage = details["use"]
                 return (
-                    f"Use: {config['IRC']['commandprefix']}{command} {arguments}\nAliases: {', '.join(aliases)}\n"
+                    f"Use: {config.irc.command_prefix}{command} {arguments} {aliases}\n"
                     f"{usage}"
                 )
     return None
