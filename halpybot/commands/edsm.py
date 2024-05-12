@@ -33,7 +33,9 @@ from ..packages.models import Context, Case, Points, Point
 from ..packages.case import get_case
 
 
-async def differentiate(ctx: Context, args: List[str]) -> Points:
+async def differentiate(
+    ctx: Context, args: List[str], single_arg: bool = False
+) -> Points:
     """
     Differentiate if a given set of two systems are CMDRs, Cases, or Systems.
 
@@ -50,15 +52,23 @@ async def differentiate(ctx: Context, args: List[str]) -> Points:
     # Parse System/CMDR/caseID from string
     list_to_str = " ".join([str(elem) for elem in args])
     list_points: List[str] = list_to_str.split(":")
+    if len(list_points) and single_arg:
+        list_points = [list_points[0], ""]
     if len(list_points) < 2:
+        if single_arg:
+            await ctx.reply("Please provide a point to look up.")
+            raise DifferentiateArgsIssue
         await ctx.reply("Please provide two points to look up, separated by a :")
         raise DifferentiateArgsIssue
     point_a: Point = Point(list_points[0].strip())
     point_b: Point = Point(list_points[1].strip())
     points: Points = Points(point_a, point_b)
 
-    if not point_a.name or not point_b.name:
+    if not single_arg and (not point_a.name or not point_b.name):
         await ctx.reply("Please provide two points to look up, separated by a :")
+        raise DifferentiateArgsIssue
+    if not point_a.name:  # If no point_a at this time then single_arg must be True
+        await ctx.reply("Please provide a point to look up.")
         raise DifferentiateArgsIssue
 
     # Define Jump Count
@@ -79,6 +89,10 @@ async def differentiate(ctx: Context, args: List[str]) -> Points:
             raise DifferentiateArgsIssue
 
     for point in [point_a, point_b]:
+        # Skip second point for single_arg commands
+        if single_arg and not point.name:
+            point.name, point.pretty = "", ""
+            continue
         # Check if Point is CaseID
         try:
             case: Case = await get_case(ctx, point.name)
@@ -110,9 +124,19 @@ async def cmd_systemlookup(ctx: Context, cleaned_sys, cache_override):
     Usage: !lookup <--new> [system name]
     Aliases: syslookup
     """
-    if await GalaxySystem.exists(name=cleaned_sys, cache_override=cache_override):
-        return await ctx.reply(f"System {cleaned_sys} exists in EDSM")
-    return await ctx.reply(f"System {cleaned_sys} not found in EDSM")
+    try:
+        # Process provided arguments
+        points: Points = await differentiate(
+            ctx=ctx, args=cleaned_sys.split(), single_arg=True
+        )
+    except DifferentiateArgsIssue:
+        # Arguments were malformed, user has already been informed, abort
+        return await ctx.reply("Error encountered in Lookup command, not continuing")
+    if await GalaxySystem.exists(
+        name=points.point_a.name, cache_override=cache_override
+    ):
+        return await ctx.reply(f"System {points.point_a.name} exists in EDSM")
+    return await ctx.reply(f"System {points.point_a.name} not found in EDSM")
 
 
 @Commands.command("locatecmdr", "cmdrlookup", "locate")
@@ -174,20 +198,28 @@ async def cmd_landmarklookup(ctx: Context, cleaned_sys, cache_override):
     Aliases: n/a
     """
     try:
+        # Process provided arguments
+        points: Points = await differentiate(
+            ctx=ctx, args=cleaned_sys.split(), single_arg=True
+        )
+    except DifferentiateArgsIssue:
+        # Arguments were malformed, user has already been informed, abort
+        return await ctx.reply("Error encountered in Landmark command, not continuing")
+    try:
         landmark, distance, direction = await checklandmarks(
-            edsm_sys_name=cleaned_sys, cache_override=cache_override
+            edsm_sys_name=points.point_a.name, cache_override=cache_override
         )
         return await ctx.reply(
-            f"The closest landmark system is {landmark}, {distance} LY {direction} of {cleaned_sys}."
+            f"The closest landmark system is {landmark}, {distance} LY {direction} of {points.point_a.pretty}."
         )
     except NoNearbyEDSM:
         dssa, distance, direction = await checkdssa(
-            edsm_sys_name=cleaned_sys, cache_override=cache_override
+            edsm_sys_name=points.point_a.name, cache_override=cache_override
         )
         return await ctx.reply(
-            f"No major landmark systems within 10,000 LY of {cleaned_sys}.\n"
+            f"No major landmark systems within 10,000 LY of {points.point_a.pretty}.\n"
             f"The closest DSSA Carrier is in {dssa}, {distance} LY "
-            f"{direction} of {cleaned_sys}."
+            f"{direction} of {points.point_a.pretty}."
         )
 
 
@@ -201,12 +233,20 @@ async def cmd_dssalookup(ctx: Context, cleaned_sys, cache_override):
     Aliases: n/a
     File Last Updated: 2021-03-22 w/ 93 Carrier
     """
+    try:
+        # Process provided arguments
+        points: Points = await differentiate(
+            ctx=ctx, args=cleaned_sys.split(), single_arg=True
+        )
+    except DifferentiateArgsIssue:
+        # Arguments were malformed, user has already been informed, abort
+        return await ctx.reply("Error encountered in DSSA command, not continuing")
     dssa, distance, direction = await checkdssa(
-        edsm_sys_name=cleaned_sys, cache_override=cache_override
+        edsm_sys_name=points.point_a.name, cache_override=cache_override
     )
     return await ctx.reply(
         f"The closest DSSA Carrier is in {dssa}, {distance} LY {direction} of "
-        f"{cleaned_sys}."
+        f"{points.point_a.pretty}."
     )
 
 
@@ -239,11 +279,19 @@ async def cmd_diversionlookup(ctx: Context, cleaned_sys, cache_override):
     Aliases: n/a
     File Last Updated: 2022-05-23 w/ 7,384 Qualified Stations
     """
+    try:
+        # Process provided arguments
+        points: Points = await differentiate(
+            ctx=ctx, args=cleaned_sys.split(), single_arg=True
+        )
+    except DifferentiateArgsIssue:
+        # Arguments were malformed, user has already been informed, abort
+        return await ctx.reply("Error encountered in Diversion command, not continuing")
     first, second, third, fourth, fifth = await diversions(
-        edsm_sys_name=cleaned_sys, cache_override=cache_override
+        edsm_sys_name=points.point_a.name, cache_override=cache_override
     )
     return await ctx.reply(
-        f"Closest Diversion Stations to {cleaned_sys}:\n"
+        f"Closest Diversion Stations to {points.point_a.pretty}:\n"
         f"1st: {first.name}, {float(first.item):,} LY {first.local_direction} in {first.system_name} "
         f"({first.dist_star} LS from entry)\n"
         f"2nd: {second.name}, {float(second.item):,} LY {second.local_direction} in {second.system_name} "
