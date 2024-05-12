@@ -753,6 +753,36 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
 
 
 # ADMINSTRATIVE MANAGEMENT
+@Commands.command("combcases")
+@needs_permission(Admin)
+@in_channel
+@gather_case(2)
+async def cmd_combine_cases(ctx: Context, args: List[str], case: Case):
+    """
+    Combines two cases into one, transferring all notes and responders from the second case to the first.
+
+    Usage: !combcases [board ID to keep] [board ID to combine]
+    Aliases: n/a
+    """
+    try:
+        case2: Case = await get_case(ctx, args[1])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[1]!r}.")
+    # case.case_notes.extend(case2.case_notes)
+    case.responders.extend(case2.responders)
+    case.dispatchers.extend(case2.dispatchers)
+    if case2.welcomed:
+        res_kwarg = {"welcomed": True}
+        await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+    case_comb_note = f"{ctx.sender} combined case {case2.board_id} into case {case.board_id} at {now(tz='UTC').to_time_string()}"
+    case_summary = f"{case2}"
+    case.case_notes.append(case_comb_note)
+    case.case_notes.append(case_summary)
+
+    await ctx.bot.board.del_case(case=case2)
+    return await ctx.reply(f"Combined case {case2.board_id} into case {case.board_id}.")
+
+
 @Commands.command("delcase", "remcase")
 @needs_permission(Admin)
 @in_channel
