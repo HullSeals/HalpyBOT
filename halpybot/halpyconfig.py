@@ -225,7 +225,7 @@ class Spansh(BaseModel):
 
     enabled: bool = False
     efficiency: int = 60
-    calculations_timeout: int = 20
+    calculations_timeout: int = 60
     uri: AnyHttpUrl = "https://spansh.co.uk"
 
     @property
