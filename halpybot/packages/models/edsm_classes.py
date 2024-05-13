@@ -76,8 +76,8 @@ class Point:
 
 @define()
 class Points:
-    """A pair of valid EDSM Points"""
+    """One or two valid EDSM Points and an optional jump range"""
 
     point_a: Point
-    point_b: Point
+    point_b: Optional[Point] = None
     jump_range: Optional[float] = None

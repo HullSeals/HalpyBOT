@@ -33,7 +33,7 @@ from ..packages.models import Context, Case, Points, Point
 from ..packages.case import get_case
 
 
-async def differentiate(
+async def diff_handler(
     ctx: Context, args: List[str], single_arg: bool = False
 ) -> Points:
     """
@@ -44,7 +44,7 @@ async def differentiate(
         args (List): A list of arguments from the bot.
 
     Returns:
-        Points (Points): A Points object containing two Point objects and an optional Jump range
+        Points (Points): A Points object containing one or two Point objects and an optional Jump range
 
     Raises:
         DifferentiateArgsIssue: Arguments are malformed
@@ -52,33 +52,39 @@ async def differentiate(
     # Parse System/CMDR/caseID from string
     list_to_str = " ".join([str(elem) for elem in args])
     list_points: List[str] = list_to_str.split(":")
-    if len(list_points) and single_arg:
-        list_points = [list_points[0], ""]
-    if len(list_points) < 2:
-        if single_arg:
+    if single_arg:  # Handle single argument commands
+        if len(list_points):  # Point provided
+            point_a: Point = Point(list_points[0].strip())
+            points: Points = Points(point_a)
+        else:  # No point provided
             await ctx.reply("Please provide a point to look up.")
             raise DifferentiateArgsIssue
+        if not point_a.name:  # No point provided
+            await ctx.reply("Please provide a point to look up.")
+            raise DifferentiateArgsIssue
+    elif len(list_points) < 2:  # Multi-argument command but less than 2 points provided
         await ctx.reply("Please provide two points to look up, separated by a :")
         raise DifferentiateArgsIssue
-    point_a: Point = Point(list_points[0].strip())
-    point_b: Point = Point(list_points[1].strip())
-    points: Points = Points(point_a, point_b)
+    else:  # Handle multi-argument command with two points provided
+        point_a: Point = Point(list_points[0].strip())
+        point_b: Point = Point(list_points[1].strip())
+        points: Points = Points(point_a, point_b)
+        if not point_a.name or not point_b.name:  # One or both points are missing
+            await ctx.reply("Please provide two points to look up, separated by a :")
+            raise DifferentiateArgsIssue
 
-    if not single_arg and (not point_a.name or not point_b.name):
-        await ctx.reply("Please provide two points to look up, separated by a :")
-        raise DifferentiateArgsIssue
-    if not point_a.name:  # If no point_a at this time then single_arg must be True
-        await ctx.reply("Please provide a point to look up.")
-        raise DifferentiateArgsIssue
+    # Differentiate points
+    points.point_a = await differentiate(ctx=ctx, input=points.point_a.name)
+    if points.point_b:  # Multi-argument command
+        points.point_b = await differentiate(ctx=ctx, input=points.point_b.name)
 
-    # Define Jump Count
-    if len(list_points) == 3:
-        try:
+    # Parse Jump Range if provided
+    if len(list_points) == 3:  # Jump Range provided
+        try:  # Attempt to parse Jump Range
             points.jump_range = float(
                 re.sub("(?i)LY", "", "".join(list_points[2])).strip()
             )
-        except ValueError as val_err:
-            # Jump Range must not be formatted correctly
+        except ValueError as val_err:  # Jump Range must not be formatted correctly
             await ctx.reply(
                 "The Jump Range must be given as digits with an optional decimal point."
             )
@@ -87,32 +93,41 @@ async def differentiate(
             # Jump Range has values that don't really make sense
             await ctx.reply("The Jump Range must be between 10 LY and 500 LY.")
             raise DifferentiateArgsIssue
-
-    for point in [point_a, point_b]:
-        # Skip second point for single_arg commands
-        if single_arg and not point.name:
-            point.name, point.pretty = "", ""
-            continue
-        # Check if Point is CaseID
-        try:
-            case: Case = await get_case(ctx, point.name)
-            temp_point = case.system
-            temp_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
-        except KeyError:
-            temp_point = "".join(point.name).strip()
-            temp_pretty = await sys_cleaner(point.name)
-        # Check if point is CMDR
-        try:
-            loc_cmdr = await Commander.location(name=point.name)
-            # Looks like CMDR's back on the menu, boys!
-            if loc_cmdr and loc_cmdr.system is not None:
-                temp_point = await sys_cleaner(loc_cmdr.system)
-                temp_pretty = f"{await sys_cleaner(point.name)} (in {temp_point})"
-        except EDSMLookupError:
-            logger.warning("EDSM appears to be down! Trying to continue regardless...")
-            await ctx.reply("Warning! EDSM appears to be down. Trying to continue.")
-        point.name, point.pretty = temp_point, temp_pretty
     return points
+
+
+async def differentiate(ctx: Context, input: str) -> Points:
+    """
+    Differentiate if a given input is a CMDR, Case, or System.
+
+    Args:
+        ctx (Context): The Bot Context
+        input (str): A string to differentiate
+
+    Returns:
+        Point (Point): A Point object containing the system name and a formatted name
+    """
+    point: Point = Point(input)
+    # Check if Point is CaseID
+    try:
+        case: Case = await get_case(ctx, point.name)
+        temp_point = case.system
+        temp_pretty = f"Case {case.board_id} ({case.client_name} in {case.system})"
+    except KeyError:
+        temp_point = "".join(point.name).strip()
+        temp_pretty = await sys_cleaner(point.name)
+    # Check if point is CMDR
+    try:
+        loc_cmdr = await Commander.location(name=point.name)
+        # Looks like CMDR's back on the menu,
+        if loc_cmdr and loc_cmdr.system is not None:
+            temp_point = await sys_cleaner(loc_cmdr.system)
+            temp_pretty = f"{await sys_cleaner(point.name)} (in {temp_point})"
+    except EDSMLookupError:
+        logger.warning("EDSM appears to be down! Trying to continue regardless...")
+        await ctx.reply("Warning! EDSM appears to be down. Trying to continue.")
+    point.name, point.pretty = temp_point, temp_pretty
+    return point
 
 
 @Commands.command("lookup", "syslookup")
@@ -126,7 +141,7 @@ async def cmd_systemlookup(ctx: Context, cleaned_sys, cache_override):
     """
     try:
         # Process provided arguments
-        points: Points = await differentiate(
+        points: Points = await diff_handler(
             ctx=ctx, args=cleaned_sys.split(), single_arg=True
         )
     except DifferentiateArgsIssue:
@@ -167,7 +182,7 @@ async def cmd_distlookup(ctx: Context, args: List[str], cache_override):
     """
     try:
         # Process provided arguments
-        points: Points = await differentiate(ctx=ctx, args=args)
+        points: Points = await diff_handler(ctx=ctx, args=args)
     except DifferentiateArgsIssue:
         # Arguments were malformed, user has already been informed, abort
         return await ctx.reply("Error encountered in Dist command, not continuing")
@@ -199,7 +214,7 @@ async def cmd_landmarklookup(ctx: Context, cleaned_sys, cache_override):
     """
     try:
         # Process provided arguments
-        points: Points = await differentiate(
+        points: Points = await diff_handler(
             ctx=ctx, args=cleaned_sys.split(), single_arg=True
         )
     except DifferentiateArgsIssue:
@@ -235,7 +250,7 @@ async def cmd_dssalookup(ctx: Context, cleaned_sys, cache_override):
     """
     try:
         # Process provided arguments
-        points: Points = await differentiate(
+        points: Points = await diff_handler(
             ctx=ctx, args=cleaned_sys.split(), single_arg=True
         )
     except DifferentiateArgsIssue:
@@ -281,7 +296,7 @@ async def cmd_diversionlookup(ctx: Context, cleaned_sys, cache_override):
     """
     try:
         # Process provided arguments
-        points: Points = await differentiate(
+        points: Points = await diff_handler(
             ctx=ctx, args=cleaned_sys.split(), single_arg=True
         )
     except DifferentiateArgsIssue:

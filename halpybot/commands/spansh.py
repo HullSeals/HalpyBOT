@@ -11,7 +11,7 @@ See license.md
 from typing import List
 from loguru import logger
 from halpybot import config
-from .edsm import differentiate
+from .edsm import diff_handler
 from ..packages.exceptions import DifferentiateArgsIssue
 from ..packages.utils import spansh, dist_exceptions
 from ..packages.command import Commands, get_help_text
@@ -31,7 +31,7 @@ async def cmd_spansh(ctx: Context, args: List[str], cache_override):
         return await ctx.reply("Unable to comply. SPANSH module not enabled.")
     try:
         # Process provided arguments
-        points: Points = await differentiate(ctx=ctx, args=args)
+        points: Points = await diff_handler(ctx=ctx, args=args)
     except DifferentiateArgsIssue:
         # Arguments were malformed, user has already been informed, abort
         return await ctx.reply("Error encountered in Dist command, not continuing")
