@@ -197,6 +197,11 @@
       "arguments": "[Board ID] [New Dispatchers]",
       "use": "Add a new dispatcher to a given case on the board."
     },
+    "combcases": {
+      "aliases:": [],
+      "arguments": "[Board ID to keep] [Board ID to combine]",
+      "use": "Combine two cases into a single case."
+    },
     "delcase": {
       "aliases:": [
         "remcase"
