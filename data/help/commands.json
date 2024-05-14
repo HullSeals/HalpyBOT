@@ -4,7 +4,7 @@
       "aliases": [
         "syslookup"
       ],
-      "arguments": "[System Name]",
+      "arguments": "[System/CMDR/caseID]",
       "use": "Check if a system exists in EDSM"
     },
     "locate": {
@@ -24,17 +24,17 @@
     },
     "landmark": {
       "aliases": [],
-      "arguments": "[EDSM Valid Location]",
+      "arguments": "[System/CMDR/caseID]",
       "use": "Check if a given point is nearby a given Landmark System"
     },
     "dssa": {
       "aliases": [],
-      "arguments": "[EDSM Valid Location]",
+      "arguments": "[System/CMDR/caseID]",
       "use": "Check for the closest DSSA carrier to a given location."
     },
     "diversion": {
       "aliases": [],
-      "arguments": "[EDSM Valid Location]",
+      "arguments": "[System/CMDR/caseID]",
       "use": "Calculate the 5 closest FDEV-placed structures with repair capability to given location."
     },
     "coords": {
