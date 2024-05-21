@@ -149,6 +149,7 @@ async def welcome_utils(ctx: Context, args: List[str]):
 
 @Commands.command("welcome")
 @needs_permission(Pup)
+@gather_case(1)
 async def cmd_welcome(ctx: Context, args: List[str]):
     """
     Welcome the Client and add an identified Seal as a Dispatch responder.
@@ -168,9 +169,10 @@ async def cmd_welcome(ctx: Context, args: List[str]):
     )
 
 
-@Commands.command("silentwelcome", "swelcome", "wmute", "mute")
+@Commands.command("silentwelcome", "swelcome", "wmute", "mute", "silencewelcome")
 @needs_permission(Pup)
-async def cmd_welcome(ctx: Context, args: List[str]):
+@gather_case(1)
+async def cmd_swelcome(ctx: Context, args: List[str]):
     """
     Suppress the welcome warning and add an identified Seal as a Dispatch responder.
 

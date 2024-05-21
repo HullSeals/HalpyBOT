@@ -170,8 +170,8 @@
       "arguments": "[Client Name or Board ID]",
       "use": "Welcome a client and add an identified Seal as a Dispatch responder."
     },
-    "silentwelcome": {
-      "aliases:": ["swelcome", "wmute", "mute"],
+    "swelcome": {
+      "aliases:": ["wmute", "mute", "silencewelcome", "silentwelcome"],
       "arguments": "[Client Name or Board ID]",
       "use": "Suppress the welcome warning and add an identified Seal as a Dispatch responder."
     },
