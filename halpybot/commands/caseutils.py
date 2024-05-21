@@ -120,15 +120,8 @@ async def cmd_go(ctx: Context, args: List[str], case: Case):
     )
 
 
-@Commands.command("welcome")
-@needs_permission(Pup)
-async def cmd_welcome(ctx: Context, args: List[str]):
-    """
-    Welcome the Client and add an identified Seal as a Dispatch responder.
-
-    Usage: !welcome [Case ID]
-    Aliases: n/a
-    """
+async def welcome_utils(ctx: Context, args: List[str]):
+    """Utilities for welcome messages"""
     case = None
     try:
         case: Optional[Case] = await get_case(ctx, args[0])
@@ -138,10 +131,7 @@ async def cmd_welcome(ctx: Context, args: List[str]):
                 case = test_case
                 break
     if not case:
-        await ctx.reply(
-            await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
-        )
-        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
+        return None
     spatches = case.dispatchers
     try:
         spatch: Seal = await whois(ctx.bot.engine, ctx.sender)
@@ -154,10 +144,44 @@ async def cmd_welcome(ctx: Context, args: List[str]):
         spatches.append(spatch)
     res_kwarg = {"welcomed": True, "dispatchers": spatches}
     await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+    return case
+
+
+@Commands.command("welcome")
+@needs_permission(Pup)
+async def cmd_welcome(ctx: Context, args: List[str]):
+    """
+    Welcome the Client and add an identified Seal as a Dispatch responder.
+
+    Usage: !welcome [Case ID]
+    Aliases: n/a
+    """
+    case = await welcome_utils(ctx, args)
+    if not case:
+        await ctx.reply(
+            await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
+        )
+        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
     args = [case.irc_nick]
     return await ctx.reply(
         await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
     )
+
+
+@Commands.command("silentwelcome", "swelcome", "wmute", "mute")
+@needs_permission(Pup)
+async def cmd_welcome(ctx: Context, args: List[str]):
+    """
+    Suppress the welcome warning and add an identified Seal as a Dispatch responder.
+
+    Usage: !silentwelcome [Case ID]
+    Aliases: n/a
+    """
+    case = await welcome_utils(ctx, args)
+    if not case:
+        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
+
+    return await ctx.reply(f"Suppressed welcome warning for {case.irc_nick}")
 
 
 # RESPONDER MANAGEMENT:
@@ -268,7 +292,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     return await ctx.redirect(message)
 
 
-@Commands.command("listcase")
+@Commands.command("listcase", "caseinfo")
 @needs_permission(Drilled)
 @gather_case(1)
 async def cmd_listcase(ctx: Context, args: List[str], case: Case):

@@ -78,7 +78,7 @@
       "use": "Print out the current cases on the Board."
     },
     "listcase": {
-      "aliases:": [],
+      "aliases:": ["caseinfo"],
       "arguments": "[Board ID]",
       "use": "List specific details of a current case."
     },
@@ -169,6 +169,11 @@
       "aliases:": [],
       "arguments": "[Client Name or Board ID]",
       "use": "Welcome a client and add an identified Seal as a Dispatch responder."
+    },
+    "silentwelcome": {
+      "aliases:": ["swelcome", "wmute", "mute"],
+      "arguments": "[Client Name or Board ID]",
+      "use": "Suppress the welcome warning and add an identified Seal as a Dispatch responder."
     },
     "addresp": {
       "aliases:": [
