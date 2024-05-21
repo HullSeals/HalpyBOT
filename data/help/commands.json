@@ -133,12 +133,12 @@
     "delnote": {
       "aliases:": [],
       "arguments": "[Board ID] [Note Index]",
-      "use": "List the case notes for the given case."
+      "use": "Delete the specified case note."
     },
     "editnote": {
       "aliases:": [],
       "arguments": "[Board ID] [Note Index] [New Note Content]",
-      "use": "Edit the case notes for the given case and note index."
+      "use": "Edit the specified case note."
     },
     "planet": {
       "aliases:": [],
@@ -195,12 +195,12 @@
         "stddn"
       ],
       "arguments": "[Board ID] [New Responders]",
-      "use": "Add a new responder to a given case on the board."
+      "use": "Remove a responder from a given case on the board."
     },
     "remdisp": {
       "aliases:": [],
       "arguments": "[Board ID] [New Dispatchers]",
-      "use": "Add a new dispatcher to a given case on the board."
+      "use": "Remove a dispatcher from a given case on the board."
     },
     "combcases": {
       "aliases:": [],
