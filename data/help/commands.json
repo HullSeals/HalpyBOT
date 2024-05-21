@@ -68,57 +68,57 @@
       "use": "Used to ping the Trained Seal role in the Seal discord. Drillled Seals Only, and run in a channel."
     },
     "last": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "",
       "use": "Check the time since the last case."
     },
     "listboard": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Case Type or Platform]",
       "use": "Print out the current cases on the Board."
     },
     "listcase": {
-      "aliases:": ["caseinfo"],
+      "aliases": ["caseinfo"],
       "arguments": "[Board ID]",
       "use": "List specific details of a current case."
     },
     "rename": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Client Name]",
       "use": "Rename the client for the given case."
     },
     "ircn": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [Valid IRC User]",
       "use": "Set the updated client's IRC Name."
     },
     "system": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New System]",
       "use": "Set the updated client's System."
     },
     "status": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Status]",
       "use": "Set the updated case status.\nValid options include 'ACTIVE', 'DELAYED', and 'INACTIVE'."
     },
     "hull": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Hull %]",
       "use": "Set the updated case hull percentage."
     },
     "casetype": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Case Type]",
       "use": "Set the updated case type.\nValid options include 'Seal', 'Black', 'Blue', and 'Fish'."
     },
     "platform": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Case Platform]",
       "use": "Set the updated case platform.\nValid options include 'Odyssey', 'Live', 'Legacy', 'Xbox' and 'PlayStation'."
     },
     "notes": {
-      "aliases:": [
+      "aliases": [
         "addnote",
         "updatenotes"
       ],
@@ -126,71 +126,71 @@
       "use": "Adds a new line to the case notes."
     },
     "listnotes": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID]",
       "use": "List the case notes for the given case."
     },
     "delnote": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [Note Index]",
       "use": "Delete the specified case note."
     },
     "editnote": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [Note Index] [New Note Content]",
       "use": "Edit the specified case note."
     },
     "planet": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Planet]",
       "use": "Edit the planet for a given KF Case."
     },
     "casecoords": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [X Coordinate] [Y Coordinate]",
       "use": "Edit the planetary coordinates for a given KF Case."
     },
     "o2time": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [O2 Time in NN:NN]",
       "use": "Change the remaining oxygen timer for a case."
     },
     "synth": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [Yes/True/No/False]",
       "use": "Toggle if a CMDR has synths available for a given case."
     },
     "go": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Responders]",
       "use": "Add an identified Seal as a responder to a case on the board."
     },
     "welcome": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Client Name or Board ID]",
       "use": "Welcome a client and add an identified Seal as a Dispatch responder."
     },
     "swelcome": {
-      "aliases:": ["wmute", "mute", "silencewelcome", "silentwelcome"],
+      "aliases": ["wmute", "mute", "silencewelcome", "silentwelcome"],
       "arguments": "[Client Name or Board ID]",
       "use": "Suppress the welcome warning and add an identified Seal as a Dispatch responder."
     },
     "addresp": {
-      "aliases:": [
+      "aliases": [
         "newseal"
       ],
       "arguments": "[Board ID] [New Responders]",
       "use": "Add a new responder to a given case on the board."
     },
     "adddisp": {
-      "aliases:": [
+      "aliases": [
         "newspatch"
       ],
       "arguments": "[Board ID] [New Dispatchers]",
       "use": "Add a new dispatcher to a given case on the board."
     },
     "remresp": {
-      "aliases:": [
+      "aliases": [
         "standdown",
         "stddn"
       ],
@@ -198,17 +198,17 @@
       "use": "Remove a responder from a given case on the board."
     },
     "remdisp": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID] [New Dispatchers]",
       "use": "Remove a dispatcher from a given case on the board."
     },
     "combcases": {
-      "aliases:": [],
+      "aliases": [],
       "arguments": "[Board ID to keep] [Board ID to combine]",
       "use": "Combine two cases into a single case."
     },
     "delcase": {
-      "aliases:": [
+      "aliases": [
         "remcase"
       ],
       "arguments": "[Board ID] [New Note (Optional)]",
