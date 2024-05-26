@@ -25,7 +25,7 @@ from ..packages.utils import (
     sys_cleaner,
     gather_case,
 )
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.edsm import (
     checklandmarks,
 )
@@ -130,6 +130,8 @@ async def welcome_utils(ctx: Context, args: List[str]):
             if args[0].casefold() in test_case.irc_nick.casefold():
                 case = test_case
                 break
+    except IndexError:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
     if not case:
         return None
     spatches = case.dispatchers
@@ -149,7 +151,6 @@ async def welcome_utils(ctx: Context, args: List[str]):
 
 @Commands.command("welcome")
 @needs_permission(Pup)
-@gather_case(1)
 async def cmd_welcome(ctx: Context, args: List[str]):
     """
     Welcome the Client and add an identified Seal as a Dispatch responder.
@@ -158,6 +159,8 @@ async def cmd_welcome(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     case = await welcome_utils(ctx, args)
+    if not args:
+        return
     if not case:
         await ctx.reply(
             await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
@@ -171,7 +174,6 @@ async def cmd_welcome(ctx: Context, args: List[str]):
 
 @Commands.command("silentwelcome", "swelcome", "wmute", "mute", "silencewelcome")
 @needs_permission(Pup)
-@gather_case(1)
 async def cmd_swelcome(ctx: Context, args: List[str]):
     """
     Suppress the welcome warning and add an identified Seal as a Dispatch responder.
@@ -180,6 +182,8 @@ async def cmd_swelcome(ctx: Context, args: List[str]):
     Aliases: n/a
     """
     case = await welcome_utils(ctx, args)
+    if not args:
+        return
     if not case:
         return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
 
