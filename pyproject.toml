@@ -21,19 +21,19 @@ gitpython = "3.2.1"
 requests = "2.33.0"
 pyperclip = "^1.8.2"
 tqdm = "^4.66.2"
-attrs = "^23.2.0 "
+attrs = "^24.2.0"
 cattrs = "^23.2.3 "
 loguru = "^0.7.0"
-pydantic = {extras = ["dotenv"], version = "^1.10.5"}
+pydantic = {extras = ["dotenv"], version = "^2.14.1"}
 sqlalchemy = "^2.0.29"
 beautifulsoup4 = "^4.12.3"
 lxml = "6.1.0"
 pendulum = "^3.0.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.2.2"
+pytest = "^8.1.1"
 pytest-httpserver = "^1.0.6"
-pytest-asyncio = "^0.20.3"
+pytest-asyncio = "^0.23.6"
 
 [build-system]
 requires = ["poetry-core"]
