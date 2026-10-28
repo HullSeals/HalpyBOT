@@ -1,5 +1,4 @@
-"""
-halpyconfig.py - Configuration Manager
+"""halpyconfig.py - Configuration Manager
 
 Copyright (c) The Hull Seals,
 All rights reserved.
@@ -9,31 +8,19 @@ See license.md
 """
 
 from pathlib import Path
-from typing import List, Set, Optional, Union, Tuple, ClassVar
+from typing import List, Set, Optional, Union, Tuple, ClassVar, Annotated, Any
 import boto3
 from pydantic import (
-    BaseSettings,
     SecretStr,
     AnyUrl,
     BaseModel,
-    stricturl,
     AnyHttpUrl,
     FilePath,
-    constr,
+    Field,
+    UrlConstraints,
+    MySQLDsn,
 )
-
-
-class MysqlDsn(AnyUrl):
-    """MySQL Scheme Config"""
-
-    allowed_schemes = {"mysql+mysqldb"}
-
-    @staticmethod
-    def get_default_parts(parts):
-        """Set the MySQL Default Port"""
-        return {
-            "port": "3306",
-        }
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class SaslBase(BaseModel):
@@ -58,7 +45,7 @@ class SaslExternal(SaslBase):
 class Irc(BaseModel):
     """IRC Server Base Settings Config"""
 
-    server: stricturl(allowed_schemes=["irc"])
+    server: Annotated[AnyUrl, UrlConstraints(allowed_schemes=["irc"])]
     use_ssl: bool
     nickname: str
     command_prefix: str = "!"
@@ -86,7 +73,7 @@ class Channels(BaseModel):
 class Database(BaseModel):
     """Database Link Config"""
 
-    connection_string: MysqlDsn
+    connection_string: MySQLDsn
     database: str = "pydle"
     timeout: int = 10
 
@@ -115,22 +102,22 @@ class Edsm(BaseModel):
     @property
     def system_endpoint(self) -> str:
         """System Endpoint URL"""
-        return f"{self.uri}/api-v1/system"
+        return f"{str(self.uri)}/api-v1/system"
 
     @property
     def systems_endpoint(self) -> str:
         """Systems Endpoint URL"""
-        return f"{self.uri}/api-v1/systems"
+        return f"{str(self.uri)}/api-v1/systems"
 
     @property
     def sphere_endpoint(self) -> str:
         """Sphere Endpoint URL"""
-        return f"{self.uri}/api-v1/sphere-systems"
+        return f"{str(self.uri)}/api-v1/sphere-systems"
 
     @property
     def getpos_endpoint(self) -> str:
         """Position Endpoint URL"""
-        return f"{self.uri}/api-logs-v1/get-position"
+        return f"{str(self.uri)}/api-logs-v1/get-position"
 
 
 class Logging(BaseModel):
@@ -147,8 +134,8 @@ class DiscordNotifications(BaseModel):
     enabled: bool = False
     webhook_id: Optional[int] = None
     webhook_token: Optional[SecretStr] = None
-    case_notify: Optional[constr(regex=r"<@&(\d+)>")] = None
-    trained_role: Optional[constr(regex=r"<@&(\d+)>")] = None
+    case_notify: Optional[Annotated[str, Field(pattern=r"<@&(\d+)>")]] = None
+    trained_role: Optional[Annotated[str, Field(pattern=r"<@&(\d+)>")]] = None
 
 
 class Notify(BaseModel):
@@ -164,7 +151,7 @@ class Notify(BaseModel):
     WHITELIST_GROUPS: ClassVar[Tuple[str, ...]] = ("staff", "cybers")
 
     @property
-    def sns(self) -> boto3.client:
+    def sns(self) -> Any:
         """SNS Catch - If Set, Enable"""
         if not (self.secret and self.access):
             return None
@@ -199,7 +186,7 @@ class SystemMonitoring(BaseModel):
         return FAILURE_BUTTON_PATH.exists()
 
     def set_failure_button(self, value: bool):
-        # indepmotent.
+        # idempotent.
         if value:
             FAILURE_BUTTON_PATH.touch(exist_ok=True)
         else:
@@ -231,41 +218,42 @@ class Spansh(BaseModel):
     @property
     def route_endpoint(self) -> str:
         """Start Calculations Endpoint URL"""
-        return f"{self.uri}/api/route"
+        return f"{str(self.uri)}/api/route"
 
     @property
     def results_endpoint(self) -> str:
         """Calculation Results Endpoint URL"""
-        return f"{self.uri}/api/results"
+        return f"{str(self.uri)}/api/results"
 
     @property
     def page_endpoint(self) -> str:
         """Calculation Results Webpage URL"""
-        return f"{self.uri}/plotter/results"
+        return f"{str(self.uri)}/plotter/results"
 
 
 class HalpyConfig(BaseSettings):
     """HalpyBOT Configuration Main"""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_nested_delimiter="::",
+    )
 
     irc: Irc
     api_connector: ApiConnector
     channels: Channels
     database: Optional[Database] = None
     forced_join: ForcedJoin
-    offline_mode: OfflineMode = OfflineMode()
-    edsm: Edsm = Edsm()
-    logging: Logging = Logging()
-    discord_notifications: DiscordNotifications = DiscordNotifications()
-    notify: Notify = Notify()
-    facts: Facts = Facts()
-    manual_case: ManualCase = ManualCase()
-    system_monitoring: SystemMonitoring = SystemMonitoring()
+    offline_mode: OfflineMode = Field(default_factory=OfflineMode)
+    edsm: Edsm = Field(default_factory=Edsm)
+    logging: Logging = Field(default_factory=Logging)
+    discord_notifications: DiscordNotifications = Field(
+        default_factory=DiscordNotifications
+    )
+    notify: Notify = Field(default_factory=Notify)
+    facts: Facts = Field(default_factory=Facts)
+    manual_case: ManualCase = Field(default_factory=ManualCase)
+    system_monitoring: SystemMonitoring = Field(default_factory=SystemMonitoring)
     user_agent: UserAgent
     yourls: Optional[Yourls] = None
     spansh: Optional[Spansh] = None
-
-    class Config:
-        """Environment/Config File Config"""
-
-        env_file = ".env"
-        env_nested_delimiter = "::"
