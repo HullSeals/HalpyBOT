@@ -1,4 +1,4 @@
-""""
+"""
 puppet.py - Bot sock puppet
 
 Copyright (c) The Hull Seals,

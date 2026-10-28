@@ -108,7 +108,7 @@ class Fact:
             self._default_argument = groups.group("defarg")
         repltable = {
             "<<BOLD>>": "\u0002",
-            "<<ITALICS>>": "\u001D",
+            "<<ITALICS>>": "\u001d",
             "<<UNDERLINE>>": "\u001f",
             " %n% ": "\n",
         }

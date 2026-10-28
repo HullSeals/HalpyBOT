@@ -25,7 +25,7 @@ from ..packages.utils import (
     sys_cleaner,
     gather_case,
 )
-from ..packages.command import Commands
+from ..packages.command import Commands, get_help_text
 from ..packages.edsm import (
     checklandmarks,
 )
@@ -120,15 +120,8 @@ async def cmd_go(ctx: Context, args: List[str], case: Case):
     )
 
 
-@Commands.command("welcome")
-@needs_permission(Pup)
-async def cmd_welcome(ctx: Context, args: List[str]):
-    """
-    Welcome the Client and add an identified Seal as a Dispatch responder.
-
-    Usage: !welcome [Case ID]
-    Aliases: n/a
-    """
+async def welcome_utils(ctx: Context, args: List[str]):
+    """Utilities for welcome messages"""
     case = None
     try:
         case: Optional[Case] = await get_case(ctx, args[0])
@@ -137,11 +130,10 @@ async def cmd_welcome(ctx: Context, args: List[str]):
             if args[0].casefold() in test_case.irc_nick.casefold():
                 case = test_case
                 break
+    except IndexError:
+        return await ctx.reply(get_help_text(ctx.bot.commandsfile, ctx.command))
     if not case:
-        await ctx.reply(
-            await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
-        )
-        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
+        return None
     spatches = case.dispatchers
     try:
         spatch: Seal = await whois(ctx.bot.engine, ctx.sender)
@@ -154,10 +146,48 @@ async def cmd_welcome(ctx: Context, args: List[str]):
         spatches.append(spatch)
     res_kwarg = {"welcomed": True, "dispatchers": spatches}
     await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+    return case
+
+
+@Commands.command("welcome")
+@needs_permission(Pup)
+async def cmd_welcome(ctx: Context, args: List[str]):
+    """
+    Welcome the Client and add an identified Seal as a Dispatch responder.
+
+    Usage: !welcome [Case ID]
+    Aliases: n/a
+    """
+    case = await welcome_utils(ctx, args)
+    if not args:
+        return
+    if not case:
+        await ctx.reply(
+            await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
+        )
+        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
     args = [case.irc_nick]
     return await ctx.reply(
         await ctx.bot.facts.fact_formatted(fact=("welcome", "en"), arguments=args)
     )
+
+
+@Commands.command("silentwelcome", "swelcome", "wmute", "mute", "silencewelcome")
+@needs_permission(Pup)
+async def cmd_swelcome(ctx: Context, args: List[str]):
+    """
+    Suppress the welcome warning and add an identified Seal as a Dispatch responder.
+
+    Usage: !silentwelcome [Case ID]
+    Aliases: n/a
+    """
+    case = await welcome_utils(ctx, args)
+    if not args:
+        return
+    if not case:
+        return await ctx.reply(f"Attn {ctx.sender}: Case for {args[0]} not found!")
+
+    return await ctx.reply(f"Suppressed welcome warning for {case.irc_nick}")
 
 
 # RESPONDER MANAGEMENT:
@@ -268,7 +298,7 @@ async def cmd_listboard(ctx: Context, args: List[str]):
     return await ctx.redirect(message)
 
 
-@Commands.command("listcase")
+@Commands.command("listcase", "caseinfo")
 @needs_permission(Drilled)
 @gather_case(1)
 async def cmd_listcase(ctx: Context, args: List[str], case: Case):
@@ -753,6 +783,36 @@ async def cmd_editnote(ctx: Context, args: List[str], case: Case):
 
 
 # ADMINSTRATIVE MANAGEMENT
+@Commands.command("combcases")
+@needs_permission(Admin)
+@in_channel
+@gather_case(2)
+async def cmd_combine_cases(ctx: Context, args: List[str], case: Case):
+    """
+    Combines two cases into one, transferring all notes and responders from the second case to the first.
+
+    Usage: !combcases [board ID to keep] [board ID to combine]
+    Aliases: n/a
+    """
+    try:
+        case2: Case = await get_case(ctx, args[1])
+    except KeyError:
+        return await ctx.reply(f"No case found for {args[1]!r}.")
+    # case.case_notes.extend(case2.case_notes)
+    case.responders.extend(case2.responders)
+    case.dispatchers.extend(case2.dispatchers)
+    if case2.welcomed:
+        res_kwarg = {"welcomed": True}
+        await ctx.bot.board.mod_case(case_id=case.board_id, **res_kwarg)
+    case_comb_note = f"{ctx.sender} combined case {case2.board_id} into case {case.board_id} at {now(tz='UTC').to_time_string()}"
+    case_summary = f"{case2}"
+    case.case_notes.append(case_comb_note)
+    case.case_notes.append(case_summary)
+
+    await ctx.bot.board.del_case(case=case2)
+    return await ctx.reply(f"Combined case {case2.board_id} into case {case.board_id}.")
+
+
 @Commands.command("delcase", "remcase")
 @needs_permission(Admin)
 @in_channel
