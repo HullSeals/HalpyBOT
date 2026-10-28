@@ -13,12 +13,12 @@ import re
 import json
 import asyncio
 from typing import Dict, Optional, Union, TYPE_CHECKING, Any, List
-import aiohttp
 from attr import evolve
 from loguru import logger
 from pendulum import now
 from pydantic import SecretStr
 from halpybot import DEFAULT_USER_AGENT
+from curl_cffi.requests import AsyncSession
 from halpybot.commands.notify import format_notification, notify
 from halpybot.packages.exceptions import NotificationFailure
 from halpybot.packages.command import get_help_text
@@ -79,21 +79,21 @@ async def web_get(
     timeout: int = 10,
 ) -> Dict[str, Any]:
     """
-    Use aiohttp's client to send an HTTP GET request.
+    Use curl_cffi's AsyncSession to send an HTTP GET request with browser
+    impersonation to bypass Cloudflare and other advanced anti-bot protections.
+
     uri: The URI/URL of the requested resource
     params: Any additional HTTP parameters to send
     timeout: Time in seconds before the server is deemed to have timed out
     """
-    async with aiohttp.ClientSession(
-        headers={"User-Agent": DEFAULT_USER_AGENT}
-    ) as session:
-        async with await session.get(
+    async with AsyncSession(impersonate="chrome") as session:  # TODO: Do we have to pretend...
+        response = await session.get(
             uri,
             params=params,
             timeout=timeout,
-        ) as response:
-            responses = await response.json()
-        return responses
+        )
+        response.raise_for_status()
+        return response.json()
 
 
 async def new_case_check(botclient: HalpyBOT):

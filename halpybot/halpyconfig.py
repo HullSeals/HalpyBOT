@@ -14,11 +14,11 @@ from pydantic import (
     SecretStr,
     AnyUrl,
     BaseModel,
-    AnyHttpUrl,
     FilePath,
     Field,
     UrlConstraints,
     MySQLDsn,
+    ConfigDict,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -97,7 +97,8 @@ class Edsm(BaseModel):
 
     maximum_landmark_distance: int = 10_000
     time_cached: int = 300
-    uri: AnyHttpUrl = "https://www.edsm.net"
+    model_config = ConfigDict(url_preserve_empty_path=True)
+    uri: AnyUrl = "https://www.edsm.net"
 
     @property
     def system_endpoint(self) -> str:
@@ -203,7 +204,7 @@ class Yourls(BaseModel):
     """YOURLS Linkup Config"""
 
     enabled: bool = False
-    uri: AnyHttpUrl
+    uri: AnyUrl
     pwd: SecretStr
 
 
@@ -213,7 +214,8 @@ class Spansh(BaseModel):
     enabled: bool = False
     efficiency: int = 60
     calculations_timeout: int = 60
-    uri: AnyHttpUrl = "https://spansh.co.uk"
+    model_config = ConfigDict(url_preserve_empty_path=True)
+    uri: AnyUrl = "https://spansh.co.uk"
 
     @property
     def route_endpoint(self) -> str:
