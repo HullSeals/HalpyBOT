@@ -20,7 +20,6 @@ from halpybot import __version__, DEFAULT_USER_AGENT
 from halpybot import config
 from ..packages.ircclient import HalpyBOT
 
-
 routes = web.RouteTableDef()
 
 
