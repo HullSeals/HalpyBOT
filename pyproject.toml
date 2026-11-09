@@ -24,7 +24,7 @@ tqdm = "4.70.1"
 attrs = "26.1.0"
 cattrs = "26.2.1"
 loguru = "0.7.3"
-pydantic = {extras = ["dotenv"], version = "2.14.1"}
+pydantic = {extras = ["dotenv"], version = "2.14.3"}
 pydantic-settings = "2.15.0"
 sqlalchemy = "2.0.55"
 beautifulsoup4 = "4.15.0"
