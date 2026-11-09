@@ -15,7 +15,7 @@ python = "3.10"
 pydle = {extras = ["sasl"], version = "1.2.0"}
 mysqlclient = "2.3.0"
 numpy = "2.2.6"
-boto3 = "1.43.121"
+boto3 = "1.43.125"
 aiohttp = "3.14.5"
 gitpython = "3.2.1"
 requests = "2.34.2"
